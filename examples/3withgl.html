@@ -21,6 +21,8 @@
 	var bufferGeometry;
 	var vertexBuffers = {};
 	var indexBuffers = {};
+	var vertexArray = [];
+	var indexArray = [];
 
 	var onProgress = function ( xhr ) {
 		if ( xhr.lengthComputable ) {
@@ -34,6 +36,14 @@
 
 	function init()
 	{
+		//create the rendering context
+		var container = document.body;
+
+		var gl = GL.create({width: container.offsetWidth, height: container.offsetHeight, stencil: true});
+		container.appendChild(gl.canvas);
+
+		var mesh;
+
 		//define something
 
 
@@ -47,13 +57,111 @@
 			object.traverse( function ( child ) {
 
 				if ( child instanceof THREE.Mesh ) {
-					console.log("Mesh from cube.obj : ", child.geometry);
+					//console.log("Mesh from cube.obj : ", child.geometry);
 					bufferGeometry = child.geometry;
 
 					var geometry = new THREE.Geometry().fromBufferGeometry( bufferGeometry );
-					console.log("got geometry data from bufferGeometry is, ", geometry);
+					//console.log("got geometry data from bufferGeometry is, ", geometry);
+					//console.log("got faces of geometry data from bufferGeometry is, ", geometry.faces[0]);
+					//console.log("got vertices of geometry data from bufferGeometry is, ", geometry.vertices[0]);
+
+
+
+
+
+
+					// var idView = new Uint32Array(buffer, 0, 1);
+					// var usernameView = new Uint8Array(buffer, 4, 16);
+					// var amountDueView = new Float32Array(buffer, 20, 1);
+
+					//Float32Array
+					for(let i = 0; i < geometry.vertices.length; i++){
+						for(let j = 0; j < 3; j++){
+							let index = 3*i + j;
+							//console.log("index " + index + " is", geometry.vertices[i]);
+							vertexArray[index] = geometry.vertices[i].getComponent(j);
+						}
+					}
+
+
+					//Uint16Array
+					for(let i = 0; i < geometry.faces.length; i++){
+						//console.log("index " + index + " is", geometry.faces[i]);
+						let baseIndex = 3 * i;
+						indexArray[baseIndex] = geometry.faces[i].a;
+						indexArray[baseIndex + 1] = geometry.faces[i].b;
+						indexArray[baseIndex + 2] = geometry.faces[i].c;
+						// for(let j = 0; j < 3; j++){
+						// 	let index = 3*i + j;
+            //
+						// 	//indexArray[index] = geometry.faces[i].getComponent(j);
+						// }
+					}
+
+
+					//console.error("Convert Faces to Array as ", indexArray);
+
+					// mesh.vertices = new Float32Array( vertices_buffer_data );
+
+					// var vertices = new Float32Array(vertexArray);
+					// var indexes = new Uint16Array(indexArray);
+					// var bounding = GL.Mesh.computeBoundingBox(vertices);
+					//console.log("vertices is", vertices);
+					//console.log("bounding box is ", bounding);
+
+					var vmesh = {};
+					vmesh.vertices = new Float32Array(vertexArray);
+					vmesh.triangles = new Uint16Array(indexArray);
+					mesh = Mesh.load( vmesh, null, null );
+					console.log("final mesh is ", mesh);
+
+					// if (hasPos)
+					// 	mesh.vertices = new Float32Array(positionsArray);
+					// if (hasNor && normalsArray.length > 0)
+					// 	mesh.normals = new Float32Array(normalsArray);
+					// if (hasTex && texcoordsArray.length > 0)
+					// 	mesh.coords = new Float32Array(texcoordsArray);
+					// if (indicesArray && indicesArray.length > 0)
+					// 	mesh.triangles = new Uint16Array(indicesArray);
+          //
+					// var info = {};
+					// if(groups.length > 1)
+					// 	info.groups = groups;
+					// mesh.info = info;
+          //
+					// if(options.only_data)
+					// 	return mesh;
+          //
+					// //creates and returns a GL.Mesh
+					// var final_mesh = null;
+					// final_mesh = Mesh.load( mesh, null, options.mesh );
+
+
+
+					//var mesh =new GL.Mesh(vertices, indexes, null, gl);
+					//console.error("MESH from 3 to .. is", mesh);
+					// console.log(" GL.Mesh.common_buffers[\"vertices\"].attribute is ",  GL.Mesh.common_buffers["vertices"].attribute);
+					//this.createVertexBuffer( 'vertices', GL.Mesh.common_buffers["vertices"].attribute, 3, linearizeArray( new_vertices ) );
+					// if(old_normals_data)
+					// 	this.createVertexBuffer( 'normals', GL.Mesh.common_buffers["normals"].attribute, 3, linearizeArray( new_normals ) );
+					// if(old_coords_data)
+					// 	this.createVertexBuffer( 'coords', GL.Mesh.common_buffers["coords"].attribute, 2, linearizeArray( new_coords ) );
+          //
+					// this.createIndexBuffer( "triangles", indices );
+
+					// vertexBuffers = GL.Mesh.createVertexBuffer( 'vertices', GL.Mesh.common_buffers["vertices"].attribute, 3, vertexArray );
+					// indexBuffer = GL.Mesh.createIndexBuffer( "triangles", indexArray );
+          //
+					// // vertexBuffers = new GL.Buffer( gl.ELEMENT_ARRAY_BUFFER, vertexArray, 0, undefined, gl );
+					// // indexBuffer = new GL.Buffer( gl.ELEMENT_ARRAY_BUFFER, indexArray, 0, undefined, gl );
+          // //
+					// console.log("Vertex Buffer is", vertexBuffers);
+					// console.log("Index Buffer is", indexBuffer);
+
 
 					//child.material.map = texture;
+
+
 
 				}
 
@@ -61,22 +169,27 @@
 
 		}, onProgress, onError );
 
-		//create the rendering context
-		var container = document.body;
 
-		var gl = GL.create({width: container.offsetWidth, height: container.offsetHeight, stencil: true});
-		container.appendChild(gl.canvas);
 		gl.animate();
 
 		//build the mesh
 		//var gl = gl || global.gl;
 	  //return new GL.Mesh( this.vertexBuffers, this.indexBuffers, undefined, gl );
 
-		var mesh = GL.Mesh.fromURL("cube.obj");
+
+
+
+		//var buffer = this.vertexBuffers[name] = new GL.Buffer( gl.ARRAY_BUFFER, buffer_data, buffer_spacing, stream_type, this.gl );
+		//var buffer = this.indexBuffers[name] = new GL.Buffer(gl.ELEMENT_ARRAY_BUFFER, buffer_data, 0, stream_type, this.gl );
+
+
+
+		//var mesh = GL.Mesh.fromURL("cube.obj");
+
 		console.log("mesh from cube.obj is", mesh);
 		var floor = GL.Mesh.plane({size:140, xz: true});
-		var cam_pos = [0,200,350];
-		var cam_center = [0,100,0];
+		var cam_pos = [0,20,35];
+		var cam_center = [0,0,0];
 
 		//create basic matrices for cameras and transformation
 		var proj = mat4.create();
