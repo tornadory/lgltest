@@ -52,13 +52,20 @@
 		var mesh;
 
 		//define something
+		//#ISSUES to be down
+		//1. color and textures
+		//2. animations
+		//3. multiple Geometry
+		//4. multiple textures
 		var fbxloader = new THREE.FBXLoader();
 		fbxloader.load('obj/dolphin.fbx', function(object){
 			console.log("object from THREE.FBXLoader is ", object);
 			object.traverse( function ( child ) {
 
+				console.log("############# Traverse Object ##############");
+
 				if ( child instanceof THREE.Mesh ) {
-					console.log("Mesh from cube.obj : ", child.geometry);
+					console.log("Mesh from Child of FBX object: ", child.geometry);
 					bufferGeometry = child.geometry;
 					var geometry = new THREE.Geometry().fromBufferGeometry( bufferGeometry );
 					console.log("got geometry data from bufferGeometry is, ", geometry);
@@ -67,13 +74,11 @@
 					for(let i = 0; i < geometry.vertices.length; i++){
 						for(let j = 0; j < 3; j++){
 							let index = 3*i + j;
-							//console.log("index " + index + " is", geometry.vertices[i]);
 							vertexArray[index] = geometry.vertices[i].getComponent(j);
 						}
 					}
 					//Uint16Array
 					for(let i = 0; i < geometry.faces.length; i++){
-						//console.log("index " + index + " is", geometry.faces[i]);
 						let baseIndex = 3 * i;
 						indexArray[baseIndex] = geometry.faces[i].a;
 						indexArray[baseIndex + 1] = geometry.faces[i].b;
@@ -84,8 +89,8 @@
 					vmesh.vertices = new Float32Array(vertexArray);
 					vmesh.triangles = new Uint16Array(indexArray);
 
-					//mesh = Mesh.load( vmesh, null, null );
-					//console.log("converted mesh from 3fbxloader to wgsgl is ", mesh);
+					mesh = Mesh.load( vmesh, null, null );
+					console.log("converted mesh from 3fbxloader to wgsgl is ", mesh);
 
 				}
 
@@ -210,7 +215,9 @@
 		//var buffer = this.vertexBuffers[name] = new GL.Buffer( gl.ARRAY_BUFFER, buffer_data, buffer_spacing, stream_type, this.gl );
 		//var buffer = this.indexBuffers[name] = new GL.Buffer(gl.ELEMENT_ARRAY_BUFFER, buffer_data, 0, stream_type, this.gl );
 
-		var mesh = GL.Mesh.fromURL("obj/cube-red.obj");
+		//var mesh = GL.Mesh.fromURL("obj/cube-red.obj");
+
+		var texture = GL.Texture.cubemapFromURL("obj/dolphin_D.png",{temp_color:[80,80,80,255], is_cross: 1, minFilter: gl.NEAREST });
 
 		if(mesh){
 			console.log("mesh from THREE.*Loader is", mesh);
@@ -232,15 +239,31 @@
 		var model2 = mat4.create();
 
 		//get mouse actions
-		gl.captureMouse();
+		gl.captureMouse(true);
 		gl.onmousemove = function(e)
 		{
-			if(e.dragging)
-			{
-				mat4.rotateY(model,model,e.deltax * 0.01);
-				cam_pos[1] += e.deltay;
-			}
+			if(!e.dragging)
+				return;
+			mat4.rotateY(model,model,e.deltax * 0.01);
+			if(e.deltay)
+				vec3.rotateX(cam_pos,cam_pos,e.deltay * -0.01);
 		}
+		gl.onmousewheel = function(e)
+		{
+			if(!e.wheel)
+				return;
+			var s = 1 + e.wheel / 1000;
+			mat4.scale(model,model,[s,s,s]);
+		}
+		// gl.captureMouse();
+		// gl.onmousemove = function(e)
+		// {
+		// 	if(e.dragging)
+		// 	{
+		// 		mat4.rotateY(model,model,e.deltax * 0.01);
+		// 		cam_pos[1] += e.deltay;
+		// 	}
+		// }
 
 		//set the camera position
 		mat4.perspective(proj, 45 * DEG2RAD, gl.canvas.width / gl.canvas.height, 0.1, 1000);
@@ -260,15 +283,19 @@
 				', '\
 				precision highp float;\
 				varying vec3 v_normal;\
+				varying vec2 v_coord;\
+				uniform samplerCube u_texture;\
 				uniform vec3 u_lightvector;\
 				uniform vec4 u_camera_position;\
 				uniform vec4 u_color;\
 				void main() {\
 				  vec3 N = normalize(v_normal);\
-				  gl_FragColor = u_color * max(0.0, dot(u_lightvector,N));\
+					vec4 color = textureCube( u_texture, N );\
+				  gl_FragColor = color;\
 				}\
 			');
 
+			//gl_FragColor = u_color * max(0.0, dot(u_lightvector,N));\
 
 		//generic gl flags and settings
 		gl.clearColor(0.6,0.6,0.6,1);
@@ -278,10 +305,19 @@
 		gl.ondraw = function()
 		{
 			gl.clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT );
-			mat4.lookAt(view, cam_pos, cam_center, [0,1,0]);
+			gl.enable( gl.DEPTH_TEST );
+			gl.disable( gl.BLEND );
+			gl.disable( gl.CULL_FACE );
+			// gl.clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT );
+			mat4.lookAt(view, cam_pos,[0,0,0], [0,1,0]);
+			// mat4.lookAt(view, cam_pos, cam_center, [0,1,0]);
 
 			mat4.multiply(temp,view,model);
 			mat4.multiply(mvp,proj,temp);
+
+			//compute rotation matrix for normals
+			texture.bind(0);
+			window.cubemap = texture; //debug
 
 			//global uniforms
 			shader.uniforms({
@@ -319,13 +355,14 @@
 			gl.frontFace( gl.CW ); //because the mesh is reversed in Y
 
 
-			if(mesh){
-				shader.uniforms({
-					u_color: [0.1,0.1,0.1,1],
-					u_model: model2,
-					u_mvp: mvp
-				}).draw( mesh );
-			}
+			// if(mesh){
+			// 	shader.uniforms({
+			// 		u_color: [0.1,0.1,0.1,1],
+			// 		u_model: model2,
+			// 		u_texture: 0,
+			// 		u_mvp: mvp
+			// 	}).draw( mesh );
+			// }
 
 
 
@@ -340,6 +377,7 @@
 				shader.uniforms({
 					u_color: [1,1,1,1],
 					u_model: model,
+					u_texture: 0,
 					u_mvp: mvp
 				}).draw( mesh );
 			}
