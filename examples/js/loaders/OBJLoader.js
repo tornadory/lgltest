@@ -407,7 +407,7 @@ THREE.OBJLoader = ( function () {
 		parse: function ( text ) {
 
 			console.time( 'OBJLoader' );
-			console.log("3js OBJLoader parse func with text: ", text);
+			//console.log("3js OBJLoader parse func with text: ", text);
 
 			var state = new ParserState();
 
@@ -433,7 +433,7 @@ THREE.OBJLoader = ( function () {
 			// Faster to just trim left side of the line. Use if available.
 			var trimLeft = ( typeof ''.trimLeft === 'function' );
 
-			console.log("parsing length of lines is ", lines.length);
+			//console.log("parsing length of lines is ", lines.length);
 
 			for ( var i = 0, l = lines.length; i < l; i ++ ) {
 
@@ -455,12 +455,12 @@ THREE.OBJLoader = ( function () {
 					//console.log("vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv");
 
 					var data = line.split( /\s+/ );
-					console.log("data is ", data);
+					//console.log("data is ", data);
 
 					switch ( data[ 0 ] ) {
 
 						case 'v':
-						  console.log("type v__________________________v vertices");
+						  //console.log("type v__________________________v vertices");
 							state.vertices.push(
 								parseFloat( data[ 1 ] ),
 								parseFloat( data[ 2 ] ),
@@ -476,19 +476,19 @@ THREE.OBJLoader = ( function () {
 								);
 
 							}
-							console.log("current state vertices lenght is ", state.vertices.length);
+							//console.log("current state vertices lenght is ", state.vertices.length);
 							break;
 						case 'vn':
-						  console.log("type vn__________________________vn normals");
+						  //console.log("type vn__________________________vn normals");
 							state.normals.push(
 								parseFloat( data[ 1 ] ),
 								parseFloat( data[ 2 ] ),
 								parseFloat( data[ 3 ] )
 							);
-							console.log("current state normals lenght is ", state.normals.length);
+							//console.log("current state normals lenght is ", state.normals.length);
 							break;
 						case 'vt':
-						  console.log("type vt__________________________vt uvs");
+						  //console.log("type vt__________________________vt uvs");
 							state.uvs.push(
 								parseFloat( data[ 1 ] ),
 								parseFloat( data[ 2 ] )
@@ -498,12 +498,12 @@ THREE.OBJLoader = ( function () {
 					}
 
 				} else if ( lineFirstChar === 'f' ) {
-					console.log("FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF");
+					//console.log("FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF");
 
 					var lineData = line.substr( 1 ).trim();
 					var vertexData = lineData.split( /\s+/ );
 					var faceVertices = [];
-					console.log("FFFF vertextData lenght is, ", vertexData);
+					//console.log("FFFF vertextData lenght is, ", vertexData);
 
 					// Parse the face vertex data into an easy to work with format
 
@@ -519,7 +519,7 @@ THREE.OBJLoader = ( function () {
 						}
 
 					}
-					console.log("FFFF after ... faceVertices lenght is ", faceVertices.length);
+					//console.log("FFFF after ... faceVertices lenght is ", faceVertices.length);
 
 					// Draw an edge between the first vertex and all subsequent vertices to form an n-gon
 
@@ -621,7 +621,7 @@ THREE.OBJLoader = ( function () {
 						var value = result[ 1 ].trim().toLowerCase();
 						state.object.smooth = ( value !== '0' && value !== 'off' );
 
-						console.log("RESULT got, ", result); //'s' 'off'
+						//console.log("RESULT got, ", result); //'s' 'off'
 
 					} else {
 
@@ -642,8 +642,8 @@ THREE.OBJLoader = ( function () {
 				}
 
 			}
-			console.log("after parsing, state is ", state);
-			console.log("after parsing, state vertices lenght is ", state.vertices.length);
+			// console.log("after parsing, state is ", state);
+			// console.log("after parsing, state vertices lenght is ", state.vertices.length);
 
 			state.finalize();
 
@@ -662,10 +662,10 @@ THREE.OBJLoader = ( function () {
 				// Skip o/g line declarations that did not follow with any faces
 				if ( geometry.vertices.length === 0 ) continue;
 
-				console.log("geometry.vertices.length = ", geometry.vertices.length); //108 for cube obj
-				console.log("geometry.normals.length = ", geometry.normals.length); //108
-				console.log("geometry.colors.length = ", geometry.colors.length); //0
-				console.log("geometry.uvs.length = ", geometry.uvs.length); //72
+				//console.log("geometry.vertices.length = ", geometry.vertices.length); //108 for cube obj
+				//console.log("geometry.normals.length = ", geometry.normals.length); //108
+				// console.log("geometry.colors.length = ", geometry.colors.length); //0
+				// console.log("geometry.uvs.length = ", geometry.uvs.length); //72
 
 				var buffergeometry = new THREE.BufferGeometry();
 
@@ -754,7 +754,7 @@ THREE.OBJLoader = ( function () {
 				}
 
 				// Create mesh
-				console.log("before creating mesh, buffergeometry is ", buffergeometry);
+				//console.log("before creating mesh, buffergeometry is ", buffergeometry);
 
 				var mesh;
 
@@ -772,17 +772,17 @@ THREE.OBJLoader = ( function () {
 					if ( isLine ) {
 
 						mesh = new THREE.LineSegments( buffergeometry, createdMaterials );
-						console.log("create mesh via LineSegments ", mesh);
+						// console.log("create mesh via LineSegments ", mesh);
 
 					} else if ( isPoints ) {
 
 						mesh = new THREE.Points( buffergeometry, createdMaterials );
-						console.log("create mesh via Points ", mesh);
+						// console.log("create mesh via Points ", mesh);
 
 					} else {
 
 						mesh = new THREE.Mesh( buffergeometry, createdMaterials );
-						console.log("create mesh via Mesh ", mesh);
+						// console.log("create mesh via Mesh ", mesh);
 
 					}
 
@@ -791,17 +791,17 @@ THREE.OBJLoader = ( function () {
 					if ( isLine ) {
 
 						mesh = new THREE.LineSegments( buffergeometry, createdMaterials[ 0 ] );
-						console.log("create mesh via LineSegments with mat ", mesh);
+						// console.log("create mesh via LineSegments with mat ", mesh);
 
 					} else if ( isPoints ) {
 
 						mesh = new THREE.Points( buffergeometry, createdMaterials[ 0 ] );
-						console.log("create mesh via Points with mat ", mesh);
+						// console.log("create mesh via Points with mat ", mesh);
 
 					} else {
 
 						mesh = new THREE.Mesh( buffergeometry, createdMaterials[ 0 ] );
-						console.log("create mesh via Mesh with mat ", mesh);
+						// console.log("create mesh via Mesh with mat ", mesh);
 
 					}
 

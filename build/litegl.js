@@ -1949,7 +1949,7 @@ GL.Indexer.prototype = {
 * @param {enum} stream_type default gl.STATIC_DRAW (other: gl.DYNAMIC_DRAW, gl.STREAM_DRAW
 */
 GL.Buffer = function Buffer( target, data, spacing, stream_type, gl ) {
-	console.log("GL.Buffer constructor: target is" + target, data, spacing, stream_type, gl);
+	//console.log("GL.Buffer constructor: target is" + target, data, spacing, stream_type, gl);
 	if(GL.debug)
 		console.log("GL.Buffer created");
 
