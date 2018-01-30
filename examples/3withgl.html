@@ -26,10 +26,17 @@
 	<script type="text/javascript">
 
 	var bufferGeometry;
+
 	var vertexBuffers = {};
 	var indexBuffers = {};
-	var vertexArray = [];
-	var indexArray = [];
+
+	var indexArray = []; //indexBuffers triangles
+	var vertexArray = []; //vertexBuffers
+	//under mesh->vertexBuffers
+	var normalsArray = [];
+	var boneIndexArray = []; //bone indices
+	var weightsArray = []; //
+	var uvArray = []; //coords
 
 	var onProgress = function ( xhr ) {
 		if ( xhr.lengthComputable ) {
@@ -62,9 +69,12 @@
 			console.log("object from THREE.FBXLoader is ", object);
 			object.traverse( function ( child ) {
 
-				console.log("############# Traverse Object ##############");
+				//console.log("############# Traverse Object ##############");
 
 				if ( child instanceof THREE.Mesh ) {
+					if(child.isSkinnedMesh){
+						console.log("SKINNED MESH: ", child);
+					}
 					console.log("Mesh from Child of FBX object: ", child.geometry);
 					bufferGeometry = child.geometry;
 					var geometry = new THREE.Geometry().fromBufferGeometry( bufferGeometry );
@@ -85,13 +95,45 @@
 						indexArray[baseIndex + 2] = geometry.faces[i].c;
 					}
 
+					console.log("uv array is: ", bufferGeometry.attributes.uv.array);
+					uvArray = bufferGeometry.attributes.uv.array.slice();
+					normalsArray = bufferGeometry.attributes.normal.array.slice();
+					boneIndexArray = bufferGeometry.attributes.skinIndex.array.slice();
+					weightsArray = bufferGeometry.attributes.skinWeight.array.slice();
+
 					var vmesh = {};
+
+					// if (hasPos)
+					// 	mesh.vertices = new Float32Array(positionsArray);
 					vmesh.vertices = new Float32Array(vertexArray);
+
+					// if (indicesArray && indicesArray.length > 0)
+					// 	mesh.triangles = new Uint16Array(indicesArray);
 					vmesh.triangles = new Uint16Array(indexArray);
+
+
+					// if (hasNor && normalsArray.length > 0)
+					// 	mesh.normals = new Float32Array(normalsArray);
+					vmesh.normals = normalsArray;
+
+					// if (hasTex && texcoordsArray.length > 0)
+					// 	mesh.coords = new Float32Array(texcoordsArray);
+					vmesh.coords = uvArray;
+
+					vmesh.bone_indices = boneIndexArray;
+					vmesh.weights = weightsArray;
+
+					// var info = {};
+					// if(groups.length > 1)
+					// 	info.groups = groups;
+					// mesh.info = info;
 
 					mesh = Mesh.load( vmesh, null, null );
 					console.log("converted mesh from 3fbxloader to wgsgl is ", mesh);
 
+					// //creates and returns a GL.Mesh
+					// var final_mesh = null;
+					// final_mesh = Mesh.load( mesh, null, options.mesh );
 				}
 
 			} );
@@ -216,8 +258,10 @@
 		//var buffer = this.indexBuffers[name] = new GL.Buffer(gl.ELEMENT_ARRAY_BUFFER, buffer_data, 0, stream_type, this.gl );
 
 		//var mesh = GL.Mesh.fromURL("obj/cube-red.obj");
-
-		var texture = GL.Texture.cubemapFromURL("obj/dolphin_D.png",{temp_color:[80,80,80,255], is_cross: 1, minFilter: gl.NEAREST });
+		var texture = GL.Texture.fromURL("obj/skybox_dxt1.dds",{temp_color:[80,120,40,255], minFilter: gl.NEAREST}); //OK
+		// var texture = GL.Texture.cubemapFromURL("cross-skybox.jpg",{temp_color:[80,80,80,255], is_cross: 1, minFilter: gl.NEAREST }); //OK
+		// var texture = GL.Texture.fromURL("obj/dolphin_D.png",{minFilter: gl.NEAREST});
+		// var texture = GL.Texture.cubemapFromURL("obj/dolphin_D.png",{temp_color:[80,80,80,255], is_cross: 1, minFilter: gl.NEAREST });
 
 		if(mesh){
 			console.log("mesh from THREE.*Loader is", mesh);
@@ -273,10 +317,13 @@
 				precision highp float;\
 				attribute vec3 a_vertex;\
 				attribute vec3 a_normal;\
+				attribute vec2 a_coord;\
 				varying vec3 v_normal;\
+				varying vec2 v_coord;\
 				uniform mat4 u_mvp;\
 				uniform mat4 u_model;\
 				void main() {\
+					v_coord = a_coord;\
 					v_normal = (u_model * vec4(a_normal,0.0)).xyz;\
 					gl_Position = u_mvp * vec4(a_vertex,1.0);\
 				}\
@@ -284,16 +331,97 @@
 				precision highp float;\
 				varying vec3 v_normal;\
 				varying vec2 v_coord;\
-				uniform samplerCube u_texture;\
 				uniform vec3 u_lightvector;\
-				uniform vec4 u_camera_position;\
 				uniform vec4 u_color;\
+				uniform sampler2D u_texture;\
 				void main() {\
 				  vec3 N = normalize(v_normal);\
-					vec4 color = textureCube( u_texture, N );\
-				  gl_FragColor = color;\
+				  vec4 color = u_color * texture2D( u_texture, v_coord);\
+				  gl_FragColor = color * max(0.0, dot(u_lightvector,N));\
 				}\
 			');
+
+		var cubemap_shader = new Shader('\
+				precision highp float;\
+				attribute vec3 a_vertex;\
+				attribute vec3 a_normal;\
+				varying vec3 v_pos;\
+				varying vec3 v_normal;\
+				uniform mat4 u_mvp;\
+				uniform mat4 u_model;\
+				void main() {\
+					v_pos = a_vertex.xyz;\
+					v_normal = (u_model * vec4(a_normal,0.0)).xyz;\
+					gl_Position = u_mvp * vec4(a_vertex,1.0);\
+				}\
+				', '\
+				precision highp float;\
+				varying vec3 v_normal;\
+				varying vec3 v_pos;\
+				uniform vec3 u_lightvector;\
+				uniform vec4 u_color;\
+				uniform samplerCube u_texture;\
+				void main() {\
+				  vec3 N = normalize(v_normal);\
+				  vec4 color = u_color * textureCube( u_texture, v_pos );\
+				  gl_FragColor = vec4(0.2) + color * max(0.0, dot(u_lightvector,N));\
+				}\
+			');
+
+		//basic phong shader  -- normals OK
+		// var shader = new Shader('\
+		// 		precision highp float;\
+		// 		attribute vec3 a_vertex;\
+		// 		attribute vec3 a_normal;\
+		// 		varying vec3 v_normal;\
+		// 		uniform mat4 u_mvp;\
+		// 		uniform mat4 u_model;\
+		// 		void main() {\
+		// 			v_normal = (u_model * vec4(a_normal,0.0)).xyz;\
+		// 			gl_Position = u_mvp * vec4(a_vertex,1.0);\
+		// 		}\
+		// 		', '\
+		// 		precision highp float;\
+		// 		varying vec3 v_normal;\
+		// 		uniform vec3 u_lightvector;\
+		// 		uniform vec4 u_camera_position;\
+		// 		uniform vec4 u_color;\
+		// 		void main() {\
+		// 		  vec3 N = normalize(v_normal);\
+		// 		  //fake half light\n\
+		// 		  float NdotL = dot(u_lightvector,N) * 0.5 + 0.5;\
+		// 		  NdotL *= NdotL;\
+		// 		  gl_FragColor = u_color * max(0.0, NdotL);\
+		// 		}\
+		// 	');
+
+
+		//basic phong shader
+		// var shader = new Shader('\
+		// 		precision highp float;\
+		// 		attribute vec3 a_vertex;\
+		// 		attribute vec3 a_normal;\
+		// 		varying vec3 v_normal;\
+		// 		uniform mat4 u_mvp;\
+		// 		uniform mat4 u_model;\
+		// 		void main() {\
+		// 			v_normal = (u_model * vec4(a_normal,0.0)).xyz;\
+		// 			gl_Position = u_mvp * vec4(a_vertex,1.0);\
+		// 		}\
+		// 		', '\
+		// 		precision highp float;\
+		// 		varying vec3 v_normal;\
+		// 		varying vec2 v_coord;\
+		// 		uniform samplerCube u_texture;\
+		// 		uniform vec3 u_lightvector;\
+		// 		uniform vec4 u_camera_position;\
+		// 		uniform vec4 u_color;\
+		// 		void main() {\
+		// 		  vec3 N = normalize(v_normal);\
+		// 			vec4 color = textureCube( u_texture, N );\
+		// 		  gl_FragColor = color;\
+		// 		}\
+		// 	');
 
 			//gl_FragColor = u_color * max(0.0, dot(u_lightvector,N));\
 
@@ -373,13 +501,25 @@
 			mat4.multiply(mvp,proj,temp);
 
 			//render mesh using the shader
+			// if(mesh){
+			// 	shader.uniforms({
+			// 		u_color: [1,1,1,1],
+			// 		u_model: model,
+			// 		u_texture: 0,
+			// 		u_mvp: mvp
+			// 	}).draw( mesh );
+			// }
 			if(mesh){
-				shader.uniforms({
+				texture.bind(0);
+
+				//render mesh using the shader
+				cubemap_shader.uniforms({
 					u_color: [1,1,1,1],
+					u_lightvector: vec3.normalize(vec3.create(),[1,1,1]),
 					u_model: model,
 					u_texture: 0,
 					u_mvp: mvp
-				}).draw( mesh );
+				}).draw(mesh);
 			}
 
 		};

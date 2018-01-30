@@ -69,7 +69,7 @@
 		</div>
 		<div id="inputA">
 			<div id="scaleInputInfo">输入数字，按Enter键确认</div>
-		  <input id="scaleInput" type="text" size="30" placeholder="输入数字可以缩放最后倒入的模型大小"  onkeyup="changeScale(event)">
+		  <input id="scaleInput" type="text" size="30" placeholder="输入数字可以缩放最后导入的模型大小"  onkeyup="changeScale(event)">
 	  </div>
 		<div id="title">
 			模型加载测试
@@ -77,7 +77,7 @@
 
 
 		<script>
-		
+
 			var infoTag = document.getElementById("info");
 			var object = null;
 
@@ -99,10 +99,15 @@
 
 				scene = new THREE.Scene();
 
-				// grid
+				// grid helper
 				var gridHelper = new THREE.GridHelper( 28, 28, 0x303030, 0x303030 );
 				gridHelper.position.set( 0, - 0.04, 0 );
 				scene.add( gridHelper );
+
+				// skeleton helper
+				var helper = new THREE.SkeletonHelper( mesh );
+				helper.material.linewidth = 3;
+				scene.add( helper );
 
 				// stats
 				stats = new Stats();
@@ -211,7 +216,7 @@
 				{
 					var file = event.dataTransfer.files[i];
 					//Project file
-					if(file.name.endsWith(".fbx") || file.name.endsWith(".FBX"))
+					if(file.name.toLowerCase.endsWith(".fbx")))
 					{
 						var path = (file.path !== undefined) ? FileSystem.getFilePath(file.path) : "";
 						try{

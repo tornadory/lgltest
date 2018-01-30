@@ -5584,6 +5584,7 @@ Texture.prototype.applyBlur = function( offsetx, offsety, intensity, temp_textur
 * @return {Texture} the texture
 */
 Texture.fromURL = function( url, options, on_complete, gl ) {
+	console.log("Texture.fromURL called");
 	gl = gl || global.gl;
 
 	options = options || {};
@@ -5616,6 +5617,8 @@ Texture.fromURL = function( url, options, on_complete, gl ) {
 		if(pos != -1)
 			ext = base.substr(pos+1).toLowerCase();
 	}
+
+	console.log("got ext is: ", ext);
 
 	if( ext == "dds")
 	{
