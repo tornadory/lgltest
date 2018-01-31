@@ -38,6 +38,10 @@
 	var weightsArray = []; //
 	var uvArray = []; //coords
 
+	var texture;
+	var meshes = [];
+	var textures = [];
+
 	var onProgress = function ( xhr ) {
 		if ( xhr.lengthComputable ) {
 			var percentComplete = xhr.loaded / xhr.total * 100;
@@ -66,6 +70,9 @@
 		//4. multiple textures
 		var fbxloader = new THREE.FBXLoader();
 		fbxloader.load('obj/dolphin.fbx', function(object){
+		// fbxloader.load('fbx/Dragon_Baked_Actions.fbx', function(object){
+		// fbxloader.load('fbx/MechanicalArm14.FBX', function(object){
+		// fbxloader.load('fbx/multiple-meshes.fbx', function(object){
 			console.log("object from THREE.FBXLoader is ", object);
 			object.traverse( function ( child ) {
 
@@ -76,64 +83,109 @@
 						console.log("SKINNED MESH: ", child);
 					}
 					console.log("Mesh from Child of FBX object: ", child.geometry);
-					bufferGeometry = child.geometry;
-					var geometry = new THREE.Geometry().fromBufferGeometry( bufferGeometry );
-					console.log("got geometry data from bufferGeometry is, ", geometry);
+					let bufferGeometry = child.geometry;
+					if(!bufferGeometry.attributes.position || bufferGeometry.attributes.position.array.length < 3)
+					{
+						console.log("NO GEOMETRY, ignore it");
+						//continue;
+					}else{
+						var geometry = new THREE.Geometry().fromBufferGeometry( bufferGeometry );
+						console.log("got geometry data from bufferGeometry is, ", geometry);
 
-					//Float32Array
-					for(let i = 0; i < geometry.vertices.length; i++){
-						for(let j = 0; j < 3; j++){
-							let index = 3*i + j;
-							vertexArray[index] = geometry.vertices[i].getComponent(j);
+						//Float32Array
+						for(let i = 0; i < geometry.vertices.length; i++){
+							for(let j = 0; j < 3; j++){
+								let index = 3*i + j;
+								vertexArray[index] = geometry.vertices[i].getComponent(j);
+							}
 						}
+						//Uint16Array
+						for(let i = 0; i < geometry.faces.length; i++){
+							let baseIndex = 3 * i;
+							indexArray[baseIndex] = geometry.faces[i].a;
+							indexArray[baseIndex + 1] = geometry.faces[i].b;
+							indexArray[baseIndex + 2] = geometry.faces[i].c;
+						}
+
+						if(bufferGeometry.attributes.uv){
+							console.log("uv array is: ", bufferGeometry.attributes.uv.array);
+							uvArray = bufferGeometry.attributes.uv.array.slice();
+						}
+
+						if(bufferGeometry.attributes.normal)
+							normalsArray = bufferGeometry.attributes.normal.array.slice();
+						//boneIndexArray = bufferGeometry.attributes.skinIndex.array.slice();
+						//weightsArray = bufferGeometry.attributes.skinWeight.array.slice();
+
+						if(child.material){
+							console.log("************MAT**************");
+							if(child.material.length > 1){
+								//
+								if(child.material[0].isMeshPhongMaterial){
+									console.log(child.material[0].map);
+									console.log(child.material[0].map.image);
+								}
+							}else if(child.material.isMeshPhongMaterial){
+								console.log("------------YES it is PhongMaterial--------------");
+								var mat = child.material.clone();
+								console.log(child.material.map);
+								//console.log(child.material.map.image);
+								// console.log(mat.map);
+							}
+							// var tex = child.material.map;
+							// console.log("tex ", tex);//.image
+							// console.log(child.material);
+							// console.log(child.material.map);
+							// console.log(child.material.map.image);
+							// texture = GL.Texture.fromURL("blob:http://localhost:3030/4a246966-65af-4ce5-8caf-ace1b25121f2", {minFilter: gl.NEAREST});
+							// var texture = GL.Texture.fromURL("obj/dolphin_D.png",{minFilter: gl.NEAREST});//OK
+						}
+
+						let vmesh = {};
+
+						// if (hasPos)
+						// 	mesh.vertices = new Float32Array(positionsArray);
+						if(vertexArray && vertexArray.length > 0)
+							vmesh.vertices = new Float32Array(vertexArray);
+
+						// if (indicesArray && indicesArray.length > 0)
+						// 	mesh.triangles = new Uint16Array(indicesArray);
+						if(indexArray && indexArray.length > 0)
+							vmesh.triangles = new Uint16Array(indexArray);
+
+
+						// if (hasNor && normalsArray.length > 0)
+						// 	mesh.normals = new Float32Array(normalsArray);
+						if(normalsArray && normalsArray.length > 0)
+							vmesh.normals = normalsArray;
+
+						// if (hasTex && texcoordsArray.length > 0)
+						// 	mesh.coords = new Float32Array(texcoordsArray);
+						if(uvArray && uvArray.length > 0)
+							vmesh.coords = uvArray;
+
+						//vmesh.bone_indices = boneIndexArray;
+						//vmesh.weights = weightsArray;
+
+						// var info = {};
+						// if(groups.length > 1)
+						// 	info.groups = groups;
+						// mesh.info = info;
+
+						//mesh = Mesh.load( vmesh, null, null );
+
+						let glmesh = Mesh.load( vmesh, null, null );
+						glmesh.name = child.name;
+
+						meshes.push(glmesh);
+						//console.log("converted mesh from 3fbxloader to wgsgl is ", mesh);
+						console.log("try to add mesh to meshes ............", meshes);
+
+						// //creates and returns a GL.Mesh
+						// var final_mesh = null;
+						// final_mesh = Mesh.load( mesh, null, options.mesh );
 					}
-					//Uint16Array
-					for(let i = 0; i < geometry.faces.length; i++){
-						let baseIndex = 3 * i;
-						indexArray[baseIndex] = geometry.faces[i].a;
-						indexArray[baseIndex + 1] = geometry.faces[i].b;
-						indexArray[baseIndex + 2] = geometry.faces[i].c;
-					}
 
-					console.log("uv array is: ", bufferGeometry.attributes.uv.array);
-					uvArray = bufferGeometry.attributes.uv.array.slice();
-					normalsArray = bufferGeometry.attributes.normal.array.slice();
-					boneIndexArray = bufferGeometry.attributes.skinIndex.array.slice();
-					weightsArray = bufferGeometry.attributes.skinWeight.array.slice();
-
-					var vmesh = {};
-
-					// if (hasPos)
-					// 	mesh.vertices = new Float32Array(positionsArray);
-					vmesh.vertices = new Float32Array(vertexArray);
-
-					// if (indicesArray && indicesArray.length > 0)
-					// 	mesh.triangles = new Uint16Array(indicesArray);
-					vmesh.triangles = new Uint16Array(indexArray);
-
-
-					// if (hasNor && normalsArray.length > 0)
-					// 	mesh.normals = new Float32Array(normalsArray);
-					vmesh.normals = normalsArray;
-
-					// if (hasTex && texcoordsArray.length > 0)
-					// 	mesh.coords = new Float32Array(texcoordsArray);
-					vmesh.coords = uvArray;
-
-					vmesh.bone_indices = boneIndexArray;
-					vmesh.weights = weightsArray;
-
-					// var info = {};
-					// if(groups.length > 1)
-					// 	info.groups = groups;
-					// mesh.info = info;
-
-					mesh = Mesh.load( vmesh, null, null );
-					console.log("converted mesh from 3fbxloader to wgsgl is ", mesh);
-
-					// //creates and returns a GL.Mesh
-					// var final_mesh = null;
-					// final_mesh = Mesh.load( mesh, null, options.mesh );
 				}
 
 			} );
@@ -258,9 +310,20 @@
 		//var buffer = this.indexBuffers[name] = new GL.Buffer(gl.ELEMENT_ARRAY_BUFFER, buffer_data, 0, stream_type, this.gl );
 
 		//var mesh = GL.Mesh.fromURL("obj/cube-red.obj");
-		var texture = GL.Texture.fromURL("obj/skybox_dxt1.dds",{temp_color:[80,120,40,255], minFilter: gl.NEAREST}); //OK
+		//var texture = GL.Texture.fromURL("blob:http://localhost:3030/4a246966-65af-4ce5-8caf-ace1b25121f2",{temp_color:[80,120,40,255], minFilter: gl.NEAREST});
+
+		//var texture = GL.Texture.fromURL("texture.png",{temp_color:[80,120,40,255], minFilter: gl.LINEAR_MIPMAP_LINEAR});
+
+		// var image = new Image();
+		// //image.src = "obj/dolphin_D.png";
+		// image.src = "blob:http://localhost:3030/4a246966-65af-4ce5-8caf-ace1b25121f2";
+		// var texture = GL.Texture.fromImage(image, {minFilter: gl.NEAREST});
+		//var texture = GL.Texture.fromURL("obj/skybox_dxt1.dds",{temp_color:[80,120,40,255], minFilter: gl.NEAREST}); //OK
 		// var texture = GL.Texture.cubemapFromURL("cross-skybox.jpg",{temp_color:[80,80,80,255], is_cross: 1, minFilter: gl.NEAREST }); //OK
-		// var texture = GL.Texture.fromURL("obj/dolphin_D.png",{minFilter: gl.NEAREST});
+
+		var texture = GL.Texture.fromURL("obj/dolphin_D.png",{minFilter: gl.NEAREST});//OK
+		// var texture = GL.Texture.fromURL("blob:http://localhost:3030/4a246966-65af-4ce5-8caf-ace1b25121f2", {minFilter: gl.NEAREST});
+
 		// var texture = GL.Texture.cubemapFromURL("obj/dolphin_D.png",{temp_color:[80,80,80,255], is_cross: 1, minFilter: gl.NEAREST });
 
 		if(mesh){
@@ -281,6 +344,8 @@
 		var mvp = mat4.create();
 		var temp = mat4.create();
 		var model2 = mat4.create();
+
+		//mat4.scale(model,model,[0.01,0.01,0.01]);
 
 		//get mouse actions
 		gl.captureMouse(true);
@@ -444,8 +509,11 @@
 			mat4.multiply(mvp,proj,temp);
 
 			//compute rotation matrix for normals
-			texture.bind(0);
-			window.cubemap = texture; //debug
+			if(texture){
+				texture.bind(0);
+				window.cubemap = texture; //debug
+			}
+
 
 			//global uniforms
 			shader.uniforms({
@@ -509,27 +577,53 @@
 			// 		u_mvp: mvp
 			// 	}).draw( mesh );
 			// }
-			if(mesh){
-				texture.bind(0);
+			// forEach(mesh in meshes){
+			// 	console.log("######## mesh is ", mesh);
+			// }
+			//console.log("Meshes length is ", meshes.length);//84
 
-				//render mesh using the shader
-				cubemap_shader.uniforms({
-					u_color: [1,1,1,1],
-					u_lightvector: vec3.normalize(vec3.create(),[1,1,1]),
-					u_model: model,
-					u_texture: 0,
-					u_mvp: mvp
-				}).draw(mesh);
-			}
+			meshes.forEach(function(cmesh){
+				//console.log("try to render mesh ", cmesh);
+				if(cmesh){
+					if(texture)
+						texture.bind(0);
+
+					//render mesh using the shader
+					shader.uniforms({
+						u_color: [1,1,1,1],
+						u_lightvector: vec3.normalize(vec3.create(),[1,1,1]),
+						u_model: model,
+						u_texture: 0,
+						u_mvp: mvp
+					}).draw(cmesh);
+				}
+			});
+
+			// if(meshes[1]){
+			// 	//console.log("try to render meshes[1] ", meshes[1]);
+			// 	if(texture)
+			// 		texture.bind(0);
+      //
+			// 	//render mesh using the shader
+			// 	shader.uniforms({
+			// 		u_color: [1,1,1,1],
+			// 		u_lightvector: vec3.normalize(vec3.create(),[1,1,1]),
+			// 		u_model: model,
+			// 		u_texture: 0,
+			// 		u_mvp: mvp
+			// 	}).draw(meshes[1]);
+			// }
+
+
 
 		};
 
 		//update loop
-		gl.onupdate = function(dt)
-		{
-			//rotate world
-			mat4.rotateY(model,model,dt*0.2);
-		};
+		// gl.onupdate = function(dt)
+		// {
+		// 	//rotate world
+		// 	mat4.rotateY(model,model,dt*0.2);
+		// };
 	}
 
 	</script>

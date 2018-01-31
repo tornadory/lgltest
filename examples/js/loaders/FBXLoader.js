@@ -165,6 +165,7 @@
 	// These images are connected to textures in FBXTree.Objects.Textures
 	// via FBXTree.Connections.
 	function parseImages( FBXTree ) {
+		console.log("FBX  parseImages from ", FBXTree);
 
 		var images = {};
 		var blobs = {};
@@ -209,6 +210,8 @@
 			else images[ id ] = images[ id ].split( '\\' ).pop();
 
 		}
+
+		console.log("after parsing, images are ", images);
 
 		return images;
 

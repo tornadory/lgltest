@@ -11,7 +11,7 @@
 	<script type="text/javascript" src="../external/gl-matrix.js"></script>
 	<script type="text/javascript" src="../build/litegl.js"></script>
 	<script type="text/javascript">
-		
+
 	function init()
 	{
 		//create the rendering context
@@ -22,7 +22,19 @@
 		gl.animate();
 
 		//build the mesh
-		var mesh = GL.Mesh.cube({size:10});
+
+		//adjust camera to mesh bounding
+		function adjustCameraToBounding( mesh ){
+			cam_center = BBox.getCenter( mesh.bounding );
+			var r = BBox.getRadius( mesh.bounding );
+			cam_pos = vec3.add( cam_pos, cam_center, [0,r*0.5, r*3] );
+		}
+
+		//build the mesh
+		mesh = GL.Mesh.fromURL( "girl.wbin", adjustCameraToBounding ); //load from URL
+		//var mesh = GL.Mesh.fromURL("obj/dolphin.wbin", adjustCameraToBounding);
+
+		//var mesh = GL.Mesh.cube({size:10});
 		var texture = GL.Texture.fromURL("texture.png",{temp_color:[80,120,40,255], minFilter: gl.LINEAR_MIPMAP_LINEAR});
 
 		//create basic matrices for cameras and transformation
@@ -106,13 +118,11 @@
 			//rotate cube
 			mat4.rotateY(model,model,dt*0.2);
 		};
-	}	
-	
+	}
+
 	</script>
 </head>
 <body>
 	<script>init();</script>
 </body>
 </html>
-
-
