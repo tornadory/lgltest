@@ -15,7 +15,7 @@
 </head>
 <body>
 	<script type="text/javascript">
-	
+
 	//create the rendering context
 	var gl = GL.create({width: window.innerWidth,height: window.innerHeight});
 	var container = document.body;
@@ -40,7 +40,7 @@
 	var texture_albedo = new GL.Texture(w,h, { type: type, filter: gl.NEAREST });
 
 	var textures = [ texture_color, texture_normal, texture_albedo ];
-	var texture_depth = new GL.Texture(w,h, { format: gl.DEPTH_COMPONENT, type: gl.UNSIGNED_INT, filter: gl.NEAREST }); 
+	var texture_depth = new GL.Texture(w,h, { format: gl.DEPTH_COMPONENT, type: gl.UNSIGNED_INT, filter: gl.NEAREST });
 
 	var fbo = new GL.FBO( textures, texture_depth );
 
@@ -107,7 +107,7 @@
 			  gl_FragData[1] = vec4(abs(N),1.0);\
 			  gl_FragData[3] = vec4(vec3(abs(depth)),1.0);\
 			}\
-		');	
+		');
 
 	//generic gl flags and settings
 	gl.clearColor(0.1,0.1,0.1,1);
@@ -145,6 +145,7 @@
 		shader.uniforms( uniforms ).draw( sphere );
 
 		shader.uniforms( uniforms ).draw( sphere, gl.POINTS );
+		//shader.uniforms( uniforms ).draw( sphere );
 
 		fbo.unbind();
 
@@ -162,10 +163,8 @@
 		//rotate cube
 		mat4.rotateY(model,model,dt*0.2);
 	};
-	
+
 	</script>
 </body>
 
 </html>
-
-
