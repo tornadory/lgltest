@@ -69,14 +69,12 @@
 		//3. multiple Geometry
 		//4. multiple textures
 		var fbxloader = new THREE.FBXLoader();
-		fbxloader.load('obj/dolphin.fbx', function(object){
+		// fbxloader.load('obj/dolphin.fbx', function(object){
 		// fbxloader.load('fbx/Dragon_Baked_Actions.fbx', function(object){
-		// fbxloader.load('fbx/MechanicalArm14.FBX', function(object){
+		fbxloader.load('fbx/MechanicalArm14.FBX', function(object){
 		// fbxloader.load('fbx/multiple-meshes.fbx', function(object){
 			console.log("object from THREE.FBXLoader is ", object);
 			object.traverse( function ( child ) {
-
-				//console.log("############# Traverse Object ##############");
 
 				if ( child instanceof THREE.Mesh ) {
 					if(child.isSkinnedMesh){
@@ -87,7 +85,6 @@
 					if(!bufferGeometry.attributes.position || bufferGeometry.attributes.position.array.length < 3)
 					{
 						console.log("NO GEOMETRY, ignore it");
-						//continue;
 					}else{
 						var geometry = new THREE.Geometry().fromBufferGeometry( bufferGeometry );
 						console.log("got geometry data from bufferGeometry is, ", geometry);
@@ -109,11 +106,19 @@
 
 						if(bufferGeometry.attributes.uv){
 							console.log("uv array is: ", bufferGeometry.attributes.uv.array);
-							uvArray = bufferGeometry.attributes.uv.array.slice();
+							// uvArray = bufferGeometry.attributes.uv.array.slice();  //can not copy it directly
+							for(let i = 0; i < bufferGeometry.attributes.uv.array.length; i++){
+								uvArray[i] = bufferGeometry.attributes.uv.array[i];
+							}
 						}
 
-						if(bufferGeometry.attributes.normal)
-							normalsArray = bufferGeometry.attributes.normal.array.slice();
+						if(bufferGeometry.attributes.normal){
+							//normalsArray = bufferGeometry.attributes.normal.array.slice(); //can not copy it directly
+							for(let i = 0; i < bufferGeometry.attributes.normal.array.length; i++){
+								normalsArray[i] = bufferGeometry.attributes.normal.array[i];
+							}
+						}
+
 						//boneIndexArray = bufferGeometry.attributes.skinIndex.array.slice();
 						//weightsArray = bufferGeometry.attributes.skinWeight.array.slice();
 
@@ -157,12 +162,12 @@
 						// if (hasNor && normalsArray.length > 0)
 						// 	mesh.normals = new Float32Array(normalsArray);
 						if(normalsArray && normalsArray.length > 0)
-							vmesh.normals = normalsArray;
+							vmesh.normals = new Float32Array(normalsArray);
 
 						// if (hasTex && texcoordsArray.length > 0)
 						// 	mesh.coords = new Float32Array(texcoordsArray);
-						if(uvArray && uvArray.length > 0)
-							vmesh.coords = uvArray;
+						// if(uvArray && uvArray.length > 0)
+						// 	vmesh.coords = new Float32Array(uvArray);
 
 						//vmesh.bone_indices = boneIndexArray;
 						//vmesh.weights = weightsArray;
@@ -179,20 +184,23 @@
 
 						meshes.push(glmesh);
 						//console.log("converted mesh from 3fbxloader to wgsgl is ", mesh);
-						console.log("try to add mesh to meshes ............", meshes);
 
-						// //creates and returns a GL.Mesh
-						// var final_mesh = null;
-						// final_mesh = Mesh.load( mesh, null, options.mesh );
 					}
 
-				}
+				} // endof if child instanceof THREE.Mesh
 
-			} );
+			} // endof object.traverse
+		  );
+
+			console.log("FINALLY get the meshes : ", meshes);
+			if(meshes.length > 0){
+				adjustCameraToBounding(meshes[0]);
+			}
 		});
 
 
 		//load obj from 3js
+		/*
 		var loader = new THREE.OBJLoader();
 		// loader.load( 'obj/male02/male02.obj', function ( object ) {
 		loader.load( 'obj/suzanne.obj', function ( object ) {
@@ -298,7 +306,7 @@
 			} );
 
 		}, onProgress, onError );
-
+		*/
 
 		gl.animate();
 
@@ -309,22 +317,10 @@
 		//var buffer = this.vertexBuffers[name] = new GL.Buffer( gl.ARRAY_BUFFER, buffer_data, buffer_spacing, stream_type, this.gl );
 		//var buffer = this.indexBuffers[name] = new GL.Buffer(gl.ELEMENT_ARRAY_BUFFER, buffer_data, 0, stream_type, this.gl );
 
-		//var mesh = GL.Mesh.fromURL("obj/cube-red.obj");
+		var mesh = GL.Mesh.fromURL("obj/cube-red.obj", adjustCameraToBounding);
 		//var texture = GL.Texture.fromURL("blob:http://localhost:3030/4a246966-65af-4ce5-8caf-ace1b25121f2",{temp_color:[80,120,40,255], minFilter: gl.NEAREST});
-
-		//var texture = GL.Texture.fromURL("texture.png",{temp_color:[80,120,40,255], minFilter: gl.LINEAR_MIPMAP_LINEAR});
-
-		// var image = new Image();
-		// //image.src = "obj/dolphin_D.png";
-		// image.src = "blob:http://localhost:3030/4a246966-65af-4ce5-8caf-ace1b25121f2";
-		// var texture = GL.Texture.fromImage(image, {minFilter: gl.NEAREST});
-		//var texture = GL.Texture.fromURL("obj/skybox_dxt1.dds",{temp_color:[80,120,40,255], minFilter: gl.NEAREST}); //OK
-		// var texture = GL.Texture.cubemapFromURL("cross-skybox.jpg",{temp_color:[80,80,80,255], is_cross: 1, minFilter: gl.NEAREST }); //OK
-
 		var texture = GL.Texture.fromURL("obj/dolphin_D.png",{minFilter: gl.NEAREST});//OK
 		// var texture = GL.Texture.fromURL("blob:http://localhost:3030/4a246966-65af-4ce5-8caf-ace1b25121f2", {minFilter: gl.NEAREST});
-
-		// var texture = GL.Texture.cubemapFromURL("obj/dolphin_D.png",{temp_color:[80,80,80,255], is_cross: 1, minFilter: gl.NEAREST });
 
 		if(mesh){
 			console.log("mesh from THREE.*Loader is", mesh);
@@ -363,6 +359,12 @@
 				return;
 			var s = 1 + e.wheel / 1000;
 			mat4.scale(model,model,[s,s,s]);
+		}
+
+		function adjustCameraToBounding( mesh ){
+			cam_center = BBox.getCenter( mesh.bounding );
+			var r = BBox.getRadius( mesh.bounding );
+			cam_pos = vec3.add( cam_pos, cam_center, [0,r*0.5, r*3] );
 		}
 		// gl.captureMouse();
 		// gl.onmousemove = function(e)
@@ -505,65 +507,65 @@
 			mat4.lookAt(view, cam_pos,[0,0,0], [0,1,0]);
 			// mat4.lookAt(view, cam_pos, cam_center, [0,1,0]);
 
-			mat4.multiply(temp,view,model);
-			mat4.multiply(mvp,proj,temp);
-
-			//compute rotation matrix for normals
-			if(texture){
-				texture.bind(0);
-				window.cubemap = texture; //debug
-			}
-
-
-			//global uniforms
-			shader.uniforms({
-				u_color: [1,1,1,1],
-				u_lightvector: vec3.normalize(vec3.create(),[1,1,1]),
-				u_camera_position: cam_pos});
-
-			//enable rendering to the stencil only
-			gl.enable( gl.STENCIL_TEST );
-			gl.clearStencil( 0x0 );
-			gl.clear( gl.STENCIL_BUFFER_BIT );
-			//gl.colorMask(false, false, false, false);
-			gl.depthMask(false);
-			gl.stencilFunc( gl.ALWAYS, 1, 0xFF );
-			gl.stencilOp( gl.KEEP, gl.KEEP, gl.REPLACE );
-			gl.enable( gl.CULL_FACE );
-
-			//render floor
-			// shader.uniforms({
-			// 	u_color: [0.1,0.1,0.1,1],
-			// 	u_model: model,
-			// 	u_mvp: mvp
-			// }).draw(floor);
-
-			//render back to color buffer but only if stencil is 1
-			gl.colorMask(true, true, true, true);
-			gl.depthMask(true);
-			gl.enable( gl.STENCIL_TEST );
-			gl.stencilFunc( gl.EQUAL, 1, 0xFF );
-
-			//render reflection with stencil test on
-			mat4.scale( model2, model, [1,-1,1]);
-			mat4.multiply(temp,view,model2);
-			mat4.multiply(mvp,proj,temp);
-			gl.frontFace( gl.CW ); //because the mesh is reversed in Y
-
-
-			// if(mesh){
-			// 	shader.uniforms({
-			// 		u_color: [0.1,0.1,0.1,1],
-			// 		u_model: model2,
-			// 		u_texture: 0,
-			// 		u_mvp: mvp
-			// 	}).draw( mesh );
+			// mat4.multiply(temp,view,model);
+			// mat4.multiply(mvp,proj,temp);
+      //
+			// //compute rotation matrix for normals
+			// if(texture){
+			// 	texture.bind(0);
+			// 	window.cubemap = texture; //debug
 			// }
-
-
-
-			gl.frontFace( gl.CCW );
-			gl.disable( gl.STENCIL_TEST );
+      //
+      //
+			// //global uniforms
+			// shader.uniforms({
+			// 	u_color: [1,1,1,1],
+			// 	u_lightvector: vec3.normalize(vec3.create(),[1,1,1]),
+			// 	u_camera_position: cam_pos});
+      //
+			// //enable rendering to the stencil only
+			// gl.enable( gl.STENCIL_TEST );
+			// gl.clearStencil( 0x0 );
+			// gl.clear( gl.STENCIL_BUFFER_BIT );
+			// //gl.colorMask(false, false, false, false);
+			// gl.depthMask(false);
+			// gl.stencilFunc( gl.ALWAYS, 1, 0xFF );
+			// gl.stencilOp( gl.KEEP, gl.KEEP, gl.REPLACE );
+			// gl.enable( gl.CULL_FACE );
+      //
+			// //render floor
+			// // shader.uniforms({
+			// // 	u_color: [0.1,0.1,0.1,1],
+			// // 	u_model: model,
+			// // 	u_mvp: mvp
+			// // }).draw(floor);
+      //
+			// //render back to color buffer but only if stencil is 1
+			// gl.colorMask(true, true, true, true);
+			// gl.depthMask(true);
+			// gl.enable( gl.STENCIL_TEST );
+			// gl.stencilFunc( gl.EQUAL, 1, 0xFF );
+      //
+			// //render reflection with stencil test on
+			// mat4.scale( model2, model, [1,-1,1]);
+			// mat4.multiply(temp,view,model2);
+			// mat4.multiply(mvp,proj,temp);
+			// gl.frontFace( gl.CW ); //because the mesh is reversed in Y
+      //
+      //
+			// // if(mesh){
+			// // 	shader.uniforms({
+			// // 		u_color: [0.1,0.1,0.1,1],
+			// // 		u_model: model2,
+			// // 		u_texture: 0,
+			// // 		u_mvp: mvp
+			// // 	}).draw( mesh );
+			// // }
+      //
+      //
+      //
+			// gl.frontFace( gl.CCW );
+			// gl.disable( gl.STENCIL_TEST );
 
 			mat4.multiply(temp,view,model);
 			mat4.multiply(mvp,proj,temp);
@@ -584,7 +586,9 @@
 
 			meshes.forEach(function(cmesh){
 				//console.log("try to render mesh ", cmesh);
-				if(cmesh){
+				let m = cmesh;
+				// console.log("mesh is ", m);
+				if(m){
 					if(texture)
 						texture.bind(0);
 
@@ -595,7 +599,7 @@
 						u_model: model,
 						u_texture: 0,
 						u_mvp: mvp
-					}).draw(cmesh);
+					}).draw(m);
 				}
 			});
 

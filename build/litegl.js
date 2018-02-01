@@ -11351,7 +11351,6 @@ Mesh.parseOBJ = function( text, options )
 		//read and parse numbers
 		if( code <= VN_CODE ) //v,vt,vn
 		{
-			console.log("<<<=== VN_CODE");
 			x = parseFloat(tokens[1]);
 			y = parseFloat(tokens[2]);
 			if( code != VT_CODE )
@@ -11369,26 +11368,21 @@ Mesh.parseOBJ = function( text, options )
 		}
 
 		if (code == V_CODE) {
-			console.log("====== V_CODE");
 			if(flip_axis) //maya and max notation style
 				positions.push(-1*x,z,y);
 			else
 				positions.push(x,y,z);
 		}
 		else if (code == VT_CODE) {
-			console.log("====== VT_CODE");
 			texcoords.push(x,y);
 		}
 		else if (code == VN_CODE) {
-			console.log("====== VN_CODE");
-
 			if(flip_normals)  //maya and max notation style
 				normals.push(-y,-z,x);
 			else
 				normals.push(x,y,z);
 		}
 		else if (code == F_CODE) {
-			console.log("====== F_CODE");
 			parsingFaces = true;
 
 			if (tokens.length < 4) continue; //faces with less that 3 vertices? nevermind
@@ -11499,7 +11493,6 @@ Mesh.parseOBJ = function( text, options )
 			}
 		}
 		else if (code == G_CODE || tokens[0] == "usemtl") {
-			console.log("====== G_CODE");
 			negative_offset = positions.length / 3 - 1;
 
 			if(tokens.length > 1)

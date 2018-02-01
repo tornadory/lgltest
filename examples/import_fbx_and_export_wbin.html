@@ -24,6 +24,17 @@
 	<script type="text/javascript" src="../external/gl-matrix.js"></script>
 	<script type="text/javascript" src="../external/wbin.js"></script>
 	<script type="text/javascript" src="../build/litegl.js"></script>
+
+	<script src="js/three.js"></script>
+	<script src="js/loaders/OBJLoader.js"></script>
+
+	<script src="js/libs/inflate.min.js"></script>
+	<script src="js/controls/OrbitControls.js"></script>
+	<script src="js/curves/NURBSCurve.js"></script>
+	<script src="js/curves/NURBSUtils.js"></script>
+	<script src="js/loaders/FBXLoader.js"></script>
+	<script src="js/libs/stats.min.js"></script>
+
 	<script type="text/javascript">
 
 	var mesh = null;
@@ -38,8 +49,8 @@
 		gl.animate();
 
 		//camera settings
-		var cam_pos = [0,100,250];
-		var cam_center = [0,100,0];
+		var cam_pos = [0,5,5];
+		var cam_center = [0,0,0];
 
 		//adjust camera to mesh bounding
 		function adjustCameraToBounding( mesh ){
@@ -49,9 +60,7 @@
 		}
 
 		//build the mesh
-		mesh = GL.Mesh.fromURL( "girl.wbin", adjustCameraToBounding ); //load from URL
-		// mesh = GL.Mesh.fromURL("obj/dolphin.wbin", adjustCameraToBounding);
-		console.log("mesh from wbin is, ", mesh);
+		mesh = GL.Mesh.fromURL("obj/dolphin.wbin", adjustCameraToBounding);
 
 		//create basic matrices for cameras and transformation
 		var proj = mat4.create();
@@ -62,15 +71,6 @@
 
 		//get mouse actions to drag the mesh
 		gl.captureMouse(true);
-		// gl.onmousemove = function(e)
-		// {
-		// 	if(e.dragging)
-		// 	{
-		// 		mat4.rotateY(model,model,e.deltax * 0.01);
-		// 		var r = BBox.getRadius( mesh.bounding );
-		// 		cam_pos[2] += e.deltay * r * 0.01;
-		// 	}
-		// }
 		gl.onmousemove = function(e)
 		{
 			if(!e.dragging)
@@ -119,8 +119,15 @@
 
 
 		//generic gl flags and settings
-		gl.clearColor(0.1,0.1,0.1,1);
+		gl.clearColor(0.7,0.7,0.7,1);
 		gl.enable( gl.DEPTH_TEST );
+
+		//update loop
+		// gl.onupdate = function(dt)
+		// {
+		// 	//rotate world
+		// 	mat4.rotateY(model,model,dt*0.2);
+		// };
 
 		//rendering loop
 		gl.ondraw = function()
@@ -178,18 +185,117 @@
 			var files = evt.dataTransfer.files;
 			var count = files.length;
 
+			var bufferGeometry;
+
+			var vertexBuffers = {};
+			var indexBuffers = {};
+
+			var indexArray = []; //indexBuffers triangles
+			var vertexArray = []; //vertexBuffers
+			//under mesh->vertexBuffers
+			var normalsArray = [];
+			var boneIndexArray = []; //bone indices
+			var weightsArray = []; //
+			var uvArray = []; //coords
+
+			var texture;
+			var meshes = [];
+			var textures = [];
+
 			for(var i=0; i < files.length; i++)
 			{
 				var file = files[i];
 				var reader = new FileReader();
 				var index = file.name.lastIndexOf(".");
-				var extension = file.name.substr(index+1);
+				var extension = file.name.toLowerCase().substr(index+1);
+				var path = (file.path !== undefined) ? FileSystem.getFilePath(file.path) : "";
 				reader.onload = function(e) {
 					var data = e.target.result;
-					mesh.parse( data, extension );
+					try
+					{
+						var loader = new THREE.FBXLoader();
+						object = loader.parse(reader.result, path);
+
+						console.log("pared object from THREE.FBXLoader is ", object);
+
+						object.traverse( function ( child ) {
+							if ( child instanceof THREE.Mesh ) {
+								if(child.isSkinnedMesh){
+									console.log("SKINNED MESH: ", child);
+								}
+								console.log("Mesh from Child of FBX object: ", child.geometry);
+								let bufferGeometry = child.geometry;
+								if(!bufferGeometry.attributes.position || bufferGeometry.attributes.position.array.length < 3)
+								{
+									console.log("NO GEOMETRY, ignore it");
+									//continue;
+								}else{
+									var geometry = new THREE.Geometry().fromBufferGeometry( bufferGeometry );
+									console.log("got geometry data from bufferGeometry is, ", geometry);
+
+									//Float32Array
+									for(let i = 0; i < geometry.vertices.length; i++){
+										for(let j = 0; j < 3; j++){
+											let index = 3*i + j;
+											vertexArray[index] = geometry.vertices[i].getComponent(j);
+										}
+									}
+									//Uint16Array
+									for(let i = 0; i < geometry.faces.length; i++){
+										let baseIndex = 3 * i;
+										indexArray[baseIndex] = geometry.faces[i].a;
+										indexArray[baseIndex + 1] = geometry.faces[i].b;
+										indexArray[baseIndex + 2] = geometry.faces[i].c;
+									}
+
+									if(bufferGeometry.attributes.uv){
+										console.log("uv array is: ", bufferGeometry.attributes.uv.array);
+										uvArray = bufferGeometry.attributes.uv.array.slice();
+									}
+
+									if(bufferGeometry.attributes.normal)
+										normalsArray = bufferGeometry.attributes.normal.array.slice();
+									if(bufferGeometry.attributes.skinIndex)
+										boneIndexArray = bufferGeometry.attributes.skinIndex.array.slice();
+									if(bufferGeometry.attributes.skinWeight)
+										weightsArray = bufferGeometry.attributes.skinWeight.array.slice();
+
+									let vmesh = {};
+
+									if(vertexArray && vertexArray.length > 0)
+										vmesh.vertices = new Float32Array(vertexArray);
+
+									if(indexArray && indexArray.length > 0)
+										vmesh.triangles = new Uint16Array(indexArray);
+
+									if(normalsArray && normalsArray.length > 0)
+										vmesh.normals = normalsArray;
+
+									if(uvArray && uvArray.length > 0)
+										vmesh.coords = uvArray;
+
+									if(boneIndexArray && boneIndexArray.length > 0)
+										vmesh.bone_indices = boneIndexArray;
+
+									if(weightsArray && weightsArray.length > 0)
+										vmesh.weights = weightsArray;
+
+									mesh = Mesh.load( vmesh, null, null );
+								}
+
+							}
+
+						} );
+
+					}
+					catch(e)
+					{
+						console.error("Error loading file", e);
+					}
+
 					adjustCameraToBounding(mesh);
 				};
-				if(extension == "wbin")
+				if(extension == "wbin" || extension == "fbx")
 				    reader.readAsArrayBuffer(file);
 				else
 				    reader.readAsText(file);
@@ -218,7 +324,7 @@
 </head>
 <body>
 	<div class="tools">
-		<button onclick="download('wbin');">Download as WBIN</button><button onclick="download('obj');">Download as OBJ</button> Drag and drop a mesh in OBJ or WBin format...
+		<button onclick="download('wbin');">Download as WBIN</button><button onclick="download('obj');">Download as OBJ</button> Drag and drop a mesh in FBX format...
 	</div>
 	<script>init();</script>
 </body>
