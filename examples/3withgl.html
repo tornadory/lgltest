@@ -69,10 +69,10 @@
 		//3. multiple Geometry
 		//4. multiple textures
 		var fbxloader = new THREE.FBXLoader();
-		// fbxloader.load('obj/dolphin.fbx', function(object){
+		fbxloader.load('obj/dolphin.fbx', function(object){
 		// fbxloader.load('fbx/Dragon_Baked_Actions.fbx', function(object){
 		// fbxloader.load('fbx/MechanicalArm14.FBX', function(object){
-		fbxloader.load('fbx/multiple-meshes2.fbx', function(object){
+		// fbxloader.load('fbx/multiple-meshes2.fbx', function(object){
 			console.log("object from THREE.FBXLoader is ", object);
 			object.traverse( function ( child ) {
 
@@ -122,19 +122,23 @@
 						//boneIndexArray = bufferGeometry.attributes.skinIndex.array.slice();
 						//weightsArray = bufferGeometry.attributes.skinWeight.array.slice();
 
+						console.log('rotation is ', child.rotation);
+						console.log('quaternion is ', child.quaternion);
+
 						if(child.material){
 							console.log("************MAT**************");
 							if(child.material.length > 1){
 								//
 								if(child.material[0].isMeshPhongMaterial){
-									console.log(child.material[0].map);
-									console.log(child.material[0].map.image);
+									console.log("material map is ", child.material[0].map); //can get map but its image is undefined
+									console.log("material map image is ", child.material[0].map.image); //material map image is  undefined
 								}
 							}else if(child.material.isMeshPhongMaterial){
 								console.log("------------YES it is PhongMaterial--------------");
 								var mat = child.material.clone();
-								console.log(child.material.map);
-								//console.log(child.material.map.image);
+								console.log("material map is ", child.material.map); //can get map but its image is undefined
+								console.log("material map image is ", child.material.map.image); //material map image is  undefined
+								console.log("color is ", child.material.color);
 								// console.log(mat.map);
 							}
 							// var tex = child.material.map;

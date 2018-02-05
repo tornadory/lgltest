@@ -105,9 +105,9 @@
 				scene.add( gridHelper );
 
 				// skeleton helper
-				var helper = new THREE.SkeletonHelper( mesh );
-				helper.material.linewidth = 3;
-				scene.add( helper );
+				// var helper = new THREE.SkeletonHelper( mesh );
+				// helper.material.linewidth = 3;
+				// scene.add( helper );
 
 				// stats
 				stats = new Stats();
@@ -216,7 +216,7 @@
 				{
 					var file = event.dataTransfer.files[i];
 					//Project file
-					if(file.name.toLowerCase.endsWith(".fbx")))
+					if(file.name.toLowerCase().endsWith(".fbx"))
 					{
 						var path = (file.path !== undefined) ? FileSystem.getFilePath(file.path) : "";
 						try{

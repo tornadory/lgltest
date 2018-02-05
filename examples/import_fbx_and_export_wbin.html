@@ -208,13 +208,14 @@
 				var reader = new FileReader();
 				var index = file.name.lastIndexOf(".");
 				var extension = file.name.toLowerCase().substr(index+1);
-				var path = (file.path !== undefined) ? FileSystem.getFilePath(file.path) : "";
+				// var path = (file.path !== undefined) ? FileSystem.getFilePath(file.path) : "";
 				reader.onload = function(e) {
 					var data = e.target.result;
 					try
 					{
 						var loader = new THREE.FBXLoader();
-						object = loader.parse(reader.result, path);
+						//object = loader.parse(reader.result, path);
+						object = loader.parse(reader.result);
 
 						console.log("pared object from THREE.FBXLoader is ", object);
 

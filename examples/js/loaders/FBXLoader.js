@@ -194,6 +194,9 @@
 
 						blobs[ videoNode.Filename ] = image;
 
+						console.log("FBXLoader parserImage result the image is ", image);
+						console.error("maybe need save it on disk ", image);
+
 					}
 
 				}
@@ -219,6 +222,7 @@
 
 	// Parse embedded image data in FBXTree.Video.Content
 	function parseImage( videoNode ) {
+		console.log("FBXLoader parseImage ", videoNode);
 
 		var content = videoNode.Content;
 		var fileName = videoNode.RelativeFilename || videoNode.Filename;
@@ -251,7 +255,7 @@
 
 			default:
 
-				console.warn( 'FBXLoader: Image type "' + extension + '" is not supported.' );
+				console.warn( 'FBXLoader: Image type "' + extension + '" is not supported.' ); //tga, dds can not be supported?
 				return;
 
 		}
