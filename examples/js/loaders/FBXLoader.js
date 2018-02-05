@@ -80,6 +80,7 @@
 			} else {
 
 				var FBXText = convertArrayBufferToString( FBXBuffer );
+				console.log("converted string from array buffer is, ", FBXText);
 
 				if ( ! isFbxFormatASCII( FBXText ) ) {
 
@@ -94,6 +95,7 @@
 				}
 
 				FBXTree = new TextParser().parse( FBXText );
+				console.log("parsed FBXTree is, ", FBXTree);
 
 			}
 
@@ -102,10 +104,12 @@
 			var connections = parseConnections( FBXTree );
 			var images = parseImages( FBXTree );
 			var textures = parseTextures( FBXTree, new THREE.TextureLoader( this.manager ).setPath( resourceDirectory ), images, connections );
+			//textures include many textures in it, using ID to access it
 			var materials = parseMaterials( FBXTree, textures, connections );
 			var skeletons = parseDeformers( FBXTree, connections );
 			var geometryMap = parseGeometries( FBXTree, connections, skeletons );
 			var sceneGraph = parseScene( FBXTree, connections, skeletons, geometryMap, materials );
+			console.log("got a scene graph ", sceneGraph); //still can access the image proper
 
 			return sceneGraph;
 
@@ -195,7 +199,7 @@
 						blobs[ videoNode.Filename ] = image;
 
 						console.log("FBXLoader parserImage result the image is ", image);
-						console.error("maybe need save it on disk ", image);
+						//console.error("maybe need save it on disk ", image);
 
 					}
 
@@ -277,6 +281,7 @@
 	// These contain details such as UV scaling, cropping, rotation etc and are connected
 	// to images in FBXTree.Objects.Video
 	function parseTextures( FBXTree, loader, images, connections ) {
+		console.log("FBXLoader parseTextures");
 
 		var textureMap = new Map();
 
@@ -291,6 +296,7 @@
 			}
 
 		}
+		console.log("got a texture map is ", textureMap);
 
 		return textureMap;
 
@@ -298,8 +304,10 @@
 
 	// Parse individual node in FBXTree.Objects.Texture
 	function parseTexture( textureNode, loader, images, connections ) {
+		console.log("FBXLoader parseTexture -- ");
 
 		var texture = loadTexture( textureNode, loader, images, connections );
+		console.log("got texture ", texture);
 
 		texture.ID = textureNode.id;
 
@@ -325,6 +333,8 @@
 			texture.repeat.y = values[ 1 ];
 
 		}
+
+		console.log("after some change, got texture ", texture);
 
 		return texture;
 
@@ -361,6 +371,7 @@
 
 	// Parse nodes in FBXTree.Objects.Material
 	function parseMaterials( FBXTree, textureMap, connections ) {
+		console.log("FBXLoader parseMaterials with ", textureMap);
 
 		var materialMap = new Map();
 
@@ -371,12 +382,15 @@
 			for ( var nodeID in materialNodes ) {
 
 				var material = parseMaterial( FBXTree, materialNodes[ nodeID ], textureMap, connections );
+				console.log("parse one material from textureMap ", material); //still can access the image property
 
 				if ( material !== null ) materialMap.set( parseInt( nodeID ), material );
 
 			}
 
 		}
+
+		console.log("return a materialMap ", materialMap);
 
 		return materialMap;
 
@@ -1499,6 +1513,8 @@
 		var modelMap = new Map();
 		var modelNodes = FBXTree.Objects.Model;
 
+		console.log("parseModels ", modelNodes);
+
 		for ( var nodeID in modelNodes ) {
 
 			var id = parseInt( nodeID );
@@ -1518,7 +1534,9 @@
 						model = createLight( FBXTree, relationships );
 						break;
 					case 'Mesh':
+					  console.log("try to create mesh for ", nodeID); //attrType is Mesh
 						model = createMesh( FBXTree, relationships, geometryMap, materialMap );
+
 						break;
 					case 'NurbsCurve':
 						model = createCurve( relationships, geometryMap );
@@ -1808,16 +1826,21 @@
 		var material = null;
 		var materials = [];
 
+		console.log("createMesh from relationships , ", relationships);
+
 		// get geometry and materials(s) from connections
 		relationships.children.forEach( function ( child ) {
 
 			if ( geometryMap.has( child.ID ) ) {
 
 				geometry = geometryMap.get( child.ID );
+				console.log("child.ID included in geometryMap ", child.ID, geometryMap);
 
 			}
 
 			if ( materialMap.has( child.ID ) ) {
+
+				console.log("child.ID included in materialMap ", child.ID, materialMap);
 
 				materials.push( materialMap.get( child.ID ) );
 
@@ -1835,12 +1858,16 @@
 
 		} else {
 
+			console.log("no materila found, using default MeshPhongMaterial with color 0xcccccc");
+
 			material = new THREE.MeshPhongMaterial( { color: 0xcccccc } );
 			materials.push( material );
 
 		}
 
 		if ( 'color' in geometry.attributes ) {
+
+			console.log("geometry has color attribute");
 
 			materials.forEach( function ( material ) {
 
@@ -1851,6 +1878,7 @@
 		}
 
 		if ( geometry.FBX_Deformer ) {
+			console.log("geometry has FBX_Deformer, try to create a skinnedMesh");
 
 			materials.forEach( function ( material ) {
 
@@ -1861,6 +1889,7 @@
 			model = new THREE.SkinnedMesh( geometry, material );
 
 		} else {
+			console.log("geometry has no FBX_Deformer, try to create a normal mesh");
 
 			model = new THREE.Mesh( geometry, material );
 

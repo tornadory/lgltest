@@ -68,6 +68,38 @@
 		//2. animations
 		//3. multiple Geometry
 		//4. multiple textures
+		var object;
+
+		var manager = new THREE.LoadingManager( function() {
+			console.log("***************************************");
+		   object.traverse( function ( child ) {
+		      if ( child.isMesh ) {
+		        var material = child.material;
+		          if ( Array.isArray( material ) ) {
+		            if ( material[ 0 ].isMeshPhongMaterial ) {
+		              console.log( "material map is ", material[ 0 ].map ); //can get map but its image is undefined
+		              console.log( "material map image is ", material[ 0 ].map.image ); //material map image is  undefined
+		            }
+		          } else if ( material.isMeshPhongMaterial ) {
+		            console.log( "material map is ", material.map ); //can get map but its image is undefined
+		            console.log( "material map image is ", material.map.image ); //material map image is  undefined
+		          }
+		        }
+		      }
+
+		  );
+
+			console.log("***************************************");
+		});
+
+		var floader = new THREE.FBXLoader( manager );
+
+		floader.load( 'obj/dolphin.fbx', function( scene ) {
+		   object = scene;
+		} );
+
+
+
 		var fbxloader = new THREE.FBXLoader();
 		fbxloader.load('obj/dolphin.fbx', function(object){
 		// fbxloader.load('fbx/Dragon_Baked_Actions.fbx', function(object){
