@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>ASYNC TEST</title>
+    <script src="js/three.js"></script>
+  	<script src="js/loaders/OBJLoader.js"></script>
+
+  	<script src="js/libs/inflate.min.js"></script>
+  	<script src="js/controls/OrbitControls.js"></script>
+  	<script src="js/curves/NURBSCurve.js"></script>
+  	<script src="js/curves/NURBSUtils.js"></script>
+  	<script src="js/loaders/FBXLoader.js"></script>
+  	<script src="js/libs/stats.min.js"></script>
+
+  </head>
+  <body>
+
+    <script>
+    function* ourGenerator(){
+      for(var i = 0; i < 5; i++){
+        i = yield i;
+        console.log("i is ", i);//.....
+      }
+    }
+    let gen = ourGenerator();
+    gen.next(); // {done: 0, value: 0}
+    gen.next(); // {done: false, value: undefined}
+    gen.next(); // {done: true}
+    gen = ourGenerator();
+    gen.next();
+    gen.next(3); // {done: false, value: 4}
+    gen.next(3); // {done: false, value: 4}
+
+
+
+    var answers = [
+      `It is certain`, `It is decidedly so`, `Without a doubt`,
+      `Yes definitely`, `You may rely on it`, `As I see it, yes`,
+      `Most likely`, `Outlook good`, `Yes`, `Signs point to yes`,
+      `Reply hazy try again`, `Ask again later`, `Better not tell you now`,
+      `Cannot predict now`, `Concentrate and ask again`,
+      `Don't count on it`, `My reply is no`, `My sources say no`,
+      `Outlook not so good`, `Very doubtful`
+    ]
+    function answer () {
+      return answers[Math.floor(Math.random() * answers.length)]
+    }
+
+    function* chat () {
+      while (true) {
+        let question = yield '[Genie] ' + answer()
+        console.log(question)
+      }
+    }
+    var g = chat()
+    g.next()
+    console.log(g.next('[Me] Will ES6 die a painful death?').value)
+    // <- '[Me] Will ES6 die a painful death?'
+    // <- '[Genie] My sources say no'
+    console.log(g.next('[Me] How youuu doing?').value)
+    // <- '[Me] How youuu doing?'
+    // <- '[Genie] Concentrate and ask again'
+
+
+    function* generator () {
+      yield 'p'
+      console.log('o')
+      yield 'n'
+      console.log('y')
+      yield 'f'
+      console.log('o')
+      yield 'o'
+      console.log('!')
+    }
+
+
+
+
+    function getAsyncData (gen) {
+      var g = gen();
+      g.next(); //Important! Otherwise stops execution on `var html = yield`.
+      var object;
+    	var manager = new THREE.LoadingManager( function() {
+    		console.log("***************************************");
+    		console.log("object from THREE.FBXLoader is ", object);
+    		console.log("***************************************");
+        g.next(object);
+    	});
+
+    	var floader = new THREE.FBXLoader( manager );
+  		floader.load( 'obj/dolphin.fbx', function( scene ) {
+        object = scene;
+  		});
+    }
+
+    getAsyncData(function* printAsyncData(){
+      var obj = yield;
+      console.log("printAsyncData", obj);
+
+      obj.traverse( function ( child ) {
+
+				if ( child instanceof THREE.Mesh ) {
+					if(child.isSkinnedMesh){
+						console.log("SKINNED MESH: ", child);
+					}
+					console.log("Mesh from Child of FBX object: ", child.geometry);
+					let bufferGeometry = child.geometry;
+					if(!bufferGeometry.attributes.position || bufferGeometry.attributes.position.array.length < 3)
+					{
+						console.log("NO GEOMETRY, ignore it");
+					}else{
+						var geometry = new THREE.Geometry().fromBufferGeometry( bufferGeometry );
+						console.log("got geometry data from bufferGeometry is, ", geometry);
+
+						console.log('rotation is ', child.rotation);
+						console.log('quaternion is ', child.quaternion);
+
+						if(child.material){
+							console.log("************MAT**************");
+							// let texture = null;
+							if(child.material.length > 1){
+								//
+								if(child.material[0].isMeshPhongMaterial){
+									console.log("material map is ", child.material[0].map); //can get map but its image is undefined
+									console.log("material map image is ", child.material[0].map.image); //material map image is  undefined
+								}
+							}else if(child.material.isMeshPhongMaterial){
+								console.log("------------YES it is PhongMaterial--------------");
+								console.log("material map is ", child.material.map); //can get map but its image is undefined
+								console.log("material map image is ", child.material.map.image); //material map image is  undefined
+								console.log("color is ", child.material.color);
+							}
+						}
+					}
+				} // endof if child instanceof THREE.Mesh
+			}); // endof object.traverse
+    });
+
+    var g = generator()
+    while (true) {
+      let item = g.next()
+      if (item.done) {
+        break
+      }
+      console.log(item.value)
+    }
+
+    //printAsyncData();
+
+    // function printAsyncData () {
+    //   getAsyncData().then(data =>{
+    //     console.log('got data', data);
+    //     let obj = data;
+    //     obj.traverse( function ( child ) {
+    //
+  	// 			if ( child instanceof THREE.Mesh ) {
+  	// 				if(child.isSkinnedMesh){
+  	// 					console.log("SKINNED MESH: ", child);
+  	// 				}
+  	// 				console.log("Mesh from Child of FBX object: ", child.geometry);
+  	// 				let bufferGeometry = child.geometry;
+  	// 				if(!bufferGeometry.attributes.position || bufferGeometry.attributes.position.array.length < 3)
+  	// 				{
+  	// 					console.log("NO GEOMETRY, ignore it");
+  	// 				}else{
+  	// 					var geometry = new THREE.Geometry().fromBufferGeometry( bufferGeometry );
+  	// 					console.log("got geometry data from bufferGeometry is, ", geometry);
+    //
+  	// 					console.log('rotation is ', child.rotation);
+  	// 					console.log('quaternion is ', child.quaternion);
+    //
+  	// 					if(child.material){
+  	// 						console.log("************MAT**************");
+  	// 						// let texture = null;
+  	// 						if(child.material.length > 1){
+  	// 							//
+  	// 							if(child.material[0].isMeshPhongMaterial){
+  	// 								console.log("material map is ", child.material[0].map); //can get map but its image is undefined
+  	// 								console.log("material map image is ", child.material[0].map.image); //material map image is  undefined
+  	// 							}
+  	// 						}else if(child.material.isMeshPhongMaterial){
+  	// 							console.log("------------YES it is PhongMaterial--------------");
+  	// 							console.log("material map is ", child.material.map); //can get map but its image is undefined
+  	// 							console.log("material map image is ", child.material.map.image); //material map image is  undefined
+  	// 							console.log("color is ", child.material.color);
+  	// 						}
+  	// 					}
+    //
+  	// 				}
+    //
+  	// 			} // endof if child instanceof THREE.Mesh
+    //
+  	// 		}); // endof object.traverse
+    //   });
+    // }
+
+    console.log('END$$$$$$$$$$$$$$$$$$$$$$$$$$$$')
+    </script>
+
+  </body>
+</html>
