@@ -161,6 +161,8 @@
 						meshes.push(glmesh);
 						//console.log("converted mesh from 3fbxloader to wgsgl is ", mesh);
 
+						//mat4.scale(model,model,[0.1,0.1,0.1]); //OK
+
 					}
 
 				} // endof if child instanceof THREE.Mesh
@@ -185,7 +187,6 @@
 		gl.animate();
 
 		// texture = GL.Texture.fromURL("obj/dolphin_D.png",{minFilter: gl.NEAREST});//OK
-
 
 		var floor = GL.Mesh.plane({size:140, xz: true});
 		var cam_pos = [0,5,5];
@@ -285,7 +286,7 @@
 			');
 
 		//generic gl flags and settings
-		gl.clearColor(0.6,0.6,0.6,1);
+		gl.clearColor(0.7,0.7,0.7,1);
 		gl.enable( gl.DEPTH_TEST );
 
 		//rendering loop
@@ -301,7 +302,6 @@
 			if(texture){
 				texture.bind(0);
 			}
-
 
 			mat4.multiply(temp,view,model);
 			mat4.multiply(mvp,proj,temp);

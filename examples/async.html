@@ -1,0 +1,64 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+<title>litegl.js: DDS example</title>
+	<link rel="stylesheet" type="text/css" href="style.css" />
+	<style type='text/css'>
+		html, body { margin: 0; padding: 0; }
+		body { background-color: #DDD;}
+		h1 { color: #777; background-color: #CCC; }
+	</style>
+</head>
+<body>
+	<script type="text/javascript">
+
+	function request(url) {
+	  return new Promise(function(resolve, reject) {
+	    const xhr = new XMLHttpRequest();
+	    xhr.onreadystatechange = function(e) {
+	      if (xhr.readyState === 4) {
+	        if (xhr.status === 200) {
+	          resolve(xhr.response)
+	        } else {
+	          reject(xhr.status)
+	        }
+	      }
+	    }
+	    xhr.ontimeout = function () {
+	      reject('timeout')
+	    }
+	    xhr.open('get', url, true)
+	    xhr.send()
+	  })
+	}
+
+	console.log("let's go");
+
+	request("https://pic3.zhimg.com/v2-def9c21d9ca33a743490a13d157f4208_m.jpg");
+
+	console.log("let's go step 2");
+
+	sumTwentyAfterTwoSeconds(10)
+  	.then(result => console.log('after 2 seconds', result));
+
+  async function sumTwentyAfterTwoSeconds(value) {
+		  console.log("try to call sumTwentyAfterTwoSeconds....", value);
+		  const remainder = afterTwoSeconds(20)
+		  return value + await remainder
+		}
+
+	function afterTwoSeconds(value) {
+		console.log("try to call afterTwoSeconds....", value);
+	  return new Promise(resolve => {
+	    setTimeout(() => { resolve(value) }, 2000);
+	  });
+	}
+
+	console.log("let's go final");
+
+	</script>
+</body>
+
+</html>
