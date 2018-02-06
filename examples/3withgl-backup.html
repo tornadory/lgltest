@@ -1,0 +1,812 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+<title>litegl.js: stencil example</title>
+	<link rel="stylesheet" type="text/css" href="style.css" />
+	<style type='text/css'>
+		html, body { width: 100%; height: 100%; margin: 0; padding: 0 }
+		body { background-color: #DDD;}
+		h1 { color: #777; background-color: #CCC; }
+	</style>
+	<script type="text/javascript" src="../external/gl-matrix.js"></script>
+	<script type="text/javascript" src="../build/litegl.js"></script>
+
+	<script src="js/three.js"></script>
+	<script src="js/loaders/OBJLoader.js"></script>
+
+	<script src="js/libs/inflate.min.js"></script>
+	<script src="js/controls/OrbitControls.js"></script>
+	<script src="js/curves/NURBSCurve.js"></script>
+	<script src="js/curves/NURBSUtils.js"></script>
+	<script src="js/loaders/FBXLoader.js"></script>
+	<script src="js/libs/stats.min.js"></script>
+
+	<script type="text/javascript">
+
+	var bufferGeometry;
+
+	var vertexBuffers = {};
+	var indexBuffers = {};
+
+	var indexArray = []; //indexBuffers triangles
+	var vertexArray = []; //vertexBuffers
+	//under mesh->vertexBuffers
+	var normalsArray = [];
+	var boneIndexArray = []; //bone indices
+	var weightsArray = []; //
+	var uvArray = []; //coords
+
+	var texture;
+	var meshes = [];
+	var textures = [];
+
+	var onProgress = function ( xhr ) {
+		if ( xhr.lengthComputable ) {
+			var percentComplete = xhr.loaded / xhr.total * 100;
+			console.log( Math.round(percentComplete, 2) + '% downloaded' );
+		}
+	};
+
+	var onError = function ( xhr ) {
+	};
+
+	function init()
+	{
+		//create the rendering context
+		var container = document.body;
+
+		var gl = GL.create({width: container.offsetWidth, height: container.offsetHeight, stencil: true});
+		container.appendChild(gl.canvas);
+
+		var mesh;
+
+		//define something
+		//#ISSUES to be down
+		//1. color and textures
+		//2. animations
+		//3. multiple Geometry
+		//4. multiple textures
+		var object;
+
+		var manager = new THREE.LoadingManager( function() {
+			console.log("***************************************");
+		  //  object.traverse( function ( child ) {
+		  //     if ( child.isMesh ) {
+		  //       var material = child.material;
+		  //         if ( Array.isArray( material ) ) {
+		  //           if ( material[ 0 ].isMeshPhongMaterial ) {
+		  //             console.log( "material map is ", material[ 0 ].map ); //can get map but its image is undefined
+		  //             console.log( "material map image is ", material[ 0 ].map.image ); //material map image is  undefined
+		  //           }
+		  //         } else if ( material.isMeshPhongMaterial ) {
+		  //           console.log( "material map is ", material.map ); //can get map but its image is undefined
+		  //           console.log( "material map image is ", material.map.image ); //material map image is  undefined
+		  //         }
+		  //       }
+		  //     }
+		  // );
+
+			console.log("object from THREE.FBXLoader is ", object);
+			object.traverse( function ( child ) {
+
+				if ( child instanceof THREE.Mesh ) {
+					if(child.isSkinnedMesh){
+						console.log("SKINNED MESH: ", child);
+					}
+					console.log("Mesh from Child of FBX object: ", child.geometry);
+					let bufferGeometry = child.geometry;
+					if(!bufferGeometry.attributes.position || bufferGeometry.attributes.position.array.length < 3)
+					{
+						console.log("NO GEOMETRY, ignore it");
+					}else{
+						var geometry = new THREE.Geometry().fromBufferGeometry( bufferGeometry );
+						console.log("got geometry data from bufferGeometry is, ", geometry);
+
+						//Float32Array
+						for(let i = 0; i < geometry.vertices.length; i++){
+							for(let j = 0; j < 3; j++){
+								let index = 3*i + j;
+								vertexArray[index] = geometry.vertices[i].getComponent(j);
+							}
+						}
+						//Uint16Array
+						for(let i = 0; i < geometry.faces.length; i++){
+							let baseIndex = 3 * i;
+							indexArray[baseIndex] = geometry.faces[i].a;
+							indexArray[baseIndex + 1] = geometry.faces[i].b;
+							indexArray[baseIndex + 2] = geometry.faces[i].c;
+						}
+
+						if(bufferGeometry.attributes.uv){
+							console.log("uv array is: ", bufferGeometry.attributes.uv.array);
+							// uvArray = bufferGeometry.attributes.uv.array.slice();  //can not copy it directly
+							for(let i = 0; i < bufferGeometry.attributes.uv.array.length; i++){
+								uvArray[i] = bufferGeometry.attributes.uv.array[i];
+							}
+						}
+
+						if(bufferGeometry.attributes.normal){
+							//normalsArray = bufferGeometry.attributes.normal.array.slice(); //can not copy it directly
+							for(let i = 0; i < bufferGeometry.attributes.normal.array.length; i++){
+								normalsArray[i] = bufferGeometry.attributes.normal.array[i];
+							}
+						}
+
+						//boneIndexArray = bufferGeometry.attributes.skinIndex.array.slice();
+						//weightsArray = bufferGeometry.attributes.skinWeight.array.slice();
+
+						console.log('rotation is ', child.rotation);
+						console.log('quaternion is ', child.quaternion);
+
+						if(child.material){
+							console.log("************MAT**************");
+							// let texture = null;
+							let imagesrc = "";
+							if(child.material.length > 1){
+								//
+								if(child.material[0].isMeshPhongMaterial){
+									console.log("material map is ", child.material[0].map); //can get map but its image is undefined
+									console.log("material map image is ", child.material[0].map.image); //material map image is  undefined
+									imagesrc = child.material[0].map.image.src;
+								}
+							}else if(child.material.isMeshPhongMaterial){
+								console.log("------------YES it is PhongMaterial--------------");
+								var mat = child.material.clone();
+								console.log("material map is ", child.material.map); //can get map but its image is undefined
+								console.log("material map image is ", child.material.map.image); //material map image is  undefined
+								console.log("color is ", child.material.color);
+								imagesrc = child.material.map.image.src;
+								// console.log(mat.map);
+							}
+							// var tex = child.material.map;
+							// console.log("tex ", tex);//.image
+							// console.log(child.material);
+							// console.log(child.material.map);
+							// console.log(child.material.map.image);
+							// texture = GL.Texture.fromURL("blob:http://localhost:3030/4a246966-65af-4ce5-8caf-ace1b25121f2", {minFilter: gl.NEAREST});
+							// var texture = GL.Texture.fromURL("obj/dolphin_D.png",{minFilter: gl.NEAREST});//OK
+
+							// texture = GL.Texture.fromURL(imagesrc, {minFilter: gl.NEAREST});
+
+							// console.log("GOT texture is ", texture);
+						}
+
+						let vmesh = {};
+
+						// if (hasPos)
+						// 	mesh.vertices = new Float32Array(positionsArray);
+						if(vertexArray && vertexArray.length > 0)
+							vmesh.vertices = new Float32Array(vertexArray);
+
+						// if (indicesArray && indicesArray.length > 0)
+						// 	mesh.triangles = new Uint16Array(indicesArray);
+						if(indexArray && indexArray.length > 0)
+							vmesh.triangles = new Uint16Array(indexArray);
+
+
+						// if (hasNor && normalsArray.length > 0)
+						// 	mesh.normals = new Float32Array(normalsArray);
+						if(normalsArray && normalsArray.length > 0)
+							vmesh.normals = new Float32Array(normalsArray);
+
+						// if (hasTex && texcoordsArray.length > 0)
+						// 	mesh.coords = new Float32Array(texcoordsArray);
+						// if(uvArray && uvArray.length > 0)
+						// 	vmesh.coords = new Float32Array(uvArray);
+
+						//vmesh.bone_indices = boneIndexArray;
+						//vmesh.weights = weightsArray;
+
+						// var info = {};
+						// if(groups.length > 1)
+						// 	info.groups = groups;
+						// mesh.info = info;
+
+						//mesh = Mesh.load( vmesh, null, null );
+
+						let glmesh = Mesh.load( vmesh, null, null );
+						glmesh.name = child.name;
+
+						meshes.push(glmesh);
+						//console.log("converted mesh from 3fbxloader to wgsgl is ", mesh);
+
+					}
+
+				} // endof if child instanceof THREE.Mesh
+
+			} // endof object.traverse
+		  );
+
+			console.log("FINALLY get the meshes : ", meshes);
+			if(meshes.length > 0){
+				adjustCameraToBounding(meshes[0]);
+			}
+
+			console.log("***************************************");
+		});
+
+		var floader = new THREE.FBXLoader( manager );
+
+		floader.load( 'obj/dolphin.fbx', function( scene ) {
+		   object = scene;
+		});
+
+
+
+		// var fbxloader = new THREE.FBXLoader();
+		// fbxloader.load('obj/dolphin.fbx', function(object){
+		// // fbxloader.load('fbx/Dragon_Baked_Actions.fbx', function(object){
+		// // fbxloader.load('fbx/MechanicalArm14.FBX', function(object){
+		// // fbxloader.load('fbx/multiple-meshes2.fbx', function(object){
+		// 	console.log("object from THREE.FBXLoader is ", object);
+		// 	object.traverse( function ( child ) {
+    //
+		// 		if ( child instanceof THREE.Mesh ) {
+		// 			if(child.isSkinnedMesh){
+		// 				console.log("SKINNED MESH: ", child);
+		// 			}
+		// 			console.log("Mesh from Child of FBX object: ", child.geometry);
+		// 			let bufferGeometry = child.geometry;
+		// 			if(!bufferGeometry.attributes.position || bufferGeometry.attributes.position.array.length < 3)
+		// 			{
+		// 				console.log("NO GEOMETRY, ignore it");
+		// 			}else{
+		// 				var geometry = new THREE.Geometry().fromBufferGeometry( bufferGeometry );
+		// 				console.log("got geometry data from bufferGeometry is, ", geometry);
+    //
+		// 				//Float32Array
+		// 				for(let i = 0; i < geometry.vertices.length; i++){
+		// 					for(let j = 0; j < 3; j++){
+		// 						let index = 3*i + j;
+		// 						vertexArray[index] = geometry.vertices[i].getComponent(j);
+		// 					}
+		// 				}
+		// 				//Uint16Array
+		// 				for(let i = 0; i < geometry.faces.length; i++){
+		// 					let baseIndex = 3 * i;
+		// 					indexArray[baseIndex] = geometry.faces[i].a;
+		// 					indexArray[baseIndex + 1] = geometry.faces[i].b;
+		// 					indexArray[baseIndex + 2] = geometry.faces[i].c;
+		// 				}
+    //
+		// 				if(bufferGeometry.attributes.uv){
+		// 					console.log("uv array is: ", bufferGeometry.attributes.uv.array);
+		// 					// uvArray = bufferGeometry.attributes.uv.array.slice();  //can not copy it directly
+		// 					for(let i = 0; i < bufferGeometry.attributes.uv.array.length; i++){
+		// 						uvArray[i] = bufferGeometry.attributes.uv.array[i];
+		// 					}
+		// 				}
+    //
+		// 				if(bufferGeometry.attributes.normal){
+		// 					//normalsArray = bufferGeometry.attributes.normal.array.slice(); //can not copy it directly
+		// 					for(let i = 0; i < bufferGeometry.attributes.normal.array.length; i++){
+		// 						normalsArray[i] = bufferGeometry.attributes.normal.array[i];
+		// 					}
+		// 				}
+    //
+		// 				//boneIndexArray = bufferGeometry.attributes.skinIndex.array.slice();
+		// 				//weightsArray = bufferGeometry.attributes.skinWeight.array.slice();
+    //
+		// 				console.log('rotation is ', child.rotation);
+		// 				console.log('quaternion is ', child.quaternion);
+    //
+		// 				if(child.material){
+		// 					console.log("************MAT**************");
+		// 					if(child.material.length > 1){
+		// 						//
+		// 						if(child.material[0].isMeshPhongMaterial){
+		// 							console.log("material map is ", child.material[0].map); //can get map but its image is undefined
+		// 							console.log("material map image is ", child.material[0].map.image); //material map image is  undefined
+		// 						}
+		// 					}else if(child.material.isMeshPhongMaterial){
+		// 						console.log("------------YES it is PhongMaterial--------------");
+		// 						var mat = child.material.clone();
+		// 						console.log("material map is ", child.material.map); //can get map but its image is undefined
+		// 						console.log("material map image is ", child.material.map.image); //material map image is  undefined
+		// 						console.log("color is ", child.material.color);
+		// 						// console.log(mat.map);
+		// 					}
+		// 					// var tex = child.material.map;
+		// 					// console.log("tex ", tex);//.image
+		// 					// console.log(child.material);
+		// 					// console.log(child.material.map);
+		// 					// console.log(child.material.map.image);
+		// 					// texture = GL.Texture.fromURL("blob:http://localhost:3030/4a246966-65af-4ce5-8caf-ace1b25121f2", {minFilter: gl.NEAREST});
+		// 					// var texture = GL.Texture.fromURL("obj/dolphin_D.png",{minFilter: gl.NEAREST});//OK
+		// 				}
+    //
+		// 				let vmesh = {};
+    //
+		// 				// if (hasPos)
+		// 				// 	mesh.vertices = new Float32Array(positionsArray);
+		// 				if(vertexArray && vertexArray.length > 0)
+		// 					vmesh.vertices = new Float32Array(vertexArray);
+    //
+		// 				// if (indicesArray && indicesArray.length > 0)
+		// 				// 	mesh.triangles = new Uint16Array(indicesArray);
+		// 				if(indexArray && indexArray.length > 0)
+		// 					vmesh.triangles = new Uint16Array(indexArray);
+    //
+    //
+		// 				// if (hasNor && normalsArray.length > 0)
+		// 				// 	mesh.normals = new Float32Array(normalsArray);
+		// 				if(normalsArray && normalsArray.length > 0)
+		// 					vmesh.normals = new Float32Array(normalsArray);
+    //
+		// 				// if (hasTex && texcoordsArray.length > 0)
+		// 				// 	mesh.coords = new Float32Array(texcoordsArray);
+		// 				// if(uvArray && uvArray.length > 0)
+		// 				// 	vmesh.coords = new Float32Array(uvArray);
+    //
+		// 				//vmesh.bone_indices = boneIndexArray;
+		// 				//vmesh.weights = weightsArray;
+    //
+		// 				// var info = {};
+		// 				// if(groups.length > 1)
+		// 				// 	info.groups = groups;
+		// 				// mesh.info = info;
+    //
+		// 				//mesh = Mesh.load( vmesh, null, null );
+    //
+		// 				let glmesh = Mesh.load( vmesh, null, null );
+		// 				glmesh.name = child.name;
+    //
+		// 				meshes.push(glmesh);
+		// 				//console.log("converted mesh from 3fbxloader to wgsgl is ", mesh);
+    //
+		// 			}
+    //
+		// 		} // endof if child instanceof THREE.Mesh
+    //
+		// 	} // endof object.traverse
+		//   );
+    //
+		// 	console.log("FINALLY get the meshes : ", meshes);
+		// 	if(meshes.length > 0){
+		// 		adjustCameraToBounding(meshes[0]);
+		// 	}
+		// });
+
+
+		//load obj from 3js
+		/*
+		var loader = new THREE.OBJLoader();
+		// loader.load( 'obj/male02/male02.obj', function ( object ) {
+		loader.load( 'obj/suzanne.obj', function ( object ) {
+
+			console.log("object suzanne.obj from THREE.OBJLoader is ", object);
+
+			object.traverse( function ( child ) {
+
+				if ( child instanceof THREE.Mesh ) {
+					//console.log("Mesh from cube.obj : ", child.geometry);
+					bufferGeometry = child.geometry;
+					var geometry = new THREE.Geometry().fromBufferGeometry( bufferGeometry );
+					console.log("got geometry data from bufferGeometry is, ", geometry);
+					//console.log("got faces of geometry data from bufferGeometry is, ", geometry.faces[0]);
+					//console.log("got vertices of geometry data from bufferGeometry is, ", geometry.vertices[0]);
+
+					// var idView = new Uint32Array(buffer, 0, 1);
+					// var usernameView = new Uint8Array(buffer, 4, 16);
+					// var amountDueView = new Float32Array(buffer, 20, 1);
+
+					//Float32Array
+					for(let i = 0; i < geometry.vertices.length; i++){
+						for(let j = 0; j < 3; j++){
+							let index = 3*i + j;
+							//console.log("index " + index + " is", geometry.vertices[i]);
+							vertexArray[index] = geometry.vertices[i].getComponent(j);
+						}
+					}
+					//Uint16Array
+					for(let i = 0; i < geometry.faces.length; i++){
+						//console.log("index " + index + " is", geometry.faces[i]);
+						let baseIndex = 3 * i;
+						indexArray[baseIndex] = geometry.faces[i].a;
+						indexArray[baseIndex + 1] = geometry.faces[i].b;
+						indexArray[baseIndex + 2] = geometry.faces[i].c;
+					}
+
+					//console.error("Convert Faces to Array as ", indexArray);
+					// mesh.vertices = new Float32Array( vertices_buffer_data );
+
+					// var vertices = new Float32Array(vertexArray);
+					// var indexes = new Uint16Array(indexArray);
+					// var bounding = GL.Mesh.computeBoundingBox(vertices);
+					//console.log("vertices is", vertices);
+					//console.log("bounding box is ", bounding);
+
+					var vmesh = {};
+					vmesh.vertices = new Float32Array(vertexArray);
+					vmesh.triangles = new Uint16Array(indexArray);
+					//mesh = Mesh.load( vmesh, null, null );
+					//console.log("converted mesh from 3 to wgsgl is ", mesh);
+
+					// if (hasPos)
+					// 	mesh.vertices = new Float32Array(positionsArray);
+					// if (hasNor && normalsArray.length > 0)
+					// 	mesh.normals = new Float32Array(normalsArray);
+					// if (hasTex && texcoordsArray.length > 0)
+					// 	mesh.coords = new Float32Array(texcoordsArray);
+					// if (indicesArray && indicesArray.length > 0)
+					// 	mesh.triangles = new Uint16Array(indicesArray);
+          //
+					// var info = {};
+					// if(groups.length > 1)
+					// 	info.groups = groups;
+					// mesh.info = info;
+          //
+					// if(options.only_data)
+					// 	return mesh;
+          //
+					// //creates and returns a GL.Mesh
+					// var final_mesh = null;
+					// final_mesh = Mesh.load( mesh, null, options.mesh );
+
+
+
+					//var mesh =new GL.Mesh(vertices, indexes, null, gl);
+					//console.error("MESH from 3 to .. is", mesh);
+					// console.log(" GL.Mesh.common_buffers[\"vertices\"].attribute is ",  GL.Mesh.common_buffers["vertices"].attribute);
+					//this.createVertexBuffer( 'vertices', GL.Mesh.common_buffers["vertices"].attribute, 3, linearizeArray( new_vertices ) );
+					// if(old_normals_data)
+					// 	this.createVertexBuffer( 'normals', GL.Mesh.common_buffers["normals"].attribute, 3, linearizeArray( new_normals ) );
+					// if(old_coords_data)
+					// 	this.createVertexBuffer( 'coords', GL.Mesh.common_buffers["coords"].attribute, 2, linearizeArray( new_coords ) );
+          //
+					// this.createIndexBuffer( "triangles", indices );
+
+					// vertexBuffers = GL.Mesh.createVertexBuffer( 'vertices', GL.Mesh.common_buffers["vertices"].attribute, 3, vertexArray );
+					// indexBuffer = GL.Mesh.createIndexBuffer( "triangles", indexArray );
+          //
+					// // vertexBuffers = new GL.Buffer( gl.ELEMENT_ARRAY_BUFFER, vertexArray, 0, undefined, gl );
+					// // indexBuffer = new GL.Buffer( gl.ELEMENT_ARRAY_BUFFER, indexArray, 0, undefined, gl );
+          // //
+					// console.log("Vertex Buffer is", vertexBuffers);
+					// console.log("Index Buffer is", indexBuffer);
+
+
+					//child.material.map = texture;
+
+
+
+				}
+
+			} );
+
+		}, onProgress, onError );
+		*/
+
+		gl.animate();
+
+		//build the mesh
+		//var gl = gl || global.gl;
+	  //return new GL.Mesh( this.vertexBuffers, this.indexBuffers, undefined, gl );
+
+		//var buffer = this.vertexBuffers[name] = new GL.Buffer( gl.ARRAY_BUFFER, buffer_data, buffer_spacing, stream_type, this.gl );
+		//var buffer = this.indexBuffers[name] = new GL.Buffer(gl.ELEMENT_ARRAY_BUFFER, buffer_data, 0, stream_type, this.gl );
+
+		//var mesh = GL.Mesh.fromURL("obj/cube-red.obj", adjustCameraToBounding);
+		//var texture = GL.Texture.fromURL("blob:http://localhost:3030/4a246966-65af-4ce5-8caf-ace1b25121f2",{temp_color:[80,120,40,255], minFilter: gl.NEAREST});
+		texture = GL.Texture.fromURL("obj/dolphin_D.png",{minFilter: gl.NEAREST});//OK
+		// var texture = GL.Texture.fromURL("blob:http://localhost:3030/4a246966-65af-4ce5-8caf-ace1b25121f2", {minFilter: gl.NEAREST});
+
+		if(mesh){
+			console.log("mesh from THREE.*Loader is", mesh);
+		}else{
+			console.log("waiting for mesh ......");
+		}
+
+
+		var floor = GL.Mesh.plane({size:140, xz: true});
+		var cam_pos = [0,5,5];
+		var cam_center = [0,0,0];
+
+		//create basic matrices for cameras and transformation
+		var proj = mat4.create();
+		var view = mat4.create();
+		var model = mat4.create();
+		var mvp = mat4.create();
+		var temp = mat4.create();
+		var model2 = mat4.create();
+
+		//mat4.scale(model,model,[0.01,0.01,0.01]);
+
+		//get mouse actions
+		gl.captureMouse(true);
+		gl.onmousemove = function(e)
+		{
+			if(!e.dragging)
+				return;
+			mat4.rotateY(model,model,e.deltax * 0.01);
+			if(e.deltay)
+				vec3.rotateX(cam_pos,cam_pos,e.deltay * -0.01);
+		}
+		gl.onmousewheel = function(e)
+		{
+			if(!e.wheel)
+				return;
+			var s = 1 + e.wheel / 1000;
+			mat4.scale(model,model,[s,s,s]);
+		}
+
+		function adjustCameraToBounding( mesh ){
+			cam_center = BBox.getCenter( mesh.bounding );
+			var r = BBox.getRadius( mesh.bounding );
+			cam_pos = vec3.add( cam_pos, cam_center, [0,r*0.5, r*3] );
+		}
+		// gl.captureMouse();
+		// gl.onmousemove = function(e)
+		// {
+		// 	if(e.dragging)
+		// 	{
+		// 		mat4.rotateY(model,model,e.deltax * 0.01);
+		// 		cam_pos[1] += e.deltay;
+		// 	}
+		// }
+
+		//set the camera position
+		mat4.perspective(proj, 45 * DEG2RAD, gl.canvas.width / gl.canvas.height, 0.1, 1000);
+
+		//basic phong shader
+		var shader = new Shader('\
+				precision highp float;\
+				attribute vec3 a_vertex;\
+				attribute vec3 a_normal;\
+				attribute vec2 a_coord;\
+				varying vec3 v_normal;\
+				varying vec2 v_coord;\
+				uniform mat4 u_mvp;\
+				uniform mat4 u_model;\
+				void main() {\
+					v_coord = a_coord;\
+					v_normal = (u_model * vec4(a_normal,0.0)).xyz;\
+					gl_Position = u_mvp * vec4(a_vertex,1.0);\
+				}\
+				', '\
+				precision highp float;\
+				varying vec3 v_normal;\
+				varying vec2 v_coord;\
+				uniform vec3 u_lightvector;\
+				uniform vec4 u_color;\
+				uniform sampler2D u_texture;\
+				void main() {\
+				  vec3 N = normalize(v_normal);\
+				  vec4 color = u_color * texture2D( u_texture, v_coord);\
+				  gl_FragColor = color * max(0.0, dot(u_lightvector,N));\
+				}\
+			');
+
+		var cubemap_shader = new Shader('\
+				precision highp float;\
+				attribute vec3 a_vertex;\
+				attribute vec3 a_normal;\
+				varying vec3 v_pos;\
+				varying vec3 v_normal;\
+				uniform mat4 u_mvp;\
+				uniform mat4 u_model;\
+				void main() {\
+					v_pos = a_vertex.xyz;\
+					v_normal = (u_model * vec4(a_normal,0.0)).xyz;\
+					gl_Position = u_mvp * vec4(a_vertex,1.0);\
+				}\
+				', '\
+				precision highp float;\
+				varying vec3 v_normal;\
+				varying vec3 v_pos;\
+				uniform vec3 u_lightvector;\
+				uniform vec4 u_color;\
+				uniform samplerCube u_texture;\
+				void main() {\
+				  vec3 N = normalize(v_normal);\
+				  vec4 color = u_color * textureCube( u_texture, v_pos );\
+				  gl_FragColor = vec4(0.2) + color * max(0.0, dot(u_lightvector,N));\
+				}\
+			');
+
+		//basic phong shader  -- normals OK
+		// var shader = new Shader('\
+		// 		precision highp float;\
+		// 		attribute vec3 a_vertex;\
+		// 		attribute vec3 a_normal;\
+		// 		varying vec3 v_normal;\
+		// 		uniform mat4 u_mvp;\
+		// 		uniform mat4 u_model;\
+		// 		void main() {\
+		// 			v_normal = (u_model * vec4(a_normal,0.0)).xyz;\
+		// 			gl_Position = u_mvp * vec4(a_vertex,1.0);\
+		// 		}\
+		// 		', '\
+		// 		precision highp float;\
+		// 		varying vec3 v_normal;\
+		// 		uniform vec3 u_lightvector;\
+		// 		uniform vec4 u_camera_position;\
+		// 		uniform vec4 u_color;\
+		// 		void main() {\
+		// 		  vec3 N = normalize(v_normal);\
+		// 		  //fake half light\n\
+		// 		  float NdotL = dot(u_lightvector,N) * 0.5 + 0.5;\
+		// 		  NdotL *= NdotL;\
+		// 		  gl_FragColor = u_color * max(0.0, NdotL);\
+		// 		}\
+		// 	');
+
+
+		//basic phong shader
+		// var shader = new Shader('\
+		// 		precision highp float;\
+		// 		attribute vec3 a_vertex;\
+		// 		attribute vec3 a_normal;\
+		// 		varying vec3 v_normal;\
+		// 		uniform mat4 u_mvp;\
+		// 		uniform mat4 u_model;\
+		// 		void main() {\
+		// 			v_normal = (u_model * vec4(a_normal,0.0)).xyz;\
+		// 			gl_Position = u_mvp * vec4(a_vertex,1.0);\
+		// 		}\
+		// 		', '\
+		// 		precision highp float;\
+		// 		varying vec3 v_normal;\
+		// 		varying vec2 v_coord;\
+		// 		uniform samplerCube u_texture;\
+		// 		uniform vec3 u_lightvector;\
+		// 		uniform vec4 u_camera_position;\
+		// 		uniform vec4 u_color;\
+		// 		void main() {\
+		// 		  vec3 N = normalize(v_normal);\
+		// 			vec4 color = textureCube( u_texture, N );\
+		// 		  gl_FragColor = color;\
+		// 		}\
+		// 	');
+
+			//gl_FragColor = u_color * max(0.0, dot(u_lightvector,N));\
+
+		//generic gl flags and settings
+		gl.clearColor(0.6,0.6,0.6,1);
+		gl.enable( gl.DEPTH_TEST );
+
+		//rendering loop
+		gl.ondraw = function()
+		{
+			gl.clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT );
+			gl.enable( gl.DEPTH_TEST );
+			gl.disable( gl.BLEND );
+			gl.disable( gl.CULL_FACE );
+			// gl.clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT );
+			mat4.lookAt(view, cam_pos,[0,0,0], [0,1,0]);
+			// mat4.lookAt(view, cam_pos, cam_center, [0,1,0]);
+
+			// mat4.multiply(temp,view,model);
+			// mat4.multiply(mvp,proj,temp);
+      //
+			// //compute rotation matrix for normals
+			// if(texture){
+			// 	texture.bind(0);
+			// 	window.cubemap = texture; //debug
+			// }
+      //
+      //
+			// //global uniforms
+			// shader.uniforms({
+			// 	u_color: [1,1,1,1],
+			// 	u_lightvector: vec3.normalize(vec3.create(),[1,1,1]),
+			// 	u_camera_position: cam_pos});
+      //
+			// //enable rendering to the stencil only
+			// gl.enable( gl.STENCIL_TEST );
+			// gl.clearStencil( 0x0 );
+			// gl.clear( gl.STENCIL_BUFFER_BIT );
+			// //gl.colorMask(false, false, false, false);
+			// gl.depthMask(false);
+			// gl.stencilFunc( gl.ALWAYS, 1, 0xFF );
+			// gl.stencilOp( gl.KEEP, gl.KEEP, gl.REPLACE );
+			// gl.enable( gl.CULL_FACE );
+      //
+			// //render floor
+			// // shader.uniforms({
+			// // 	u_color: [0.1,0.1,0.1,1],
+			// // 	u_model: model,
+			// // 	u_mvp: mvp
+			// // }).draw(floor);
+      //
+			// //render back to color buffer but only if stencil is 1
+			// gl.colorMask(true, true, true, true);
+			// gl.depthMask(true);
+			// gl.enable( gl.STENCIL_TEST );
+			// gl.stencilFunc( gl.EQUAL, 1, 0xFF );
+      //
+			// //render reflection with stencil test on
+			// mat4.scale( model2, model, [1,-1,1]);
+			// mat4.multiply(temp,view,model2);
+			// mat4.multiply(mvp,proj,temp);
+			// gl.frontFace( gl.CW ); //because the mesh is reversed in Y
+      //
+      //
+			// // if(mesh){
+			// // 	shader.uniforms({
+			// // 		u_color: [0.1,0.1,0.1,1],
+			// // 		u_model: model2,
+			// // 		u_texture: 0,
+			// // 		u_mvp: mvp
+			// // 	}).draw( mesh );
+			// // }
+      //
+      //
+      //
+			// gl.frontFace( gl.CCW );
+			// gl.disable( gl.STENCIL_TEST );
+
+			mat4.multiply(temp,view,model);
+			mat4.multiply(mvp,proj,temp);
+
+			//render mesh using the shader
+			// if(mesh){
+			// 	shader.uniforms({
+			// 		u_color: [1,1,1,1],
+			// 		u_model: model,
+			// 		u_texture: 0,
+			// 		u_mvp: mvp
+			// 	}).draw( mesh );
+			// }
+			// forEach(mesh in meshes){
+			// 	console.log("######## mesh is ", mesh);
+			// }
+			//console.log("Meshes length is ", meshes.length);//84
+
+			meshes.forEach(function(cmesh){
+				//console.log("try to render mesh ", cmesh);
+				let m = cmesh;
+				// console.log("mesh is ", m);
+				if(m){
+					if(texture){
+						// console.log("try to bind texture ", texture);
+						texture.bind(0);
+					}
+
+
+					//render mesh using the shader
+					shader.uniforms({
+						u_color: [1,1,1,1],
+						u_lightvector: vec3.normalize(vec3.create(),[1,1,1]),
+						u_model: model,
+						u_texture: 0,
+						u_mvp: mvp
+					}).draw(m);
+				}
+			});
+
+			// if(meshes[1]){
+			// 	//console.log("try to render meshes[1] ", meshes[1]);
+			// 	if(texture)
+			// 		texture.bind(0);
+      //
+			// 	//render mesh using the shader
+			// 	shader.uniforms({
+			// 		u_color: [1,1,1,1],
+			// 		u_lightvector: vec3.normalize(vec3.create(),[1,1,1]),
+			// 		u_model: model,
+			// 		u_texture: 0,
+			// 		u_mvp: mvp
+			// 	}).draw(meshes[1]);
+			// }
+
+
+
+		};
+
+		//update loop
+		// gl.onupdate = function(dt)
+		// {
+		// 	//rotate world
+		// 	mat4.rotateY(model,model,dt*0.2);
+		// };
+	}
+
+	</script>
+</head>
+<body>
+<script>init();</script>
+</body>
+</html>

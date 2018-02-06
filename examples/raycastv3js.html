@@ -1,0 +1,152 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+<title>litegl.js: texture example</title>
+	<link rel="stylesheet" type="text/css" href="style.css" />
+	<style type='text/css'>
+	body {
+		overflow: hidden;
+		margin: 0;
+	}
+	</style>
+	<script src="https://threejs.org/build/three.min.js"></script>
+  <script src="https://threejs.org/examples/js/controls/OrbitControls.js"></script>
+	<script>
+	  var lineVertexShader = `
+	  	varying vec3 vPos;
+	    void main()
+	    {
+	      vPos = position;
+	      vec4 modelViewPosition = modelViewMatrix * vec4(position, 1.0);
+	      gl_Position = projectionMatrix * modelViewPosition;
+	    }
+	  `;
+
+	  var lineFragmentShader = `
+	    uniform vec3 origin;
+	    uniform vec3 color;
+	  	varying vec3 vPos;
+	    float limitDistance = 7.0;
+	    void main() {
+	    	float distance = clamp(length(vPos - origin), 0., limitDistance);
+	      float opacity = 1. - distance / limitDistance;
+	      gl_FragColor = vec4(color, opacity);
+	    }
+
+	  `;
+
+	</script>
+
+</head>
+<body>
+
+	<script type="text/javascript">
+	var scene = new THREE.Scene();
+	var camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.01, 1000);
+	camera.position.set(10, 0, 10);
+	camera.lookAt(new THREE.Vector3(0, 0, 5));
+	var renderer = new THREE.WebGLRenderer({
+	  antialias: true
+	});
+	renderer.setSize(window.innerWidth, window.innerHeight);
+	document.body.appendChild(renderer.domElement);
+
+	var objs = [];
+
+	var plane = new THREE.Mesh(new THREE.PlaneGeometry(10, 10), new THREE.MeshBasicMaterial({
+	  color: "gray"
+	}));
+	scene.add(plane);
+	objs.push(plane);
+
+	for (let i = 0; i < 10; i++) {
+	  var mesh = new THREE.Mesh(new THREE.BoxGeometry(), new THREE.MeshBasicMaterial({
+	    color: Math.random() * 0x777777 + 0x777777,
+	    wireframe: true
+	  }));
+	  mesh.position.set(
+	    THREE.Math.randInt(-4, 4),
+	    THREE.Math.randInt(-4, 4),
+	    0.5
+	  );
+	  scene.add(mesh);
+	  objs.push(mesh);
+	}
+
+	var group = new THREE.Mesh(new THREE.SphereGeometry(0.1, 4, 2), new THREE.MeshBasicMaterial({
+	  color: "red",
+	  wireframe: true
+	}));
+	group.position.set(0, 0, 5);
+	var emitter = new THREE.Mesh(new THREE.SphereGeometry(0.1, 4, 2), new THREE.MeshBasicMaterial({
+	  color: "white",
+	  wireframe: true
+	}));
+	emitter.position.set(0, 0, 5);
+	group.add(emitter);
+	scene.add(group);
+
+	var controls = new THREE.OrbitControls(emitter, renderer.domElement);
+	controls.zoomEnabled = false;
+
+	window.addEventListener("mousemove", mouseMove, false);
+
+	var lineGeom = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(), new THREE.Vector3()]);
+	var rayLine = new THREE.Line(lineGeom, new THREE.ShaderMaterial({
+	  uniforms: {
+	    color: {
+	      value: new THREE.Color(0x00ff00)
+	    },
+	    origin: {
+	      value: new THREE.Vector3()
+	    }
+	  },
+	  vertexShader: lineVertexShader,
+	  fragmentShader: lineFragmentShader,
+	  transparent: true
+	}));
+	scene.add(rayLine);
+
+	var marker = new THREE.Mesh(new THREE.SphereGeometry(0.2, 4, 2), new THREE.MeshBasicMaterial({
+	  color: 0x00ff00
+	}));
+	marker.visible = false;
+	scene.add(marker);
+	var raycaster = new THREE.Raycaster(),
+	  intersects = [],
+	  distanceDefault = 1000;
+	var emitPosWorld = new THREE.Vector3(), infiniteDist = new THREE.Vector3(),
+	  direction = new THREE.Vector3();
+
+	function mouseMove() {
+	  emitter.getWorldPosition(emitPosWorld);
+	  direction.subVectors(group.position, emitPosWorld).normalize();
+	  raycaster.set(emitPosWorld, direction);
+	  intersects = raycaster.intersectObjects(objs);
+	  lineGeom.attributes.position.setXYZ(0, emitPosWorld.x, emitPosWorld.y, emitPosWorld.z);
+	  if (intersects.length === 0) {
+	    marker.visible = false;
+	    infiniteDist.copy(emitPosWorld).addScaledVector(direction, distanceDefault);
+	    lineGeom.attributes.position.setXYZ(1, infiniteDist.x, infiniteDist.y, infiniteDist.z);
+	  } else {
+	    marker.visible = true;
+	    marker.position.copy(intersects[0].point);
+	    lineGeom.attributes.position.setXYZ(1, intersects[0].point.x, intersects[0].point.y, intersects[0].point.z);
+	  }
+	  lineGeom.attributes.position.needsUpdate = true;
+	  rayLine.material.uniforms.origin.value.copy(emitPosWorld);
+	}
+
+
+	render();
+
+	function render() {
+	  requestAnimationFrame(render);
+	  renderer.render(scene, camera);
+	}
+
+	</script>
+</body>
+</html>
