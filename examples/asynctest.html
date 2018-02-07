@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>ASYNC TEST</title>
+    <script src="js/three.js"></script>
+  	<script src="js/loaders/OBJLoader.js"></script>
+
+  	<script src="js/libs/inflate.min.js"></script>
+  	<script src="js/controls/OrbitControls.js"></script>
+  	<script src="js/curves/NURBSCurve.js"></script>
+  	<script src="js/curves/NURBSUtils.js"></script>
+  	<script src="js/loaders/FBXLoader.js"></script>
+  	<script src="js/libs/stats.min.js"></script>
+
+  </head>
+  <body>
+
+    <script>
+    async function asyncFun () {
+      var value = await Promise
+        .resolve(1)
+        .then(x => x * 3)
+        .then(x => x + 5)
+        .then(x => x / 2);
+      return value;
+    }
+    asyncFun().then(x => console.log(`x: ${x}`));
+
+
+    function getAsyncData () {
+      return new Promise((resolve, reject) => {
+        var object;
+
+    		var manager = new THREE.LoadingManager( function() {
+    			console.log("***************************************");
+    			console.log("object from THREE.FBXLoader is ", object);
+    			console.log("***************************************");
+          resolve(object);
+    		});
+
+    		var floader = new THREE.FBXLoader( manager );
+
+    		floader.load( 'obj/dolphin.fbx', function( scene ) {
+    		   object = scene;
+    		});
+      });
+    }
+
+    async function getRealData(){
+      var obj = await getAsyncData();
+      console.log("****FUNC getRealData****OK, just return it ", obj);
+      return obj;
+    }
+
+    printAsyncData();
+
+    async function printAsyncData () {
+      var obj = await getRealData();
+
+      console.log('****FUNC printAsyncData****Got obj data', obj);
+      obj.traverse( function ( child ) {
+
+				if ( child instanceof THREE.Mesh ) {
+					if(child.isSkinnedMesh){
+						console.log("SKINNED MESH: ", child);
+					}
+					console.log("Mesh from Child of FBX object: ", child.geometry);
+					let bufferGeometry = child.geometry;
+					if(!bufferGeometry.attributes.position || bufferGeometry.attributes.position.array.length < 3)
+					{
+						console.log("NO GEOMETRY, ignore it");
+					}else{
+						var geometry = new THREE.Geometry().fromBufferGeometry( bufferGeometry );
+						console.log("got geometry data from bufferGeometry is, ", geometry);
+						console.log('rotation is ', child.rotation);
+						console.log('quaternion is ', child.quaternion);
+
+						if(child.material){
+							console.log("************MAT**************");
+							if(child.material.length > 1){
+								//
+								if(child.material[0].isMeshPhongMaterial){
+									console.log("material map is ", child.material[0].map); //can get map but its image is undefined
+									console.log("material map image is ", child.material[0].map.image); //material map image is  undefined
+								}
+							}else if(child.material.isMeshPhongMaterial){
+								console.log("------------YES it is PhongMaterial--------------");
+								console.log("material map is ", child.material.map); //can get map but its image is undefined
+								console.log("material map image is ", child.material.map.image); //material map image is  undefined
+								console.log("color is ", child.material.color);
+							}
+						}
+					}
+				} // endof if child instanceof THREE.Mesh
+			}); // endof object.traverse
+    }
+
+    async function nonrealafunc(){
+      return "just a test function";
+    }
+
+    function testnonrf(){
+      var a = nonrealafunc(); //async function always return a Promise object
+      console.log("got data from nonrealafunc ", a);
+    }
+
+    nonrealafunc().then(data => {
+      console.log("simple test data is ", data);
+    });
+
+    testnonrf();
+
+    console.log('END$$$$$$$$$$$$$$$$$$$$$$$$$$$$')
+    </script>
+
+  </body>
+</html>
