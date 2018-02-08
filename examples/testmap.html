@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title></title>
+  </head>
+  <body>
+    <script>
+    var images = [];
+
+    var image1 = {
+      filename: 'a',
+      data: 'jfaofaooff'
+    };
+
+    images['img1'] = image1;
+
+    console.log(images);
+
+    Object.keys(images).map(function(key, index){
+      console.log("key is ", key);
+      console.log("index is ", index);
+    });
+    images.forEach(function(item, key){
+      console.log(item);
+    });
+    </script>
+  </body>
+</html>
