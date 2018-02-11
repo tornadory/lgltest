@@ -134,20 +134,24 @@
 								console.log("color is ", child.material.color);
 							}
 
-							var image = new Image();
-							image.src = imagesrc;
-							image.width = child.material.map.image.width;
-							image.height = child.material.map.image.height;
-							image.onload = function(){
-								console.log("image is ", image);
+							var image = child.material.map.image;
+							texture = GL.Texture.fromImage(image, {minFilter: gl.NEAREST});
+							console.log("texture is ", texture);
 
-								texture = GL.Texture.fromImage(image, {minFilter: gl.NEAREST});
-								texture.filename = "test.png";
-								texture.fullpath = "test.png";
-								texture.remotepath = "test.png";
-
-								console.log("texture is ", texture);
-							}
+							// var image = new Image();
+							// image.src = imagesrc;
+							// image.width = child.material.map.image.width;
+							// image.height = child.material.map.image.height;
+							// image.onload = function(){
+							// 	console.log("image is ", image);
+              //
+							// 	texture = GL.Texture.fromImage(image, {minFilter: gl.NEAREST});
+							// 	texture.filename = "test.png";
+							// 	texture.fullpath = "test.png";
+							// 	texture.remotepath = "test.png";
+              //
+							// 	console.log("texture is ", texture);
+							// }
 
 
 							//texture = GL.Texture.fromURL(imagesrc, {minFilter: gl.NEAREST});
