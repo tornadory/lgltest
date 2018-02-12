@@ -217,6 +217,100 @@
 							console.log("*******************HHHHHHHHHHHHHHHHHHH********************");
 							console.log("pared object from THREE.FBXLoader is ", object);
 
+							object.traverse( function ( child ) {
+								if ( child instanceof THREE.Mesh ) {
+									if(child.isSkinnedMesh){
+										console.log("SKINNED MESH: ", child);
+									}
+									console.log("Mesh from Child of FBX object: ", child.geometry);
+									let bufferGeometry = child.geometry;
+									if(!bufferGeometry.attributes.position || bufferGeometry.attributes.position.array.length < 3)
+									{
+										console.log("NO GEOMETRY, ignore it");
+										//continue;
+									}else{
+										var geometry = new THREE.Geometry().fromBufferGeometry( bufferGeometry );
+										console.log("got geometry data from bufferGeometry is, ", geometry);
+
+										//Float32Array
+										for(let i = 0; i < geometry.vertices.length; i++){
+											for(let j = 0; j < 3; j++){
+												let index = 3*i + j;
+												vertexArray[index] = geometry.vertices[i].getComponent(j);
+											}
+										}
+										//Uint16Array
+										for(let i = 0; i < geometry.faces.length; i++){
+											let baseIndex = 3 * i;
+											indexArray[baseIndex] = geometry.faces[i].a;
+											indexArray[baseIndex + 1] = geometry.faces[i].b;
+											indexArray[baseIndex + 2] = geometry.faces[i].c;
+										}
+
+										if(bufferGeometry.attributes.uv){
+											console.log("uv array is: ", bufferGeometry.attributes.uv.array);
+											uvArray = bufferGeometry.attributes.uv.array.slice();
+										}
+
+										if(bufferGeometry.attributes.normal)
+											normalsArray = bufferGeometry.attributes.normal.array.slice();
+										if(bufferGeometry.attributes.skinIndex)
+											boneIndexArray = bufferGeometry.attributes.skinIndex.array.slice();
+										if(bufferGeometry.attributes.skinWeight)
+											weightsArray = bufferGeometry.attributes.skinWeight.array.slice();
+
+										let vmesh = {};
+
+										if(vertexArray && vertexArray.length > 0)
+											vmesh.vertices = new Float32Array(vertexArray);
+
+										if(indexArray && indexArray.length > 0)
+											vmesh.triangles = new Uint16Array(indexArray);
+
+										if(normalsArray && normalsArray.length > 0)
+											vmesh.normals = normalsArray;
+
+										if(uvArray && uvArray.length > 0)
+											vmesh.coords = uvArray;
+
+										if(boneIndexArray && boneIndexArray.length > 0)
+											vmesh.bone_indices = boneIndexArray;
+
+										if(weightsArray && weightsArray.length > 0)
+											vmesh.weights = weightsArray;
+
+
+											if(child.material){
+												console.log("************MAT**************");
+												// let texture = null;
+												let imagesrc = "";
+												if(child.material.length > 1){
+													if(child.material[0].isMeshPhongMaterial){
+														//imagesrc = child.material[0].map.image.src;
+														console.log("--got map is ", child.material[0].map);
+														console.log("--color is ", child.material[0].color);
+														// console.log("--got image src is ", child.material[0].map.image);
+													}
+												}else if(child.material.isMeshPhongMaterial){
+													console.log("------------YES it is PhongMaterial--------------");
+													// var mat = child.material.clone();
+													//imagesrc = child.material.map.image.src;
+													console.log("got map is ", child.material.map);
+													// console.log("got image src is ", child.material.map.image);
+													console.log("color is ", child.material.color);
+												}
+
+												//texture = GL.Texture.fromURL(imagesrc, {minFilter: gl.NEAREST});
+												// console.log("GOT texture is ", texture);
+											}
+
+										mesh = Mesh.load( vmesh, null, null );
+									}
+
+								}
+
+							} );
+
 							// object.traverse( function ( child ) {
 							// 	if ( child instanceof THREE.Mesh ) {
 							// 		if(child.isSkinnedMesh){
@@ -316,99 +410,7 @@
 						object = loader.parse(reader.result);
 
 
-						object.traverse( function ( child ) {
-							if ( child instanceof THREE.Mesh ) {
-								if(child.isSkinnedMesh){
-									console.log("SKINNED MESH: ", child);
-								}
-								console.log("Mesh from Child of FBX object: ", child.geometry);
-								let bufferGeometry = child.geometry;
-								if(!bufferGeometry.attributes.position || bufferGeometry.attributes.position.array.length < 3)
-								{
-									console.log("NO GEOMETRY, ignore it");
-									//continue;
-								}else{
-									var geometry = new THREE.Geometry().fromBufferGeometry( bufferGeometry );
-									console.log("got geometry data from bufferGeometry is, ", geometry);
 
-									//Float32Array
-									for(let i = 0; i < geometry.vertices.length; i++){
-										for(let j = 0; j < 3; j++){
-											let index = 3*i + j;
-											vertexArray[index] = geometry.vertices[i].getComponent(j);
-										}
-									}
-									//Uint16Array
-									for(let i = 0; i < geometry.faces.length; i++){
-										let baseIndex = 3 * i;
-										indexArray[baseIndex] = geometry.faces[i].a;
-										indexArray[baseIndex + 1] = geometry.faces[i].b;
-										indexArray[baseIndex + 2] = geometry.faces[i].c;
-									}
-
-									if(bufferGeometry.attributes.uv){
-										console.log("uv array is: ", bufferGeometry.attributes.uv.array);
-										uvArray = bufferGeometry.attributes.uv.array.slice();
-									}
-
-									if(bufferGeometry.attributes.normal)
-										normalsArray = bufferGeometry.attributes.normal.array.slice();
-									if(bufferGeometry.attributes.skinIndex)
-										boneIndexArray = bufferGeometry.attributes.skinIndex.array.slice();
-									if(bufferGeometry.attributes.skinWeight)
-										weightsArray = bufferGeometry.attributes.skinWeight.array.slice();
-
-									let vmesh = {};
-
-									if(vertexArray && vertexArray.length > 0)
-										vmesh.vertices = new Float32Array(vertexArray);
-
-									if(indexArray && indexArray.length > 0)
-										vmesh.triangles = new Uint16Array(indexArray);
-
-									if(normalsArray && normalsArray.length > 0)
-										vmesh.normals = normalsArray;
-
-									if(uvArray && uvArray.length > 0)
-										vmesh.coords = uvArray;
-
-									if(boneIndexArray && boneIndexArray.length > 0)
-										vmesh.bone_indices = boneIndexArray;
-
-									if(weightsArray && weightsArray.length > 0)
-										vmesh.weights = weightsArray;
-
-
-										if(child.material){
-											console.log("************MAT**************");
-											// let texture = null;
-											let imagesrc = "";
-											if(child.material.length > 1){
-												if(child.material[0].isMeshPhongMaterial){
-													//imagesrc = child.material[0].map.image.src;
-													console.log("--got map is ", child.material[0].map);
-													console.log("--color is ", child.material[0].color);
-													// console.log("--got image src is ", child.material[0].map.image);
-												}
-											}else if(child.material.isMeshPhongMaterial){
-												console.log("------------YES it is PhongMaterial--------------");
-												// var mat = child.material.clone();
-												//imagesrc = child.material.map.image.src;
-												console.log("got map is ", child.material.map);
-												// console.log("got image src is ", child.material.map.image);
-												console.log("color is ", child.material.color);
-											}
-
-											//texture = GL.Texture.fromURL(imagesrc, {minFilter: gl.NEAREST});
-											// console.log("GOT texture is ", texture);
-										}
-
-									mesh = Mesh.load( vmesh, null, null );
-								}
-
-							}
-
-						} );
 
 					}
 					catch(e)

@@ -10,6 +10,7 @@
 		<script src="/three.js/examples/js/curves/NURBSCurve.js"></script>
 		<script src="/three.js/examples/js/curves/NURBSUtils.js"></script>
 		<script src="/three.js/examples/js/loaders/FBXLoader.js"></script>
+		<script src="/three.js/examples/js/loaders/ColladaLoader.js"></script>
 		<script src="/three.js/examples/js/libs/stats.min.js"></script>
 		<style>
 			body {
@@ -260,6 +261,58 @@
 									}
 								};
 								reader.readAsArrayBuffer(file);
+							// }
+						}catch(e)
+						{
+							console.error("Error importing file", e);
+							infoTag.innerHTML = "模型加载失败，请检查文件"+file.name;
+						}
+					}
+
+					if(file.name.toLowerCase().endsWith(".dae")){
+						var path = (file.path !== undefined) ? FileSystem.getFilePath(file.path) : "";
+						try{
+								var reader = new FileReader();
+								reader.onload = function()
+								{
+									try
+									{
+										var loader = new THREE.ColladaLoader();
+										var collada = loader.parse(reader.result, path);
+										object = collada.scene;
+
+										console.log("pared object from THREE.ColladaLoader is ", collada);
+
+										// if(collada.animations.length > 0)
+										// {
+										// 	object.traverse(function(child)
+										// 	{
+										// 		if(child instanceof THREE.SkinnedMesh)
+										// 		{
+										// 			child.animations = collada.animations;
+										// 		}
+										// 	});
+                    //
+										// 	mixer = object.mixer = new THREE.AnimationMixer( collada );
+										// 	mixers.push( mixer );
+                    //
+										// 	action = collada.mixer.clipAction( collada.animations[0]);
+										// 	action.timeScale = 1;
+										// 	action.play();
+										// }
+
+
+
+										scene.add(object);
+										infoTag.innerHTML = "模型加载成功";
+									}
+									catch(e)
+									{
+										console.error("Error loading file", e);
+										infoTag.innerHTML = "模型加载失败，请检查文件"+file.name;
+									}
+								};
+								reader.readAsText(file);
 							// }
 						}catch(e)
 						{
