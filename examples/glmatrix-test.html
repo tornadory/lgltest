@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>GL Matrix TEST APP</title>
+  </head>
+  <script src="js/utils/gl-matrix.js"></script>
+
+  <script src="js/three.js"></script>
+	<script src="js/loaders/OBJLoader.js"></script>
+
+	<script src="js/libs/inflate.min.js"></script>
+	<script src="js/controls/OrbitControls.js"></script>
+	<script src="js/curves/NURBSCurve.js"></script>
+	<script src="js/curves/NURBSUtils.js"></script>
+	<script src="js/loaders/FBXLoader.js"></script>
+	<script src="js/libs/stats.min.js"></script>
+
+  <body>
+
+<div id='leftpanel' class="leftpanel">
+<h1>GL Matrix TEST</h1>
+
+<p>
+
+Position:
+</br>
+x: <input id="posX" type="number" size="10" placeholder="position x"  onfocusout="changePosition(event, 'x')">
+</br>
+y: <input id="posY" type="number" size="10" placeholder="position y"  onfocusout="changePosition(event, 'y')">
+</br>
+z: <input id="posZ" type="number" size="10" placeholder="position z"  onfocusout="changePosition(event, 'z')">
+</br></br>
+
+Rotation(quaternion):
+</br>
+x: <input id="rotX" type="number" size="10" placeholder="rotation x" onfocusout="changeRotation(event, 'x')">
+</br>
+y: <input id="rotY" type="number" size="10" placeholder="rotation y" onfocusout="changeRotation(event, 'y')">
+</br>
+z: <input id="rotZ" type="number" size="10" placeholder="rotation z" onfocusout="changeRotation(event, 'z')">
+</br>
+w:<input id="rotW" type="number" size="10" placeholder="rotation w" onfocusout="changeRotation(event, 'w')">
+</br></br>
+
+Scale:
+</br>
+x: <input id="scaleX" type="number" size="10" placeholder="scale x" onfocusout="changeScale(event, 'x')">
+</br>
+y: <input id="scaleY" type="number" size="10" placeholder="scale y" onfocusout="changeScale(event, 'y')">
+</br>
+z: <input id="scaleZ" type="number" size="10" placeholder="scale z" onfocusout="changeScale(event, 'z')">
+</br></br>
+<!-- </br>
+x: <input id="posX" type="number" size="10" placeholder="position x"  onkeyup="changePosition(event, 'x')" onfocusout="changePosition(event, 'x')">
+</br>
+y: <input id="posY" type="number" size="10" placeholder="position y"  onkeyup="changePosition(event, 'y')" onfocusout="changePosition(event, 'y')">
+</br>
+z: <input id="posZ" type="number" size="10" placeholder="position z"  onkeyup="changePosition(event, 'z')" onfocusout="changePosition(event, 'z')">
+</br></br> -->
+
+<!-- Rotation(quaternion):
+</br>
+x: <input id="rotX" type="number" size="10" placeholder="rotation x"  onkeyup="changeRotation(event, 'x')" onfocusout="changeRotation(event, 'x')">
+</br>
+y: <input id="rotY" type="number" size="10" placeholder="rotation y"  onkeyup="changeRotation(event, 'y')" onfocusout="changeRotation(event, 'y')">
+</br>
+z: <input id="rotZ" type="number" size="10" placeholder="rotation z"  onkeyup="changeRotation(event, 'z')" onfocusout="changeRotation(event, 'z')">
+</br>
+w:<input id="rotW" type="number" size="10" placeholder="rotation w"  onkeyup="changeRotation(event, 'w')" onfocusout="changeRotation(event, 'w')">
+</br></br>
+
+Scale:
+</br>
+x: <input id="scaleX" type="number" size="10" placeholder="scale x"  onkeyup="changeScale(event, 'x')" onfocusout="changeScale(event, 'x')">
+</br>
+y: <input id="scaleY" type="number" size="10" placeholder="scale y"  onkeyup="changeScale(event, 'y')" onfocusout="changeScale(event, 'y')">
+</br>
+z: <input id="scaleZ" type="number" size="10" placeholder="scale z"  onkeyup="changeScale(event, 'z')" onfocusout="changeScale(event, 'z')">
+</br></br> -->
+
+Result:
+</br>
+<div id='result'></div>
+
+</div>
+
+<div id="rightpanel" class="rightpanel">
+
+</div>
+
+
+<script>
+var posX = document.getElementById("posX");
+var posY = document.getElementById("posY");
+var posZ = document.getElementById("posZ");
+
+var rotX = document.getElementById("rotX");
+var rotY = document.getElementById("rotY");
+var rotZ = document.getElementById("rotZ");
+var rotW = document.getElementById("rotW");
+
+var scaleX = document.getElementById("scaleX");
+var scaleY = document.getElementById("scaleY");
+var scaleZ = document.getElementById("scaleZ");
+
+var rightpanel = document.getElementById("rightpanel");
+
+let inPos = vec3.create();
+let inScale = vec3.create();
+let inQuat = quat.create();
+let outMat4 = mat4.create();
+
+console.log("matrix identity ", outMat4);
+outMat4 = mat4.fromRotationTranslationScale(outMat4, inQuat, inPos, inScale);
+console.log("matrix ", outMat4);
+
+function changeScale(ev, e){
+  let v = 1;
+  if(ev.type = 'focusout' || ev.keyCode == 13){
+    switch (e) {
+      case 'x':
+        v = parseFloat(scaleX.value);
+        inScale[0] = v;
+        break;
+      case 'y':
+        v = parseFloat(scaleY.value);
+        inScale[1] = v;
+        break;
+      case 'z':
+        v = parseFloat(scaleZ.value);
+        inScale[2] = v;
+        break;
+      default:
+
+    }
+
+    console.log('scale changed to ', inScale);
+    outMat4 = mat4.fromRotationTranslationScale(outMat4, inQuat, inPos, inScale);
+    console.log("matrix with new scale is ", outMat4);
+  }
+}
+
+function changeRotation(ev, e){
+  let v = 0;
+  if(ev.type = 'focusout' || ev.keyCode == 13){
+    switch (e) {
+      case 'x':
+        v = parseFloat(rotX.value);
+        inQuat[0] = v;
+        break;
+      case 'y':
+        v = parseFloat(rotY.value);
+        inQuat[1] = v;
+        break;
+      case 'z':
+        v = parseFloat(rotZ.value);
+        inQuat[2] = v;
+        break;
+      case 'w':
+        v = parseFloat(rotW.value);
+        inQuat[3] = v;
+        break;
+      default:
+
+    }
+
+    console.log('rotation/quaternion changed to ', inQuat);
+    outMat4 = mat4.fromRotationTranslationScale(outMat4, inQuat, inPos, inScale);
+    console.log("matrix with new rotation is ", outMat4);
+  }
+}
+
+function changePosition(ev, e){
+  console.log("change position ", ev, e);
+  let v = 0;
+  if(ev.type = 'focusout' || ev.keyCode == 13){
+    switch (e) {
+      case 'x':
+        v = parseFloat(posX.value);
+        inPos[0] = v;
+        break;
+      case 'y':
+        v = parseFloat(posY.value);
+        inPos[1] = v;
+        break;
+      case 'z':
+        v = parseFloat(posZ.value);
+        inPos[2] = v;
+        break;
+      default:
+
+    }
+
+    console.log('position changed to ', inPos);
+    outMat4 = mat4.fromRotationTranslationScale(outMat4, inQuat, inPos, inScale);
+    console.log("matrix with new position is ", outMat4);
+
+    if(object != null){
+
+    }
+  }
+}
+
+//fromTranslation
+//fromScaling
+//fromRotation
+//fromQuat
+//fromRotationTranslation
+//fromRotationTranslationScale
+//fromValues
+
+
+
+
+
+var object = null;
+
+var container, stats, controls;
+var camera, scene, renderer, light;
+var clock = new THREE.Clock();
+var action;
+var mixers = [];
+var mixer;
+
+init();
+
+function init() {
+
+  container = document.createElement( 'div' );
+  document.body.appendChild( container );
+
+  camera = new THREE.PerspectiveCamera( 60, window.innerWidth / window.innerHeight, 1, 5000 );
+
+  scene = new THREE.Scene();
+
+  // stats
+  stats = new Stats();
+  container.appendChild( stats.dom );
+
+  renderer = new THREE.WebGLRenderer();
+  renderer.setPixelRatio( window.devicePixelRatio );
+  renderer.setSize( window.innerWidth, window.innerHeight );
+  renderer.setClearColor( 0xAAAAAA );
+  container.appendChild( renderer.domElement );
+
+  // controls, camera
+  controls = new THREE.OrbitControls( camera, renderer.domElement );
+  controls.target.set( 0, 0, 0 );
+  camera.position.set( 2, 8, 8 );
+  controls.update();
+
+  window.addEventListener( 'resize', onWindowResize, false );
+
+  light = new THREE.HemisphereLight(0xffffff, 0x444444, 1.0);
+  light.position.set(1, 2, 1);
+  scene.add(light);
+
+  light = new THREE.DirectionalLight(0xffffff, 1.0);
+  light.position.set(-1, -2, -1);
+  scene.add(light);
+
+  light = new THREE.DirectionalLight(0xffffff, 1.0);
+  light.position.set(10, 10, 10);
+  scene.add(light);
+
+  light = new THREE.DirectionalLight(0xffffff, 1.0);
+  light.position.set(0, 0, 5);
+  scene.add(light);
+
+  light = new THREE.HemisphereLight(0xffffff, 0x444444, 1.0);
+  light.position.set(0, 1, 0);
+  scene.add(light);
+
+  light = new THREE.DirectionalLight(0xffffff, 1.0);
+  light.position.set(10, 10, 10);
+  scene.add(light);
+
+  light = new THREE.HemisphereLight(0xffffff, 0x444444, 1.0);
+  light.position.set(-5, 5, -5);
+  scene.add(light);
+
+  light = new THREE.DirectionalLight(0xffffff, 1.0);
+  light.position.set(0, 0, 0);
+  scene.add(light);
+
+  animate();
+}
+
+function onWindowResize() {
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize( window.innerWidth, window.innerHeight );
+}
+
+//
+
+function animate() {
+  requestAnimationFrame( animate );
+  var delta = clock.getDelta();
+  if ( mixers.length > 0 ) {
+    for ( var i = 0; i < mixers.length; i ++ ) {
+      mixers[ i ].update(delta);
+    }
+  }
+  stats.update();
+  render();
+}
+
+function render() {
+  renderer.render( scene, camera );
+}
+
+
+document.body.ondrop = function(event)
+{
+  event.preventDefault();
+  for(var i = 0; i < event.dataTransfer.files.length; i++)
+  {
+    var file = event.dataTransfer.files[i];
+    //Project file
+    if(file.name.toLowerCase().endsWith(".fbx"))
+    {
+      var path = (file.path !== undefined) ? FileSystem.getFilePath(file.path) : "";
+      try{
+          var reader = new FileReader();
+          reader.onload = function()
+          {
+            try
+            {
+              var loader = new THREE.FBXLoader();
+              object = loader.parse(reader.result, path);
+
+              console.log("pared object from THREE.FBXLoader is ", object);
+
+              if(object.animations.length > 0)
+              {
+                object.traverse(function(child)
+                {
+                  if(child instanceof THREE.SkinnedMesh)
+                  {
+                    child.animations = object.animations;
+                  }
+                });
+
+                mixer = object.mixer = new THREE.AnimationMixer( object );
+                mixers.push( mixer );
+
+                action = object.mixer.clipAction( object.animations[0]);
+                action.timeScale = 1;
+                action.play();
+              }
+
+
+
+              scene.add(object);
+              infoTag.innerHTML = "模型加载成功";
+            }
+            catch(e)
+            {
+              console.error("Error loading file", e);
+              infoTag.innerHTML = "模型加载失败，请检查文件"+file.name;
+            }
+          };
+          reader.readAsArrayBuffer(file);
+        // }
+      }catch(e)
+      {
+        console.error("Error importing file", e);
+        infoTag.innerHTML = "模型加载失败，请检查文件"+file.name;
+      }
+    }
+
+    if(file.name.toLowerCase().endsWith(".dae")){
+      var path = (file.path !== undefined) ? FileSystem.getFilePath(file.path) : "";
+      try{
+          var reader = new FileReader();
+          reader.onload = function()
+          {
+            try
+            {
+              var loader = new THREE.ColladaLoader();
+              var collada = loader.parse(reader.result, path);
+              object = collada.scene;
+
+              console.log("pared object from THREE.ColladaLoader is ", collada);
+
+              // if(collada.animations.length > 0)
+              // {
+              // 	object.traverse(function(child)
+              // 	{
+              // 		if(child instanceof THREE.SkinnedMesh)
+              // 		{
+              // 			child.animations = collada.animations;
+              // 		}
+              // 	});
+              //
+              // 	mixer = object.mixer = new THREE.AnimationMixer( collada );
+              // 	mixers.push( mixer );
+              //
+              // 	action = collada.mixer.clipAction( collada.animations[0]);
+              // 	action.timeScale = 1;
+              // 	action.play();
+              // }
+
+
+
+              scene.add(object);
+              infoTag.innerHTML = "模型加载成功";
+            }
+            catch(e)
+            {
+              console.error("Error loading file", e);
+              infoTag.innerHTML = "模型加载失败，请检查文件"+file.name;
+            }
+          };
+          reader.readAsText(file);
+        // }
+      }catch(e)
+      {
+        console.error("Error importing file", e);
+        infoTag.innerHTML = "模型加载失败，请检查文件"+file.name;
+      }
+    }
+  }
+}
+
+function btnClick(){
+  if(object){
+    console.log("try to remove object " + object.name);
+    infoTag.innerHTML = "移除模型";
+    scene.remove(object);
+  }else{
+    console.log("no object can be removed");
+    infoTag.innerHTML = "无可移除模型";
+  }
+}
+
+document.body.ondragover = function(event)
+{
+  event.preventDefault();
+}
+
+
+</script>
+
+
+  </body>
+</html>
