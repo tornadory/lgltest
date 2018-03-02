@@ -209,9 +209,102 @@ function changePosition(ev, e){
 //fromRotationTranslation
 //fromRotationTranslationScale
 //fromValues
+console.log('quat is ', inQuat);
+inQuat[0] = -0.7071067690849304;
+inQuat[1] = 0;
+inQuat[2] = 0;
+inQuat[3] = 0.7071067690849304;
+console.log('quat 0 is ', inQuat[0]);
+//console.log(mat4.fromQuat(inQuat));
+//0.03333299979567528
+//1
+//0
+//0
+//0
+//0
+//0
+//-1
+//0
+//0
+//1
+//0
+//0
+//0.08234699815511703
+//-0.00031900001340545714
+//9.999999974752427e-7
+//1
+// outMat4 = mat4.fromValues(1, 0, 0, 0,
+//                           0, 0, -1, 0,
+//                           0, 1, 0, 0,
+//                           0.08234699815511703, -0.00031900001340545714, 9.999999974752427e-7, 1);
+outMat4 = mat4.fromValues(0.9971853494644165, -0.07497610151767731, 1.3719477109930267e-8, -0.6008234620094299,
+                          0.07497610151767731, 0.9971853494644165, -1.3278325639021205e-7, 0.2432381808757782,
+                          -3.725290298461914e-9, 1.3343814941890741e-7, 1, 1.0632278168998255e-8,
+                          0, 0, 0, 1);
+console.log("FBX after transpose mat4 is ", outMat4);
+
+console.log('rotation from mat4 is ', mat4.getRotation(inQuat, outMat4));
+console.log('position from mat4 is ', mat4.getTranslation(inPos, outMat4));
+console.log('scaling from mat4 is ', mat4.getScaling(inScale, outMat4));
+//getRotation
+//getScaling
+//getTranslation
+
+outMat4 = mat4.fromValues(0.9971849918365479, 0.07497599720954895, -0, 0,
+                          -0.07497599720954895, 0.9971849918365479, 0, 0,
+                          0, -0, 1, 0,
+                          -0.6008229851722717, 0.24323800206184387, 0, 1);
+console.log("DAE mat4 is ", outMat4);
+
+console.log('rotation from mat4 is ', mat4.getRotation(inQuat, outMat4));
+console.log('position from mat4 is ', mat4.getTranslation(inPos, outMat4));
+console.log('scaling from mat4 is ', mat4.getScaling(inScale, outMat4));
 
 
+////////////
+// 0.9971853494644165
+// 0.07497610151767731
+// -3.725290298461914e-9
+// 0
+// -0.07497610151767731
+// 0.9971853494644165
+// 1.3343814941890741e-7
+// 0
+// 1.3719477109930267e-8
+// -1.3278325639021205e-7
+// 1
+// 0
+// -0.6008234620094299
+// 0.2432381808757782
+// 1.0632278168998255e-8
+// 1
+outMat4 = mat4.fromValues(0.9971853494644165, 0.07497610151767731, -3.725290298461914e-9, 0,
+                          -0.07497610151767731, 0.9971853494644165, 1.3278325639021205e-7, 0,
+                          1.3719477109930267e-8, -1.3278325639021205e-7, 1, 0,
+                          -0.6008234620094299, 0.2432381808757782, 1.0632278168998255e-8, 1);
+console.log("FBX before transpose mat4 is ", outMat4);
 
+console.log('rotation from mat4 is ', mat4.getRotation(inQuat, outMat4));
+console.log('position from mat4 is ', mat4.getTranslation(inPos, outMat4));
+console.log('scaling from mat4 is ', mat4.getScaling(inScale, outMat4));
+///////////transpose\\\\\\
+// 0.9971853494644165
+// -0.07497610151767731
+// 1.3719477109930267e-8
+// -0.6008234620094299
+// 0.07497610151767731
+// 0.9971853494644165
+// -1.3278325639021205e-7
+// 0.2432381808757782
+// -3.725290298461914e-9
+// 1.3343814941890741e-7
+// 1
+// 1.0632278168998255e-8
+// 0
+// 0
+// 0
+// 1
+///////////
 
 
 var object = null;
