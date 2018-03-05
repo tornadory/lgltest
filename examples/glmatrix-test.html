@@ -3,6 +3,32 @@
   <head>
     <meta charset="utf-8">
     <title>GL Matrix TEST APP</title>
+
+    <style>
+			body {
+				font-family: Monospace;
+				background-color: #000;
+				color: #fff;
+				margin: 0px;
+				overflow: hidden;
+			}
+			#leftpanel{
+				position: absolute;
+				width: 20%;
+				margin-top: 0px;
+				margin-left: 0px;
+				z-index: 100;
+			}
+			#rightpanel{
+				position: absolute;
+				width: 100%;
+        height: 100%;
+				margin-top: 0px;
+				margin-left: 0px;
+				z-index: 1;
+			}
+		</style>
+
   </head>
   <script src="js/utils/gl-matrix.js"></script>
 
@@ -14,6 +40,7 @@
 	<script src="js/curves/NURBSCurve.js"></script>
 	<script src="js/curves/NURBSUtils.js"></script>
 	<script src="js/loaders/FBXLoader.js"></script>
+  <script src="js/loaders/ColladaLoader.js"></script>
 	<script src="js/libs/stats.min.js"></script>
 
   <body>
@@ -25,31 +52,31 @@
 
 Position:
 </br>
-x: <input id="posX" type="number" size="10" placeholder="position x"  onfocusout="changePosition(event, 'x')">
+x: <input id="posX" type="number" size="10" value='0' placeholder="position x"  onfocusout="changePosition(event, 'x')">
 </br>
-y: <input id="posY" type="number" size="10" placeholder="position y"  onfocusout="changePosition(event, 'y')">
+y: <input id="posY" type="number" size="10" value='0' placeholder="position y"  onfocusout="changePosition(event, 'y')">
 </br>
-z: <input id="posZ" type="number" size="10" placeholder="position z"  onfocusout="changePosition(event, 'z')">
+z: <input id="posZ" type="number" size="10" value='0' placeholder="position z"  onfocusout="changePosition(event, 'z')">
 </br></br>
 
 Rotation(quaternion):
 </br>
-x: <input id="rotX" type="number" size="10" placeholder="rotation x" onfocusout="changeRotation(event, 'x')">
+x: <input id="rotX" type="number" size="10" value='0' placeholder="rotation x" onfocusout="changeRotation(event, 'x')">
 </br>
-y: <input id="rotY" type="number" size="10" placeholder="rotation y" onfocusout="changeRotation(event, 'y')">
+y: <input id="rotY" type="number" size="10" value='0' placeholder="rotation y" onfocusout="changeRotation(event, 'y')">
 </br>
-z: <input id="rotZ" type="number" size="10" placeholder="rotation z" onfocusout="changeRotation(event, 'z')">
+z: <input id="rotZ" type="number" size="10" value='0' placeholder="rotation z" onfocusout="changeRotation(event, 'z')">
 </br>
-w:<input id="rotW" type="number" size="10" placeholder="rotation w" onfocusout="changeRotation(event, 'w')">
+w: <input id="rotW" type="number" size="10" value='1' placeholder="rotation w" onfocusout="changeRotation(event, 'w')">
 </br></br>
 
 Scale:
 </br>
-x: <input id="scaleX" type="number" size="10" placeholder="scale x" onfocusout="changeScale(event, 'x')">
+x: <input id="scaleX" type="number" size="10" value='1' placeholder="scale x" onfocusout="changeScale(event, 'x')">
 </br>
-y: <input id="scaleY" type="number" size="10" placeholder="scale y" onfocusout="changeScale(event, 'y')">
+y: <input id="scaleY" type="number" size="10" value='1' placeholder="scale y" onfocusout="changeScale(event, 'y')">
 </br>
-z: <input id="scaleZ" type="number" size="10" placeholder="scale z" onfocusout="changeScale(event, 'z')">
+z: <input id="scaleZ" type="number" size="10" value='1' placeholder="scale z" onfocusout="changeScale(event, 'z')">
 </br></br>
 <!-- </br>
 x: <input id="posX" type="number" size="10" placeholder="position x"  onkeyup="changePosition(event, 'x')" onfocusout="changePosition(event, 'x')">
@@ -83,6 +110,16 @@ Result:
 </br>
 <div id='result'></div>
 
+<input id="scaleInput" type="text" size="30" placeholder="scale number"  onkeyup="changeObjectScale(event)">
+</br>
+<button type="button" id="removeBtn" onclick="btnClick()">Remove Last Object</button>
+</br>
+<button type="button" id="toggleAnimBtn" onclick="toggleAnim()">Animation Toggle</button>
+</br>
+<button type="button" id="applyMatrixBtn" onclick="applyMatrixToObject()">Apply Matrix</button>
+</br>
+<button type="button" id="updateMatrixBtn" onclick="updateMatrixToObject()">Update Matrix</button>
+</br>
 </div>
 
 <div id="rightpanel" class="rightpanel">
@@ -104,6 +141,8 @@ var scaleX = document.getElementById("scaleX");
 var scaleY = document.getElementById("scaleY");
 var scaleZ = document.getElementById("scaleZ");
 
+var resultInfo = document.getElementById("result");
+
 var rightpanel = document.getElementById("rightpanel");
 
 let inPos = vec3.create();
@@ -111,9 +150,37 @@ let inScale = vec3.create();
 let inQuat = quat.create();
 let outMat4 = mat4.create();
 
+var m = new THREE.Matrix4();
+
+console.log("m is ", m);
+
 console.log("matrix identity ", outMat4);
 outMat4 = mat4.fromRotationTranslationScale(outMat4, inQuat, inPos, inScale);
+resultInfo.innerHTML = mat4.str(outMat4);
 console.log("matrix ", outMat4);
+
+m.fromArray(outMat4);
+// m.set(outMat4);
+console.log("m is ", m);
+
+function changeObjectScale(ev){
+  if(ev.keyCode == 13){
+    var inputText = document.getElementById("scaleInput");
+    var v = parseFloat(inputText.value);
+    if(!isNaN(v)){
+      if(object != null){
+        object.scale.x = v;
+        object.scale.y = v;
+        object.scale.z = v;
+        console.log("object is scaled by " + v);
+      }else{
+        console.log("no object can be scaled right now");
+      }
+    }else {
+      console.log("please input a valid number and then press enter to scale the latest object");
+    }
+  }
+}
 
 function changeScale(ev, e){
   let v = 1;
@@ -138,6 +205,17 @@ function changeScale(ev, e){
     console.log('scale changed to ', inScale);
     outMat4 = mat4.fromRotationTranslationScale(outMat4, inQuat, inPos, inScale);
     console.log("matrix with new scale is ", outMat4);
+    resultInfo.innerHTML = mat4.str(outMat4);
+
+    m.fromArray(outMat4);
+    console.log("m is ", m);
+
+    // if(object){
+    //   object.matrix = m;
+    //   // object.matrix.multiplySelf(m);
+    //   object.applyMatrix(m);
+    //   console.log("*********CHANGE POSITION*************");
+    // }
   }
 }
 
@@ -168,6 +246,17 @@ function changeRotation(ev, e){
     console.log('rotation/quaternion changed to ', inQuat);
     outMat4 = mat4.fromRotationTranslationScale(outMat4, inQuat, inPos, inScale);
     console.log("matrix with new rotation is ", outMat4);
+    resultInfo.innerHTML = mat4.str(outMat4);
+
+    m.fromArray(outMat4);
+    console.log("m is ", m);
+
+    // if(object){
+    //   object.matrix = m;
+    //   // object.matrix.multiplySelf(m);
+    //   object.applyMatrix(m);
+    //   console.log("*********CHANGE POSITION*************");
+    // }
   }
 }
 
@@ -195,11 +284,54 @@ function changePosition(ev, e){
     console.log('position changed to ', inPos);
     outMat4 = mat4.fromRotationTranslationScale(outMat4, inQuat, inPos, inScale);
     console.log("matrix with new position is ", outMat4);
+    resultInfo.innerHTML = mat4.str(outMat4);
 
-    if(object != null){
+    m.fromArray(outMat4);
+    console.log("m is ", m);
 
-    }
+    // if(object){
+    //   object.matrix = m;
+    //   // object.matrix.multiplySelf(m);
+    //   object.applyMatrix(m);
+    //   console.log("*********CHANGE POSITION*************");
+    // }
   }
+}
+
+function applyMatrixToObject(){
+  if(object){
+    object.matrixAutoUpdate = false;
+    object.matrix = m;
+    // object.applyMatrix(m);
+    console.log("*********CHANGE POSITION*************");
+    object.updateMatrix();
+    // object.matrixAutoUpdate = true;
+  }
+}
+
+function updateMatrixToObject(){
+  console.log("outMat4 is ", outMat4);
+  let rot = mat4.getRotation(inQuat, outMat4);
+  rotX.value = rot[0];
+  rotY.value = rot[1];
+  rotZ.value = rot[2];
+  rotW.value = rot[3];
+  console.log('rotation from mat4 is ', rot);
+
+  let pos = mat4.getTranslation(inPos, outMat4);
+  posX.value = pos[0];
+  posY.value = pos[1];
+  posZ.value = pos[2];
+  console.log('position from mat4 is ', pos);
+
+  let scale = mat4.getScaling(inScale, outMat4);
+  console.log('scaling from mat4 is ', scale);
+  scaleX.value = scale[0];
+  scaleY.value = scale[1];
+  scaleZ.value = scale[2];
+
+  m.fromArray(outMat4);
+  console.log("m is ", m);
 }
 
 //fromTranslation
@@ -246,6 +378,8 @@ console.log("FBX after transpose mat4 is ", outMat4);
 console.log('rotation from mat4 is ', mat4.getRotation(inQuat, outMat4));
 console.log('position from mat4 is ', mat4.getTranslation(inPos, outMat4));
 console.log('scaling from mat4 is ', mat4.getScaling(inScale, outMat4));
+
+
 //getRotation
 //getScaling
 //getTranslation
@@ -278,6 +412,7 @@ console.log('scaling from mat4 is ', mat4.getScaling(inScale, outMat4));
 // 0.2432381808757782
 // 1.0632278168998255e-8
 // 1
+////////////
 outMat4 = mat4.fromValues(0.9971853494644165, 0.07497610151767731, -3.725290298461914e-9, 0,
                           -0.07497610151767731, 0.9971853494644165, 1.3278325639021205e-7, 0,
                           1.3719477109930267e-8, -1.3278325639021205e-7, 1, 0,
@@ -307,6 +442,9 @@ console.log('scaling from mat4 is ', mat4.getScaling(inScale, outMat4));
 ///////////
 
 
+m.fromArray([1,0,0,0,0,3.422854177870249e-8,0.9999999403953552,0,0,-0.9999999403953552,3.422854177870249e-8,0,0,0,0,1]);
+console.log("m is ", m);
+
 var object = null;
 
 var container, stats, controls;
@@ -316,12 +454,15 @@ var action;
 var mixers = [];
 var mixer;
 
+var animRunning = true;
+
 init();
 
 function init() {
 
-  container = document.createElement( 'div' );
-  document.body.appendChild( container );
+  // container = document.createElement( 'div' );
+  // document.body.appendChild( container );
+  container = rightpanel;
 
   camera = new THREE.PerspectiveCamera( 60, window.innerWidth / window.innerHeight, 1, 5000 );
 
@@ -361,21 +502,21 @@ function init() {
   light.position.set(0, 0, 5);
   scene.add(light);
 
-  light = new THREE.HemisphereLight(0xffffff, 0x444444, 1.0);
-  light.position.set(0, 1, 0);
-  scene.add(light);
-
-  light = new THREE.DirectionalLight(0xffffff, 1.0);
-  light.position.set(10, 10, 10);
-  scene.add(light);
-
-  light = new THREE.HemisphereLight(0xffffff, 0x444444, 1.0);
-  light.position.set(-5, 5, -5);
-  scene.add(light);
-
-  light = new THREE.DirectionalLight(0xffffff, 1.0);
-  light.position.set(0, 0, 0);
-  scene.add(light);
+  // light = new THREE.HemisphereLight(0xffffff, 0x444444, 1.0);
+  // light.position.set(0, 1, 0);
+  // scene.add(light);
+  //
+  // light = new THREE.DirectionalLight(0xffffff, 1.0);
+  // light.position.set(10, 10, 10);
+  // scene.add(light);
+  //
+  // light = new THREE.HemisphereLight(0xffffff, 0x444444, 1.0);
+  // light.position.set(-5, 5, -5);
+  // scene.add(light);
+  //
+  // light = new THREE.DirectionalLight(0xffffff, 1.0);
+  // light.position.set(0, 0, 0);
+  // scene.add(light);
 
   animate();
 }
@@ -390,12 +531,15 @@ function onWindowResize() {
 
 function animate() {
   requestAnimationFrame( animate );
-  var delta = clock.getDelta();
-  if ( mixers.length > 0 ) {
-    for ( var i = 0; i < mixers.length; i ++ ) {
-      mixers[ i ].update(delta);
+  if(animRunning){
+    var delta = clock.getDelta();
+    if ( mixers.length > 0 ) {
+      for ( var i = 0; i < mixers.length; i ++ ) {
+        mixers[ i ].update(delta);
+      }
     }
   }
+
   stats.update();
   render();
 }
@@ -403,7 +547,6 @@ function animate() {
 function render() {
   renderer.render( scene, camera );
 }
-
 
 document.body.ondrop = function(event)
 {
@@ -444,15 +587,12 @@ document.body.ondrop = function(event)
                 action.play();
               }
 
-
-
               scene.add(object);
-              infoTag.innerHTML = "模型加载成功";
+              console.log("orig matrix of object is ", object.matrix);
             }
             catch(e)
             {
               console.error("Error loading file", e);
-              infoTag.innerHTML = "模型加载失败，请检查文件"+file.name;
             }
           };
           reader.readAsArrayBuffer(file);
@@ -460,7 +600,6 @@ document.body.ondrop = function(event)
       }catch(e)
       {
         console.error("Error importing file", e);
-        infoTag.innerHTML = "模型加载失败，请检查文件"+file.name;
       }
     }
 
@@ -496,15 +635,12 @@ document.body.ondrop = function(event)
               // 	action.play();
               // }
 
-
-
               scene.add(object);
-              infoTag.innerHTML = "模型加载成功";
+              console.log("orig matrix of object is ", object.matrix);
             }
             catch(e)
             {
               console.error("Error loading file", e);
-              infoTag.innerHTML = "模型加载失败，请检查文件"+file.name;
             }
           };
           reader.readAsText(file);
@@ -512,7 +648,6 @@ document.body.ondrop = function(event)
       }catch(e)
       {
         console.error("Error importing file", e);
-        infoTag.innerHTML = "模型加载失败，请检查文件"+file.name;
       }
     }
   }
@@ -521,11 +656,35 @@ document.body.ondrop = function(event)
 function btnClick(){
   if(object){
     console.log("try to remove object " + object.name);
-    infoTag.innerHTML = "移除模型";
     scene.remove(object);
+    object = null;
   }else{
     console.log("no object can be removed");
-    infoTag.innerHTML = "无可移除模型";
+  }
+}
+
+function toggleAnim(){
+  if(object){
+    //try to stop the anim
+    if(animRunning){
+      animRunning = false;
+      if(action){
+        action.stop();
+      }
+
+      // if(mixer){
+      //   mixer.stop();
+      // }
+    }else {
+      animRunning = true;
+      if(action){
+        action.play();
+      }
+
+      // if(mixer){
+      //   mixer.play();
+      // }
+    }
   }
 }
 
