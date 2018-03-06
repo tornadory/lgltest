@@ -203,7 +203,19 @@ function changeScale(ev, e){
     }
 
     console.log('scale changed to ', inScale);
-    outMat4 = mat4.fromRotationTranslationScale(outMat4, inQuat, inPos, inScale);
+    // outMat4 = mat4.fromRotationTranslationScale(outMat4, inQuat, inPos, inScale);
+    outMat4 = mat4.create();
+    mat4.translate(outMat4, outMat4, inPos);
+
+    let tmpmatrix = mat4.create();
+		mat4.fromQuat( tmpmatrix , inQuat );
+		mat4.multiply( outMat4, outMat4, tmpmatrix );
+		mat4.scale( outMat4, outMat4, inScale );
+    // let tmpmatrix = mat4.create();
+		// mat4.fromQuat( tmpmatrix , inQuat );
+		// mat4.multiply( outMat4, outMat4, tmpmatrix );
+		// mat4.scale( outMat4, outMat4, inScale );
+		// mat4.translate(outMat4, outMat4, inPos);
     console.log("matrix with new scale is ", outMat4);
     resultInfo.innerHTML = mat4.str(outMat4);
 
@@ -244,7 +256,19 @@ function changeRotation(ev, e){
     }
 
     console.log('rotation/quaternion changed to ', inQuat);
-    outMat4 = mat4.fromRotationTranslationScale(outMat4, inQuat, inPos, inScale);
+    // outMat4 = mat4.fromRotationTranslationScale(outMat4, inQuat, inPos, inScale);
+    outMat4 = mat4.create();
+    mat4.translate(outMat4, outMat4, inPos);
+
+    let tmpmatrix = mat4.create();
+		mat4.fromQuat( tmpmatrix , inQuat );
+		mat4.multiply( outMat4, outMat4, tmpmatrix );
+		mat4.scale( outMat4, outMat4, inScale );
+    // let tmpmatrix = mat4.create();
+		// mat4.fromQuat( tmpmatrix , inQuat );
+		// mat4.multiply( outMat4, outMat4, tmpmatrix );
+		// mat4.scale( outMat4, outMat4, inScale );
+		// mat4.translate(outMat4, outMat4, inPos);
     console.log("matrix with new rotation is ", outMat4);
     resultInfo.innerHTML = mat4.str(outMat4);
 
@@ -282,7 +306,15 @@ function changePosition(ev, e){
     }
 
     console.log('position changed to ', inPos);
-    outMat4 = mat4.fromRotationTranslationScale(outMat4, inQuat, inPos, inScale);
+    //outMat4 = mat4.fromRotationTranslationScale(outMat4, inQuat, inPos, inScale);
+    outMat4 = mat4.create();
+    mat4.translate(outMat4, outMat4, inPos);
+
+    let tmpmatrix = mat4.create();
+		mat4.fromQuat( tmpmatrix , inQuat );
+		mat4.multiply( outMat4, outMat4, tmpmatrix );
+		mat4.scale( outMat4, outMat4, inScale );
+
     console.log("matrix with new position is ", outMat4);
     resultInfo.innerHTML = mat4.str(outMat4);
 
@@ -444,12 +476,28 @@ console.log('scaling from mat4 is ', mat4.getScaling(inScale, outMat4));
 //from fBX
 //0.0416666679084301
 // outMat4 = mat4.fromValues(1,0,0,0,0,3.422854177870249e-8,0.9999999403953552,0,0,-0.9999999403953552,3.422854177870249e-8,0,0,0,0,1);
+//outMat4 = mat4.fromValues(1, 0, 0, 0, 0, 3.714032459356531e-7, 0.9999997615814209, 0, 0, -0.9999997615814209, 3.714032459356531e-7, 0, 0, 0, 0, 1)
+//outMat4 = mat4.fromValues(1, 0, 0, 0, 0, 3.422854177870249e-8, 0.9999999403953552, 0, 0, -0.9999999403953552, 3.422854177870249e-8, 0, 0, 0, 0, 1)
+
+//OK//outMat4 = mat4.fromValues(1, 0, 0, 0, 0, 3.422854177870249e-8, 0.9999999403953552, 0, 0, -0.9999999403953552, 3.422854177870249e-8, 0, 0, 0, 0, 1)
+//
+
 //3.3333332538604736
 // outMat4 = mat4.fromValues(-0.9255535006523132, 1.3925220966339111, 0.033250678330659866, 0, 1.3772250413894653, -0.007678516209125519, -0.2086372971534729, 0, -0.20850534737110138, -0.0340682789683342, -1.9178749322891235, 0, 0, 0, 0, 1);
+//outMat4 = mat4.fromValues(0.9847028851509094, -0.1439168006181717, -0.09822538495063782, 0, -0.09878885746002197, -0.9254937171936035, 0.3656530976295471, 0, -0.14353059232234955, -0.3503560721874237, -0.9255536794662476, 0, 0, 0, 0, 1)
+//outMat4 = mat4.fromValues(0.9847028851509094, -0.1439168006181717, -0.09822538495063782, 0, -0.09878885746002197, -0.9254937171936035, 0.3656530976295471, 0, -0.14353059232234955, -0.3503560721874237, -0.9255536794662476, 0, 0, 0, 0, 1)
+
+//OK//outMat4 = mat4.fromValues(0.9847028851509094, -0.1439168006181717, -0.09822538495063782, 0, -0.09878886491060257, -0.9254937767982483, 0.3656530976295471, 0, -0.14353059232234955, -0.3503560721874237, -0.9255537390708923, 0, 0, 0, 0, 1)
+//WR//outMat4 = mat4.fromValues(-0.9255535006523132, 1.3925220966339111, 0.033250678330659866, 0, 1.3772250413894653, -0.007678516209125519, -0.2086372971534729, 0, -0.20850534737110138, -0.0340682789683342, -1.9178749322891235, 0, 0, 0, 0, 1)
+
 //5.833333492279053
 // outMat4 = mat4.fromValues(-0.0668279379606247, -0.022564012557268143, -0.08728451281785965, 0, -0.022564012557268143, -0.007618551608175039, 0.2585110664367676, 0, -0.08728451281785965, 0.2585110664367676, 0.9255534410476685, 0, 0, 0, 0, 1);
+
 //8.333333015441895
-// outMat4 = mat4.fromValues(3.422854177870249e-8, 0.1598123013973236, 0, 0, -0.15981228649616241, 3.422854533141617e-8, 0, 0, 0, 0, 1.0000001192092896, 0, 0, 0, 0, 1);
+//OK//outMat4 = mat4.fromValues(3.422854177870249e-8, 0.1598123013973236, 0, 0, -0.15981228649616241, 3.422854533141617e-8, 0, 0, 0, 0, 1.0000001192092896, 0, 0, 0, 0, 1);
+//outMat4 = mat4.fromValues(0.9814980626106262, 0.14965300261974335, -0.1194382905960083, 0, -0.11885068565607071, 0.9652453064918518, 0.2327573448419571, 0, 0.1501200795173645, -0.21425555646419525, 0.9651727676391602, 0, 0, 0, 0, 1)
+//outMat4 = mat4.fromValues(0.9814980626106262, 0.14965300261974335, -0.1194382905960083, 0, -0.11885068565607071, 0.9652453064918518, 0.2327573448419571, 0, 0.1501200795173645, -0.21425555646419525, 0.9651727676391602, 0, 0, 0, 0, 1)
+
 //10.416666984558105
 // outMat4 = mat4.fromValues(0.9814980626106262, 0.14965298771858215, -0.1194382980465889, 0, -0.11885068565607071, 0.9652453660964966, 0.2327573001384735, 0, 0.1501200795173645, -0.21425551176071167, 0.9651728272438049, 0, 0, 0, 0, 1);
 
