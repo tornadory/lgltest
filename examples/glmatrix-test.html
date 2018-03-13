@@ -206,12 +206,15 @@ function changeScale(ev, e){
     console.log('scale changed to ', inScale);
     // outMat4 = mat4.fromRotationTranslationScale(outMat4, inQuat, inPos, inScale);
     outMat4 = mat4.create();
-    mat4.translate(outMat4, outMat4, inPos);
+
+
+    mat4.scale( outMat4, outMat4, inScale );
 
     let tmpmatrix = mat4.create();
 		mat4.fromQuat( tmpmatrix , inQuat );
 		mat4.multiply( outMat4, outMat4, tmpmatrix );
-		mat4.scale( outMat4, outMat4, inScale );
+
+    mat4.translate(outMat4, outMat4, inPos);
     // let tmpmatrix = mat4.create();
 		// mat4.fromQuat( tmpmatrix , inQuat );
 		// mat4.multiply( outMat4, outMat4, tmpmatrix );
@@ -259,12 +262,22 @@ function changeRotation(ev, e){
     console.log('rotation/quaternion changed to ', inQuat);
     // outMat4 = mat4.fromRotationTranslationScale(outMat4, inQuat, inPos, inScale);
     outMat4 = mat4.create();
-    mat4.translate(outMat4, outMat4, inPos);
+    mat4.scale( outMat4, outMat4, inScale );
 
     let tmpmatrix = mat4.create();
 		mat4.fromQuat( tmpmatrix , inQuat );
 		mat4.multiply( outMat4, outMat4, tmpmatrix );
-		mat4.scale( outMat4, outMat4, inScale );
+
+    mat4.translate(outMat4, outMat4, inPos);
+
+    // mat4.translate(outMat4, outMat4, inPos);
+    //
+    // let tmpmatrix = mat4.create();
+		// mat4.fromQuat( tmpmatrix , inQuat );
+		// mat4.multiply( outMat4, outMat4, tmpmatrix );
+		// mat4.scale( outMat4, outMat4, inScale );
+
+
     // let tmpmatrix = mat4.create();
 		// mat4.fromQuat( tmpmatrix , inQuat );
 		// mat4.multiply( outMat4, outMat4, tmpmatrix );
@@ -309,12 +322,20 @@ function changePosition(ev, e){
     console.log('position changed to ', inPos);
     //outMat4 = mat4.fromRotationTranslationScale(outMat4, inQuat, inPos, inScale);
     outMat4 = mat4.create();
-    mat4.translate(outMat4, outMat4, inPos);
+    mat4.scale( outMat4, outMat4, inScale );
 
     let tmpmatrix = mat4.create();
 		mat4.fromQuat( tmpmatrix , inQuat );
 		mat4.multiply( outMat4, outMat4, tmpmatrix );
-		mat4.scale( outMat4, outMat4, inScale );
+
+    mat4.translate(outMat4, outMat4, inPos);
+    
+    // mat4.translate(outMat4, outMat4, inPos);
+    //
+    // let tmpmatrix = mat4.create();
+		// mat4.fromQuat( tmpmatrix , inQuat );
+		// mat4.multiply( outMat4, outMat4, tmpmatrix );
+		// mat4.scale( outMat4, outMat4, inScale );
 
     console.log("matrix with new position is ", outMat4);
     resultInfo.innerHTML = mat4.str(outMat4);
