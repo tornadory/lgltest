@@ -136,29 +136,29 @@
 				light.position.set(-1, -2, -1);
 				scene.add(light);
 
-				light = new THREE.DirectionalLight(0xffffff, 1.0);
-				light.position.set(10, 10, 10);
-				scene.add(light);
-
-				light = new THREE.DirectionalLight(0xffffff, 1.0);
-				light.position.set(0, 0, 5);
-				scene.add(light);
-
-				light = new THREE.HemisphereLight(0xffffff, 0x444444, 1.0);
-				light.position.set(0, 1, 0);
-				scene.add(light);
-
-				light = new THREE.DirectionalLight(0xffffff, 1.0);
-				light.position.set(10, 10, 10);
-				scene.add(light);
-
-				light = new THREE.HemisphereLight(0xffffff, 0x444444, 1.0);
-				light.position.set(-5, 5, -5);
-				scene.add(light);
-
-				light = new THREE.DirectionalLight(0xffffff, 1.0);
-				light.position.set(0, 0, 0);
-				scene.add(light);
+				// light = new THREE.DirectionalLight(0xffffff, 1.0);
+				// light.position.set(10, 10, 10);
+				// scene.add(light);
+				//
+				// light = new THREE.DirectionalLight(0xffffff, 1.0);
+				// light.position.set(0, 0, 5);
+				// scene.add(light);
+				//
+				// light = new THREE.HemisphereLight(0xffffff, 0x444444, 1.0);
+				// light.position.set(0, 1, 0);
+				// scene.add(light);
+				//
+				// light = new THREE.DirectionalLight(0xffffff, 1.0);
+				// light.position.set(10, 10, 10);
+				// scene.add(light);
+				//
+				// light = new THREE.HemisphereLight(0xffffff, 0x444444, 1.0);
+				// light.position.set(-5, 5, -5);
+				// scene.add(light);
+				//
+				// light = new THREE.DirectionalLight(0xffffff, 1.0);
+				// light.position.set(0, 0, 0);
+				// scene.add(light);
 
 				animate();
 			}
@@ -227,7 +227,11 @@
 									try
 									{
 										var loader = new THREE.FBXLoader();
-										object = loader.parse(reader.result, path);
+										try{
+											object = loader.parse(reader.result, path);
+										}catch(err){
+											console.error("Error during object parsing ", err);
+										}
 
 										console.log("pared object from THREE.FBXLoader is ", object);
 
