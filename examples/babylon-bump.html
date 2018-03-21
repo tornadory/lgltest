@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width">
+    <title>Babylon.js - Bump demo</title>
+    <script src="//cdn.webglstats.com/stat.js" defer="defer" async="async"></script>
+    <script>
+        (function (i, s, o, g, r, a, m) {
+            i['GoogleAnalyticsObject'] = r; i[r] = i[r] || function () {
+                (i[r].q = i[r].q || []).push(arguments)
+            }, i[r].l = 1 * new Date(); a = s.createElement(o),
+            m = s.getElementsByTagName(o)[0]; a.async = 1; a.src = g; m.parentNode.insertBefore(a, m)
+        })(window, document, 'script', '//www.google-analytics.com/analytics.js', 'ga');
+
+        ga('create', 'UA-41767310-1', 'babylonjs.com');
+        ga('send', 'pageview');
+
+    </script>
+    <link rel='stylesheet' href='http://d33wubrfki0l68.cloudfront.net/css/00b7b31c511ce943616fd1c5512819b8fcf13ab6/css/index.css'/>
+    <script src="https://code.jquery.com/pep/0.4.0/pep.min.js"></script>
+    <script src="js/babylon.js"></script>
+	<script src="js/bump.js"></script>
+    <script src="js/demo.js"></script>
+</head>
+<body>
+    <canvas id="renderCanvas" touch-action="none"></canvas>
+    <div id="fps"></div>
+    <div id="stats"></div>
+    <div id="status"></div>
+    <div id="controlPanel">
+        <div id="controlsZone">
+            <p>
+                <button id="enableDebug">Debug layer</button>
+            </p>
+            <p>
+                <button id="fullscreen">Fullscreen</button>
+            </p>
+        </div>
+        <div class="tag">Control panel</div>
+        <div class="tag" id="clickableTag"></div>
+    </div>
+    <div id="cameraPanel">
+        <div id="cameraControlsZone">
+            Active camera:<br>
+            <select id="camerasList"></select>
+            <p>
+                Change control method:
+                <button class="buttonControlPanel" id="touchCamera">
+                    <img src="http://d33wubrfki0l68.cloudfront.net/dcd183b9dc6674b3acb29895c9be9c241e933435/21aa7/assets/camtouchoff.png" class="buttonImg" />Touch camera
+                </button>
+                <button class="buttonControlPanel" id="deviceOrientationCamera">
+                    <img src="http://d33wubrfki0l68.cloudfront.net/b79ca59bdd1cb71dd762d9a703fd40cf1ab0cb2e/e70d2/assets/camdeviceoff.png" class="buttonImg" />VR Device orientation camera
+                </button>
+                <button class="buttonControlPanel" id="gamepadCamera">
+                    <img src="http://d33wubrfki0l68.cloudfront.net/39496e30a5783bade6a71f853eda7c4e11fff147/09f04/assets/camgamepadjoy.png" class="buttonImg" />Gamepad camera
+                </button>
+                <button class="buttonControlPanel" id="virtualJoysticksCamera">
+                    <img src="http://d33wubrfki0l68.cloudfront.net/91e4f8a450087a60aec5c3cc9bb8b3cbdb52d341/a5f13/assets/camvirtualjoy.png" class="buttonImg" />Virtual joysticks camera
+                </button>
+                <button class="buttonControlPanel" id="anaglyphCamera">
+                    <img src="http://d33wubrfki0l68.cloudfront.net/3a29c33554bd3b3723badb1507c9de8e1859064c/b0895/assets/camanagly.png" class="buttonImg" />Anaglyph camera
+                </button>
+            </p>
+            <p>
+                Post-processes:
+                <button class="smallButtonControlPanel" id="toggleFxaa">Toggle FXAA (antialiasing)</button>
+                <button class="smallButtonControlPanel" id="toggleFsaa4">Toggle FSAA 4X (antialiasing)</button>
+                <button class="smallButtonControlPanel" id="toggleBandW">Toggle Black and white</button>
+                <button class="smallButtonControlPanel" id="toggleSepia">Toggle Sepia</button>
+            </p>
+        </div>
+        <div class="cameraTag"><img src="http://d33wubrfki0l68.cloudfront.net/4be4d643f634ae7cb26ddff105477a067c434512/11f81/assets/camera.png" /></div>
+        <div class="cameraTag" id="cameraClickableTag"></div>
+    </div>
+    <div id="notSupported" class="hidden">Sorry but your browser does not support WebGL...</div>
+    <script src="js/loaderCustoms.js"></script>
+</body>
+</html>
