@@ -1,4 +1,3 @@
-
 var parserFBX = {
 	extension: "fbx",
 	type: "scene",
@@ -9,7 +8,6 @@ var parserFBX = {
 	parse: async function( data, options, filename )
 	{
 		var scene = await this.fakeParser(data, options, filename);
-		console.log("got scene is ", scene);
 		return scene;
 	},
 
@@ -22,10 +20,10 @@ var parserFBX = {
 			if(!data)
 			{
 				console.error("FBX parser requires data");
-				reject(null);
+				resolve(null);
 			}
-
 			var clean_filename = RS.RM.getBasename( filename );
+			var parsed = false;
 
 			//Create a scene tree
 			var scene = {
@@ -38,72 +36,171 @@ var parserFBX = {
 				root:{ children:[] },
 				external_files: {}, //store info about external files mentioned in this
 				file_name: clean_filename,
-				texture_uploaded: []
+				texture_uploaded: new Map(),
+				nodes_by_uid: {},
+				url: filename
 			};
 
 			scene.root.name = clean_filename;
 
 			var manager = new THREE.LoadingManager( async function() {
-				var node = await thiz.parseToNode(fbxobject, scene);
-
-				scene.root = node;
-				scene.root.name = clean_filename;
-
-				if(fbxobject.animations.length > 0)
-				{
-					var animations = thiz.parseAnimation(fbxobject.animations, scene);
-					if(animations)
-					{
-						var animations_name = "animations_" + clean_filename + ".wbin";
-						animations.filename = animations_name;
-						scene.resources[ animations_name ] = animations;
-						scene.root.animation = animations_name;
+				if(fbxobject != null){
+					parsed = true;
+					var node;
+					try{
+						node = await thiz.parseToNode(fbxobject, scene);
+					}catch(err){
+						LEvent.trigger( RS.ResourcesManager, "end_loading_resources", false);
+						DriveModule.refreshContent();
+						resolve(null);
 					}
+
+
+					scene.root = node;
+					if(scene.root)
+						scene.root.name = clean_filename;
+
+					if(fbxobject.animations.length > 0)
+					{
+						var animations = thiz.parseAnimation(fbxobject.animations, scene);
+						if(animations)
+						{
+							var animations_name = resource_base_path + "animations_" + clean_filename + ".wbin";
+							animations.filename = animations_name;
+							scene.resources[ animations_name ] = animations;
+							scene.root.animation = animations_name;
+						}
+					}
+
+					// clear memory, maybe can do something here
+					scene.nodes_by_uid = {};
+
+					scene.texture_uploaded.clear();
+
+		      resolve(scene);
 				}
-
-				//apply 90 degrees rotation to match the Y UP AXIS of the system
-				if( scene.metadata && scene.metadata.up_axis == "Z_UP" )
-					scene.root.model = mat4.rotateX( mat4.create(), mat4.create(), -90 * 0.0174532925 );
-
-				//rename meshes, nodes, etc
-				var renamed = {};
-				var basename = clean_filename.substr(0, clean_filename.indexOf("."));
-
-				// clear memory, maybe can do something here
-
-	      resolve(scene);
 			});
 
 			var loader = new THREE.FBXLoader(manager);
 			var path = window.location.origin + resource_base_path;
-			var fbxobject = loader.parse(data, path);
 
-			// the hasTexture is not right, before manager's callback we can not determine if there are textures inside model
-			// so put it to TBD, wihout it, model without textures can not be loaded normally, just because this function doese not return anything
+			try{
+				var fbxobject = loader.parse(data, path);
+			}catch(err){
+				LEvent.trigger( RS.ResourcesManager, "end_loading_resources", false);
+				DriveModule.refreshContent();
+				resolve(null);
+			}
 
-			// if(!thiz.hasTexture(fbxobject)){ //if no texture inside model, then manger's callback won't be called
-			// 	var node = await thiz.parseToNode(fbxobject, scene);
-      //
-			// 	scene.root = node;
-			// 	scene.root.name = clean_filename;
-      //
-			// 	//apply 90 degrees rotation to match the Y UP AXIS of the system
-			// 	if( scene.metadata && scene.metadata.up_axis == "Z_UP" )
-			// 		scene.root.model = mat4.rotateX( mat4.create(), mat4.create(), -90 * 0.0174532925 );
-      //
-			// 	//rename meshes, nodes, etc
-			// 	var renamed = {};
-			// 	var basename = clean_filename.substr(0, clean_filename.indexOf("."));
-      //
-			// 	// clear memory, maybe can do something here
-			// 	resolve(scene);
-			// }
+			await thiz.sleep(3000); //for models without textures, callback of manager won't be called, so need a way to resolve it
+
+			if(!parsed){
+				if(fbxobject){
+					var node;
+					try{
+						node = await thiz.parseToNode(fbxobject, scene);
+					}catch(err){
+						LEvent.trigger( RS.ResourcesManager, "end_loading_resources", false);
+						DriveModule.refreshContent();
+						resolve(null);
+					}
+
+					scene.root = node;
+					if(scene.root)
+						scene.root.name = clean_filename;
+
+					if(fbxobject.animations.length > 0)
+					{
+						var animations = thiz.parseAnimation(fbxobject.animations, scene);
+						if(animations)
+						{
+							var animations_name = resource_base_path + "animations_" + clean_filename + ".wbin";
+							animations.filename = animations_name;
+							scene.resources[ animations_name ] = animations;
+							scene.root.animation = animations_name;
+						}
+					}
+
+					// clear memory, maybe can do something here
+					scene.nodes_by_uid = {};
+
+					resolve(scene);
+				}
+			}
 	  });
+	},
+
+	sleep: function (time) {
+		return new Promise(function (resolve, reject) {
+		    setTimeout(function () {
+		        resolve();
+		    }, time);
+		})
+	},
+
+	getTranslation(out, mat) {
+	  out[0] = mat[12];
+	  out[1] = mat[13];
+	  out[2] = mat[14];
+
+	  return out;
+	},
+
+	getScaling(out, mat) {
+	  var m11 = mat[0];
+	  var m12 = mat[1];
+	  var m13 = mat[2];
+	  var m21 = mat[4];
+	  var m22 = mat[5];
+	  var m23 = mat[6];
+	  var m31 = mat[8];
+	  var m32 = mat[9];
+	  var m33 = mat[10];
+
+	  out[0] = Math.sqrt(m11 * m11 + m12 * m12 + m13 * m13);
+	  out[1] = Math.sqrt(m21 * m21 + m22 * m22 + m23 * m23);
+	  out[2] = Math.sqrt(m31 * m31 + m32 * m32 + m33 * m33);
+
+	  return out;
+	},
+
+	getRotation(out, mat) {
+	  // Algorithm taken from http://www.euclideanspace.com/maths/geometry/rotations/conversions/matrixToQuaternion/index.htm
+	  var trace = mat[0] + mat[5] + mat[10];
+	  var S = 0;
+
+	  if (trace > 0) {
+	    S = Math.sqrt(trace + 1.0) * 2;
+	    out[3] = 0.25 * S;
+	    out[0] = (mat[6] - mat[9]) / S;
+	    out[1] = (mat[8] - mat[2]) / S;
+	    out[2] = (mat[1] - mat[4]) / S;
+	  } else if (mat[0] > mat[5] & mat[0] > mat[10]) {
+	    S = Math.sqrt(1.0 + mat[0] - mat[5] - mat[10]) * 2;
+	    out[3] = (mat[6] - mat[9]) / S;
+	    out[0] = 0.25 * S;
+	    out[1] = (mat[1] + mat[4]) / S;
+	    out[2] = (mat[8] + mat[2]) / S;
+	  } else if (mat[5] > mat[10]) {
+	    S = Math.sqrt(1.0 + mat[5] - mat[0] - mat[10]) * 2;
+	    out[3] = (mat[8] - mat[2]) / S;
+	    out[0] = (mat[1] + mat[4]) / S;
+	    out[1] = 0.25 * S;
+	    out[2] = (mat[6] + mat[9]) / S;
+	  } else {
+	    S = Math.sqrt(1.0 + mat[10] - mat[0] - mat[5]) * 2;
+	    out[3] = (mat[1] - mat[4]) / S;
+	    out[0] = (mat[8] + mat[2]) / S;
+	    out[1] = (mat[6] + mat[9]) / S;
+	    out[2] = 0.25 * S;
+	  }
+
+	  return out;
 	},
 
 	parseAnimation: function(animationsData, scene){
 		if(animationsData.length < 1){
-			console.log("no animation data ...");
+			console.warn("no animation data ...");
 			return null;
 		}
 		var animations = {
@@ -111,10 +208,10 @@ var parserFBX = {
 			takes: {}
 		};
 
-		var default_take = { tracks: [] };
-		var tracks = default_take.tracks; // contain all new subtracks
-
 		for(let i = 0; i < animationsData.length; i++){ //typically, length is 1
+			let default_take = { tracks: [] };
+			let tracks = default_take.tracks; // contain all new subtracks
+
 			let track = animationsData[i];
 			let subtracks = track.tracks;
 			if(subtracks.length < 1){
@@ -140,6 +237,16 @@ var parserFBX = {
 					continue;
 				}
 
+				let node_uid = "@" + scene.file_name + "::" + nodename;
+				let nodeObj = scene.nodes_by_uid[node_uid];
+				if(!nodeObj)
+				{
+					console.warn("Node " + nodename + " not found");
+					continue;
+				}
+
+				//let nodeModel = nodeObj.model;
+
 				//property name need to be aligned with node's uid
 				if((j+1 < subtracks.length) && subtracks[j+1].name.startsWith(nodename + ".")){
 					if(subtracks[j+1].times.length > timeBaseArraryLen){
@@ -152,20 +259,12 @@ var parserFBX = {
 							timeBaseArraryLen = subtracks[j+2].times.length;
 						}
 						groupSize = 3;
-						// j = j + 3; //next iterator index
-						//start to convert j, j + 1 and j + 2
 					}else {
 						groupSize = 2;
-						// j = j + 2; //next iterator index
-						//start to convert j and j + 1
 					}
 				}else {
 					groupSize = 1;
-					// j = j + 1; //next iterator index
-					//start to convert j
 				}
-
-				//try to create matrix
 
 				let timeArray = subtracks[timeBaseIndex].times;
 				let animLen = timeArray.length;
@@ -174,12 +273,14 @@ var parserFBX = {
 				let translate = vec3.create();
 				let rotation = quat.create();
 				let scale = vec3.fromValues(1,1,1);
+				if(nodeObj.model){
+					this.getTranslation(translate, nodeObj.model);
+					this.getRotation(rotation, nodeObj.model);
+					this.getScaling(scale, nodeObj.model);
+				}
 
 				for(let tIndex = 0; tIndex < timeArray.length; tIndex++){
 					let t = timeArray[tIndex];
-					// let matrix = mat4.create();
-
-
 
 					for(let g = 0; g < groupSize; g++){
 						let dataIndex = j + g;
@@ -188,99 +289,48 @@ var parserFBX = {
 							//contains time in this sub track
 							if(subtracks[dataIndex].name.endsWith(".position")){
 								//position / translate
-								// let translate = vec3.create();
-								translate = vec3.create();
 								translate[0] = subtracks[dataIndex].values[iData * 3];
 								translate[1] = subtracks[dataIndex].values[iData * 3 + 1];
 								translate[2] = subtracks[dataIndex].values[iData * 3 + 2];
-								// mat4.translate(matrix, matrix, translate);
 							}
 							if(subtracks[dataIndex].name.endsWith(".quaternion")){
 								//quaternion / rotate
-								// let rotation = quat.create();
-								rotation = quat.create();
-
-								rotation[0] = subtracks[dataIndex].values[iData * 3];
-								rotation[1] = subtracks[dataIndex].values[iData * 3 + 1];
-								rotation[2] = subtracks[dataIndex].values[iData * 3 + 2];
-								rotation[3] = subtracks[dataIndex].values[iData * 3 + 3];
-
-								// mat4.multiply( matrix, matrix, tmpmatrix );
+								rotation[0] = subtracks[dataIndex].values[iData * 4];
+								rotation[1] = subtracks[dataIndex].values[iData * 4 + 1];
+								rotation[2] = subtracks[dataIndex].values[iData * 4 + 2];
+								rotation[3] = subtracks[dataIndex].values[iData * 4 + 3];
 							}
 							if(subtracks[dataIndex].name.endsWith(".scale")){
 								//scale / scale
-								// let scale = vec3.fromValues(1,1,1);
-								scale = vec3.fromValues(1,1,1);
 								scale[0] = subtracks[dataIndex].values[iData * 3];
 								scale[1] = subtracks[dataIndex].values[iData * 3 + 1];
 								scale[2] = subtracks[dataIndex].values[iData * 3 + 2];
-								// mat4.scale( matrix, matrix, scale );
 							}
 						} //end if iData
 					}//end for groupSize
 
 					let matrix = mat4.create();
+					mat4.translate(matrix, matrix, translate);
 					let tmpmatrix = mat4.create();
 					mat4.fromQuat( tmpmatrix , rotation );
 					mat4.multiply( matrix, matrix, tmpmatrix );
 					mat4.scale( matrix, matrix, scale );
-					mat4.translate(matrix, matrix, translate);
-
-					// if(translate){
-					// 	if(rotation){
-					// 		if(scale){
-					// 			//r t s
-					// 			matrix = mat4.fromRotationTranslationScale(matrix, rotation, translate, scale);
-					// 		}else{
-					// 			//r t
-					// 			matrix = mat4.fromRotationTranslation(matrix, rotation, translate);
-					// 		}
-					// 	}else {
-					// 		if(scale){
-					// 			console.error('ONLY POSITION and SCALE');
-					// 		}else{
-					// 			//t
-					// 			matrix = mat4.fromTranslation(matrix, rotation);
-					// 		}
-					// 	}
-					// }else{
-					// 	if(rotation){
-					// 		if(scale){
-					// 			console.error('ONLY ROTATION and SCALE');
-					// 		}else {
-					// 			//r
-					// 			matrix = mat4.fromQuat(matrix, rotation);
-					// 		}
-					// 	}else{
-					// 		if(scale){
-					// 			//s
-					// 			matrix = mat4.fromScaling(matrix, scale);
-					// 		}else {
-					// 			console.error('NO available data be used');
-					// 		}
-					// 	}
-					// }
-
-					// mat4.transpose(matrix,matrix);
 
 					//got matrix and then insert it into animData
 					animData[17 * tIndex] = t;
 					animData.set(matrix, 17 * tIndex + 1);
-
-
 				}// end of for tIndex
 
 				//create anim data for this node
 				let anim = {};
-				anim.name = "transform";
-				// anim.name = "matrix";
+				// anim.name = "transform";
+				anim.name = "matrix";
 				anim.property = "@" + scene.file_name + "::" + nodename + "/matrix";
 				anim.type = "mat4";
 				anim.value_size = 16;
 				anim.duration = timeArray[ animLen - 1];
 				anim.packed_data = true;
 				anim.data = animData;
-
 
 				tracks.push( anim );
 
@@ -289,12 +339,14 @@ var parserFBX = {
 
 			if(i == 0){
 				default_take.name = "default";
-				default_take.duration = 0;
-				animations.takes[ default_take.name ] = default_take;
 			}else{
-				console.error("more than 1 animation tack ...");
+				default_take.name = animationsData[i].name;
 			}
-		}
+
+			default_take.duration = animationsData[i].duration;
+
+			animations.takes[ default_take.name ] = default_take;
+		}//endof animations for loop animationsData
 
 		if(animations.takes.length < 1){
 			return null;
@@ -303,30 +355,17 @@ var parserFBX = {
 		return animations;
 	},
 
-	hasTexture: function(object){
-		object.traverse( function ( child ) {
-			if(child.material){
-				if(child.material.length > 1){
-					for(let i =0; i < child.material.length; i++){
-						if(child.material[0].map){
-							return true;
-						}
-					}
-				}else{
-					if(child.material.map){
-						return true;
-					}
-				}
-			}
-		});
-		return false;
-	},
-
 	uploadTexture: function(texture){
 		return new Promise((resolve, reject) => {
-			DriveModule.saveResource(texture, function(v){
-				resolve(v);
-			}, { skip_alerts: true });
+			try{
+				DriveModule.saveResource(texture, function(v){
+					resolve(v);
+				}, { skip_alerts: true });
+			}catch(err){
+				LEvent.trigger( RS.ResourcesManager, "end_loading_resources", false);
+				resolve(null);
+			}
+
 		});
 	},
 
@@ -348,187 +387,740 @@ var parserFBX = {
 		//rotation
 		let tmpq = quat.create();
 
+		let node_uid = "@" + scene.file_name;
+
+		if(child.name){
+			node_uid = node_uid + "::" + child.name;
+		}
+
 		let node = {
 			name: child.name,
 			id: child.name,
 			sid: child.name,
-			uid: "@" + scene.file_name + "::" + child.name,
-			children:[]
+			uid: node_uid,
+			children:[],
+			model: matrix
 		};
 
 		//MESH
 		if ( child instanceof THREE.Mesh ) {
 
-			if(child.isSkinnedMesh){
-				console.log("SKINNED MESH: ", child);
-			}
-			//console.log("Mesh from Child of FBX object: ", child.geometry);
 			let bufferGeometry = child.geometry;
 			if(!bufferGeometry.attributes.position || bufferGeometry.attributes.position.array.length < 3)
 			{
-				console.log("NO GEOMETRY, ignore it");
+				console.warn("NO GEOMETRY, ignore it"); //TBD
 				//continue;
 			}else{
-				let geometry = new THREE.Geometry().fromBufferGeometry( bufferGeometry );
-				//console.log("got geometry data from bufferGeometry is, ", geometry);
-
-				//Float32Array
-				for(let i = 0; i < geometry.vertices.length; i++){
-					for(let j = 0; j < 3; j++){
-						let index = 3*i + j;
-						vertexArray[index] = geometry.vertices[i].getComponent(j);
-					}
-				}
-				//Uint16Array
-				for(let i = 0; i < geometry.faces.length; i++){
-					let baseIndex = 3 * i;
-					indexArray[baseIndex] = geometry.faces[i].a;
-					indexArray[baseIndex + 1] = geometry.faces[i].b;
-					indexArray[baseIndex + 2] = geometry.faces[i].c;
-				}
-
-				if(bufferGeometry.attributes.uv){
-					uvArray = bufferGeometry.attributes.uv.array.slice();
-				}
-
-				if(child.bindMatrix){
-					bindMatrix = child.bindMatrix.elements.slice();
-				}else{
-					bindMatrix = mat4.create(); //identity
-				}
-
-				//1bones
-				if(bufferGeometry.FBX_Deformer){
-					let bonesNum = bufferGeometry.FBX_Deformer.bones.length;
-					if(bonesNum > 0){
-						for(let bIndex =0; bIndex < bonesNum; bIndex++){
-							let bNodeName = "@" + scene.file_name + "::" + bufferGeometry.FBX_Deformer.bones[bIndex].name;
-							//let bMatrix = bufferGeometry.FBX_Deformer.bones[bIndex].matrix.elements.slice();
-
-							//use rawBones
-							//yes, use rawBones can make bones seems better, currently mesh is -90 that bones
-							let bMatrix = bufferGeometry.FBX_Deformer.rawBones[bIndex].transform.elements.slice();
-							//caculate from RTS
-							//let bMatrix = mat4.create();
-							joints.push([ bNodeName, bMatrix ]);
-						}
-					}
-				}
-
-				if(bufferGeometry.attributes.normal)
-					normalsArray = bufferGeometry.attributes.normal.array.slice();
-				if(bufferGeometry.attributes.skinIndex)
-					boneIndexArray = bufferGeometry.attributes.skinIndex.array.slice();
-				if(bufferGeometry.attributes.skinWeight)
-					weightsArray = bufferGeometry.attributes.skinWeight.array.slice();
-
-				let mesh_data = {};
-
-				if(vertexArray && vertexArray.length > 0)
-					mesh_data.vertices = new Float32Array(vertexArray);
-
-				if(indexArray && indexArray.length > 0)
-					mesh_data.triangles = new Uint16Array(indexArray);
-
-				if(normalsArray && normalsArray.length > 0)
-					mesh_data.normals = normalsArray;
-
-				if(uvArray && uvArray.length > 0)
-					mesh_data.coords = uvArray;
-
-				if(boneIndexArray && boneIndexArray.length > 0)
-					mesh_data.bone_indices = boneIndexArray;
-
-				if(weightsArray && weightsArray.length > 0)
-					mesh_data.weights = weightsArray;
-
-				if(bindMatrix && bindMatrix.length > 0){
-					mesh_data.bind_matrix = bindMatrix;
-				}
-
-				if(joints && joints.length > 0){
-					mesh_data.bones = joints;
-				}
-
-				mesh_data.name = scene.file_name + "-" + child.name;
-				mesh_data.filename = scene.file_name + "-" + child.name;
-				mesh_data.object_class = "Mesh";
-
-				let mesh_id = scene.file_name + "-" + child.name + "-mesh";
-				scene.meshes[mesh_id] = mesh_data;
-
-				node.mesh = mesh_id;
-
+				//MATERIAL
+				let groupmaterials = [];
 				if(child.material){
+
 					if(child.material.length > 1){
 						for(let i =0; i < child.material.length; i++){
-							let childmat = child.material[i];
 							let material = {};
-							material.id = scene.file_name + "-" + childmat.name;
-							material.id = material.id.replace(/[^a-z0-9\.\-]/gi,"_") + ".json";
+							material.textures = {};
 
-							if(childmat.opacity)
+							let childmat = child.material[i];
+
+							if(childmat.name){
+								material.id = scene.file_name + "-" + childmat.name;
+							}else{
+								material.id = scene.file_name + "-" + "material" + "-" + i;
+							}
+
+							material.id = material.id.replace(/[^a-z0-9\.\-]/gi,"_") + ".json";
+							material.id = resource_base_path + material.id;
+
+							if(childmat.opacity){
 								material.opacity = childmat.opacity;
+								if(childmat.opacity < 1){
+									material.blend_mode = RS.Blend.ALPHA;
+								}
+							}
+
 							if(childmat.shiness){
 								material.specular_gloss = childmat.shiness;
 							}
 
-							// if(childmat.color){
-							// 	let color = new Uint8Array([childmat.color.r,childmat.color.g,childmat.color.b]);
-							// 	material.color = color;
-							// }
+							if(childmat.color){
+								let color = new Float32Array([childmat.color.r,childmat.color.g,childmat.color.b]);
+								material.color = color;
+							}
 							if(child.material.emissive){
-								let emissive = new Uint8Array([childmat.emissive.r,childmat.emissive.g,childmat.emissive.b]);
+								let emissive = new Float32Array([childmat.emissive.r,childmat.emissive.g,childmat.emissive.b]);
 								material.emissive = emissive;
 							}
 
 							//TBD
-							//bumpMap
-							//envMap
+							//bumpMap //OK
+							//envMap //OK
 							//aoMap
-							//alphaMap
+							//alphaMap //OK
 							//lightMap
-							//normalMap
-							//specularMap
+							//normalMap //OK
+							//specularMap //OK
+							//emissiveMap //OK
+
+							if(childmat.normalMap){
+								if(childmat.normalMap.image){
+									let texture_name = child.name + "_normal";
+									if(childmat.name){
+										texture_name = child.name + "_" + childmat.name + "_normal";
+									}
+
+									if(childmat.normalMap.image.src){
+										let fname = childmat.normalMap.image.src;
+										if(fname.startsWith("blob")){ //blob file embeded texture
+
+											if(!scene.texture_uploaded.get(childmat.normalMap.image.src)){
+												fname = scene.file_name + "_" + texture_name + ".png";
+												fname = fname.replace(/[^a-z0-9\.\-]/gi,"_");
+												// fname = fname.toLowerCase();
+
+												scene.texture_uploaded.set(childmat.normalMap.image.src, resource_base_path + fname);
+
+												let imgData = childmat.normalMap.image;
+												let imgWidth = imgData.width;
+												let imgHeight = imgData.height;
+												let imgCanvas = document.createElement('canvas');
+												imgCanvas.width = imgWidth;
+												imgCanvas.height = imgHeight;
+												let imgCtx = imgCanvas.getContext("2d");
+												imgCtx.drawImage(imgData, 0, 0);
+
+												let dataURL = imgCanvas.toDataURL("image/png");
+												let texture = {
+													data: dataURL,
+													filename: resource_base_path + fname,
+													fullpath: resource_base_path + fname,
+													toBase64: function(){
+														return dataURL.replace(/^data:image\/(png|jpg);base64,/, "");
+													},
+													toBinary: function(){ //from GL.Texture.toBinary
+														let data = dataURL;
+														let index = data.indexOf(",");
+														let base64_data = data.substr(index+1);
+														let binStr = atob( base64_data );
+														let len = binStr.length,
+														arr = new Uint8Array(len);
+														for (let i=0; i<len; ++i ) {
+															arr[i] = binStr.charCodeAt(i);
+														}
+														return arr;
+													},
+													width: imgWidth,
+													height: imgHeight,
+													constructor: {
+														binary_extension: "png"
+													}
+												};
+
+												try{
+													await this.uploadTexture(texture);
+												}catch(err){
+													console.error(err);
+												}
+
+												let image = {
+													filename: resource_base_path + fname,
+													map: texture_name,
+													name: texture_name,
+													path: resource_base_path + fname
+												};
+
+												scene.images[texture_name] = image;
+											}
+
+											material.textures["normal"] = {
+												texture: scene.texture_uploaded.get(childmat.normalMap.image.src),
+												uvs: RS.Material.COORDS_UV0
+											};
+
+										}else{
+											fname = this.getFilename(fname);
+
+											let image = {
+												filename: fname,
+												map: texture_name,
+												name: texture_name,
+												path: fname
+											};
+
+											image.filename = resource_base_path + image.filename;
+											image.path = resource_base_path + image.path;
+											scene.images[texture_name] = image;
+
+											material.textures["normal"] = {
+												texture: image.path,
+												uvs: RS.Material.COORDS_UV0
+											};
+										}
+									}
+								}
+							}
+
+							if(childmat.specularMap){
+								if(childmat.specularMap.image){
+									let texture_name = child.name + "_specular";
+									if(childmat.name){
+										texture_name = child.name + "_" + childmat.name + "_specular";
+									}
+
+									if(childmat.specularMap.image.src){
+										let fname = childmat.specularMap.image.src;
+										if(fname.startsWith("blob")){ //blob file embeded texture
+
+											if(!scene.texture_uploaded.get(childmat.specularMap.image.src)){
+												fname = scene.file_name + "_" + texture_name + ".png";
+												fname = fname.replace(/[^a-z0-9\.\-]/gi,"_");
+												// fname = fname.toLowerCase();
+
+												scene.texture_uploaded.set(childmat.specularMap.image.src, resource_base_path + fname);
+
+												let imgData = childmat.specularMap.image;
+												let imgWidth = imgData.width;
+												let imgHeight = imgData.height;
+												let imgCanvas = document.createElement('canvas');
+												imgCanvas.width = imgWidth;
+												imgCanvas.height = imgHeight;
+												let imgCtx = imgCanvas.getContext("2d");
+												imgCtx.drawImage(imgData, 0, 0);
+
+												let dataURL = imgCanvas.toDataURL("image/png");
+												let texture = {
+													data: dataURL,
+													filename: resource_base_path + fname,
+													fullpath: resource_base_path + fname,
+													toBase64: function(){
+														return dataURL.replace(/^data:image\/(png|jpg);base64,/, "");
+													},
+													toBinary: function(){ //from GL.Texture.toBinary
+														let data = dataURL;
+														let index = data.indexOf(",");
+														let base64_data = data.substr(index+1);
+														let binStr = atob( base64_data );
+														let len = binStr.length,
+														arr = new Uint8Array(len);
+														for (let i=0; i<len; ++i ) {
+															arr[i] = binStr.charCodeAt(i);
+														}
+														return arr;
+													},
+													width: imgWidth,
+													height: imgHeight,
+													constructor: {
+														binary_extension: "png"
+													}
+												};
+
+												try{
+													await this.uploadTexture(texture);
+												}catch(err){
+													console.error(err);
+												}
+
+												let image = {
+													filename: resource_base_path + fname,
+													map: texture_name,
+													name: texture_name,
+													path: resource_base_path + fname
+												};
+
+												scene.images[texture_name] = image;
+											}
+
+											material.textures["specular"] = {
+												texture: scene.texture_uploaded.get(childmat.specularMap.image.src),
+												uvs: RS.Material.COORDS_UV0
+											};
+
+										}else{
+											fname = this.getFilename(fname);
+
+											let image = {
+												filename: fname,
+												map: texture_name,
+												name: texture_name,
+												path: fname
+											};
+
+											image.filename = resource_base_path + image.filename;
+											image.path = resource_base_path + image.path;
+											scene.images[texture_name] = image;
+
+											material.textures["specular"] = {
+												texture: image.path,
+												uvs: RS.Material.COORDS_UV0
+											};
+										}
+									}
+								}
+							}
+
+							if(childmat.envMap){
+								if(childmat.envMap.image){
+									let texture_name = child.name + "_env";
+									if(childmat.name){
+										texture_name = child.name + "_" + childmat.name + "_env";
+									}
+
+									if(childmat.envMap.image.src){
+										let fname = childmat.envMap.image.src;
+										if(fname.startsWith("blob")){ //blob file embeded texture
+
+											if(!scene.texture_uploaded.get(childmat.envMap.image.src)){
+												fname = scene.file_name + "_" + texture_name + ".png";
+												fname = fname.replace(/[^a-z0-9\.\-]/gi,"_");
+												// fname = fname.toLowerCase();
+
+												scene.texture_uploaded.set(childmat.envMap.image.src, resource_base_path + fname);
+
+												let imgData = childmat.envMap.image;
+												let imgWidth = imgData.width;
+												let imgHeight = imgData.height;
+												let imgCanvas = document.createElement('canvas');
+												imgCanvas.width = imgWidth;
+												imgCanvas.height = imgHeight;
+												let imgCtx = imgCanvas.getContext("2d");
+												imgCtx.drawImage(imgData, 0, 0);
+
+												let dataURL = imgCanvas.toDataURL("image/png");
+												let texture = {
+													data: dataURL,
+													filename: resource_base_path + fname,
+													fullpath: resource_base_path + fname,
+													toBase64: function(){
+														return dataURL.replace(/^data:image\/(png|jpg);base64,/, "");
+													},
+													toBinary: function(){ //from GL.Texture.toBinary
+														let data = dataURL;
+														let index = data.indexOf(",");
+														let base64_data = data.substr(index+1);
+														let binStr = atob( base64_data );
+														let len = binStr.length,
+														arr = new Uint8Array(len);
+														for (let i=0; i<len; ++i ) {
+															arr[i] = binStr.charCodeAt(i);
+														}
+														return arr;
+													},
+													width: imgWidth,
+													height: imgHeight,
+													constructor: {
+														binary_extension: "png"
+													}
+												};
+
+												try{
+													await this.uploadTexture(texture);
+												}catch(err){
+													console.error(err);
+												}
+
+												let image = {
+													filename: resource_base_path + fname,
+													map: texture_name,
+													name: texture_name,
+													path: resource_base_path + fname
+												};
+
+												scene.images[texture_name] = image;
+											}
+
+											material.textures["environment"] = {
+												texture: scene.texture_uploaded.get(childmat.envMap.image.src),
+												uvs: RS.Material.COORDS_UV0
+											};
+
+										}else{
+											fname = this.getFilename(fname);
+
+											let image = {
+												filename: fname,
+												map: texture_name,
+												name: texture_name,
+												path: fname
+											};
+
+											image.filename = resource_base_path + image.filename;
+											image.path = resource_base_path + image.path;
+											scene.images[texture_name] = image;
+
+											material.textures["environment"] = {
+												texture: image.path,
+												uvs: RS.Material.COORDS_UV0
+											};
+										}
+									}
+								}
+							}
+
+							if(childmat.emissiveMap){
+								if(childmat.emissiveMap.image){
+									let texture_name = child.name + "_emissive";
+									if(childmat.name){
+										texture_name = child.name + "_" + childmat.name + "_emissive";
+									}
+
+									if(childmat.emissiveMap.image.src){
+										let fname = childmat.emissiveMap.image.src;
+										if(fname.startsWith("blob")){ //blob file embeded texture
+
+											if(!scene.texture_uploaded.get(childmat.emissiveMap.image.src)){
+												fname = scene.file_name + "_" + texture_name + ".png";
+												fname = fname.replace(/[^a-z0-9\.\-]/gi,"_");
+												// fname = fname.toLowerCase();
+
+												scene.texture_uploaded.set(childmat.emissiveMap.image.src, resource_base_path + fname);
+
+												let imgData = childmat.emissiveMap.image;
+												let imgWidth = imgData.width;
+												let imgHeight = imgData.height;
+												let imgCanvas = document.createElement('canvas');
+												imgCanvas.width = imgWidth;
+												imgCanvas.height = imgHeight;
+												let imgCtx = imgCanvas.getContext("2d");
+												imgCtx.drawImage(imgData, 0, 0);
+
+												let dataURL = imgCanvas.toDataURL("image/png");
+												let texture = {
+													data: dataURL,
+													filename: resource_base_path + fname,
+													fullpath: resource_base_path + fname,
+													toBase64: function(){
+														return dataURL.replace(/^data:image\/(png|jpg);base64,/, "");
+													},
+													toBinary: function(){ //from GL.Texture.toBinary
+														let data = dataURL;
+														let index = data.indexOf(",");
+														let base64_data = data.substr(index+1);
+														let binStr = atob( base64_data );
+														let len = binStr.length,
+														arr = new Uint8Array(len);
+														for (let i=0; i<len; ++i ) {
+															arr[i] = binStr.charCodeAt(i);
+														}
+														return arr;
+													},
+													width: imgWidth,
+													height: imgHeight,
+													constructor: {
+														binary_extension: "png"
+													}
+												};
+
+												try{
+													await this.uploadTexture(texture);
+												}catch(err){
+													console.error(err);
+												}
+
+												let image = {
+													filename: resource_base_path + fname,
+													map: texture_name,
+													name: texture_name,
+													path: resource_base_path + fname
+												};
+
+												scene.images[texture_name] = image;
+											}
+
+											material.textures["emissive"] = {
+												texture: scene.texture_uploaded.get(childmat.emissiveMap.image.src),
+												uvs: RS.Material.COORDS_UV0
+											};
+
+										}else{
+											fname = this.getFilename(fname);
+
+											let image = {
+												filename: fname,
+												map: texture_name,
+												name: texture_name,
+												path: fname
+											};
+
+											image.filename = resource_base_path + image.filename;
+											image.path = resource_base_path + image.path;
+											scene.images[texture_name] = image;
+
+											material.textures["emissive"] = {
+												texture: image.path,
+												uvs: RS.Material.COORDS_UV0
+											};
+										}
+									}
+								}
+							}
+
+							if(childmat.bumpMap){
+								if(childmat.bumpMap.image){
+									let texture_name = child.name + "_bump";
+									if(childmat.name){
+										texture_name = child.name + "_" + childmat.name + "_bump";
+									}
+
+									if(childmat.bumpMap.image.src){
+										let fname = childmat.bumpMap.image.src;
+										if(fname.startsWith("blob")){ //blob file embeded texture
+
+											if(!scene.texture_uploaded.get(childmat.bumpMap.image.src)){
+												fname = scene.file_name + "_" + texture_name + ".png";
+												fname = fname.replace(/[^a-z0-9\.\-]/gi,"_");
+												// fname = fname.toLowerCase();
+
+												scene.texture_uploaded.set(childmat.bumpMap.image.src, resource_base_path + fname);
+
+												let imgData = childmat.bumpMap.image;
+												let imgWidth = imgData.width;
+												let imgHeight = imgData.height;
+												let imgCanvas = document.createElement('canvas');
+												imgCanvas.width = imgWidth;
+												imgCanvas.height = imgHeight;
+												let imgCtx = imgCanvas.getContext("2d");
+												imgCtx.drawImage(imgData, 0, 0);
+
+												let dataURL = imgCanvas.toDataURL("image/png");
+												let texture = {
+													data: dataURL,
+													filename: resource_base_path + fname,
+													fullpath: resource_base_path + fname,
+													toBase64: function(){
+														return dataURL.replace(/^data:image\/(png|jpg);base64,/, "");
+													},
+													toBinary: function(){ //from GL.Texture.toBinary
+														let data = dataURL;
+														let index = data.indexOf(",");
+														let base64_data = data.substr(index+1);
+														let binStr = atob( base64_data );
+														let len = binStr.length,
+														arr = new Uint8Array(len);
+														for (let i=0; i<len; ++i ) {
+															arr[i] = binStr.charCodeAt(i);
+														}
+														return arr;
+													},
+													width: imgWidth,
+													height: imgHeight,
+													constructor: {
+														binary_extension: "png"
+													}
+												};
+
+												try{
+													await this.uploadTexture(texture);
+												}catch(err){
+													console.error(err);
+												}
+
+												let image = {
+													filename: resource_base_path + fname,
+													map: texture_name,
+													name: texture_name,
+													path: resource_base_path + fname
+												};
+
+												scene.images[texture_name] = image;
+											}
+
+											material.textures["bump"] = {
+												texture: scene.texture_uploaded.get(childmat.bumpMap.image.src),
+												uvs: RS.Material.COORDS_UV0
+											};
+
+										}else{
+											fname = this.getFilename(fname);
+
+											let image = {
+												filename: fname,
+												map: texture_name,
+												name: texture_name,
+												path: fname
+											};
+
+											image.filename = resource_base_path + image.filename;
+											image.path = resource_base_path + image.path;
+											scene.images[texture_name] = image;
+
+											material.textures["bump"] = {
+												texture: image.path,
+												uvs: RS.Material.COORDS_UV0
+											};
+										}
+									}
+								}
+							}
+
+							if(childmat.alphaMap){
+								material.blend_mode = RS.Blend.ALPHA;
+								if(childmat.alphaMap.image){
+									let texture_name = child.name + "_alpha";
+									if(childmat.name){
+										texture_name = child.name + "_" + childmat.name + "_alpha";
+									}
+
+									if(childmat.alphaMap.image.src){
+										let fname = childmat.alphaMap.image.src;
+										if(fname.startsWith("blob")){ //blob file embeded texture
+
+											if(!scene.texture_uploaded.get(childmat.alphaMap.image.src)){
+												fname = scene.file_name + "_" + texture_name + ".png";
+												fname = fname.replace(/[^a-z0-9\.\-]/gi,"_");
+												// fname = fname.toLowerCase();
+
+												scene.texture_uploaded.set(childmat.alphaMap.image.src, resource_base_path + fname);
+
+												let imgData = childmat.alphaMap.image;
+												let imgWidth = imgData.width;
+												let imgHeight = imgData.height;
+												let imgCanvas = document.createElement('canvas');
+												imgCanvas.width = imgWidth;
+												imgCanvas.height = imgHeight;
+												let imgCtx = imgCanvas.getContext("2d");
+												imgCtx.drawImage(imgData, 0, 0);
+
+												let dataURL = imgCanvas.toDataURL("image/png");
+												let texture = {
+													data: dataURL,
+													filename: resource_base_path + fname,
+													fullpath: resource_base_path + fname,
+													toBase64: function(){
+														return dataURL.replace(/^data:image\/(png|jpg);base64,/, "");
+													},
+													toBinary: function(){ //from GL.Texture.toBinary
+														let data = dataURL;
+														let index = data.indexOf(",");
+														let base64_data = data.substr(index+1);
+														let binStr = atob( base64_data );
+														let len = binStr.length,
+														arr = new Uint8Array(len);
+														for (let i=0; i<len; ++i ) {
+															arr[i] = binStr.charCodeAt(i);
+														}
+														return arr;
+													},
+													width: imgWidth,
+													height: imgHeight,
+													constructor: {
+														binary_extension: "png"
+													}
+												};
+
+												try{
+													await this.uploadTexture(texture);
+												}catch(err){
+													console.error(err);
+												}
+
+												let image = {
+													filename: resource_base_path + fname,
+													map: texture_name,
+													name: texture_name,
+													path: resource_base_path + fname
+												};
+
+												scene.images[texture_name] = image;
+											}
+
+											material.textures["opacity"] = {
+												texture: scene.texture_uploaded.get(childmat.alphaMap.image.src),
+												uvs: RS.Material.COORDS_UV0
+											};
+
+										}else{
+											fname = this.getFilename(fname);
+
+											let image = {
+												filename: fname,
+												map: texture_name,
+												name: texture_name,
+												path: fname
+											};
+
+											image.filename = resource_base_path + image.filename;
+											image.path = resource_base_path + image.path;
+											scene.images[texture_name] = image;
+
+											material.textures["opacity"] = {
+												texture: image.path,
+												uvs: RS.Material.COORDS_UV0
+											};
+										}
+									}
+								}
+							}
 
 							if(childmat.map){
-								material.textures = {};
 								if(childmat.map.image){
-									let texture_name = child.name;
-									if(childmat.map.name)
-										texture_name = childmat.map.name;
-
-									// material.id = scene.file_name + "-" + texture_name;
-									// material.id = material.id.replace(/[^a-z0-9\.\-]/gi,"_") + ".json";
+									let texture_name = child.name + "_color";
+									if(childmat.name){
+										texture_name = child.name + "_" + childmat.name + "_color";
+									}
 
 									if(childmat.map.image.src){
 										let fname = childmat.map.image.src;
 										if(fname.startsWith("blob")){ //blob file embeded texture
-											//maybe need try to save it
-											fname = scene.file_name + "_" + texture_name + ".png";
-											fname = fname.replace(/[^a-z0-9\.\-]/gi,"_");
-											fname = fname.toLowerCase();
+											if(!scene.texture_uploaded.get(childmat.map.image.src)){
+												fname = scene.file_name + "_" + texture_name + ".png";
+												fname = fname.replace(/[^a-z0-9\.\-]/gi,"_");
+												// fname = fname.toLowerCase();
 
-											let texture = GL.Texture.fromImage(childmat.map.image, {minFilter: gl.NEAREST});
-											texture.filename = resource_base_path + fname;
-											texture.fullpath = resource_base_path + fname;
-											texture.remotepath = resource_base_path + fname;
-											if(!scene.texture_uploaded.includes(texture.filename)){
-												scene.texture_uploaded.push(texture.filename);
-												await this.uploadTexture(texture);
+												scene.texture_uploaded.set(childmat.map.image.src, resource_base_path + fname);
+
+												let imgData = childmat.map.image;
+												let imgWidth = imgData.width;
+												let imgHeight = imgData.height;
+												let imgCanvas = document.createElement('canvas');
+												imgCanvas.width = imgWidth;
+												imgCanvas.height = imgHeight;
+												let imgCtx = imgCanvas.getContext("2d");
+												imgCtx.drawImage(imgData, 0, 0);
+
+												let dataURL = imgCanvas.toDataURL("image/png");
+												let texture = {
+													data: dataURL,
+													filename: resource_base_path + fname,
+													fullpath: resource_base_path + fname,
+													toBase64: function(){
+														return dataURL.replace(/^data:image\/(png|jpg);base64,/, "");
+													},
+													toBinary: function(){ //from GL.Texture.toBinary
+														let data = dataURL;
+														let index = data.indexOf(",");
+														let base64_data = data.substr(index+1);
+														let binStr = atob( base64_data );
+														let len = binStr.length,
+														arr = new Uint8Array(len);
+														for (let i=0; i<len; ++i ) {
+															arr[i] = binStr.charCodeAt(i);
+														}
+														return arr;
+													},
+													width: imgWidth,
+													height: imgHeight,
+													constructor: {
+														binary_extension: "png"
+													}
+												};
+
+												try{
+													await this.uploadTexture(texture);
+												}catch(err){
+													console.error(err);
+												}
+
+												let image = {
+													filename: resource_base_path + fname,
+													map: texture_name,
+													name: texture_name,
+													path: resource_base_path + fname
+												};
+
+												scene.images[texture_name] = image;
 											}
 
-											let image = {
-												filename: resource_base_path + fname,
-												map: texture_name,
-												name: texture_name,
-												path: resource_base_path + fname
-											};
-
-											scene.images[texture_name] = image;
-
 											material.textures["color"] = {
-												texture: resource_base_path + fname,
+												texture: scene.texture_uploaded.get(childmat.map.image.src),
 												uvs: RS.Material.COORDS_UV0
 											};
 
@@ -553,8 +1145,6 @@ var parserFBX = {
 										}
 									}
 								}
-
-
 							}
 
 							material.type = "phong";
@@ -569,74 +1159,703 @@ var parserFBX = {
 									node.materials = [];
 								node.materials.push(material.id);
 							}
+
+							groupmaterials.push(material.id);
 						}
 					}else{
 						let material = {};
+						material.textures = {};
+
 						material.id = scene.file_name + "-" + child.material.name;
 						material.id = material.id.replace(/[^a-z0-9\.\-]/gi,"_") + ".json";
-						if(child.material.opacity)
+						material.id = resource_base_path + material.id;
+
+						if(child.material.opacity){
 							material.opacity = child.material.opacity;
+							if(child.material.opacity < 1){
+								material.blend_mode = RS.Blend.ALPHA;
+							}
+						}
 
 						if(child.material.shiness){
 							material.specular_gloss = child.material.shiness;
 						}
 
-						// if(child.material.color){
-						// 	let color = new Uint8Array([child.material.color.r,child.material.color.g,child.material.color.b]);
-						// 	material.color = color;
-						// }
+						if(child.material.color){
+							let color = new Float32Array([child.material.color.r,child.material.color.g,child.material.color.b]);
+							material.color = color;
+						}
 						if(child.material.emissive){
-							let emissive = new Uint8Array([child.material.emissive.r,child.material.emissive.g,child.material.emissive.b]);
+							let emissive = new Float32Array([child.material.emissive.r,child.material.emissive.g,child.material.emissive.b]);
 							material.emissive = emissive;
 						}
 
 						//TBD
-						//bumpMap
-						//envMap
+						//bumpMap //OK
+						//envMap //OK
 						//aoMap
-						//alphaMap
+						//alphaMap //OK
 						//lightMap
-						//normalMap
-						//specularMap
+						//normalMap //OK
+						//specularMap //OK
+						//emissiveMap //OK
+
+						if(child.material.normalMap){
+							if(child.material.normalMap.image){
+								let texture_name = child.name + "_normal";
+								if(child.material.name){
+									texture_name = child.name + "_" + child.material.name + "_normal";
+								}
+
+								if(child.material.normalMap.image.src){
+									let fname = child.material.normalMap.image.src;
+									if(fname.startsWith("blob")){ //blob file embeded texture
+										if(!scene.texture_uploaded.get(child.material.normalMap.image.src)){
+											fname = scene.file_name + "_" + texture_name + ".png";
+											fname = fname.replace(/[^a-z0-9\.\-]/gi,"_");
+											// fname = fname.toLowerCase();
+
+											scene.texture_uploaded.set(child.material.normalMap.image.src, resource_base_path + fname);
+
+											let imgData = child.material.normalMap.image;
+											let imgWidth = imgData.width;
+											let imgHeight = imgData.height;
+											let imgCanvas = document.createElement('canvas');
+											imgCanvas.width = imgWidth;
+											imgCanvas.height = imgHeight;
+											let imgCtx = imgCanvas.getContext("2d");
+											imgCtx.drawImage(imgData, 0, 0);
+
+											let dataURL = imgCanvas.toDataURL("image/png");
+											let texture = {
+												data: imgData,
+												filename: resource_base_path + fname,
+												fullpath: resource_base_path + fname,
+												toBase64: function(){
+													return dataURL.replace(/^data:image\/(png|jpg);base64,/, "");
+												},
+												toBinary: function(){ //from GL.Texture.toBinary
+													let data = dataURL;
+													let index = data.indexOf(",");
+													let base64_data = data.substr(index+1);
+													let binStr = atob( base64_data );
+													let len = binStr.length,
+													arr = new Uint8Array(len);
+													for (let i=0; i<len; ++i ) {
+														arr[i] = binStr.charCodeAt(i);
+													}
+													return arr;
+												},
+												width: imgWidth,
+												height: imgHeight,
+												constructor: {
+													binary_extension: "png"
+												}
+											};
+
+											try{
+												await this.uploadTexture(texture);
+											}catch(err){
+												console.error(err);
+											}
+
+											let image = {
+												filename: resource_base_path + fname,
+												map: texture_name,
+												name: texture_name,
+												path: resource_base_path + fname
+											};
+
+											scene.images[texture_name] = image;
+										}
+
+										material.textures["normal"] = {
+											texture: scene.texture_uploaded.get(child.material.normalMap.image.src),
+											uvs: RS.Material.COORDS_UV0
+										};
+									}else{
+										fname = this.getFilename(fname);
+
+										let image = {
+											filename: fname,
+											map: texture_name,
+											name: texture_name,
+											path: fname
+										};
+
+										image.filename = resource_base_path + image.filename;
+										image.path = resource_base_path + image.path;
+										scene.images[texture_name] = image;
+
+										material.textures["normal"] = {
+											texture: image.path,
+											uvs: RS.Material.COORDS_UV0
+										};
+									}
+
+								}
+							}
+						}
+
+						if(child.material.specularMap){
+							if(child.material.specularMap.image){
+								let texture_name = child.name + "_specular";
+								if(child.material.name){
+									texture_name = child.name + "_" + child.material.name + "_specular";
+								}
+
+								if(child.material.specularMap.image.src){
+									let fname = child.material.specularMap.image.src;
+									if(fname.startsWith("blob")){ //blob file embeded texture
+										if(!scene.texture_uploaded.get(child.material.specularMap.image.src)){
+											fname = scene.file_name + "_" + texture_name + ".png";
+											fname = fname.replace(/[^a-z0-9\.\-]/gi,"_");
+											// fname = fname.toLowerCase();
+
+											scene.texture_uploaded.set(child.material.specularMap.image.src, resource_base_path + fname);
+
+											let imgData = child.material.specularMap.image;
+											let imgWidth = imgData.width;
+											let imgHeight = imgData.height;
+											let imgCanvas = document.createElement('canvas');
+											imgCanvas.width = imgWidth;
+											imgCanvas.height = imgHeight;
+											let imgCtx = imgCanvas.getContext("2d");
+											imgCtx.drawImage(imgData, 0, 0);
+
+											let dataURL = imgCanvas.toDataURL("image/png");
+											let texture = {
+												data: imgData,
+												filename: resource_base_path + fname,
+												fullpath: resource_base_path + fname,
+												toBase64: function(){
+													return dataURL.replace(/^data:image\/(png|jpg);base64,/, "");
+												},
+												toBinary: function(){ //from GL.Texture.toBinary
+													let data = dataURL;
+													let index = data.indexOf(",");
+													let base64_data = data.substr(index+1);
+													let binStr = atob( base64_data );
+													let len = binStr.length,
+													arr = new Uint8Array(len);
+													for (let i=0; i<len; ++i ) {
+														arr[i] = binStr.charCodeAt(i);
+													}
+													return arr;
+												},
+												width: imgWidth,
+												height: imgHeight,
+												constructor: {
+													binary_extension: "png"
+												}
+											};
+
+											try{
+												await this.uploadTexture(texture);
+											}catch(err){
+												console.error(err);
+											}
+
+											let image = {
+												filename: resource_base_path + fname,
+												map: texture_name,
+												name: texture_name,
+												path: resource_base_path + fname
+											};
+
+											scene.images[texture_name] = image;
+										}
+
+										material.textures["specular"] = {
+											texture: scene.texture_uploaded.get(child.material.specularMap.image.src),
+											uvs: RS.Material.COORDS_UV0
+										};
+									}else{
+										fname = this.getFilename(fname);
+
+										let image = {
+											filename: fname,
+											map: texture_name,
+											name: texture_name,
+											path: fname
+										};
+
+										image.filename = resource_base_path + image.filename;
+										image.path = resource_base_path + image.path;
+										scene.images[texture_name] = image;
+
+										material.textures["specular"] = {
+											texture: image.path,
+											uvs: RS.Material.COORDS_UV0
+										};
+									}
+
+								}
+							}
+						}
+
+						if(child.material.envMap){
+							if(child.material.envMap.image){
+								let texture_name = child.name + "_env";
+								if(child.material.name){
+									texture_name = child.name + "_" + child.material.name + "_env";
+								}
+
+								if(child.material.envMap.image.src){
+									let fname = child.material.envMap.image.src;
+									if(fname.startsWith("blob")){ //blob file embeded texture
+										if(!scene.texture_uploaded.get(child.material.envMap.image.src)){
+											fname = scene.file_name + "_" + texture_name + ".png";
+											fname = fname.replace(/[^a-z0-9\.\-]/gi,"_");
+											// fname = fname.toLowerCase();
+
+											scene.texture_uploaded.set(child.material.envMap.image.src, resource_base_path + fname);
+
+											let imgData = child.material.envMap.image;
+											let imgWidth = imgData.width;
+											let imgHeight = imgData.height;
+											let imgCanvas = document.createElement('canvas');
+											imgCanvas.width = imgWidth;
+											imgCanvas.height = imgHeight;
+											let imgCtx = imgCanvas.getContext("2d");
+											imgCtx.drawImage(imgData, 0, 0);
+
+											let dataURL = imgCanvas.toDataURL("image/png");
+											let texture = {
+												data: imgData,
+												filename: resource_base_path + fname,
+												fullpath: resource_base_path + fname,
+												toBase64: function(){
+													return dataURL.replace(/^data:image\/(png|jpg);base64,/, "");
+												},
+												toBinary: function(){ //from GL.Texture.toBinary
+													let data = dataURL;
+													let index = data.indexOf(",");
+													let base64_data = data.substr(index+1);
+													let binStr = atob( base64_data );
+													let len = binStr.length,
+													arr = new Uint8Array(len);
+													for (let i=0; i<len; ++i ) {
+														arr[i] = binStr.charCodeAt(i);
+													}
+													return arr;
+												},
+												width: imgWidth,
+												height: imgHeight,
+												constructor: {
+													binary_extension: "png"
+												}
+											};
+
+											try{
+												await this.uploadTexture(texture);
+											}catch(err){
+												console.error(err);
+											}
+
+											let image = {
+												filename: resource_base_path + fname,
+												map: texture_name,
+												name: texture_name,
+												path: resource_base_path + fname
+											};
+
+											scene.images[texture_name] = image;
+										}
+
+										material.textures["environment"] = {
+											texture: scene.texture_uploaded.get(child.material.envMap.image.src),
+											uvs: RS.Material.COORDS_UV0
+										};
+									}else{
+										fname = this.getFilename(fname);
+
+										let image = {
+											filename: fname,
+											map: texture_name,
+											name: texture_name,
+											path: fname
+										};
+
+										image.filename = resource_base_path + image.filename;
+										image.path = resource_base_path + image.path;
+										scene.images[texture_name] = image;
+
+										material.textures["environment"] = {
+											texture: image.path,
+											uvs: RS.Material.COORDS_UV0
+										};
+									}
+
+								}
+							}
+						}
+
+						if(child.material.emissiveMap){
+							if(child.material.emissiveMap.image){
+								let texture_name = child.name + "_emissive";
+								if(child.material.name){
+									texture_name = child.name + "_" + child.material.name + "_emissive";
+								}
+
+								if(child.material.emissiveMap.image.src){
+									let fname = child.material.emissiveMap.image.src;
+									if(fname.startsWith("blob")){ //blob file embeded texture
+										if(!scene.texture_uploaded.get(child.material.emissiveMap.image.src)){
+											fname = scene.file_name + "_" + texture_name + ".png";
+											fname = fname.replace(/[^a-z0-9\.\-]/gi,"_");
+											// fname = fname.toLowerCase();
+
+											scene.texture_uploaded.set(child.material.emissiveMap.image.src, resource_base_path + fname);
+
+											let imgData = child.material.emissiveMap.image;
+											let imgWidth = imgData.width;
+											let imgHeight = imgData.height;
+											let imgCanvas = document.createElement('canvas');
+											imgCanvas.width = imgWidth;
+											imgCanvas.height = imgHeight;
+											let imgCtx = imgCanvas.getContext("2d");
+											imgCtx.drawImage(imgData, 0, 0);
+
+											let dataURL = imgCanvas.toDataURL("image/png");
+											let texture = {
+												data: imgData,
+												filename: resource_base_path + fname,
+												fullpath: resource_base_path + fname,
+												toBase64: function(){
+													return dataURL.replace(/^data:image\/(png|jpg);base64,/, "");
+												},
+												toBinary: function(){ //from GL.Texture.toBinary
+													let data = dataURL;
+													let index = data.indexOf(",");
+													let base64_data = data.substr(index+1);
+													let binStr = atob( base64_data );
+													let len = binStr.length,
+													arr = new Uint8Array(len);
+													for (let i=0; i<len; ++i ) {
+														arr[i] = binStr.charCodeAt(i);
+													}
+													return arr;
+												},
+												width: imgWidth,
+												height: imgHeight,
+												constructor: {
+													binary_extension: "png"
+												}
+											};
+
+											try{
+												await this.uploadTexture(texture);
+											}catch(err){
+												console.error(err);
+											}
+
+											let image = {
+												filename: resource_base_path + fname,
+												map: texture_name,
+												name: texture_name,
+												path: resource_base_path + fname
+											};
+
+											scene.images[texture_name] = image;
+										}
+
+										material.textures["emissive"] = {
+											texture: scene.texture_uploaded.get(child.material.emissiveMap.image.src),
+											uvs: RS.Material.COORDS_UV0
+										};
+									}else{
+										fname = this.getFilename(fname);
+
+										let image = {
+											filename: fname,
+											map: texture_name,
+											name: texture_name,
+											path: fname
+										};
+
+										image.filename = resource_base_path + image.filename;
+										image.path = resource_base_path + image.path;
+										scene.images[texture_name] = image;
+
+										material.textures["emissive"] = {
+											texture: image.path,
+											uvs: RS.Material.COORDS_UV0
+										};
+									}
+
+								}
+							}
+						}
+
+						if(child.material.bumpMap){
+							if(child.material.bumpMap.image){
+								let texture_name = child.name + "_bump";
+								if(child.material.name){
+									texture_name = child.name + "_" + child.material.name + "_bump";
+								}
+
+								if(child.material.bumpMap.image.src){
+									let fname = child.material.bumpMap.image.src;
+									if(fname.startsWith("blob")){ //blob file embeded texture
+										if(!scene.texture_uploaded.get(child.material.bumpMap.image.src)){
+											fname = scene.file_name + "_" + texture_name + ".png";
+											fname = fname.replace(/[^a-z0-9\.\-]/gi,"_");
+											// fname = fname.toLowerCase();
+
+											scene.texture_uploaded.set(child.material.bumpMap.image.src, resource_base_path + fname);
+
+											let imgData = child.material.bumpMap.image;
+											let imgWidth = imgData.width;
+											let imgHeight = imgData.height;
+											let imgCanvas = document.createElement('canvas');
+											imgCanvas.width = imgWidth;
+											imgCanvas.height = imgHeight;
+											let imgCtx = imgCanvas.getContext("2d");
+											imgCtx.drawImage(imgData, 0, 0);
+
+											let dataURL = imgCanvas.toDataURL("image/png");
+											let texture = {
+												data: imgData,
+												filename: resource_base_path + fname,
+												fullpath: resource_base_path + fname,
+												toBase64: function(){
+													return dataURL.replace(/^data:image\/(png|jpg);base64,/, "");
+												},
+												toBinary: function(){ //from GL.Texture.toBinary
+													let data = dataURL;
+													let index = data.indexOf(",");
+													let base64_data = data.substr(index+1);
+													let binStr = atob( base64_data );
+													let len = binStr.length,
+													arr = new Uint8Array(len);
+													for (let i=0; i<len; ++i ) {
+														arr[i] = binStr.charCodeAt(i);
+													}
+													return arr;
+												},
+												width: imgWidth,
+												height: imgHeight,
+												constructor: {
+													binary_extension: "png"
+												}
+											};
+
+											try{
+												await this.uploadTexture(texture);
+											}catch(err){
+												console.error(err);
+											}
+
+											let image = {
+												filename: resource_base_path + fname,
+												map: texture_name,
+												name: texture_name,
+												path: resource_base_path + fname
+											};
+
+											scene.images[texture_name] = image;
+										}
+
+										material.textures["bump"] = {
+											texture: scene.texture_uploaded.get(child.material.bumpMap.image.src),
+											uvs: RS.Material.COORDS_UV0
+										};
+									}else{
+										fname = this.getFilename(fname);
+
+										let image = {
+											filename: fname,
+											map: texture_name,
+											name: texture_name,
+											path: fname
+										};
+
+										image.filename = resource_base_path + image.filename;
+										image.path = resource_base_path + image.path;
+										scene.images[texture_name] = image;
+
+										material.textures["bump"] = {
+											texture: image.path,
+											uvs: RS.Material.COORDS_UV0
+										};
+									}
+
+								}
+							}
+						}
+
+						if(child.material.alphaMap){
+							material.blend_mode = RS.Blend.ALPHA;
+							if(child.material.alphaMap.image){
+
+								let texture_name = child.name + "_alpha";
+								if(child.material.name){
+									texture_name = child.name + "_" + child.material.name + "_alpha";
+								}
+
+								if(child.material.alphaMap.image.src){
+									let fname = child.material.alphaMap.image.src;
+									if(fname.startsWith("blob")){ //blob file embeded texture
+										if(!scene.texture_uploaded.get(child.material.alphaMap.image.src)){
+											fname = scene.file_name + "_" + texture_name + ".png";
+											fname = fname.replace(/[^a-z0-9\.\-]/gi,"_");
+											// fname = fname.toLowerCase();
+
+											scene.texture_uploaded.set(child.material.alphaMap.image.src, resource_base_path + fname);
+
+											let imgData = child.material.alphaMap.image;
+											let imgWidth = imgData.width;
+											let imgHeight = imgData.height;
+											let imgCanvas = document.createElement('canvas');
+											imgCanvas.width = imgWidth;
+											imgCanvas.height = imgHeight;
+											let imgCtx = imgCanvas.getContext("2d");
+											imgCtx.drawImage(imgData, 0, 0);
+
+											let dataURL = imgCanvas.toDataURL("image/png");
+											let texture = {
+												data: imgData,
+												filename: resource_base_path + fname,
+												fullpath: resource_base_path + fname,
+												toBase64: function(){
+													return dataURL.replace(/^data:image\/(png|jpg);base64,/, "");
+												},
+												toBinary: function(){ //from GL.Texture.toBinary
+													let data = dataURL;
+													let index = data.indexOf(",");
+													let base64_data = data.substr(index+1);
+													let binStr = atob( base64_data );
+													let len = binStr.length,
+													arr = new Uint8Array(len);
+													for (let i=0; i<len; ++i ) {
+														arr[i] = binStr.charCodeAt(i);
+													}
+													return arr;
+												},
+												width: imgWidth,
+												height: imgHeight,
+												constructor: {
+													binary_extension: "png"
+												}
+											};
+
+											try{
+												await this.uploadTexture(texture);
+											}catch(err){
+												console.error(err);
+											}
+
+											let image = {
+												filename: resource_base_path + fname,
+												map: texture_name,
+												name: texture_name,
+												path: resource_base_path + fname
+											};
+
+											scene.images[texture_name] = image;
+										}
+
+										material.textures["opacity"] = {
+											texture: scene.texture_uploaded.get(child.material.alphaMap.image.src),
+											uvs: RS.Material.COORDS_UV0
+										};
+									}else{
+										fname = this.getFilename(fname);
+
+										let image = {
+											filename: fname,
+											map: texture_name,
+											name: texture_name,
+											path: fname
+										};
+
+										image.filename = resource_base_path + image.filename;
+										image.path = resource_base_path + image.path;
+										scene.images[texture_name] = image;
+
+										material.textures["opacity"] = {
+											texture: image.path,
+											uvs: RS.Material.COORDS_UV0
+										};
+									}
+
+								}
+							}
+						}
 
 						if(child.material.map){
-							material.textures = {};
 							if(child.material.map.image){
-
-								let texture_name = child.name;
-								if(child.material.map.name)
-									texture_name = child.material.map.name;
-
-								// material.id = scene.file_name + "-" + texture_name;
-								// material.id = material.id.replace(/[^a-z0-9\.\-]/gi,"_") + ".json";
+								let texture_name = child.name + "_color";
+								if(child.material.name){
+									texture_name = child.name + "_" + child.material.name + "_color";
+								}
 
 								if(child.material.map.image.src){
 									let fname = child.material.map.image.src;
 									if(fname.startsWith("blob")){ //blob file embeded texture
-										fname = scene.file_name + "_" + texture_name + ".png";
-										fname = fname.replace(/[^a-z0-9\.\-]/gi,"_");
-										fname = fname.toLowerCase();
+										if(!scene.texture_uploaded.get(child.material.map.image.src)){
 
-										let texture = GL.Texture.fromImage(child.material.map.image, {minFilter: gl.NEAREST});
-										texture.filename = resource_base_path + fname;
-										texture.fullpath = resource_base_path + fname;
-										texture.remotepath = resource_base_path + fname;
-										if(!scene.texture_uploaded.includes(texture.filename)){
-											scene.texture_uploaded.push(texture.filename);
-											await this.uploadTexture(texture);
+											fname = scene.file_name + "_" + texture_name + ".png";
+											fname = fname.replace(/[^a-z0-9\.\-]/gi,"_");
+											// fname = fname.toLowerCase();
+
+											scene.texture_uploaded.set(child.material.map.image.src, resource_base_path + fname);
+
+											let imgData = child.material.map.image;
+											let imgWidth = imgData.width;
+											let imgHeight = imgData.height;
+											let imgCanvas = document.createElement('canvas');
+											imgCanvas.width = imgWidth;
+											imgCanvas.height = imgHeight;
+											let imgCtx = imgCanvas.getContext("2d");
+											imgCtx.drawImage(imgData, 0, 0);
+
+											let dataURL = imgCanvas.toDataURL("image/png");
+											let texture = {
+												data: imgData,
+												filename: resource_base_path + fname,
+												fullpath: resource_base_path + fname,
+												toBase64: function(){
+													return dataURL.replace(/^data:image\/(png|jpg);base64,/, "");
+												},
+												toBinary: function(){ //from GL.Texture.toBinary
+													let data = dataURL;
+													let index = data.indexOf(",");
+													let base64_data = data.substr(index+1);
+													let binStr = atob( base64_data );
+													let len = binStr.length,
+													arr = new Uint8Array(len);
+													for (let i=0; i<len; ++i ) {
+														arr[i] = binStr.charCodeAt(i);
+													}
+													return arr;
+												},
+												width: imgWidth,
+												height: imgHeight,
+												constructor: {
+													binary_extension: "png"
+												}
+											};
+
+											try{
+												await this.uploadTexture(texture);
+											}catch(err){
+												console.error(err);
+											}
+
+											let image = {
+												filename: resource_base_path + fname,
+												map: texture_name,
+												name: texture_name,
+												path: resource_base_path + fname
+											};
+
+											scene.images[texture_name] = image;
 										}
 
-										let image = {
-											filename: resource_base_path + fname,
-											map: texture_name,
-											name: texture_name,
-											path: resource_base_path + fname
-										};
-
-										scene.images[texture_name] = image;
-
 										material.textures["color"] = {
-											texture: image.filename,
+											texture: scene.texture_uploaded.get(child.material.map.image.src),
 											uvs: RS.Material.COORDS_UV0
 										};
 									}else{
@@ -659,11 +1878,8 @@ var parserFBX = {
 										};
 									}
 
-
 								}
 							}
-
-
 
 						}
 						material.type = "phong";
@@ -674,6 +1890,115 @@ var parserFBX = {
 						node.material = material.id;
 					}
 				}
+
+				//MESH
+				let geometry = new THREE.Geometry().fromBufferGeometry( bufferGeometry );
+
+				for(let i = 0; i < geometry.vertices.length; i++){
+					for(let j = 0; j < 3; j++){
+						let index = 3*i + j;
+						vertexArray[index] = geometry.vertices[i].getComponent(j);
+					}
+				}
+
+				for(let i = 0; i < geometry.faces.length; i++){
+					let baseIndex = 3 * i;
+					indexArray[baseIndex] = geometry.faces[i].a;
+					indexArray[baseIndex + 1] = geometry.faces[i].b;
+					indexArray[baseIndex + 2] = geometry.faces[i].c;
+				}
+
+				if(bufferGeometry.attributes.uv){
+					uvArray = bufferGeometry.attributes.uv.array.slice();
+				}
+
+				// if(child.bindMatrix){ //ignore bindMatrix
+				// 	bindMatrix = child.bindMatrix.elements.slice();
+				// }else{
+				// 	bindMatrix = mat4.create(); //identity
+				// }
+
+				//bones
+				if(bufferGeometry.FBX_Deformer){
+					let bonesNum = bufferGeometry.FBX_Deformer.bones.length;
+					if(bonesNum > 0){
+						for(let bIndex =0; bIndex < bonesNum; bIndex++){
+							let bNodeName = "@" + scene.file_name + "::" + bufferGeometry.FBX_Deformer.bones[bIndex].name;
+							let bMatrix = bufferGeometry.FBX_Deformer.rawBones[bIndex].transform.elements.slice();
+							joints.push([ bNodeName, bMatrix ]);
+						}
+					}
+				}
+
+				if(bufferGeometry.attributes.normal)
+					normalsArray = bufferGeometry.attributes.normal.array.slice();
+				if(bufferGeometry.attributes.skinIndex)
+					boneIndexArray = bufferGeometry.attributes.skinIndex.array.slice();
+				if(bufferGeometry.attributes.skinWeight)
+					weightsArray = bufferGeometry.attributes.skinWeight.array.slice();
+
+				let groups = [];
+				if(bufferGeometry.groups && bufferGeometry.groups.length > 0){
+					for(let g=0; g < bufferGeometry.groups.length; g++){
+						let group = {
+							name: "group" + g,
+							start: bufferGeometry.groups[g].start,
+							length: bufferGeometry.groups[g].count,
+							material: ( groupmaterials[bufferGeometry.groups[g].materialIndex] || "" )
+						};
+
+						groups.push( group );
+					}
+				}
+
+				let mesh_data = {};
+
+				mesh_data.info = {groups: groups};
+
+				if(vertexArray && vertexArray.length > 0)
+					mesh_data.vertices = new Float32Array(vertexArray);
+
+				if(indexArray && indexArray.length > 0){
+					if(indexArray.length <= 65535){
+						mesh_data.triangles = new Uint16Array(indexArray);
+					}
+					else {
+						mesh_data.triangles = new Uint32Array(indexArray);
+					}
+				}
+
+				if(normalsArray && normalsArray.length > 0)
+					mesh_data.normals = normalsArray;
+
+				if(uvArray && uvArray.length > 0)
+					mesh_data.coords = uvArray;
+
+				if(boneIndexArray && boneIndexArray.length > 0)
+					mesh_data.bone_indices = boneIndexArray;
+
+				if(weightsArray && weightsArray.length > 0)
+					mesh_data.weights = weightsArray;
+
+				// if(bindMatrix && bindMatrix.length > 0){ //use bind_matrix will cause some abnormal behaviour, so ignore it right now
+				// 	mesh_data.bind_matrix = bindMatrix;
+				// }
+
+				if(joints && joints.length > 0){
+					mesh_data.bones = joints;
+				}
+
+				mesh_data.name = scene.file_name + "-" + child.name;
+				mesh_data.filename = scene.file_name + "-" + child.name + ".wbin";
+				mesh_data.fullpath = resource_base_path + scene.file_name + "-" + child.name + ".wbin";
+				mesh_data.object_class = "Mesh";
+				mesh_data.uid = "@" + scene.file_name + "-" + child.name;
+
+				let mesh_id = resource_base_path + scene.file_name + "-" + child.name + "-mesh" + ".wbin";
+				scene.meshes[mesh_id] = mesh_data;
+
+				node.mesh = mesh_id;
+
+
 			}
 		}
 
@@ -694,9 +2019,11 @@ var parserFBX = {
 			let scale = child.scale;
 			mat4.scale(matrix, matrix, scale.toArray());
 		}
+
 		node.model = matrix;
 
-		if(child instanceof THREE.Bone || child.parent instanceof THREE.Bone ){ //some bones in 3 is parsed as GROUP type
+		// if(child instanceof THREE.Bone || child.parent instanceof THREE.Bone ){ //some bones in 3 is parsed as GROUP type
+		if(child instanceof THREE.Bone){
 			node.node_type = "JOINT";
 		}
 
@@ -706,10 +2033,10 @@ var parserFBX = {
 				let child_node = await thiz.parseToNode(ch, scene);
 				node.children.push(child_node);
 			}
-			// child.children.forEach(async function(ch){
-			// 	let child_node = thiz.parseToNode(ch, scene);
-			// 	node.children.push(child_node);
-			// });
+		}
+
+		if(node_uid){
+			scene.nodes_by_uid[ node_uid ] = node;
 		}
 
 		return node;
@@ -725,222 +2052,6 @@ var parserFBX = {
 		if(pos != -1)
 			filename = filename.substr(pos+1);
 		return filename;
-	},
-
-	renameResource: function( old_name, new_name, resources )
-	{
-		var res = resources[ old_name ];
-		if(!res)
-		{
-			if(!resources[ new_name ])
-				console.warn("Resource not found: " + old_name );
-			return new_name;
-		}
-		delete resources[ old_name ];
-		resources[ new_name ] = res;
-		res.filename = new_name;
-		return new_name;
-	},
-
-	processMesh: function( mesh, renamed )
-	{
-		if(!mesh.vertices)
-			return; //mesh without vertices?!
-
-		var num_vertices = mesh.vertices.length / 3;
-		var num_coords = mesh.coords ? mesh.coords.length / 2 : 0;
-
-		if(num_coords && num_coords != num_vertices )
-		{
-			var old_coords = mesh.coords;
-			var new_coords = new Float32Array( num_vertices * 2 );
-
-			if(num_coords > num_vertices) //check that UVS have 2 components (MAX export 3 components for UVs)
-			{
-				for(var i = 0; i < num_vertices; ++i )
-				{
-					new_coords[i*2] = old_coords[i*3];
-					new_coords[i*2+1] = old_coords[i*3+1];
-				}
-			}
-			mesh.coords = new_coords;
-		}
-
-		//rename morph targets names
-		if(mesh.morph_targets)
-			for(var j = 0; j < mesh.morph_targets.length; ++j)
-			{
-				var morph = mesh.morph_targets[j];
-				if(morph.mesh && renamed[ morph.mesh ])
-					morph.mesh = renamed[ morph.mesh ];
-			}
-	},
-
-	//depending on the 3D software used, animation tracks could be tricky to handle
-	processAnimation: function( animation, renamed )
-	{
-		for(var i in animation.takes)
-		{
-			var take = animation.takes[i];
-
-			//apply renaming
-			for(var j = 0; j < take.tracks.length; ++j)
-			{
-				var track = take.tracks[j];
-				var pos = track.property.indexOf("/");
-				if(!pos)
-					continue;
-				var nodename = track.property.substr(0,pos);
-				var extra = track.property.substr(pos);
-				if(extra == "/transform") //blender exports matrices as transform
-					extra = "/matrix";
-
-				if( !renamed[nodename] )
-					continue;
-
-				nodename = renamed[ nodename ];
-				track.property = nodename + extra;
-			}
-
-			//rotations could come in different ways, some of them are accumulative, which doesnt work in realscene, so we have to accumulate them previously
-			var rotated_nodes = {};
-			for(var j = 0; j < take.tracks.length; ++j)
-			{
-				var track = take.tracks[j];
-				track.packed_data = true; //hack: this is how it works my loader
-				if(track.name == "rotateX.ANGLE" || track.name == "rotateY.ANGLE" || track.name == "rotateZ.ANGLE")
-				{
-					var nodename = track.property.split("/")[0];
-					if(!rotated_nodes[nodename])
-						rotated_nodes[nodename] = { tracks: [] };
-					rotated_nodes[nodename].tracks.push( track );
-				}
-			}
-
-			for(var j in rotated_nodes)
-			{
-				var info = rotated_nodes[j];
-				var newtrack = { data: [], type: "quat", value_size: 4, property: j + "/Transform/rotation", name: "rotation" };
-				var times = [];
-
-				//collect timestamps
-				for(var k = 0; k < info.tracks.length; ++k)
-				{
-					var track = info.tracks[k];
-					var data = track.data;
-					for(var w = 0; w < data.length; w+=2)
-						times.push( data[w] );
-				}
-
-				//create list of timestamps and remove repeated ones
-				times.sort();
-				var last_time = -1;
-				var final_times = [];
-				for(var k = 0; k < times.length; ++k)
-				{
-					if(times[k] == last_time)
-						continue;
-					final_times.push( times[k] );
-					last_time = times[k];
-				}
-				times = final_times;
-
-				//create samples
-				newtrack.data.length = times.length;
-				for(var k = 0; k < newtrack.data.length; ++k)
-				{
-					var time = times[k];
-					var value = quat.create();
-					//create keyframe
-					newtrack.data[k] = [time, value];
-
-					for(var w = 0; w < info.tracks.length; ++w)
-					{
-						var track = info.tracks[w];
-						var sample = getTrackSample( track, time );
-						if(!sample) //nothing to do if no sample or 0
-							continue;
-						sample *= 0.0174532925; //degrees to radians
-						switch( track.name )
-						{
-							case "rotateX.ANGLE": quat.rotateX( value, value, -sample ); break;
-							case "rotateY.ANGLE": quat.rotateY( value, value, sample ); break;
-							case "rotateZ.ANGLE": quat.rotateZ( value, value, sample ); break;
-						}
-					}
-				}
-
-				//add track
-				take.tracks.push( newtrack );
-
-				//remove old rotation tracks
-				for(var w = 0; w < info.tracks.length; ++w)
-				{
-					var track = info.tracks[w];
-					var pos = take.tracks.indexOf( track );
-					if(pos == -1)
-						continue;
-					take.tracks.splice(pos,1);
-				}
-			}
-
-		}//takes
-
-		function getTrackSample( track, time )
-		{
-			var data = track.data;
-			var l = data.length;
-			for(var t = 0; t < l; t+=2)
-			{
-				if(data[t] == time)
-					return data[t+1];
-				if(data[t] > time)
-					return null;
-			}
-			return null;
-		}
-	},
-
-	processMaterial: function(material)
-	{
-		//cw: get rid of bad characters...
-		material.id = material.id.replace(/[^a-z0-9\.\-]/gi,"-");
-
-		material.object_class = "StandardMaterial";
-		if(material.id)
-			material.id = material.id.replace(/[^a-z0-9\.\-]/gi,"_") + ".json";
-
-		if( material.transparency !== undefined )
-		{
-			material.opacity = 1.0; //fuck it
-			//I have no idea how to parse the transparency info from DAEs...
-			//https://github.com/openscenegraph/OpenSceneGraph/blob/master/src/osgPlugins/dae/daeRMaterials.cpp#L1185
-			/*
-			material.opacity = 1.0 - parseFloat( material.transparency );
-			if( material.opaque_info == "RGB_ZERO")
-				material.opacity = 1.0 - parseFloat( material.transparent[0] ); //use the red channel
-			*/
-		}
-
-		//collada supports materials with colors as specular_factor but StandardMaterial only support one value
-		if(material.specular_factor && material.specular_factor.length)
-			material.specular_factor = material.specular_factor[0];
-
-		if(material.textures)
-		{
-			for(var i in material.textures)
-			{
-				var tex_info = material.textures[i];
-				var coords = RS.Material.COORDS_UV0;
-				if( tex_info.uvs == "TEX1")
-					coords = RS.Material.COORDS_UV1;
-				tex_info = {
-					texture: tex_info.map_id,
-					uvs: coords
-				};
-				material.textures[i] = tex_info;
-			}
-		}
 	}
 };
 
