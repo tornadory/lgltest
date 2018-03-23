@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title></title>
+  </head>
+  <body>
+    <script type = "text/javascript">
+
+　　var body = document.getElementsByTagName('body')[0];
+
+　　//生成div，并设置其样式
+
+　　var box = document.createElement('div');
+
+　　box.style.width = '100px';
+
+　　box.style.height = '100px';
+
+　　box.style.background = 'blue';
+
+　　box.style.position = 'absolute';
+
+　  document.onmousedown = function(event) {
+
+　　　　event = event || window.event;
+
+　　　　//获取鼠标点击的位置距离div左边的距离
+
+　　　　var positionX = event.clientX - box.offsetLeft;
+
+　　　　var positionY = event.clientY - box.offsetTop;
+
+　　　　document.onmousemove = function(event) {
+
+　　　　　　　event = event || window.event;
+
+　　　　　　　var divX = event.clientX - positionX;
+
+　　　　　　　var divY = event.clientY - positionY;
+
+　　　　　　　box.style.left = divX + 'px';
+
+　　　　　　　box.style.top = divY + 'px';
+
+　　　　}
+
+　　　　document.onmouseup = function() {
+
+　　　　　　　document.onmousemove = null;
+
+　　　　}
+
+　　}
+
+　　body.appendChild(box);
+
+</script>
+  </body>
+</html>
