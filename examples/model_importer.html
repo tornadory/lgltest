@@ -275,7 +275,7 @@
 						}
 					}
 
-					if(file.name.toLowerCase().endsWith(".gltf"))
+					if(file.name.toLowerCase().endsWith(".gltf") || file.name.toLowerCase().endsWith(".glb"))
 					{
 						var path = (file.path !== undefined) ? FileSystem.getFilePath(file.path) : "";
 						try{
