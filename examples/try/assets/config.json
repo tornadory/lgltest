@@ -1,0 +1,49 @@
+{
+  "locale_url": "assets/locale",
+  "locales" : [
+    {
+      "label" :"it",
+      "code"  :"it"
+    },
+    {
+      "label" :"de",
+      "code"  :"de"
+    },
+    {
+      "label"   :"en",
+      "code"    :"en",
+      "default" :true
+    }
+  ],
+
+  "products" : [
+    {
+      "id":"stupore",
+      "url":"stupore",
+      "fallback_position": [0.85,0.65],
+      "focus_position": "center",
+      "sound": "pin_rollover_5"
+    },
+    {
+      "id":"vermentino",
+      "url":"vermentino",
+      "fallback_position": [0.2,0.55],
+      "focus_position": "right",
+      "sound": "pin_rollover_1"
+    },
+    {
+      "id":"rosato",
+      "url":"rosato",
+      "fallback_position": [0.86,0.3],
+      "focus_position": "right",
+      "sound": "pin_rollover_3"
+    },
+    {
+      "id":"cabernet-sauvignon",
+      "url":"cabernet-sauvignon",
+      "fallback_position": [0.83,0.5],
+      "focus_position": "left",
+      "sound": "pin_rollover_4"
+    }
+  ]
+}

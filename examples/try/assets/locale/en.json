@@ -1,0 +1,204 @@
+{
+  "site_title" : "Campo alle Comete – Magic flavors",
+  "site_description" : "The winemaking tradition in combination with the deep knowledge of the territory brings stories and unforgettable flavors to life.",
+  "site_keywords" : "",
+  "site_share_image_facebook" : "/assets/images/share-image-fb.jpg",
+  "site_share_image_gplus" : "/assets/images/share-image-fb.jpg",
+  "site_share_image_twitter" : "http://i.imgur.com/FlKpYr7.jpg",
+
+  "about" : "about",
+  "close" : "close",
+  "info": "info",
+  "menu": "menu",
+  "download": "download",
+  "enter": "enter",
+  "scroll_to_discover" : "scroll to discover",
+  "drag_to_discover" : "drag to discover",
+  "scroll_up" : "scroll up",
+
+  "footer_copyright" : "FEUDI TOSCANA SOCIETÀ AGRICOLA a r. l.",
+  "footer_piva" : "P.Iva IT02882440643",
+  "footer_privacy" : "Policy Privacy",
+  "footer_info" : "info",
+  "footer_contatti" : "contact",
+  "footer_gallery" : "Gallery",
+  "footer_where" : "we are here",
+  "footer_credits" : "credits",
+
+  "loading": "loading",
+  "loading_line1": "There is a [w]place above the [w]world, floating and [w]timeless",
+  "loading_line2": "you enter through a fairy [w]door, guardian of [w]dreams",
+  "loading_line3": "to experience the [w]magic of [w]stories you never forget",
+
+  "stupore" : {
+    "label": "Stupore",
+    "loading_info": "Smoothness and balance",
+    "loading_image": "assets/images/product_stupore.png",
+    "loading_image_mobile": "assets/images/product_stupore-low.png",
+    "image": "assets/images/stupore.png",
+    "page_color": "#262645",
+    "particles_color": "#b00ecd",
+    "description": "The Campo alle Comete estate is located at the foot of Castagneto Carducci, the only municipality that holds the prestigious DOC Bolgheri denomination. Here is also born our “Stupore”, a wine that brings the peculiarity of Tuscan coast to full expression.",
+    "filedownload": "assets/pdf/7-campo-alle-comete_stupore_eng.pdf",
+    "paragraphs" : [
+      {"title": "Denomination","text": "Bolgheri Rosso DOC"},
+      {"title": "Grapes","text": "Merlot, Cabernet Sauvignon, Syrah and Petit Verdot"},
+      {"title": "Fermentation", "text": "Separate vinification of the different grape varieties. Alcoholic fermentation and maceration for about 3 weeks in stainless steel."},
+      {"title": "Maturation", "text": "About 10 months in used and new barriques and tonneaux of medium roasted oak. "},
+      {"title": "Aging", "text": "Minimum 6 months in bottle."},
+      {"title": "Tasting notes", "text": "Intense red ruby color. In the nose a fruity hint of fresh plum and cherry, blending with sweet roasted cocoa notes and a hint of balsamic eucalyptus reminding the Mediterranean scrub. Soft and balanced on the palate with fruity notes. Persistent aftertaste with rich aromas and a pleasant fresh finish."},
+      {"title": "Food pairings", "text": "Pairs well with sliced cold meet and cheese, excellent with grilled meat, sausages and lamb."}
+    ]
+  },
+  "vermentino" : {
+    "label": "Vermentino",
+    "loading_info": "Aromatic and floral",
+    "loading_image": "assets/images/product_vermentino.png",
+    "loading_image_mobile": "assets/images/product_vermentino-low.png",
+    "image": "assets/images/vermentino.png",
+    "page_color": "#6c342c",
+    "particles_color": "#fff36f",
+    "description": "Vermentino, which in this area has a unique varietal expression, with hints of spices and floral notes, is in Bolgheri among the white grapes the most common. The production of white grapes is in any case very limited (about 10%).",
+    "filedownload": "assets/pdf/6-campo-alle-comete_vermentino_eng.pdf",
+    "paragraphs" : [
+      {"title": "Denomination","text": "Vermentino Toscana IGT"},
+      {"title": "Grapes","text": "Vermentino"},
+      {"title": "Fermentation", "text": "Gentle pressing of the grapes and fermentation at a controlled temperature of about 15 ° C. Short permanence on the sediments to give the wine sweetness and volume without losing its necessary freshness."},
+      {"title": "Maturation", "text": "Only in stainless steel vats."},
+      {"title": "Aging", "text": "Minimum 2/3 months in bottle."},
+      {"title": "Tasting notes", "text": "Bright yellow, nearly paper white with soft green reflections. Fresh and fragrant wine with intense aromatic notes of citrus fruits like grapefruit and floral aromas, typical of the variety. Nice fruity taste with mineral freshness offering great balance and persistence to the wine."},
+      {"title": "Food pairing", "text": "Great with starters based on fish and shellfish as well as risotto and pasta with seafood. To recommend with all kinds of fish (crudités, baked or grilled also with sushi). A perfect match even with white meats like chicken and turkey."}
+    ]
+  },
+  "rosato" : {
+    "label": "Rosato",
+    "loading_info": "Persistence and pleasantness",
+    "loading_image": "assets/images/product_rosato-bolgheri.png",
+    "loading_image_mobile": "assets/images/product_rosato-bolgheri-low.png",
+    "image": "assets/images/rosato-bolgheri-doc.png",
+    "page_color": "#393c50",
+    "particles_color": "#ff6c44",
+    "description": "Prior to the great red wines, Bolgheri had a strong production of white and rose; in fact, the appellation DOC Bolgheri Rosato and White were the first to be recognized in 1984. Obtained mainly from Bordeaux grapes, it is a wine, which in addition to its pleasantness, offers a remarkable persistence on the palate.",
+    "filedownload": "assets/pdf/8-campo-alle-comete_rosato_eng.pdf",
+    "paragraphs" : [
+      {"title": "Denomination","text": "Bolgheri DOC Rosato"},
+      {"title": "Grapes","text": "Merlot, Cabernet Sauvignon and Syrah"},
+      {"title": "Fermentation", "text": "Direct pressing of the grapes harvested lightly in advance to maintain good freshness. Fermentation in stainless steel at a controlled temperature of maximum 17 ° C."},
+      {"title": "Maturation", "text": "Only in stainless steel vats."},
+      {"title": "Aging", "text": "Minimum 2/3 months in bottle."},
+      {"title": "Organoleptic examination", "text": "Brilliant dusky pink. In the nose intense and rich, with notes of fresh herbs and sweet fruity hints of raspberry and cherry. On the palate fresh and balanced, with a fruity and persistent aftertaste."},
+      {"title": "Food pairing", "text": "Great for starters based on vegetables and fish, like smoked salmon. It goes well with risotto and pasta with seafood, shellfish as well as to every kind of fish (baked or grilled) and sushi. Also enhances with chicken and turkey dishes. Fits to a little bit of everything, especially antipasti of sliced cold meets and cheeses, excellent to pasta with meat or vegetable sauces. Also suitable for grilled or short-fried meat."}
+    ]
+  },
+  "cabernet-sauvignon" : {
+    "label": "Cabernet Sauvignon",
+    "loading_info": "Strength and elegance",
+    "loading_image": "assets/images/product-cabernet.png",
+    "loading_image_mobile": "assets/images/product-cabernet-low.png",
+    "image": "assets/images/cabernet-sauvignon.png",
+    "page_color": "#4f1e33",
+    "particles_color": "#ffb472",
+    "description": "Cabernet Sauvignon finds in Bolgheri the best conditions to grow due to the type of soil and of microclimate. This is the reason why it has been selected as one of the three main grape varieties of the DOC Bolgheri appellation, and coming to full maturation expresses its great power and elegance.",
+    "filedownload": "assets/pdf/5-campo-alle-comete_cabernet-sauvignon_eng.pdf",
+    "paragraphs" : [
+      {"title": "Denomination","text": "Cabernet Sauvignon Toscana IGT"},
+      {"title": "Grapes","text": "Cabernet Sauvignon"},
+      {"title": "Fermentation", "text": "Alcoholic fermentation and maceration for about 3 weeks in stainless steel."},
+      {"title": "Maturation", "text": "Half of the wine refines in stainless steel to preserve the fruity notes, the other part matures for about 6 months in used and new barriques and tonneaux of medium roasted French oak."},
+      {"title": "Aging", "text": "Minimum 6 months in bottle."},
+      {"title": "Tasting notes", "text": "Intense red ruby color. On the nose you recognize the typical fruity and spicy hints of the Cabernet Sauvignon grapes. The combination between mature and silky tannins and the spicy freshness gives this wine balance and pleasantness. Lingering aftertaste with intense aromas and a fresh spicy finish."},
+      {"title": "Food pairing", "text": "Fits to a little bit of everything, especially antipasti of sliced cold meets and cheeses, excellent to pasta with meat or vegetable sauces. Also suitable for grilled or short-fried meat."}
+    ]
+  },
+
+  "about_page": {
+    "title": "about",
+    "chapters": [
+      {
+        "title": "chapter [w]01",
+        "image": "assets/images/about-page-1.jpg",
+        "subtitle":"Immerse in an enchanted garden",
+        "text":"Approaching [w]Campo [w]alle [w]Comete means to enter in a [w]world suspended between heaven and earth, where during long walks you’re guided by shining [w]stars. The name reflects wisely the soul of this place, rich in [w]stories and [w]magic, taking your spirit back to [w]childhood [w]images, that remember you the smell of old known [w]fragrances and fluffy [w]blowballs (dandelion). The atmosphere becomes immediately [w]familiar between the emotion of the [w]vineyards and a myriad of aromas and fragrances.<br><br>In fact, it is a project, which desires to convey not only [w]tradition and [w]experience, but also poetry and imagination, in order to amaze with memorable taste and scents."
+      },
+      {
+        "title": "chapter [w]02",
+        "image": "assets/images/about-page-2.jpg",
+        "subtitle":"Dreaming looking at the stars",
+        "text":"Campo alle Comete is not only a showpiece and outpost in Tuscany of the [w]Feudi [w]di [w]San [w]Gregorio group, but also the match between a solid philosophy of [w]winegrowing and one of the most valuable territories of Italy: [w]Bolgheri. The dream is to learn from an extraordinary territory, the quality of this area and the already existing producers, and to assimilate their richness. The hope is, to offer over the time, a proper contribution thanks to the [w]values and [w]experience acquired over the years."
+      },
+      {
+        "title": "chapter [w]03",
+        "image": "assets/images/about-page-3.jpg",
+        "subtitle":"An Observatory of dreams and fragrances",
+        "text":"When old [w]Etruscan [w]history meets the magical reality of Campo alle Comete, the result is a wine cellar remembering an [w]observatory, through which you can explore the [w]starry [w]sky and discover, getting lost into its infinity, small luminous [w]comets. Leaving behind the [w]Villa, built in the early nineteenth century, you arrive in front of the [w]wine [w]cellar, where in more than 100 Barriques and 30 Tonneaux arranged in a [w]semicircle, are preserved the future Bolgheri wines for fining.<br><br>The first wine released on the market under the Campo alle Comete Brand is [w]Stupore, a Bolgheri DOC vintage 2015. A coherent name with the dream, which represents the soul of the project."
+      },
+      {
+        "title": "chapter [w]04",
+        "image": "assets/images/about-page-4.jpg",
+        "subtitle":"A magic labyrinth in the heard of Bolgheri",
+        "text":"Only a few steps away from the Tyrrhenian Sea, nestled from farmland, in the middle of the [w]Maremma [w]Livornese, on the famous Etruscan coast, rises [w]Castagneto [w]Carducci. Surrounded by hills, which remind an [w]amphitheater is situated the cradle of Campo alle Comete. Due to the sunlight that dominates the landscape, the mild climate and the balanced and rich soils, we are able to produce with our [w]15-hectare [w]vineyards, with 6,500/7,500 plants per hectare, wines with a gentle and at same time strong character.<br><br>The grape varieties of Campo alle Comete are typical for the Bolgheri area and consist in detail of [w]Merlot, [w]Cabernet [w]Sauvignon [w]and [w]Cabernet [w]Franc, [w]as [w]well [w]as [w]Petit [w]Verdot."
+      }
+    ]
+  },
+
+
+  "privacy_page": {
+    "title": "Policy Privacy",
+    "chapters": [
+      {
+        "title": "LEGAL TERMS",
+        "text":"Campo Alle Comete - FEUDI TOSCANA SOC. AGRICOLA a r.l.<br>Sede Legale: Località Sughericcio, Via Fornacelle, 249 - 57022 - Castagneto Carducci (LI)<br>Numero di iscrizione Registro Imprese della Maremma e del Tirreno<br>02882440643 del 29/02/2016<br>Capitale Sociale interamente versato € 530.000,00 <br>Capitale Sociale che risulta esistente dall'ultimo bilancio € 530.000,00 <br>Numero di REA: LI-162545<br>Partita IVA: 02882440643<br>Codice fiscale: 02882440643<br>"
+      },
+      {
+        "title": "PURPOSE OF THIS NOTICE",
+        "text":"This page describes our website policy with regard to processing the personal data of site users.<br><br>This policy, which meets the requirements of art. 13 of Legislative Decree no. 196/2003 – Law regarding the Protection of Personal Data, applies to all users of the web services accessed electronically through the website: http://www.campoallecomete.it, which is the home page of the official website for Campo Alle Comete – FEUDI TOSCANA Soc. Agr. a r.l.<br><br>This privacy policy only applies to the website www.campoallecomete.it and does not include any other websites that may be consulted through links.<br><br>The privacy policy also follows Recommendation no. 2/2001 adopted by the EU authorities for the protection of personal data at the meeting on 17 May 2001 of the Working Group set up under article 29 of Directive 95/46/CE to identify some of the minimum requirements for the collection of personal data on-line, in particular, the methods, timing and nature of the information that data controllers must provide to users when they connect to web pages, independently of the purpose of that connection."
+      },
+      {
+        "title": "THE “DATA CONTROLLER”",
+        "text":"Following visits to our website, data may be processed with regard to users who have been or can be identified. The “data controller” for such data is FEUDI TOSCANA Soc. Agr. a r.l., registered office and headquarters in Località Sughericcio, Via Fornacelle, 249 - 57022 - Castagneto Carducci (LI)."
+      },
+      {
+        "title": "PLACE OF DATA PROCESSING",
+        "text":"The data processing related to the web services provided through this site takes place at the offices of FEUDI TOSCANA Soc. Agr. a r.l. referred to above and is handled only by the technical staff of the department with responsibility for data processing, or by other personnel with responsibility for occasional maintenance operations. No data deriving from the web services will be passed on to unauthorized third parties or disclosed. <br><br>The personal data provided by users who have sent requests for information, job applications etc., are only used to provide the service requested and may therefore, only where strictly necessary, be passed on to internal personnel at FEUDI TOSCANA Soc. Agr. a r.l. who have been formally assigned the task of handling such data."
+      },
+      {
+        "title": "TYPE OF DATA PROCESSED",
+        "text":"Site navigation data <br><br>The information systems and software processes that enable the website to function acquire some personal data during their normal operation and the transmission of such data is implicit in the use of the Internet communication protocols. <br><br>These data are not collected in order to link them with identified parties but they may, by their nature, through processing and association with data kept by third parties, enable users to be identified.<br><br>The following data come into this category: the IP addresses or domain names of the computers used by those consulting the website, the addresses of the resources requested in URI (Uniform Resource Identifier) notation, the time of the request, the method used to send the request to the server, the size of the file obtained in response, the numeric code indicating the status of the response provided by the server (successful, error, etc.) and other parameters connected with the user's operating system and computing environment. <br><br>These data are only used in order to collect anonymous statistical information on the use of the site and to check that it is functioning correctly and are deleted immediately after processing.<br><br>The data may be used to establish responsibility in the event of any computer crimes committed against the website; with the exception of this eventuality, the data on website contacts are not currently kept for more than seven days. <br><br>Data provided voluntarily by the user <br><br>The optional, explicit and voluntary sending of electronic mail to the addresses indicated on this website entails the acquisition of the sender's email address, which is necessary in order to reply to requests, together with any other personal data that may be included in the email. <br><br>Specific privacy policy summaries will be displayed on the website pages allocated to particular request services."
+      },
+      {
+        "title": "COOKIES",
+        "text":"No personal data from users is intentionally acquired by the site. <br><br>We do not use cookies for transmitting any personal information, nor do we use any types of so-called persistent cookies, or systems for tracking users. The use of so-called session cookies (which are memorized only temporarily on the user's computer and are erased when the browser is closed) is strictly limited to the transmission of session identifiers (consisting of random numbers generated by the server) and is necessary in order to allow safe and efficient exploration of the site. <br><br>The so-called session cookies used on this website enable us to avoid resorting to other IT techniques that may be detrimental to confidential navigation by the user; these cookies do not allow acquisition of the user's personal identification data."
+      },
+      {
+        "title": "VOLUNTARILY SUBMITTED DATA",
+        "text":"Apart from the navigation data described above, the user is free to supply FEUDI TOSCANA Soc. Agr. a r.l.with the personal data required on request forms, or through contact with our different departments, to enable communications (for example requests for information, submission of a complaint, etc.). Failure to provide such data may mean that it is impossible to satisfy the request."
+      },
+      {
+        "title": "METHODS OF DATA PROCESSING",
+        "text":"Personal data are processed in paper form as well as through electronic means and only for the period of time strictly necessary to achieve the purposes for which they are collected.<br><br>Specific security measures are followed in order to prevent the loss or illicit or improper use of data, and unauthorised access to data."
+      },
+      {
+        "title": "RIGHTS OF INTERESTED PARTIES",
+        "text":"The parties to whom the personal data belong have the right at any time to check whether or not their data is being stored, to find out the contents and origin of the data, to check the accuracy of the data and to ask for the data to be added to, updated or corrected (art.7 of Leg. decree no. 196/2003). <br><br>Under the same article, users have the right to ask for the deletion, conversion into anonymous form or blocking of data that has been unlawfully processed, and also to refuse permission for any data processing, on legitimate grounds.<br><br>All such requests should be made to FEUDI TOSCANA Soc. Agr. a r.l., at the email address: info@campoallecomete.it<br><br>Privacy notice to clients and suppliers<br><br>In accordance with art.13 Leg. Decree 196/2003 no.196, we inform you that FEUDI TOSCANA Soc. Agr. a r.l. processes the personal data of:<br><br>clients, suppliers and commercial partners;<br><br>individuals who have provided their personal data voluntarily (by telephone, in person in our offices or by fax or email etc.) to our personnel. <br><br>In no cases does this involve processing personal data of a sensitive nature.<br><br>In accordance with the current legislation, our company guarantees that the processing of your personal data is carried out with full respect for your rights, fundamental liberties and dignity, particularly with regard to confidentiality, personal identity and the right to the protection of personal data.<br><br>Nature of the data collected and consequences of the failure to provide data:<br><br>The provision of your personal data, including through our sales agents who have been formally authorized to process these data, is necessary in order to fulfil our contractual obligations, and generally to comply with the requirements of the law: failure to provide such data may render it impossible for us to carry out our contractual agreements.<br><br>Purposes of the data processing:<br><br>to comply with the obligations of the law, regulations, European Union regulations and statutory and tax legislation;<br><br>to fulfil contractual obligations that may apply with regard to the interested party;<br><br>to meet the operational requirements connected with our company's economic activity, such as keeping accounts, managing orders and invoicing, compiling internal statistics etc.;<br><br>for commercial purposes, such as sending commercial information and promotional material (by post, fax, e-mail or text message), marketing and market research concerning FEUDI TOSCANA Soc. Agr. a r.l. events, products and services;<br><br>to pass on and transmit your information for commercial and promotional purposes, (your company name, address, photos, events and promotional initiatives etc.), through our communication channels (internet sites, social network sites, company newsletters, e-mails, press releases, etc.);<br><br>to enable payment protection and debt management.<br><br>For the purposes described above, your personal data may be shared, if necessary, with:<br><br>Public Administrations and Authorities, where required by law;<br><br>our sales agents and credit companies or institutions that our company collaborates with in order to manage credits and debts;<br><br>any individuals and/or legal entities, public or private organizations (legal, administrative or fiscal consultancies, legal departments, Chambers of Commerce etc.), for whom such information is necessary or practical for carrying out our business activities, and exclusively for the purposes stated above;<br><br>for the purposes stated in point 5, to clients (actual and/or potential), newspaper publications and commercial partners.<br><br>The personal data processed by our company will only be disclosed in conformity with the purposes and using the methods indicated in point 5 above.<br><br>The data processing may be carried out with or without the use of electronic or automatized means by personnel inside and outside FEUDI TOSCANA Soc. Agr. a r.l. who have official responsibility for the processing and will include all operations stated in art. 4 par. 1, letter a, of Legislative Decree no. 196/03, that are necessary for this processing. In any case, in carrying out such processing, all precautionary measures will be taken to ensure the security and confidentiality of the data.<br><br>The Data Protection Law grants interested parties specific rights as stated in art. 7. In particular, these include the right to:<br><br>ask the data controller to confirm whether or not your personal data is being stored, and request that they are communicated in an intelligible form;<br><br>ask for information about the origin of the data, the purposes and methods used in processing it and the logic applied in the event of processing with the use of electronic equipment, the identification details of the data controller, the appointed personnel and the parties and categories of party with whom the data may be shared or to whom they may be made known;<br><br>to obtain the updating, correction, supplementation, deletion, conversion into anonymous form or blocking of data that has been unlawfully processed;<br><br>to refuse permission, wholly or in part, on legitimate grounds, for the handling of your personal data, even though it may be relevant for the purpose for which it is gathered, as well as to refuse permission, without the need to provide a reason, for the processing of your personal data for the purposes of sending promotional material, direct sales, conducting market research or for commercial communications.<br><br>The data processor concerned is FEUDI TOSCANA Soc. Agr. a r.l.<br><br>You may exercise these rights, including through an agent, by sending a request without any formalities to the person in charge of data processing, Direttore Generale Sig.ra Jeanette Servidio, at FEUDI TOSCANA Soc. Agr. a r.l., Località Sughericcio, Via Fornacelle, 249 - 57022 - Castagneto Carducci (LI),                            Tel. +39 0565 76 60 56 – Fax +39 0565 76 60 56 – E-mail: info@campoallecomete.it.<br><br>You may also obtain an up-to-date list of all the designated personnel with responsibility for Data Protection in the same way."
+      }
+    ]
+  },
+
+  "contacts_page": {
+    "title": "contacts",
+    "subtitle": "campo alle comete",
+    "email": "info@campoallecomete.it",
+    "address": "LOC. SUGHERICCIO - VIA FORNACELLE, 249 -  57022 - CASTAGNETO CARDUCCI (LI)",
+    "number1": "Tel. +39 0565 76 60 56",
+    "number2": "Fax +39 0565 76 60 56",
+    "maps_label": "we are here"
+  },
+
+  "share_page": {
+    "title": "share",
+    "facebook": "facebook",
+    "twitter": "twitter",
+    "twitter_text": "Campo alle Comete – Magic flavors",
+    "google": "google+"
+  }
+}
