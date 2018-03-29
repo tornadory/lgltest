@@ -17,6 +17,53 @@
   <body>
 
     <script>
+
+    var funcs = [];
+
+    for(let i = 0; i< 10; i++){
+      funcs.push(function(){console.log(i);});
+    }
+
+    for(var j = 0; j< 10; j++){
+      funcs.push(function(){console.log(j);});
+    }
+
+    funcs.forEach(function(func){
+      func();
+    });
+
+    //
+    // for(let i = 0; i< 10; i++){
+    //   funcs.push(function(){console.log(i);});
+    // }
+
+
+    function Foo(){
+      getName = function(){
+        console.log("1");
+      };
+    }
+    Foo.getName = function(){
+      console.log("2");
+    }
+    Foo.prototype.getName = function(){
+      console.log("3");
+    };
+    function getName(){
+      console.log("5");
+    }
+    var getName = function(){
+      console.log("4");
+    };
+
+    //test
+    Foo.getName(); //2
+    getName();     //4
+    getName();     //4
+    new Foo.getName(); //2
+    new Foo().getName(); //3
+    new new Foo().getName(); //3
+    //end
     async function test() {
         for (let i = 0; i < 2; i++) {
             console.log('Before await for ', i);

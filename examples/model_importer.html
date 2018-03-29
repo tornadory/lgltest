@@ -10,6 +10,7 @@
 		<script src="/three.js/examples/js/curves/NURBSCurve.js"></script>
 		<script src="/three.js/examples/js/curves/NURBSUtils.js"></script>
 		<script src="/three.js/examples/js/loaders/FBXLoader.js"></script>
+		<script src="/three.js/examples/js/loaders/GLTFLoader.js"></script>
 		<script src="/three.js/examples/js/loaders/ColladaLoader.js"></script>
 		<script src="/three.js/examples/js/libs/stats.min.js"></script>
 		<style>
@@ -258,6 +259,72 @@
 
 										scene.add(object);
 										infoTag.innerHTML = "模型加载成功";
+									}
+									catch(e)
+									{
+										console.error("Error loading file", e);
+										infoTag.innerHTML = "模型加载失败，请检查文件"+file.name;
+									}
+								};
+								reader.readAsArrayBuffer(file);
+							// }
+						}catch(e)
+						{
+							console.error("Error importing file", e);
+							infoTag.innerHTML = "模型加载失败，请检查文件"+file.name;
+						}
+					}
+
+					if(file.name.toLowerCase().endsWith(".gltf"))
+					{
+						var path = (file.path !== undefined) ? FileSystem.getFilePath(file.path) : "";
+						try{
+								var reader = new FileReader();
+								reader.onload = function()
+								{
+									try
+									{
+										var loader = new THREE.GLTFLoader();
+										try{
+											loader.parse(reader.result, path, function(gltf){
+												console.log("pared object from THREE.GLTFLoader is ", gltf);
+
+												object = gltf.scene;
+												// object.type = "Group";
+												// object.name = FileSystem.getNameWithoutExtension(name);
+
+												if(gltf.animations.length > 0)
+												{
+													object.traverse(function(child)
+													{
+														if(child instanceof THREE.SkinnedMesh)
+														{
+															child.animations = gltf.animations;
+														}
+													});
+
+													object.mixer = mixer = new THREE.AnimationMixer( object );
+													mixers.push( mixer );
+													action = object.mixer.clipAction( gltf.animations[0]);
+													action.timeScale = 1;
+													action.play();
+													// for ( var i = 0; i < gltf.animations.length; i ++ ) {
+													// 	var animation = gltf.animations[ i ];
+													// 	// There's .3333 seconds junk at the tail of the Monster animation that
+													// 	// keeps it from looping cleanly. Clip it at 3 seconds
+													// 	mixer.clipAction( animation ).play();
+													// }
+												}
+
+												scene.add(object);
+												infoTag.innerHTML = "模型加载成功";
+											});
+										}catch(err){
+											console.error("Error during object parsing ", err);
+										}
+
+
+
 									}
 									catch(e)
 									{
