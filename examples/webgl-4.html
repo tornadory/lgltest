@@ -1,0 +1,99 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>program test</title>
+    <script id="vertexShader" type="vertex-shader">
+        attribute vec4 position;
+        uniform vec4 color;
+        uniform vec4 offset;
+        varying vec4 vColor;
+        void main() {
+            vColor = color;
+            gl_Position = position + offset;
+        }
+    </script>
+    <script id="fragmentShader" type="fragment-shader">
+        precision mediump float;
+        varying vec4 vColor;
+        void main() {
+            gl_FragColor = vColor;
+        }
+    </script>
+    <script src="js/program.js"></script>
+    <script src="js/vector2.js"></script>
+</head>
+<body>
+    <canvas width="400" height="400"></canvas>
+    <script>
+        var canvas = document.querySelector("canvas");
+        var gl = canvas.getContext("webgl") || canvas.getContext("experimental-webgl");
+
+        function Triangle() {
+            this.name = "Triangle";
+            this.vertices = new Float32Array([0, 0.3, 0, -0.3, -0.3, 0, 0.3, -0.3, 0]);
+            this.indices = new Uint8Array([0, 1, 2]);
+            this.numVertices = 3;
+            this.numTriangles = 1;
+            this.program = Program.fromScript("vertexShader", "fragmentShader");
+        }
+        Triangle.prototype = {
+            init: function () {
+                var vertexBuffer = gl.createBuffer();
+                gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
+                gl.bufferData(gl.ARRAY_BUFFER, this.vertices, gl.STATIC_DRAW);
+
+                gl.vertexAttribPointer(this.program.attribute.position, 3, gl.FLOAT, false, 0, 0);
+                gl.enableVertexAttribArray(this.program.attribute.position);
+                gl.bindBuffer(gl.ARRAY_BUFFER, null);
+
+                this.vertexBuffer = vertexBuffer;
+
+                var indexBuffer = gl.createBuffer();
+                gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
+                gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, this.indices, gl.STATIC_DRAW);
+                gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
+                this.indexBuffer = indexBuffer;
+            },
+            draw: function (offset, color) {
+                gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
+                gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
+
+                this.program.use();
+                gl.uniform4fv(this.program.uniform.color, color);
+                gl.uniform4fv(this.program.uniform.offset, offset);
+
+                gl.drawArrays(gl.TRIANGLES, 0, 3);
+            }
+        };
+
+        gl.clearColor(0, 0, 0, 1);
+
+        var triangle = new Triangle();
+        triangle.init();
+
+        var triangle2 = new Triangle();
+        triangle.init();
+
+        var center = new Vector2();
+        var v1 = new Vector2(0.5, 0);
+        var v2 = new Vector2(0, 0.3);
+
+        var angle = 0.01;
+        function animate() {
+            gl.clear(gl.COLOR_BUFFER_BIT);
+            v1.rotateAround(center, angle);
+            v2.rotateAround(center, angle);
+            triangle2.draw([v1.x, v1.y, 0, 0], [1, 1, 0, 1]);
+            triangle.draw([v2.x, v2.y, 0, 0], [0, 1, 1, 1]);
+            requestAnimationFrame(animate);
+        }
+
+        requestAnimationFrame(animate);
+
+    </script>
+</body>
+</html>
