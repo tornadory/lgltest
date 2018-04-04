@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>asteroids</title>
+    <script src="js/program.js"></script>
+    <script src="js/math.js"></script>
+    <script src="js/vector2.js"></script>
+    <script id="circleVShader" type="x-shader/x-vertex">
+        attribute vec2 position;
+        uniform vec2 translate;
+        uniform vec2 size;
+        uniform float angle;
+        void main() {
+            float halfHeight = size.y / 2.0,
+                halfWidth = size.x / 2.0,
+                c = cos(angle), s = sin(angle);
+            vec2 p, pos;
+
+            p.x = position.x * c - position.y * s;
+            p.y = position.x * s + position.y * c;
+
+            pos.x = p.x + translate.x;
+            pos.y = p.y + translate.y;
+
+            p.x = (pos.x - halfWidth) / halfWidth;
+            p.y = (halfHeight - pos.y) / halfHeight;
+            gl_Position = vec4(p, 0.0, 1.0);
+            gl_PointSize = 12.0;
+        }
+    </script>
+    <script id="circleFShader" type="x-shader/x-fragment">
+        precision mediump float;
+        uniform float opacity;
+        void main() {
+            float len = distance(gl_PointCoord, vec2(0.5, 0.5));
+
+            if (len > 0.5) {
+                discard;
+            }
+            else {
+                float o = 1.0 - smoothstep(0.47, 0.5, len);
+                gl_FragColor = vec4(0.5, 0.0, 0.0, o * opacity);
+            }
+        }
+    </script>
+    <script id="vertexShader" type="x-shader/x-vertex">
+        attribute vec2 position;
+        uniform vec2 size;
+        uniform vec2 translate;
+        uniform float angle;
+        void main() {
+            float halfHeight = size.y / 2.0,
+                halfWidth = size.x / 2.0,
+                c = cos(angle), s = sin(angle);
+            vec2 p, pos;
+
+            p.x = position.x * c - position.y * s;
+            p.y = position.x * s + position.y * c;
+
+            pos.x = p.x + translate.x;
+            pos.y = p.y + translate.y;
+
+            p.x = (pos.x - halfWidth) / halfWidth;
+            p.y = (halfHeight - pos.y) / halfHeight;
+            gl_Position = vec4(p, 0.0, 1.0);
+        }
+    </script>
+    <script id="fragmentShader" type="x-shader/x-fragment">
+        precision mediump float;
+        uniform bool thrusting;
+        uniform float c;
+        void main() {
+            if (thrusting) {
+                gl_FragColor = vec4(0.7, 0.0, 0.0, 1.0);
+            }
+            else {
+                gl_FragColor = vec4(c, c, c, 1);
+            }
+        }
+    </script>
+    <script>
+        function Circle() {
+            this.name = "circle";
+            this.vertices = new Float32Array([0, 16]);
+            this.program = Program.fromScript("circleVShader", "circleFShader");
+            this.init();
+        }
+        Circle.prototype = {
+            init: function () {
+                this.program.use();
+                this.vertexBuffer = createBuffer(gl.ARRAY_BUFFER, this.vertices, gl.STATIC_DRAW);
+
+                gl.uniform2fv(this.program.uniform.size, [gl.canvas.width, gl.canvas.height]);
+            },
+            draw: function (translate, opacity) {
+                this.program.use();
+                gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
+                gl.vertexAttribPointer(this.program.attribute.position, 2, gl.FLOAT, false, 0, 0);
+                gl.enableVertexAttribArray(this.program.attribute.position);
+                gl.uniform2fv(this.program.uniform.translate, translate);
+                gl.uniform1f(this.program.uniform.opacity, opacity);
+                gl.uniform1f(this.program.uniform.angle, ship.heading);
+                gl.drawArrays(gl.POINTS, 0, 1);
+            }
+        }
+    </script>
+    <script>
+        function DrawShipUtil() {
+            var r = 16;
+            this.name = "drawShipUtil";
+            this.vertices1 = new Float32Array([
+                -r / 2 - r / 6, r - r / 4, -r / 2 - r / 6, r + r / 4,
+                -r / 2 + r / 6, r + r / 4, -r / 2 + r / 6, r - r / 4,
+
+                 r / 2 - r / 6, r - r / 4,  r / 2 - r / 6, r + r / 4,
+                 r / 2 + r / 6, r + r / 4,  r / 2 + r / 6, r - r / 4
+            ]);
+            this.vertices2 = new Float32Array([-r, r, 0, -r, r, r]);
+            this.indices1 = new Uint8Array([
+                0, 1, 2, 2, 3, 0, 4, 5, 6, 6, 7, 4
+            ]);
+            this.indices2 = new Uint8Array([0, 1, 2]);
+            this.numElement1 = 12;
+            this.numElement2 = 3;
+            this.program = Program.fromScript("vertexShader", "fragmentShader");
+
+            this.init();
+        }
+        DrawShipUtil.prototype = {
+            init: function () {
+                this.program.use();
+
+                this.vertexBuffer1 = createBuffer(gl.ARRAY_BUFFER, this.vertices1, gl.STATIC_DRAW);
+                this.vertexBuffer2 = createBuffer(gl.ARRAY_BUFFER, this.vertices2, gl.STATIC_DRAW);
+                this.indexBuffer1 = createBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indices1, gl.STATIC_DRAW);
+                this.indexBuffer2 = createBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indices2, gl.STATIC_DRAW);
+                gl.uniform2fv(this.program.uniform.size, [gl.canvas.width, gl.canvas.height]);
+            },
+            draw: function (thrusting, angle, translate) {
+                this.program.use();
+                gl.uniform2fv(this.program.uniform.translate, translate);
+                gl.uniform1f(this.program.uniform.angle, angle);
+                gl.uniform1f(this.program.uniform.c, 0.5);
+                gl.uniform1i(this.program.uniform.thrusting, thrusting);
+                gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer1);
+                gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer1);
+                gl.vertexAttribPointer(this.program.attribute.position, 2, gl.FLOAT, false, 0, 0);
+                gl.enableVertexAttribArray(this.program.attribute.position);
+                gl.drawElements(gl.TRIANGLES, this.numElement1, gl.UNSIGNED_BYTE, 0);
+                gl.uniform1i(this.program.uniform.thrusting, false);
+                gl.uniform1f(this.program.uniform.c, 0);
+                gl.drawElements(gl.LINE_LOOP, this.numElement1, gl.UNSIGNED_BYTE, 0);
+
+                gl.uniform1f(this.program.uniform.c, 0.5);
+                gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer2);
+                gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer2);
+                gl.vertexAttribPointer(this.program.attribute.position, 2, gl.FLOAT, false, 0, 0);
+                gl.enableVertexAttribArray(this.program.attribute.position);
+                gl.drawElements(gl.TRIANGLES, this.numElement2, gl.UNSIGNED_BYTE, 0);
+                gl.uniform1f(this.program.uniform.c, 0);
+                gl.drawElements(gl.LINE_LOOP, this.numElement2, gl.UNSIGNED_BYTE, 0);
+            }
+        }
+    </script>
+    <script>
+        function Particle(l, dir) {
+            this.acceleration = dir.clone();
+            this.velocity = new Vector2(Math.random(), Math.random());
+            this.position = l.clone();
+            this.lifespan = 255.0;
+        }
+        Particle.prototype = {
+            run: function () {
+                this.update();
+                this.display();
+            },
+            update: function () {
+                this.velocity.add(this.acceleration);
+                this.position.add(this.velocity);
+                this.lifespan -= 2.0;
+            },
+            display: function () {
+                circle.draw([this.position.x, this.position.y], this.lifespan / 255);
+            },
+            isDead: function () {
+                if (this.lifespan < 0.0) {
+                    return true;
+                }
+                else {
+                    return false;
+                }
+            }
+        }
+    </script>
+    <script>
+        function ParticleSystem() {
+            this.particles = [];
+        }
+        ParticleSystem.prototype = {
+            addParticle: function (x, y, force) {
+                this.particles.push(new Particle(new Vector2(x, y), force));
+            },
+            run: function () {
+                for (var i = this.particles.length - 1; i >= 0; i--) {
+                    var p = this.particles[i];
+                    p.run();
+                    if (p.isDead()) {
+                        this.particles.splice(i, 1);
+                        p = null;
+                    }
+                }
+            },
+            dead: function () {
+                if (this.particles.length == 0) {
+                    return true;
+                }
+                else {
+                    return false;
+                }
+            }
+        }
+    </script>
+    <script>
+        function Spaceship() {
+            this.position = new Vector2(width / 2, height / 2);
+            this.velocity = new Vector2(0, 0);
+            this.acceleration = new Vector2(0, 0);
+            this.damping = 0.995;
+            this.topspeed = 6;
+            this.heading = 0;
+            this.r = 16;
+            this.thrusting = false;
+            this.ps = new ParticleSystem();
+        }
+        Spaceship.prototype = {
+            update: function () {
+                this.velocity.add(this.acceleration);
+                this.velocity.multiplyScalar(this.damping);
+                this.velocity.limit(this.topspeed);
+                this.position.add(this.velocity);
+                this.acceleration.multiplyScalar(0);
+                this.ps.run();
+            },
+            applyForce: function (force) {
+                var f = force.clone();
+                this.acceleration.add(f);
+            },
+            turn: function (a) {
+                this.heading += a;
+            },
+            thrust: function () {
+                var angle = this.heading - Math.PI / 2;
+                var force = new Vector2(Math.cos(angle), Math.sin(angle));
+                force.multiplyScalar(0.1);
+                this.applyForce(force);
+                force.multiplyScalar(-2);
+                this.ps.addParticle(this.position.x, this.position.y, force);
+                this.thrusting = true;
+            },
+            wrapEdges: function () {
+                var r = this.r, position = this.position;
+                var buffer = r * 2;
+                if (position.x > width + buffer) position.x = -buffer;
+                else if (position.x < -buffer) position.x = width + buffer;
+                if (position.y > height + buffer) position.y = -buffer;
+                else if (position.y < -buffer) position.y = height + buffer;
+            },
+            display: function () {
+                drawUtil.draw(this.thrusting, this.heading, [this.position.x, this.position.y]);
+                this.thrusting = false;
+            }
+        }
+    </script>
+</head>
+
+<body>
+    <canvas id="canvas" width="640" height="360"></canvas>
+    <script>
+        function createBuffer(type, data, usage) {
+            var buffer = gl.createBuffer();
+            gl.bindBuffer(type, buffer);
+            gl.bufferData(type, data, usage);
+            return buffer;
+        }
+
+        var canvas = document.getElementById("canvas");
+        var gl = canvas.getContext("webgl", { premultipliedAlpha: false })
+            || canvas.getContext("experimental-webgl", { premultipliedAlpha: false });
+        var width = canvas.width, height = canvas.height;
+        var ship = new Spaceship(), drawUtil = new DrawShipUtil(), circle = new Circle();
+        var keyPressed = false, keyCode;
+
+        gl.clearColor(1, 1, 1, 1);
+        gl.enable(gl.BLEND);
+        gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+        function animate() {
+            requestAnimationFrame(animate);
+
+            gl.clear(gl.COLOR_BUFFER_BIT);
+            ship.update();
+            ship.wrapEdges();
+            ship.display();
+
+            if (keyPressed) {
+                if (keyCode == 37) {
+                    ship.turn(-0.03);
+                }
+                else if (keyCode == 39) {
+                    ship.turn(0.03);
+                }
+                else if (keyCode == 90) {
+                    ship.thrust();
+                }
+            }
+        }
+
+        window.onkeydown = function (e) {
+            keyCode = e.keyCode;
+            keyPressed = true;
+        };
+        window.onkeyup = function (e) {
+            keyPressed = false;
+        }
+
+        requestAnimationFrame(animate);
+    </script>
+</body>
+
+</html>
