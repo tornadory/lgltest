@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title>Door Opening Demo - 围绕轴开关门</title>
+    <script src="js/three.js"></script>
+    <script src="js/libs/inflate.min.js"></script>
+  	<script src="js/controls/OrbitControls.js"></script>
+    <style>
+      body {
+				font-family: Monospace;
+				background-color: #f0f0f0;
+				margin: 0px;
+				overflow: hidden;
+			}
+    </style>
+
+    <script id="fs" type="x-shader/x-fragment">
+      uniform float time;
+      void main()	{
+        gl_FragColor = vec4( time / 10.0, 1.0 - time / 10.0,0, 1.0 );
+      }
+    </script>
+
+    <script id="vs" type="x-shader/x-vertex">
+      uniform float time;
+      void main()	{
+        gl_Position = projectionMatrix * modelViewMatrix * vec4(position.x, position.y + time, position.z, 1.0);
+      }
+    </script>
+  </head>
+  <body>
+<div id="container"></div>
+<script>
+var camera, scene, renderer, material;
+window.onload = function () {
+  init();
+  animate();
+}
+function init() {
+  camera = new THREE.PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 1, 10000 );
+  camera.position.z = 100;
+  camera.lookAt(new THREE.Vector3(0,0,0))
+
+  scene = new THREE.Scene();
+  scene.background = new THREE.Color( 0xf0f0f0 );
+
+  scene.add( new THREE.AmbientLight( 0x505050 ) );
+
+  var light = new THREE.SpotLight( 0xffffff, 1.5 );
+  light.position.set( 0, 500, 2000 );
+  light.castShadow = true;
+
+  light.shadow = new THREE.LightShadow( new THREE.PerspectiveCamera( 50, 1, 200, 10000 ) );
+  light.shadow.bias = - 0.00022;
+
+  light.shadow.mapSize.width = 2048;
+  light.shadow.mapSize.height = 2048;
+
+  scene.add( light );
+
+  var geometry = new THREE.ConeGeometry( 5, 20, 32 );
+  material = new THREE.ShaderMaterial( {
+    uniforms: {
+      time:  { value: new Date().getTime() % 1000 / 100 }
+    },
+    vertexShader: document.getElementById( 'vs' ).textContent,
+    fragmentShader: document.getElementById( 'fs' ).textContent
+
+  } );
+  var coneup = new THREE.Mesh( geometry, material );
+  var conedown = coneup.clone();
+  scene.add( coneup );
+  scene.add( conedown );
+  conedown.rotation.z = Math.PI
+  conedown.position.y = 26
+  coneup.position.y = -26
+
+  renderer = new THREE.WebGLRenderer( { antialias: true } );
+  renderer.setPixelRatio( window.devicePixelRatio );
+  renderer.setSize( window.innerWidth, window.innerHeight );
+
+  renderer.shadowMap.enabled = true;
+  renderer.shadowMap.type = THREE.PCFShadowMap;
+
+  document.getElementById('container').appendChild( renderer.domElement );
+}
+
+function animate() {
+  requestAnimationFrame( animate );
+  material.uniforms.time.value = new Date().getTime() % 1000 / 100;
+  renderer.render( scene, camera );
+
+}
+</script>
+  </body>
+</html>

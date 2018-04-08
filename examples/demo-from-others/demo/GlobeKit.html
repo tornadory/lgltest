@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <title>GlobeKit</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="GlobeKit_files/desktop.css" rel="stylesheet">
+    <link href="GlobeKit_files/mobile.css" rel="stylesheet">
+    <script src="GlobeKit_files/Site.js"></script>
+    <script src="GlobeKit_files/FormManager.js"></script>
+    <script src="GlobeKit_files/DataManager.js"></script>
+    <script src="GlobeKit_files/ModelManager.js"></script>
+    <script src="GlobeKit_files/ScrollManager.js"></script>
+    <script src="GlobeKit_files/CanvasManager.js"></script>
+
+    <script src="GlobeKit_files/gl-matrix.js"></script>
+    <script src="GlobeKit_files/Camera.js"></script>
+    <script src="GlobeKit_files/Program.js"></script>
+    <script src="GlobeKit_files/ProgramManager.js"></script>
+    <script src="GlobeKit_files/TextureManager.js"></script>
+    <script src="GlobeKit_files/PointGlobeDrawable.js"></script>
+    <script src="GlobeKit_files/NebulaDrawable.js"></script>
+    <script src="GlobeKit_files/BokehDrawable.js"></script>
+    <script src="GlobeKit_files/BackgroundDrawable.js"></script>
+    <script src="GlobeKit_files/RingDrawable.js"></script>
+    <script src="GlobeKit_files/EarthquakeDrawable.js"></script>
+    <script src="GlobeKit_files/BigQuakeDrawable.js"></script>
+    <script src="GlobeKit_files/Model.js"></script>
+    <script src="GlobeKit_files/LatLng.js"></script>
+    <script src="GlobeKit_files/ProjectionUtil.js"></script>
+
+    <script src="GlobeKit_files/Animation.js"></script>
+    <script src="GlobeKit_files/Ease.js"></script>
+    <script src="GlobeKit_files/Signal.js"></script>
+    <script src="GlobeKit_files/SplitText.js"></script>
+    <script src="GlobeKit_files/TweenMax.js"></script>
+</head>
+
+<body class="desktop fonts-active">
+    <div id="quake-info">
+        <div>
+            <span class=""></span>
+        </div>
+    </div>
+
+    <div class="header">
+        <div class="logo-mark">
+            <svg xmlns="http://www.w3.org/2000/svg" width="51" height="51" viewBox="0 0 51 51">
+                <path d="M73.493,52.006A23.491,23.491,0,1,1,50,75.5,23.517,23.517,0,0,1,73.493,52.006m0-2.006a25.5,25.5,0,1,0,25.5,25.5A25.5,25.5,0,0,0,73.493,50h0ZM68.848,80.447a4.852,4.852,0,0,1-5.067-5.04A4.981,4.981,0,0,1,68.82,70.34a5.275,5.275,0,0,1,3.755,1.326l-1.088,1.3a3.83,3.83,0,0,0-2.736-1.047,3.493,3.493,0,0,0,.153,6.967,3.991,3.991,0,0,0,2.36-.74v-1.83h-2.5V74.821h4.16v4.105A6.235,6.235,0,0,1,68.848,80.447Zm14.968-.168h-2.08l-3.337-4.4-1.521,1.564V80.28H75.161V70.508h1.717v4.914l4.648-4.914h2.108l-4.063,4.2Z"
+                    transform="translate(-48 -50)"></path>
+            </svg>
+        </div>
+
+        <div class="logo-text">
+            <svg xmlns="http://www.w3.org/2000/svg" width="86" height="15" viewBox="0 0 86 15">
+                <path d="M207.215,82.945a6.971,6.971,0,0,1-7.23-7.288,7.158,7.158,0,0,1,7.19-7.329,7.463,7.463,0,0,1,5.357,1.918l-1.553,1.877a5.422,5.422,0,0,0-3.9-1.515,4.748,4.748,0,0,0-4.521,5.007c0,2.927,1.892,5.067,4.74,5.067a5.638,5.638,0,0,0,3.366-1.07V76.969H207.1v-2.16h5.936v5.936A8.827,8.827,0,0,1,207.215,82.945Zm8.868-.243V67.965h2.41V82.7h-2.41Zm10.558,0.243a5.479,5.479,0,0,1-5.577-5.532A5.607,5.607,0,1,1,226.641,82.945Zm0-8.984a3.187,3.187,0,0,0-3.167,3.412,3.277,3.277,0,0,0,3.206,3.452,3.19,3.19,0,0,0,3.187-3.412A3.28,3.28,0,0,0,226.641,73.961Zm14.065,8.964a4.269,4.269,0,0,1-3.565-1.877V82.7h-2.409V67.965h2.409V73.82a4.188,4.188,0,0,1,3.565-2c2.49,0,4.9,2,4.9,5.551S243.216,82.925,240.706,82.925Zm-0.557-8.984a3.454,3.454,0,0,0,0,6.864c1.653,0,3.007-1.313,3.007-3.432A3.134,3.134,0,0,0,240.149,73.941Zm12.79,7.005a3.793,3.793,0,0,0,2.848-1.271l1.414,1.271a5.523,5.523,0,1,1-4.56-9.125c3.346,0,5.039,2.665,5.039,5.754,0,0.222-.02.424-0.04,0.666h-7.728A2.96,2.96,0,0,0,252.939,80.946Zm2.35-4.32c-0.158-1.575-1.075-2.806-2.669-2.806a2.865,2.865,0,0,0-2.728,2.806h5.4ZM272.741,82.7h-2.968l-4.76-6.359L262.842,78.6v4.1h-2.45V68.571h2.45v7.106l6.632-7.106h3.008l-5.8,6.077ZM274.6,70.408V68.086h2.589v2.322H274.6ZM274.7,82.7V72.043h2.41V82.7H274.7Zm8.466-3.331a1.156,1.156,0,0,0,1.3,1.333,3.2,3.2,0,0,0,1.494-.364v2a4.174,4.174,0,0,1-2.171.544c-1.773,0-3.028-.787-3.028-3.129V74.142h-1.334v-2.1h1.334V69.116h2.41v2.927h2.829v2.1h-2.829v5.229Z"
+                    transform="translate(-200 -67.969)"></path>
+            </svg>
+        </div>
+
+        <div class="social">
+            <ul>
+                <li class="share">Follow</li>
+                <li class="twitter icon">
+                    <a href="http://twitter.com/globekit" target="_blank">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="13" viewBox="0 0 16 13">
+                            <path d="M1690,70.471a6.446,6.446,0,0,1-1.89.53,3.387,3.387,0,0,0,1.45-1.862,6.551,6.551,0,0,1-2.09.816,3.238,3.238,0,0,0-2.39-1.062,3.326,3.326,0,0,0-3.29,3.363,3.226,3.226,0,0,0,.09.766,9.249,9.249,0,0,1-6.77-3.515,3.439,3.439,0,0,0-.44,1.692,3.387,3.387,0,0,0,1.46,2.8,3.243,3.243,0,0,1-1.49-.421v0.043a3.344,3.344,0,0,0,2.64,3.3,3.288,3.288,0,0,1-.87.118,3.172,3.172,0,0,1-.62-0.061,3.3,3.3,0,0,0,3.07,2.336,6.5,6.5,0,0,1-4.86,1.393,9.124,9.124,0,0,0,5.03,1.511,9.4,9.4,0,0,0,9.34-9.571c0-.145,0-0.291-0.01-0.435A6.8,6.8,0,0,0,1690,70.471Z"
+                                transform="translate(-1674 -68.906)"></path>
+                        </svg>
+                    </a>
+                </li>
+                <li class="instagram icon">
+                    <a href="http://instagram.com/globe.kit" target="_blank">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">
+                            <path d="M204.837,113a4.837,4.837,0,1,1-9.584-.93H192v6.43a2.5,2.5,0,0,0,2.5,2.5h11a2.5,2.5,0,0,0,2.5-2.5v-6.43h-3.253A4.832,4.832,0,0,1,204.837,113Zm0.663-8h-11a2.5,2.5,0,0,0-2.5,2.5v2.709h4.05a4.835,4.835,0,0,1,7.9,0H208V107.5A2.5,2.5,0,0,0,205.5,105Zm1.222,3.088a0.448,0.448,0,0,1-.446.447h-1.34a0.449,0.449,0,0,1-.447-0.447v-1.339a0.449,0.449,0,0,1,.447-0.447h1.34a0.448,0.448,0,0,1,.446.447v1.339ZM202.977,113A2.977,2.977,0,1,0,200,115.977,2.977,2.977,0,0,0,202.977,113Z"
+                                transform="translate(-192 -105)"></path>
+                        </svg>
+                    </a>
+                </li>
+                <li class="facebook icon">
+                    <a href="http://facebook.com/GlobeKit.1" target="_blank">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">
+                            <path d="M1738,68.012h-12a2.006,2.006,0,0,0-2,2V82a2.005,2.005,0,0,0,2,2h6.07V78.269h-1.92v-2.5h1.92V74.52a3.307,3.307,0,0,1,3.24-3.44h1.77V73.9h-1.58a0.487,0.487,0,0,0-.54.565v1.306h2.12v2.5h-2.12V84H1738a2.005,2.005,0,0,0,2-2V70.011A2.006,2.006,0,0,0,1738,68.012Z"
+                                transform="translate(-1724 -68)"></path>
+                        </svg>
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <canvas id="globekit-canvas"></canvas>
+
+    <div id="scrolling-content">
+        <div id="scrolling-area">
+            <div class="copy-section topic-globekit" style="opacity: 1;">
+                <div class="copy-content">
+                    <h1 class="animated-text">
+                        This is
+                        <span class="emdash"><span></span>GlobeKit</span>
+                    </h1>
+                    <p class="animated-body">GlobeKit is a visualization platform that can turn geographic data into stunning interactive experiences.</p>
+                </div>
+            </div>
+
+            <div class="copy-section topic-performance" style="opacity: 0.061984;">
+                <div class="copy-content">
+                    <h1 class="animated-text">
+                        powerful
+                        <span class="emdash"><span></span>performance</span>
+                    </h1>
+                    <p class="animated-body">GlobeKit is a streamlined package that can be run efficiently on small embedded devices, or juiced up
+                        for large installations.</p>
+                </div>
+            </div>
+
+            <div class="copy-section topic-customizable" style="opacity: 0.0630192;">
+                <div class="copy-content">
+                    <h1 class="animated-text">
+                        Highly
+                        <span class="emdash"><span></span>Customizable </span>
+                    </h1>
+                    <p class="animated-body">Our team can stylize GlobeKit to match your brand and create engaging visualizations for your viewers.</p>
+                </div>
+            </div>
+
+            <div class="copy-section topic-platform" style="opacity: 5.07649;">
+                <div class="copy-content">
+                    <h1 class="animated-text">
+                        Cross
+                        <span class="emdash"><span></span>platform </span>
+                    </h1>
+                    <p class="animated-body">GlobeKit works on the Web, iOS, Android, MacOS, Linux, and Windows. Licensing is also available for installations
+                        and VR platforms.</p>
+                </div>
+            </div>
+
+            <div class="copy-section topic-quote" style="opacity: 39.1272;">
+                <div class="copy-content">
+                    <h1 class="animated-text">
+                        Request
+                        <span class="emdash"><span></span>aQuote </span>
+                    </h1>
+                    <p class="animated-body">Contact us to discuss your GlobeKit project and we’ll send you an estimate based on your needs.</p>
+                </div>
+            </div>
+
+            <div class="copy-section topic-form" style="opacity: 150.24;">
+                <div class="copy-content">
+                    <div id="form-section" class="">
+                        <form id="request-form" action="" method="POST" target="no-target">
+                            <div class="input-block" id="block-one">
+                                <label for="NAME">Name</label>
+                                <input id="NAME" required="" name="NAME" type="text">
+                            </div>
+                            <div class="input-block" id="block-two">
+                                <label for="COMPANY">Company</label>
+                                <input id="COMPANY" required="" name="COMPANY" type="text">
+                            </div>
+                            <div class="input-block" id="block-three">
+                                <label for="EMAIL">Email</label>
+                                <input id="EMAIL" required="" name="EMAIL" type="email">
+                            </div>
+                            <div class="textarea-block" id="block-four">
+                                <label for="NEEDS">Tell us more about your needs...</label>
+                                <textarea id="NEEDS" name="NEEDS"></textarea>
+                            </div>
+                            <!--<input id="request" type="submit" value="Request a Quote" name="SUBMIT">-->
+                        </form>
+                        <span id="error-message">* Required</span>
+                        <iframe src="GlobeKit_files/a.html" id="no-target" name="no-target" style="visibility:hidden; display:none"></iframe>
+                    </div>
+                    <h2 id="success-message">
+                        thank <span class="emdash"> <span></span> You </span>
+                    </h2>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="pagination">
+        <div id="pagination-text">
+            <div id="page-count-tens">
+                <div class="page-numbers">
+                    <div class="page-number">0</div>
+                </div>
+            </div>
+
+            <div id="page-count-ones">
+                <div class="page-numbers" style="transform: translate3d(0px, 0vw, 0px);">
+                    <div class="page-number">1</div>
+                    <div class="page-number">2</div>
+                    <div class="page-number">3</div>
+                    <div class="page-number">4</div>
+                    <div class="page-number">5</div>
+                    <div class="page-number">6</div>
+                </div>
+            </div>
+            <span id="page-count-total">/ 6</span>
+        </div>
+
+        <p class="viz-caption">M 4.5+ Earthquakes, Past Month
+            <a href="https://earthquake.usgs.gov/" target="_blank">Source: USGS.gov
+                <svg xmlns="http://www.w3.org/2000/svg" width="17.06" height="9.281" viewBox="0 0 17 9">
+                    <path d="M1672.08,744.45l-4.07,4.52-0.89-.861L1670,745h-15v-1.021h14.96l-3.27-3.468,0.94-.83Z" transform="translate(-1655 -739.688)"></path>
+                </svg>
+            </a>
+        </p>
+
+        <ul id="pagination-dots">
+            
+        </ul>
+    </div>
+
+    <div id="mouse-indicator">
+        <div id="mouse-wheel">
+            <div class="mouse-outline">
+                <svg width="18px" height="30px">
+                    <path fill="#fff" d="M729,903.789v9.419a9.009,9.009,0,1,0,18,0v-9.419A9.009,9.009,0,1,0,729,903.789Zm9-7.327a7.19,7.19,0,0,1,7,7.327v9.419a7.007,7.007,0,1,1-14,0v-9.419A7.19,7.19,0,0,1,738,896.462Z"
+                        transform="translate(-729 -894.375)"></path>
+                </svg>
+            </div>
+            <div class="wheel animate">
+                <svg width="2px" height="6px">
+                    <path fill="#fff" d="M738,905.358a1.027,1.027,0,0,0,1-1.046v-3.14a1,1,0,1,0-2,0v3.14A1.027,1.027,0,0,0,738,905.358Z" transform="translate(-737 -900.125)"></path>
+                </svg>
+            </div>
+        </div>
+    </div>
+
+    <a id="request" href="mailto:info@globekit.co?subject=GlobeKit%20Project" class="">
+        <span>Request a Quote</span>
+        <svg xmlns="http://www.w3.org/2000/svg" width="17" height="15" viewBox="0 0 17 15">
+            <path d="M450.622,782.89l-1.648-6.087,13.846,7.249Zm-2.309,3.644-2.094-2.128,2.094-1.879,0.937,1.942Zm14.318-1.316-13.609,6.789,1.619-5.7Z"
+                transform="translate(-446.219 -776.812)"></path>
+        </svg>
+    </a>
+
+    <script>
+        Site.init();
+        setTimeout(function () {
+            Site.fontsDidActivate();
+        }, 250);
+    </script>
+
+</body>
+
+</html>
