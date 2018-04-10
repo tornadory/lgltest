@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<style>canvas { width: 100%; height: 100% } body{ margin:0; overflow: hidden }</style>
+</body>
+</html>
+<script src="js/jq.js"></script>
+<script src="js/three.min.js"></script>
+<script src="js/DDSLoader.js"></script>
+<script src="js/MTLLoader.js"></script>
+<script src="js/OBJLoader.js"></script>
+<script src="js/OrbitControls.js"></script>
+<script>
+    //一个场景
+    var stopTotaion = false;
+    var scene;
+    function initScene() {
+        scene = new THREE.Scene();
+    }
+    //创建一个相机
+    var camera;
+    function initCamera() {
+        //视野，平面宽高比, 离最近物体的近距离，离物体的远距离
+        camera = new THREE.PerspectiveCamera(45, window.innerWidth/window.innerHeight, 1, 1000 );
+        console.log(camera)
+        camera.position.set(-150,70, -10)
+    }
+
+    //创建一个渲染器
+    var renderer;
+    function initRender() {
+        //html渲染器
+        renderer = new THREE.WebGLRenderer();
+        //渲染的宽高
+        renderer.setSize( window.innerWidth, window.innerHeight );
+        //放到body中显示
+        document.body.appendChild( renderer.domElement );
+        renderer.setClearColor(0xffffff, 0.5);
+    }
+
+    var controls;
+    function initControl() {
+        // controls
+
+        controls = new THREE.OrbitControls( camera, renderer.domElement );
+
+        //controls.addEventListener( 'change', render ); // call this only in static scenes (i.e., if there is no animation loop)
+
+        controls.enableDamping = false; // an animation loop is required when either damping or auto-rotation are enabled
+        controls.dampingFactor = 0.7;
+
+        controls.panningMode = THREE.HorizontalPanning; // default is THREE.ScreenSpacePanning
+
+        controls.minDistance = 1;
+        controls.maxDistance = 1000;
+
+        controls.maxPolarAngle = Math.PI / 2;
+        controls.enableRotate = true;
+        controls.rotateSpeed = 1.0;
+
+        controls.addEventListener( 'change', function(){
+            stopTotaion = true;
+            renderer.render( scene, camera );
+        } );
+    }
+    //创建一个物体
+    var cue;
+    var modelObj;
+    function load3DModel() {
+        scene = new THREE.Scene();
+
+        var ambientLight = new THREE.AmbientLight( 0xcccccc, 0.4 );
+        scene.add( ambientLight );
+
+        var pointLight = new THREE.PointLight( 0xffffff, 0.15 );
+        camera.add( pointLight );
+        scene.add( camera );
+
+        THREE.Loader.Handlers.add( /\.dds$/i, new THREE.DDSLoader() );
+
+        var mtlLoader = new THREE.MTLLoader();
+//        http://3d-mode.oss-cn-shenzhen.aliyuncs.com/mode/
+        mtlLoader.setPath( 'https://thkcat.oss-cn-shenzhen.aliyuncs.com/' );
+        mtlLoader.load( '1.mtl', function( materials ) {
+            materials.preload();
+
+            var objLoader = new THREE.OBJLoader();
+            objLoader.setMaterials( materials );
+            objLoader.setPath( 'https://thkcat.oss-cn-shenzhen.aliyuncs.com/' );
+            objLoader.load( '1.obj', function ( object ) {
+                console.log(object)
+                camera.lookAt(new THREE.Vector3(0,0,0));
+                object.position.set(0,-30,0)
+                object.scale.set(0.08, 0.08, 0.08)
+                modelObj = object
+                scene.add( object );
+
+            });
+
+        });
+    }
+
+
+
+    function start() {
+        initScene();
+        initCamera();
+        initRender();
+        initControl();
+        load3DModel();
+        animate();
+    }
+    start();
+
+    function animate() {
+        requestAnimationFrame( animate );
+        if (!stopTotaion) {
+            modelObj.rotation.y -= 0.01;
+        }
+        controls.update();
+        render()
+    }
+
+
+    function render() {
+        renderer.render( scene, camera );
+    }
+
+
+</script>
