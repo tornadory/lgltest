@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>xg - nefertiti</title>
+
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+		<meta name="apple-mobile-web-app-capable" content="yes">
+		<meta name="apple-mobile-web-app-status-bar-style" content="black">
+
+		<style>
+		    body {
+				color: #fff;
+				font-family:Monospace;
+				font-size:13px;
+				text-align:center;
+				font-weight: bold;
+
+				background-color: #000;
+				margin: 0px;
+				padding: 0px;
+		    }
+
+		    #info {
+				color:#fff;
+				position: relative;
+				margin: 0 auto -2.1em;
+				top: 10px;
+
+				padding: 5px;
+				z-index: 100;
+		    }
+
+		    a { color: white; }
+
+			#stats { position: absolute; top:0; left: 0 }
+			#stats #fps { background: transparent !important }
+			#stats #fps #fpsText { color: #aaa !important }
+			#stats #fps #fpsGraph { display: none }
+
+			#loading { background: #0af; color: white; padding: 0.25em 1em; position: absolute; right:0px; top: 0px; z-index: 200; }
+
+			#desktop { display: none }
+			#mobile { display: none }
+		</style>
+	</head>
+
+	<body>
+		<div id="loading">Loading ...</div>
+
+		<div id="info">
+			<a href="http://alteredqualia.com/" target="_blank">xg</a> - nefertiti - model from <a href="http://nefertitihack.alloversky.com/" target="_blank">nefertiti hack</a>
+			<span id="desktop"> - press Z: toggle zoom, M: change material, L: change lighting</span>
+			<span id="mobile"> - double-tap to randomize</span>
+		</div>
+
+		<script src="js/xg.min.ms.js"></script>
+		<script src='js/libs/stats.min.js'></script>
+
+		<script>
+
+			var hasWebGL1 = Detector.webgl;
+			var hasWebGL2 = Detector.webgl2;
+
+			if ( ! ( hasWebGL1 || hasWebGL2 ) ) Detector.addGetWebGLMessage();
+
+			var backend = hasWebGL2 ? "webgl2" : "webgl1";
+
+			var useMRT = true;
+
+			var isMobile   = Detector.isMobile;
+			var isOSX 	   = navigator.platform.toLowerCase().indexOf( "mac" ) >= 0;
+			var isFirefox  = navigator.userAgent.toLowerCase().indexOf( "firefox" ) >= 0;
+			var isExplorer = navigator.userAgent.toLowerCase().indexOf( "trident" ) >= 0;
+
+			if ( isOSX && isFirefox ) useMRT = false;
+
+			//
+
+			var elDesktop = document.getElementById( "desktop" );
+			var elMobile  = document.getElementById( "mobile" );
+
+			if ( isMobile )
+				elMobile.style.display = "inline";
+			else
+				elDesktop.style.display = "inline";
+
+			//
+
+			var SCALE = 1;
+			var MARGIN = 0;
+
+			var BRIGHTNESS = 1.0;
+
+			var SCREEN_WIDTH = window.innerWidth;
+			var SCREEN_HEIGHT = window.innerHeight - 2 * MARGIN;
+
+			var isUltra = false;
+			var ULTRA_THRESHOLD = 3000;
+
+			//
+
+			var root;
+			var container, camera, scene, renderer;
+
+			var zmesh;
+
+			//
+
+			var materials = [];
+			var materialIndex = 0;
+
+			//
+
+			var cameraConfig = [
+				[ 20 ],
+				[ 15 ],
+				[ 10 ],
+				[ 15 ],
+				[ 20 ],
+				[ 25 ],
+			];
+
+			var cameraIndex = 0;
+
+			//
+
+			var lightConfig = [
+				[ 1, 1.25, 0.5, 0.65 ],
+				[ 1, 0.7,  0.1, 1.5 ],
+				[ 1, 0.7,  1.25, 1.25 ],
+			];
+
+			var lightIndex = 0;
+
+			//
+
+			// ui
+
+			var loadingElement = document.getElementById( "loading" );
+			var loaded = 0;
+
+			// camera controls
+
+			var mouseX = 0;
+			var mouseY = 0;
+
+			var targetX = 0.0;
+			var targetY = 0.0;
+			var angle = 0.0;
+			var height = 0.0;
+			var target = new XG.Vector3();
+
+			var windowHalfX = window.innerWidth / 2;
+			var windowHalfY = window.innerHeight / 2;
+
+			// gestures
+
+			var OLD_TIME = Date.now();
+
+			var DOUBLE_TOUCH_DURATION = 500;
+			var LAST_TOUCH_TIME = OLD_TIME - 1000; // don't trigger double-touch on the first click
+			var LAST_TOUCH_X = -100, LAST_TOUCH_Y = -100;
+
+
+			//
+
+			var clock = new XG.Clock();
+
+			//
+
+			init();
+			animate();
+
+			function init() {
+
+				container = document.createElement( 'div' );
+				document.body.appendChild( container );
+
+				// camera
+
+				camera = new XG.PerspectiveCamera( 20, SCREEN_WIDTH / SCREEN_HEIGHT, 1, 2000 );
+				camera.position.set( 0, 0, 200 );
+
+				// scene
+
+				scene = new XG.Scene();
+				scene.add( camera );
+
+				// lights
+
+				var shadowN = 1;
+
+				directionalLight = new XG.DayLight( 0xffffff, 1 );
+				directionalLight.position.set( 1, 1.5, 1 );
+				scene.add( directionalLight );
+
+				directionalLight.position.multiplyScalar( 20 );
+
+				directionalLight.castShadow = true;
+
+				directionalLight.shadowMapWidth = 1024 * shadowN;
+				directionalLight.shadowMapHeight = 1024 * shadowN;
+
+				directionalLight.shadowCameraNear = 2;
+				directionalLight.shadowCameraFar = 200;
+
+				var d = 30;
+				directionalLight.shadowCameraLeft = -d;
+				directionalLight.shadowCameraRight = d;
+				directionalLight.shadowCameraTop = d;
+				directionalLight.shadowCameraBottom = -d;
+
+				directionalLight.shadowDarkness = 1;
+
+				directionalLight.skyColor.setHSV( 0.61, 0.05, 0.15 );
+				directionalLight.groundColor.setHSV( 0.075, 0.35, 0.25 );
+				directionalLight.hemiIntensity = 1.25;
+
+				if ( isMobile ) {
+
+					directionalLight.hemiIntensity = 0.73;
+
+				} else {
+
+					directionalLight2 = new XG.DirectionalLight( 0xffffff, 0.5 );
+					directionalLight2.position.set( -1, 1, 1 );
+					directionalLight2.position.multiplyScalar( 20 );
+					scene.add( directionalLight2 );
+
+					directionalLight2.castShadow = true;
+
+					directionalLight2.shadowMapWidth = 1024 * shadowN;
+					directionalLight2.shadowMapHeight = 1024 * shadowN;
+
+					directionalLight2.shadowCameraNear = 2;
+					directionalLight2.shadowCameraFar = 500;
+
+					var d = 50;
+					directionalLight2.shadowCameraLeft = -d;
+					directionalLight2.shadowCameraRight = d;
+					directionalLight2.shadowCameraTop = d;
+					directionalLight2.shadowCameraBottom = -d;
+
+					directionalLight2.shadowDarkness = 1;
+
+					//
+
+
+					directionalLight3 = new XG.DirectionalLight( 0xffffff, 0.65 );
+					directionalLight3.position.set( 1, -0.5, -1 );
+					directionalLight3.position.multiplyScalar( 20 );
+					scene.add( directionalLight3 );
+
+					directionalLight3.castShadow = true;
+
+					directionalLight3.shadowMapWidth = 1024 * shadowN;
+					directionalLight3.shadowMapHeight = 1024 * shadowN;
+
+					directionalLight3.shadowCameraNear = 0.1;
+					directionalLight3.shadowCameraFar = 550;
+
+					var d = 50;
+					directionalLight3.shadowCameraLeft = -d;
+					directionalLight3.shadowCameraRight = d;
+					directionalLight3.shadowCameraTop = d;
+					directionalLight3.shadowCameraBottom = -d;
+
+					directionalLight3.shadowDarkness = 1;
+
+				}
+
+				// objects
+
+				root = new XG.Node();
+				scene.add( root );
+
+				var model;
+
+				if ( isMobile ) {
+
+					model = "models/ctm/nefertiti/nefertiti_lod3.ctm";
+
+				} else {
+
+					model = "models/ctm/nefertiti/nefertiti_lod1.ctm";
+
+				}
+
+				var loader = new XG.CTMLoader();
+				loader.load( model, function( geometry ) {
+
+					geometry.computeBoundingBox();
+
+					var bb = geometry.boundingBox;
+					var center = bb.min.clone();
+					center.addSelf( bb.max );
+					center.multiplyScalar( -0.5 );
+
+					XG.GeometryUtils.center( [ geometry ] );
+
+					var y = -center.x * 0.25;
+
+					var material1 = new XG.PhongMaterial( { color: 0xffffff } );
+					material1.wrapAround = true;
+					material1.shininess = 10;
+					material1.specular.setHSV( 0, 0, 0.2 );
+					material1.color.setHSV( 0.07, 0.4, 0.4 );
+					material1.wrapRGB.set( material1.color.r, material1.color.g, material1.color.b ).multiplyScalar( 0.5 );
+
+					var material2 = new XG.PhongMaterial( { color: 0xffffff } );
+					material2.shininess = 5;
+					material2.specular.setHSV( 0, 0, 0.1 );
+					material2.color.setHSV( 0.1, 0.1, 0.6 );
+
+					var material3 = new XG.PhongMaterial( { color: 0xffffff } );
+					material3.shininess = 25;
+					material3.specular.setHSV( 0, 0, 0.05 );
+					material3.color.setHSV( 0.05, 0.65, 0.7 );
+
+					var material4 = new XG.PhongMaterial( { color: 0xffffff } );
+					material4.wrapAround = true;
+					material4.shininess = 10;
+					material4.specular.setHSV( 0, 0, 0.4 );
+					material4.color.setHSV( 0.1, 0.65, 0.3 );
+
+					var modelMesh = new XG.Mesh( geometry, material1 );
+
+					modelMesh.scale.multiplyScalar( 0.125 );
+					modelMesh.rotation.x = Math.PI * -0.5;
+
+					modelMesh.castShadow = true;
+					modelMesh.receiveShadow = true;
+
+					root.add( modelMesh );
+
+					materials = [ material1, material2, material3, material4 ];
+					mesh = modelMesh;
+
+					loadingElement.style.display = "none";
+
+				} );
+
+				// performance presets
+
+				var gpuDetector = new GPUDetector();
+				gpuData = gpuDetector.detectGPU();
+
+				//
+
+				if ( gpuData && gpuData.rawScore >= ULTRA_THRESHOLD ) {
+
+					SCALE = 2.0;
+					isUltra = true;
+
+				} else {
+
+					SCALE = 1.0 / window.devicePixelRatio;
+					isUltra = false;
+
+				}
+
+				// renderer
+
+				var pars = {
+
+					"width": SCREEN_WIDTH,
+					"height": SCREEN_HEIGHT,
+					"scale": SCALE,
+					"antialias": true,
+					"tonemapping": XG.Filmic2015Operator,
+					"brightness": BRIGHTNESS,
+					"clearColor": 0x000000,
+					"clearAlpha": 1.0,
+					"alpha": false,
+					"useMultipleRenderTargets": useMRT,
+					"dither": true,
+					"backend": backend
+
+				};
+
+				if ( isMobile ) {
+
+					pars.antialias = false;
+					pars.devicePixelRatio = 1.0;
+
+					renderer = new XG.ForwardRenderer( pars );
+
+				} else {
+
+					renderer = new XG.DeferredRenderer( pars );
+
+				}
+
+				container.appendChild( renderer.domElement );
+
+				renderer.domElement.style.position = "absolute";
+				renderer.domElement.style.top = MARGIN + "px";
+				renderer.domElement.style.left = "0px";
+
+				//
+
+				renderer.shadowMapEnabled = true;
+				renderer.shadowMapCullFace = XG.CullFaceNone;
+
+				if ( ! isOSX ) renderer.shadowMapUseDepthTextures = true;
+
+				if ( isMobile ) {
+
+					renderer.shadowMapType = XG.PCFSoftShadowMap;
+
+				} else {
+
+					renderer.shadowMapType = XG.PCFSoftHQShadowMap;
+
+				}
+
+				renderer.shadowMapSlopeDepthBias = true;
+				renderer.shadowMapSlopeScale = 2;
+
+				//renderer.shadowMapDepthTextureBias = 0.01;
+
+				renderer.ssaoEnabled = true;
+
+				// stats
+
+				stats = new Stats();
+				container.appendChild( stats.domElement );
+
+				// events
+
+				window.addEventListener( 'resize', onWindowResize, false );
+				document.addEventListener( 'keydown', onKeyDown, false );
+				document.addEventListener( 'mousemove', onDocumentMouseMove, false );
+				//document.addEventListener( 'mousedown', onDocumentMouseDown, false );
+				document.addEventListener( 'click', onDocumentMouseClick, false );
+				renderer.domElement.addEventListener( 'touchmove', onTouchMove, false );
+				renderer.domElement.addEventListener( 'touchstart', onTouchStart, false );
+
+			}
+
+			// event handlers
+
+			function onWindowResize ( event ) {
+
+				SCREEN_WIDTH = window.innerWidth;
+				SCREEN_HEIGHT = window.innerHeight - 2 * MARGIN;
+
+				renderer.setSize( SCREEN_WIDTH, SCREEN_HEIGHT );
+
+				camera.aspect = SCREEN_WIDTH/ SCREEN_HEIGHT;
+				camera.updateProjectionMatrix();
+
+			}
+
+			function onDocumentMouseMove ( event ) {
+
+				mouseX = ( event.clientX - windowHalfX ) * 1;
+				mouseY = ( event.clientY - windowHalfY ) * 1;
+
+			}
+
+			function onTouchMove( event ) {
+
+				event.preventDefault();
+
+				var touches = event.touches;
+				var touch = touches[ 0 ];
+
+				mouseX = ( touch.clientX - windowHalfX ) * 1;
+				mouseY = ( touch.clientY - windowHalfY ) * 1;
+
+			}
+
+			function onKeyDown ( event ) {
+
+				switch ( event.keyCode ) {
+
+					case 82: /*R*/	if ( !event.ctrlKey ) toggleRandom(); break;
+					case 85: /*U*/	if ( !event.ctrlKey ) toggleUltra(); break;
+					case 90: /*Z*/	toggleZoom(); break;
+					case 77: /*M*/	toggleMaterial(); break;
+					case 76: /*L*/	toggleLighting(); break;
+					case 76: /*L*/	toggleLighting(); break;
+
+				}
+
+			}
+
+			function onDocumentMouseClick( event ) {
+
+				if ( event.clientY / window.innerHeight > 0.1 ) toggleRandom();
+
+			}
+
+			// -----------------------------------------------------------------------
+
+			function onDocumentMouseDown() {
+
+				event.preventDefault();
+
+				handleDoubleTouch( event.pageX, event.pageY );
+
+			}
+
+			function onTouchStart() {
+
+				event.preventDefault();
+
+				var touch = event.touches[ 0 ];
+				handleDoubleTouch( touch.pageX, touch.pageY );
+
+			}
+
+			function handleDoubleTouch( x, y ) {
+
+				var deltaTouch = OLD_TIME - LAST_TOUCH_TIME;
+
+				if ( deltaTouch > 0 && deltaTouch < DOUBLE_TOUCH_DURATION ) {
+
+					if ( isExplorer ) {
+
+						// must do this to prevent mysterious
+						// event leaking to hidden menu elements
+
+						setTimeout( toggleRandom, DOUBLE_TOUCH_DURATION );
+
+					} else {
+
+						toggleRandom();
+
+					}
+
+				}
+
+				LAST_TOUCH_TIME = OLD_TIME;
+
+				LAST_TOUCH_X = x;
+				LAST_TOUCH_Y = y;
+
+			}
+
+			// -----------------------------------------------------------------------
+
+			function toggleMaterial() {
+
+				if ( mesh ) {
+
+					materialIndex = ( materialIndex + 1 ) % materials.length;
+					mesh.materials[ 0 ] = materials[ materialIndex ];
+
+					if ( !isMobile ) mesh.properties.deferredNeedsUpdate = true;
+
+				}
+
+			}
+
+			// -----------------------------------------------------------------------
+
+			function toggleUltra() {
+
+				if ( !isUltra ) {
+
+					renderer.setScale( 2.0 );
+					isUltra = true;
+
+				} else {
+
+					renderer.setScale( 1.0 / window.devicePixelRatio );
+					isUltra = false;
+
+				}
+
+			}
+
+
+			// -----------------------------------------------------------------------
+
+			function setZoom( index ) {
+
+				var cc = cameraConfig[ index ];
+
+				camera.fov = cc[0];
+				camera.updateProjectionMatrix();
+
+			}
+
+			function toggleZoom() {
+
+				cameraIndex = ( cameraIndex + 1 ) % cameraConfig.length;
+				setZoom( cameraIndex );
+
+			}
+
+			// -----------------------------------------------------------------------
+
+			function setLighting( index ) {
+
+				var lc = lightConfig[ index ];
+
+				directionalLight.sunIntensity  = lc[ 0 ];
+
+				if ( isMobile ) {
+
+					directionalLight.position.x = XG.Math.randomInt( -3, 3 ) * 10;
+					directionalLight.position.y = XG.Math.randomInt( 1, 4 ) * 10;
+
+					directionalLight.hemiIntensity = 0.5;
+
+				} else  {
+
+					directionalLight.hemiIntensity = lc[ 1 ];
+
+					directionalLight2.intensity  = lc[ 2 ];
+					directionalLight3.intensity  = lc[ 3 ];
+
+				}
+
+			}
+
+			function toggleLighting() {
+
+				lightIndex = ( lightIndex + 1 ) % lightConfig.length;
+				setLighting( lightIndex );
+
+			}
+
+			// -----------------------------------------------------------------------
+
+			function toggleRandom() {
+
+				var newLightIndex, newMaterialIndex;
+
+				do {
+
+					newLightIndex = XG.Math.randomInt( 0, lightConfig.length - 1 );
+					newMaterialIndex = XG.Math.randomInt( 0, materials.length - 1 );
+
+				} while ( newLightIndex === lightIndex && newMaterialIndex === materialIndex );
+
+				lightIndex = newLightIndex;
+				materialIndex = newMaterialIndex;
+
+				setLighting( lightIndex );
+
+				mesh.materials[ 0 ] = materials[ materialIndex ];
+				mesh.properties.deferredNeedsUpdate = true;
+
+			}
+
+			// -----------------------------------------------------------------------
+
+			function animate() {
+
+				requestAnimationFrame( animate );
+				render();
+
+				stats.update();
+
+			}
+
+			function render() {
+
+				var delta = clock.getDelta();
+				OLD_TIME = Date.now();
+
+				targetX = mouseX * .002;
+				targetY = mouseY * .001;
+
+				if ( root ) {
+
+					root.rotation.y += 0.05 * ( targetX - root.rotation.y );
+					root.rotation.x += 0.05 * ( targetY - root.rotation.x );
+
+				}
+
+				renderer.render( scene, camera );
+
+			}
+
+		</script>
+
+	</body>
+</html>

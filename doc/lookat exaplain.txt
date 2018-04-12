@@ -1,0 +1,37 @@
+比如lookAt(pos, at, up)这个函数， 其中pos， at, up都是3维矢量， 首先我们要以pos为原点，构建关于lookAt的坐标系
+
+首先先确定z轴， 很容易得到是at.sub(pos).normalize();
+然后再确定x轴， up.cross(z).normalize()得到    //-->其实这里就有个问题，如果up方向和at-pos方向相同的话， 就没有lookAt矩阵了
+最后得到y轴 z.cross(x).normalize();得到
+把原点移动到pos点，因此得到了,ps我先想想pos是减还是加
+//最后就不需要normalize了
+//有道理，我强调单位向量。。。
+
+新的坐标矩阵式
+x.x  y.x  z.x  pos.x
+x.y  y.y  z.y  pos.y
+x.z  y.z  z.z  pos.z
+0      0    0       1
+
+假设原坐标系中的点是p， 在lookAt坐标系中的为q
+因此有这样的关系
+
+p = v * q得到q = v的逆矩阵 * p
+
+因此lookAt的坐标就是v的逆矩阵
+
+不是两个单位向量叉乘肯定单位向量，是两个垂直单位向量相乘肯定是单位向量 //xz已经垂直了
+| a x b | = |a| * |b| * sin(a, b);
+
+
+-->
+glMatrix z轴取得和我之前说的正好相反的 //看targetto
+//targetto就是你说的lookat
+//它的lookat是为了兼容opengl的和我们一般说的lookat不一样
+//3js的lookAt和glMatrix的targetTo的写的是一样的
+//其实lookAt和targetTo是一对互逆的矩阵，lasoy老师对么
+//但glmatrix对targetto才是我们要的lookat
+//只有旋转
+//你的意思是这个其实是一个一个平移矩阵 * 旋转矩阵。。。如果对于从原点的矢量， 就是旋转完后，再移动到眼睛的位置
+//其实一般用不会移动  因为本身就是eye才会掉lookat
+//
