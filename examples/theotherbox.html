@@ -1,0 +1,1980 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>xg - the box</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+		<style>
+		    body {
+				color: #fff;
+				font-family:Monospace;
+				font-size:13px;
+				text-align:center;
+				font-weight: bold;
+
+				background-color: #000;
+				margin: 0px;
+				padding: 0px;
+		    }
+
+		    #info {
+				color:#fff;
+				position: relative;
+				margin: 0 auto -2.1em;
+				top: 10px;
+
+				padding: 5px;
+				z-index: 100;
+
+				display: none;
+		    }
+
+			#title {
+				position: relative;
+				margin: 0 auto;
+				color: #fff;
+				text-shadow: #000 0px 0px 0.3em;
+				font-family: georgia, helvetica, arial;
+				font-size: 6.0em;
+				font-weight: normal;
+				font-variant: small-caps;
+				z-index: 100;
+				display: none;
+				pointer-events: none;
+			}
+
+			#loadingSide, #loadingBack, #loadingGround { display: none }
+
+			#helpOuter, #creditsOuter {
+				position: absolute;
+				text-align: left;
+				width: 100%;
+				z-index: 2000;
+				display: none;
+				top: 0;
+			}
+
+			.popupInner {
+				background: rgba(0,0,0, 0.75);
+				color: #aaa;
+				border: solid 0px #fff;
+				margin: 0em auto;
+				padding: 1.5em 3em;
+				line-height: 1.5em;
+			}
+
+			.button {
+				cursor: pointer;
+			}
+
+			#help {
+				width: 30em;
+			}
+
+			#credits {
+				width: 55em;
+			}
+
+			#credits h2 {
+				color: #fff;
+			}
+
+			#footer {
+				position: absolute;
+				bottom: 0;
+				padding: 1em;
+				color: #666;
+			}
+
+			.shadowz {
+				box-shadow:0px 3px 15px rgba(0,0,0,1);
+			   -moz-box-shadow:0px 3px 15px rgba(0,0,0,1);
+			   -webkit-box-shadow:0px 3px 15px rgba(0,0,0,1);
+			   -khtml-box-shadow:0px 3px 15px rgba(0,0,0,1);
+			}
+
+			.key { font-weight: bold; color: #fff }
+
+		    a { color: #e20; }
+
+			#stats { position: absolute; top:0; left: 0 }
+			#stats #fps { background: transparent !important }
+			#stats #fps #fpsText { color: #aaa !important }
+			#stats #fps #fpsGraph { display: none }
+
+			.status { font-weight: bold; background: #fa0; color: #fff; padding: 0.25em 1em; position: absolute; top: 0px; right: 0px; z-index: 200 }
+		</style>
+	</head>
+
+	<body>
+
+		<div id="loadingWrap">
+			<div id="loading" class="status">Loading ...</div>
+			<div id="loadingSide" class="status">Loading ...</div>
+			<div id="loadingBack" class="status">Loading ...</div>
+			<div id="loadingGround" class="status">Loading ...</div>
+		</div>
+
+		<div id="title">The Box</div>
+
+		<div id="container"></div>
+
+		<div id="info">
+			<a href="http://alteredqualia.com/" target="_blank">xg</a> - the box - textures from <a href="http://www.freepik.com/" target="_blank">freepik</a>
+		</div>
+
+		<div id="helpOuter">
+			<div id="help" class="popupInner shadow">
+				<h2>Help</h2>
+
+				<ul>
+				<li><span class="key">left + right / W + D:</span> cycle textures</li>
+				<li><span class="key">space:</span> pick random texture</li>
+				</ul>
+
+				<ul>
+				<li><span class="key">U:</span> toggle ultra</li>
+				<li><span class="key">Z:</span> toggle zoom</li>
+				<li><span class="key">P:</span> toggle depth-of-field</li>
+				</ul>
+
+
+				<ul>
+				<li><span class="key">F:</span> freeze time</li>
+				<li><span class="key">S:</span> toggle sound</li>
+				</ul>
+
+				<ul>
+				<li><span class="key">C:</span> toggle credits</li>
+				<li><span class="key">H:</span> toggle help</li>
+				<li><span class="key">M:</span> toggle margins</li>
+				</ul>
+
+			</div>
+		</div>
+
+		<div id="creditsOuter">
+			<div id="credits" class="popupInner shadow">
+				<h2>Credits</h2>
+
+				<p>Code + visuals + character design + music: <a href="http://alteredqualia.com/" target="_blank">AlteredQualia</a>
+				<p>Box textures: <a href="http://www.freepik.com/" target="_blank">freepik</a>
+					+ <a href="http://alteredqualia.com/" target="_blank">AlteredQualia</a>
+					+ <a href="http://seamless-pixels.blogspot.com/" target="_blank">Giles Hodges</a>
+					+ public domain
+				<p>Tools: Fuse / Mixamo / GarageBand / Blender / Gimp
+				<p>Notable tech: <a href="https://eheitzresearch.wordpress.com/415-2/" target="_blank">polygonal lights</a> by
+				<a href="https://twitter.com/eric_heitz" target="_blank">Eric Heitz</a>,
+				Jonathan Dupuy,
+				<a href="https://twitter.com/self_shadow" target="_blank">Stephen Hill</a> and
+				<a href="https://twitter.com/daveneubelt" target="_blank">David Neubelt</a>
+
+			</div>
+		</div>
+
+		<div id="footer">
+			<span id="credits_button" class="button">C: Credits | <span id="help_button" class="button">H: Help</span> | arrows / click: change texture </span>
+		</div>
+
+		<script src="js/xg.min.box.js"></script>
+		<script src='js/libs/stats.min.js'></script>
+
+		<audio id="song1">
+			<source src="sounds/song1_130.m4a" type="audio/mp4">
+			<source src="sounds/song1_130.ogg" type="audio/ogg">
+		</audio>
+
+		<audio id="song2">
+			<source src="sounds/song1_210.m4a" type="audio/mp4">
+			<source src="sounds/song1_210.ogg" type="audio/ogg">
+		</audio>
+
+		<audio id="song3">
+			<source src="sounds/song2_90.m4a" type="audio/mp4">
+			<source src="sounds/song2_90.ogg" type="audio/ogg">
+		</audio>
+
+		<audio id="song4">
+			<source src="sounds/song2_130.m4a" type="audio/mp4">
+			<source src="sounds/song2_130.ogg" type="audio/ogg">
+		</audio>
+
+		<script>
+
+			var loadingWrapElement = document.getElementById( "loadingWrap" );
+			var footerElement = document.getElementById( "footer" );
+			var titleElement = document.getElementById( 'title' );
+			var infoElement = document.getElementById( "info" );
+
+			var helpElement = document.getElementById( "helpOuter" );
+			var creditsElement = document.getElementById( "creditsOuter" );
+			var helpVisible = false;
+			var creditsVisible = false;
+
+			var helpButtonElement = document.getElementById( "help_button" );
+			var creditsButtonElement = document.getElementById( "credits_button" );
+
+			var hasWebGL1 = Detector.webgl;
+			var hasWebGL2 = Detector.webgl2;
+
+			if ( ! ( hasWebGL1 || hasWebGL2 ) ) {
+
+				loadingWrapElement.style.display = "none";
+				footerElement.style.display = "none";
+
+				Detector.addGetWebGLMessage( { fallbackImg: "img/theotherbox.jpg" } );
+
+			} else {
+
+			var useMRT = true;
+			var useDeferred = true;
+			var useHDRMirrors = true;
+
+			var backend = hasWebGL2 ? "webgl2" : "webgl1";
+			var isMobile = Detector.isMobile;
+
+			if ( ! Detector.deferredCapable || isMobile ) useDeferred = false;
+
+			// platform-specific compatibility fixes
+			// (mostly things that are supposed to work but are broken anyways)
+
+			var isChrome   = navigator.userAgent.toLowerCase().indexOf( "chrome" ) >= 0;
+			var isSafari   = navigator.userAgent.toLowerCase().indexOf( "safari" ) >= 0 && !isChrome;
+			var isFirefox  = navigator.userAgent.toLowerCase().indexOf( "firefox" ) >= 0;
+			var isExplorer = navigator.userAgent.toLowerCase().indexOf( "trident" ) >= 0;
+			var isOSX 	   = navigator.platform.toLowerCase().indexOf( "mac" ) >= 0;
+
+			// Explorer doesn't support half-floats
+			// mobile half-floats also problematic
+
+			if ( isExplorer || isMobile ) {
+
+				useHDRMirrors = false;
+
+			}
+
+			//
+
+			var isUltra = false;
+			var ULTRA_THRESHOLD = 4000;
+
+			var baseBlurScale = 5;
+			var shadowDarkness = 0.75;
+
+			//
+
+			var SCALE = 1 / window.devicePixelRatio;
+
+			var MARGIN = 0;
+			var SIDE_MARGIN = 0;
+
+			var WIDTH = window.innerWidth - 2 * SIDE_MARGIN;
+			var HEIGHT = window.innerHeight - 2 * MARGIN;
+
+			// camera
+
+			var FOV = 50;
+			var ASPECT = WIDTH / HEIGHT;
+			var NEAR = 1;
+			var FAR = 1500;
+
+			var cameraConfig = [ 50, 60, 50, 40 ];
+			var cameraIndex = 0;
+
+			// songs
+
+			var songConfig = [
+
+				{
+
+					"elementId"		: "song3",
+					"audioElement"  : null,
+
+					"volume"	: 1.0,
+					"bpm"		: 90,
+					"speed"		: 0.19
+
+				},
+
+				{
+
+					"elementId"		: "song4",
+					"audioElement"  : null,
+
+					"volume"	: 1.0,
+					"bpm"		: 130,
+					"speed"		: 0.27
+
+				},
+
+				{
+
+					"elementId"		: "song1",
+					"audioElement"  : null,
+
+					"volume"	: 1.0,
+					"bpm"		: 130,
+					"speed"		: 0.27
+
+				},
+
+				{
+
+					"elementId"		: "song2",
+					"audioElement"  : null,
+
+					"volume"	: 1.0,
+					"bpm"		: 210,
+					"speed"		: 0.44
+
+				},
+
+			];
+
+			var fadeMultiplier = 0;
+			var currentSongSpeed = 1;
+
+			var currentVolume = 1;
+			var volumeChangeDir = 1;
+			var volumeChangeSpeed = 2;
+
+			//
+
+			var titleFadeDir = 0;
+			var titleOpacity = 0;
+			var titleFadeSpeed = 0.66;
+			var titleFadeInStart = 2.0;
+			var titleFadeInEnd = 6.0;
+			var titleFadeOutStart = 8.0;
+			var titleFadeOutEnd = 10.0;
+			var titleVisible = false;
+
+			//
+
+			var lightFadeInSpeed = 0.8;
+			var lightFadeOutSpeed = 0.8;
+
+			//
+
+			var isFrozen = false;
+
+			var clockSpeed = 1;
+			var clockSpeedChangeDir = 1;
+
+			//
+
+			var matIndex = 0;
+
+			var matConfig = [
+
+				{
+					"texSide"			: "textures/box/g12474.jpg",
+					"texMirrorBack"		: "textures/box/g18356.jpg",
+					"texMirrorGround"	: "textures/metal2.jpg",
+
+					"colorLeft"		: [ 0.0, 0.35, 1 ],
+					"colorRight"	: [ 0.05, 0.35, 1 ],
+
+					"colorCubes"	: [ 0.56, 0.99, 1 ],
+					"cubesEnabled"	: 1,
+
+					"credit"	: [ "Julia Snegireva" ],
+					"url"		: [ "http://www.freepik.com/free-vector/colorful-abstract-prints_789165.htm" ]
+				},
+
+				{
+					"texSide"			: "textures/box/mandala-1230606_960_720.jpg",
+					"texMirrorBack"		: "textures/flare.jpg",
+					"texMirrorGround"	: "textures/metal2.jpg",
+
+					"colorLeft"	: [ 0, 0, 1 ],
+					"colorRight": [ 0, 0, 1 ],
+
+					"colorCubes"	: [ 0.06, 0.95, 1 ],
+					"cubesEnabled"	: 1,
+
+					"credit"	: [ "dimeco", "contato701" ],
+					"url"		: [ "https://pixabay.com/en/mandala-adult-coloring-color-1230606/", "https://pixabay.com/en/mandala-psychedelic-neon-1511373/" ]
+				},
+
+				{
+					"texSide"			: "textures/box/floral-background-wallpaper-1378841422L0q.jpg",
+					"texMirrorBack"		: "textures/flare.jpg",
+					"texMirrorGround"	: "textures/metal2.jpg",
+
+					"colorLeft"		: [ 0.53, 0.3, 1 ],
+					"colorRight"	: [ 0.53, 0.5, 1 ],
+
+					"colorCubes"	: [ 0.06, 0.95, 1 ],
+					"cubesEnabled"	: 1,
+
+					"credit"	: [ "OpenClipart-Vectors" ],
+					"url"		: [ "https://pixabay.com/en/background-colorful-design-floral-1296439/" ]
+				},
+
+				{
+					"texSide"			: "textures/box/g4450.jpg",
+					"texMirrorBack"		: "textures/flare.jpg",
+					"texMirrorGround"	: "textures/metal2.jpg",
+
+					"colorLeft"	: [ 0.8, 0.35, 1 ],
+					"colorRight": [ 0.8, 0.35, 1 ],
+
+					"colorCubes"	: [ 0.56, 0.95, 1 ],
+					"cubesEnabled"	: 1,
+
+					"credit"	: [ "Freepik" ],
+					"url"		: [ "http://www.freepik.com/free-vector/orange-ornaments-on-purple-background_804929.htm" ]
+				},
+
+				{
+					"texSide"			: "textures/box/g5063.jpg",
+					"texMirrorBack"		: "textures/flare2.jpg",
+					"texMirrorGround"	: "textures/metal2.jpg",
+
+					"colorLeft"		: [ 0.54, 0.35, 1 ],
+					"colorRight"	: [ 0.54, 0.35, 1 ],
+
+					"colorCubes"	: [ 0.06, 0.95, 1 ],
+					"cubesEnabled"	: 1,
+
+					"credit"	: [ "Freepik" ],
+					"url"		: [ "http://www.freepik.com/free-vector/ornamental-mandalas_794175.htm" ]
+				},
+
+				{
+					"texSide"			: "textures/box/burnt-1321180_1920.jpg",
+					"texMirrorBack"		: "textures/box/burnt-1321180_1920bw3.jpg",
+					"texMirrorGround"	: "textures/metal2.jpg",
+
+					"colorLeft"		: [ 0.1, 0.5, 1 ],
+					"colorRight"	: [ 0.1, 0.5, 1 ],
+
+					"colorCubes"	: [ 0.06, 0.95, 1 ],
+					"cubesEnabled"	: 1,
+
+					"credit"	: [ "ArtsyBee" ],
+					"url"		: [ "https://pixabay.com/en/burnt-amber-orange-brown-abstract-1321180/" ]
+				},
+
+				{
+					"texSide"			: "textures/box/burnt-1321180_1920bw2.jpg",
+					"texMirrorBack"		: "textures/box/burnt-1321180_1920bw2.jpg",
+					"texMirrorGround"	: "textures/metal2.jpg",
+
+					"colorLeft"	: [ 0.56, 0.75, 1 ],
+					"colorRight": [ 0, 0.75, 1 ],
+
+					"colorCubes"	: [ 0.56, 0.95, 1 ],
+					"cubesEnabled"	: 1,
+
+					"credit"	: [ "ArtsyBee" ],
+					"url"		: [ "https://pixabay.com/en/burnt-amber-orange-brown-abstract-1321180/" ]
+				},
+
+			];
+
+			console.log( "boxes", matConfig.length );
+
+			var cache = {};
+
+			var leftMaterial, rightMaterial, topMaterial;
+			var planeLeft, planeRight, planeTop;
+
+			//
+
+			var playingAudio = false;
+
+			//
+
+			var loadingElement = document.getElementById( 'loading' );
+			var loadingElementSide = document.getElementById( 'loadingSide' );
+			var loadingElementBack = document.getElementById( 'loadingBack' );
+			var loadingElementGround = document.getElementById( 'loadingGround' );
+
+			var hudVisible = true;
+
+			//
+
+			var camera, scene, renderer;
+			var innerRenderer;
+
+			var effectColorCorrection, effectSharpen, effectHeat;
+			var heatUniforms;
+
+			//
+
+			var verticalMirror, groundMirror;
+
+			var lightBall;
+			var ballLight, rightLight, leftLight, topLight;
+			var ballLightMaterial;
+
+			var loadCounter = 0;
+
+			//
+
+			var clock = new XG.Clock();
+			var clockElapsedTime = 0;
+
+			var skins = [];
+			var objects = [];
+
+			var objMaterial;
+
+			// camera controls
+
+			var mouseX = 0;
+			var mouseY = 0;
+
+			var targetX = 0.0;
+			var targetY = 0.0;
+			var angle = 0.0;
+			var height = 0.0;
+			var target = new XG.Vector3( 0, 40, 0 );
+
+			var windowHalfX = window.innerWidth / 2;
+			var windowHalfY = window.innerHeight / 2;
+
+			//
+
+			function init() {
+
+				// renderer
+
+				var pars =  {
+
+					"scale"			: SCALE,
+					"antialias"		: true,
+					"tonemapping"	: XG.Filmic2015Operator,
+					"brightness"	: 1,
+					"dither"		: true,
+					"backend"		: backend,
+					"useMultipleRenderTargets": useMRT
+
+				};
+
+				if ( useDeferred ) {
+
+					renderer = new XG.DeferredRenderer( pars );
+					renderer.useMultiProxies = true;
+
+				} else {
+
+					pars.devicePixelRatio = 1.0;
+
+					renderer = new XG.ForwardRenderer( pars );
+					renderer.setClearColorHex( 0x000000, 1 );
+
+				}
+
+				innerRenderer = ( renderer instanceof XG.DeferredRenderer ) ? renderer.renderer : renderer;
+
+				renderer.setSize( WIDTH, HEIGHT );
+
+				renderer.shadowMapEnabled = true;
+				//renderer.shadowMapType = XG.BasicShadowMap;
+				renderer.shadowMapType = XG.PCFSoftHQShadowMap;
+				renderer.shadowMapSlopeDepthBias = true;
+				renderer.shadowMapSlopeScale = 3;
+				renderer.shadowMapSlopeBias = 0.0001;
+
+				renderer.shadowMapCullFace = XG.CullFaceBack;
+
+				if ( ! isOSX ) renderer.shadowMapUseDepthTextures = true;
+
+				// POST-EFFECTS
+
+				if ( useDeferred ) {
+
+					renderer.dofEnabled = true;
+					//renderer.dofAutofocus = true;
+					renderer.dofFancy = true;
+					renderer.dofLensFstop = 2;
+					renderer.dofLensBlurScale = baseBlurScale;
+					renderer.dofFocusDistance = 1;
+
+					var fovRad = XG.Math.degToRad( FOV );
+					renderer.dofLensFocalLength = XG.Math.fovToFocalLength( fovRad, 24 );
+
+					//
+
+					renderer.occludersEnabled = true;
+					renderer.bloomEnabled = true;
+
+					//
+
+					var clut = XG.ImageUtils.loadTexture( "textures/clut/fuji_superia_800_+.png" );
+
+					clut.minFilter = clut.magFilter = XG.NearestFilter;
+					clut.flipY = false;
+
+					effectColorCorrection = new XG.ShaderPass( XG.CLUTShader );
+					effectColorCorrection.material.uniforms.tCLUT.value = clut;
+
+					effectSharpen = new XG.ShaderPass( XG.SharpenShader );
+					effectSharpen.uniforms.resolution.value.set( WIDTH * SCALE, HEIGHT * SCALE );
+
+					renderer.addEffect( effectColorCorrection );
+					renderer.addEffect( effectSharpen );
+
+					var noiseMap = XG.ImageUtils.loadTexture( "textures/rgbNoise.png" );
+					noiseMap.wrapS = noiseMap.wrapT = XG.RepeatWrapping;
+
+					effectHeat = new XG.ShaderPass( XG.HeatHazeShader );
+					effectHeat.uniforms.tNoise.value = noiseMap;
+					effectHeat.uniforms.distortionScale.value = 2.00;
+					effectHeat.uniforms.distortionFactor.value = 0.005;
+					effectHeat.uniforms.riseFactor.value = 0.3;
+					effectHeat.uniforms.startDistance.value = 100.0;
+					effectHeat.uniforms.fineNoiseScale.value = 0.1;
+
+					heatUniforms = effectHeat.uniforms;
+
+					renderer.addEffect( effectHeat, { "depthUniform": "tDepth" } );
+
+				}
+
+				//
+
+				renderer.domElement.style.position = "absolute";
+				renderer.domElement.style.top = MARGIN + "px";
+				renderer.domElement.style.left = SIDE_MARGIN + "px";
+
+				var container = document.getElementById( 'container' );
+				container.appendChild( renderer.domElement );
+
+				// scene
+
+				scene = new XG.Scene();
+				createScene();
+
+				// camera
+
+				camera = new XG.PerspectiveCamera( FOV, ASPECT, NEAR, FAR );
+				camera.position.set( 0, 50, 160 );
+
+				// stats
+
+				stats = new Stats();
+				container.appendChild( stats.domElement );
+
+				// events
+
+				window.addEventListener( 'resize', onWindowResize, false );
+				document.addEventListener( 'mousemove', onDocumentMouseMove, false );
+				document.addEventListener( 'keydown', onKeyDown, false );
+				renderer.domElement.addEventListener( 'click', onClick, false );
+				renderer.domElement.addEventListener( 'touchmove', onTouchMove, false );
+
+				setupUI();
+
+				//
+
+				matIndex = 0;
+				setBoxMaterials( matIndex );
+
+				// init
+
+				var gpuDetector = new GPUDetector();
+				gpuData = gpuDetector.detectGPU();
+
+				if ( gpuData && gpuData.rawScore >= ULTRA_THRESHOLD ) toggleUltra();
+
+				//
+
+				initAudio();
+
+			}
+
+			function setupUI() {
+
+				helpButtonElement.addEventListener( "click", function () {
+
+					toggleHelp();
+
+				} );
+
+				creditsButtonElement.addEventListener( "click", function () {
+
+					toggleCredits();
+
+				} );
+
+			}
+
+
+			//--------------------------------------------------------------
+
+			function initAudio() {
+
+				var generateSongEndHandler = function ( index ) {
+
+					return function () {
+
+						handleSongEnd( index );
+
+					};
+
+				};
+
+				for ( var i = 0, il = songConfig.length; i < il; i ++ ) {
+
+					var song = songConfig[ i ];
+
+					var audioElement = document.getElementById( song.elementId );
+					song[ "audioElement" ] = audioElement;
+
+					audioElement.volume = song[ "volume" ];
+					audioElement.addEventListener( "ended", generateSongEndHandler( i ) );
+
+				}
+
+				currentSongIndex = 0;
+
+				var song = songConfig[ currentSongIndex ];
+				currentSongSpeed = song.speed;
+				song[ "audioElement" ].play();
+				playingAudio = true;
+
+			}
+
+			// ---------------------------------------------------------------------------------------
+
+			function handleSongEnd( songIndex ) {
+
+				matIndex = ( matIndex + 1 ) % matConfig.length; setBoxMaterials( matIndex );
+
+				var newSongIndex = ( songIndex + 1 ) % songConfig.length;
+				var song = songConfig[ newSongIndex ];
+
+				currentSongSpeed = song.speed;
+				song[ "audioElement" ].play();
+
+				currentSongIndex = newSongIndex;
+
+			}
+
+			// ---------------------------------------------------------------------------------------
+
+			function createBox( parameters ) {
+
+				var root = new XG.Node();
+
+				var boxSize = parameters.boxSize;
+				var wallWidth = parameters.wallWidth;
+
+				// materials
+
+				var shininess = parameters.shininess;
+
+				var rightColor = parameters.rightColor;
+				var leftColor = parameters.leftColor;
+				var topColor = parameters.topColor;
+				var backColor = parameters.backColor;
+				var frontColor = parameters.frontColor;
+				var bottomColor = parameters.bottomColor;
+
+				var bottomMaterial = new XG.PhongMaterial( { "color": bottomColor, "shininess": shininess } );
+				var frontMaterial  = new XG.PhongMaterial( { "color": frontColor,  "shininess": shininess } );
+				var backMaterial   = new XG.PhongMaterial( { "color": backColor,   "shininess": shininess } );
+				var outMaterial    = new XG.EmissiveMaterial( { "color": 0x000000 } );
+
+				backMaterial.color.setHSV( 0, 0, 0 );
+
+				leftMaterial   = new XG.PhongMaterial( { "color": leftColor,   "shininess": shininess } );
+				rightMaterial  = new XG.PhongMaterial( { "color": rightColor,  "shininess": shininess } );
+				topMaterial    = new XG.PhongMaterial( { "color": topColor,    "shininess": shininess } );
+
+				var mapSide = XG.ImageUtils.loadTexture( "textures/box/burnt-1321180_1920.jpg", checkLoading );
+				mapSide.repeat.multiplyScalar( 1.25 );
+				mapSide.offset.set( -0.125, -0.125 )
+				mapSide.anisotropy = 8;
+				mapSide.format = XG.RGBFormat;
+
+				rightMaterial.map = mapSide;
+				leftMaterial.map = mapSide;
+
+				rightMaterial.bumpMap = mapSide;
+				leftMaterial.bumpMap = mapSide;
+				topMaterial.bumpMap = mapSide;
+
+
+				// geometries
+
+				var planeGeo = new XG.PlaneGeometry( boxSize, boxSize );
+				var planeGeoOut = new XG.PlaneGeometry( boxSize + wallWidth, boxSize + wallWidth );
+				var planeGeoStrip = new XG.PlaneGeometry( boxSize + wallWidth, wallWidth * 0.5 );
+				var planeGeoStrip2 = new XG.PlaneGeometry( wallWidth * 0.5, boxSize );
+
+				// top wall
+
+				var planeTopOut = new XG.Mesh( planeGeoOut, outMaterial );
+				planeTopOut.position.y = boxSize + wallWidth * 0.5;
+				planeTopOut.position.z = - wallWidth * 0.5;
+				planeTopOut.rotation.x = -Math.PI / 2;
+				root.add( planeTopOut );
+
+				planeTop = new XG.Mesh( planeGeo, topMaterial );
+				planeTop.position.y = boxSize;
+				planeTop.rotation.x = Math.PI / 2;
+				root.add( planeTop );
+
+				// bottom wall
+
+				var planeBottomOut = new XG.Mesh( planeGeoOut, outMaterial );
+				planeBottomOut.position.y = - wallWidth * 0.5;
+				planeBottomOut.position.z = - wallWidth * 0.5;
+				planeBottomOut.rotation.x = Math.PI / 2;
+				root.add( planeBottomOut );
+
+				// back wall
+
+				var planeBack = new XG.Mesh( planeGeo, backMaterial );
+				planeBack.position.z = -boxSize * 0.5;
+				planeBack.position.y = boxSize * 0.5;
+				root.add( planeBack );
+
+				// front wall
+
+				var planeFrontStrip = new XG.Mesh( planeGeoStrip, frontMaterial );
+				planeFrontStrip.position.z = boxSize * 0.5;
+				planeFrontStrip.position.y = boxSize + wallWidth * 0.25;
+				root.add( planeFrontStrip );
+
+				var planeFrontStrip = new XG.Mesh( planeGeoStrip, frontMaterial );
+				planeFrontStrip.position.z = boxSize * 0.5;
+				planeFrontStrip.position.y = -wallWidth * 0.25;
+				root.add( planeFrontStrip );
+
+				var planeFrontStrip = new XG.Mesh( planeGeoStrip2, frontMaterial );
+				planeFrontStrip.position.z = boxSize * 0.5;
+				planeFrontStrip.position.y = boxSize * 0.5;
+				planeFrontStrip.position.x = boxSize * 0.5 + wallWidth * 0.25;
+				root.add( planeFrontStrip );
+
+				var planeFrontStrip = new XG.Mesh( planeGeoStrip2, frontMaterial );
+				planeFrontStrip.position.z = boxSize * 0.5;
+				planeFrontStrip.position.y = boxSize * 0.5;
+				planeFrontStrip.position.x = -boxSize * 0.5 - wallWidth * 0.25;
+				root.add( planeFrontStrip );
+
+				// right wall
+
+				var planeRightOut = new XG.Mesh( planeGeoOut, outMaterial );
+				planeRightOut.position.x = boxSize * 0.5 + wallWidth * 0.5;
+				planeRightOut.position.y = boxSize * 0.5;
+				planeRightOut.position.z = - wallWidth * 0.5;
+				planeRightOut.rotation.y = Math.PI / 2;
+				root.add( planeRightOut );
+
+				planeRight = new XG.Mesh( planeGeo, rightMaterial );
+				planeRight.position.x = boxSize * 0.5;
+				planeRight.position.y = boxSize * 0.5;
+				planeRight.rotation.y = - Math.PI / 2;
+				root.add( planeRight );
+
+				// left wall
+
+				var planeLeftOut = new XG.Mesh( planeGeoOut, outMaterial );
+				planeLeftOut.position.x = -boxSize * 0.5 - wallWidth * 0.5;
+				planeLeftOut.position.y = boxSize * 0.5;
+				planeLeftOut.rotation.y = -Math.PI / 2;
+				planeLeftOut.position.z = - wallWidth * 0.5;
+				root.add( planeLeftOut );
+
+				planeLeft = new XG.Mesh( planeGeo, leftMaterial );
+				planeLeft.position.x = -boxSize * 0.5;
+				planeLeft.position.y = boxSize * 0.5;
+				planeLeft.rotation.y = Math.PI / 2;
+				root.add( planeLeft );
+
+				//
+
+				planeTop.receiveShadow = true;
+				planeTopOut.receiveShadow = true;
+
+				planeBottomOut.receiveShadow = true;
+
+				planeRight.receiveShadow = true;
+				planeRightOut.receiveShadow = true;
+
+				planeLeft.receiveShadow = true;
+				planeLeftOut.receiveShadow = true;
+
+				return root;
+
+			}
+
+			// ---------------------------------------------------------------------------------------
+
+			function createMirrors( parameters ) {
+
+				// textures
+
+				var normalMapGrass = XG.ImageUtils.loadCompressedTexture( "textures/tiles/classicGrass.dds", checkLoading );
+				normalMapGrass.wrapS = normalMapGrass.wrapT = XG.RepeatWrapping;
+				normalMapGrass.format = XG.RGBFormat;
+				normalMapGrass.anisotropy = 8;
+
+				var glossMapMetal = XG.ImageUtils.loadTexture( "textures/metal2.jpg", checkLoading );
+				glossMapMetal.wrapS = glossMapMetal.wrapT = XG.RepeatWrapping;
+				glossMapMetal.format = XG.RGBFormat;
+				glossMapMetal.anisotropy = 8;
+
+				var glossMapCube = XG.ImageUtils.loadTexture( "textures/flare.jpg", checkLoading );
+				glossMapCube.wrapS = glossMapCube.wrapT = XG.RepeatWrapping;
+				glossMapCube.format = XG.RGBFormat;
+				glossMapCube.anisotropy = 8;
+
+			    // ground mirror
+
+				var largeMirrorGeo = new XG.PlaneGeometry( parameters.boxSize, parameters.boxSize );
+				var smallMirrorGeo = new XG.PlaneGeometry( 75, 75 );
+
+				groundMirror = new XG.MirrorSurface( innerRenderer, {
+
+					"clipBias"		: 0.0003,
+					"textureWidth"	: 1024,
+					"textureHeight"	: 1024,
+					"specular"		: 0x999999,
+					"glossMap"		: glossMapMetal,
+					"gloss"			: 1.25,
+					"repeat"		: [ 2, 2 ]
+
+				} );
+
+				groundMirror.material.defines[ "USE_REFLECTION" ] = true;
+
+				var groundMirrorMesh = new XG.Mesh( largeMirrorGeo, groundMirror.material );
+				groundMirrorMesh.add( groundMirror );
+				groundMirrorMesh.rotation.x = - Math.PI / 2;
+				scene.add( groundMirrorMesh );
+
+				groundMirrorMesh.receiveShadow = true;
+				groundMirror.material.occluder = true;
+
+				// wall mirror
+
+				verticalMirror = new XG.MirrorSurface( innerRenderer, {
+
+					"clipBias"		: 0.003,
+					"textureWidth"	: 1024,
+					"textureHeight"	: 1024,
+					"specular"		: 0x990000,
+					"glossMap"		: glossMapCube,
+					"gloss"			: 1,
+					"normalMap"		: normalMapGrass,
+					"normalScale" 	: 0.75,
+					"repeat"		: [ 1, 1 ]
+
+				} );
+
+				verticalMirror.material.defines[ "USE_REFLECTION" ] = true;
+
+				var verticalMirrorMesh = new XG.Mesh( smallMirrorGeo, verticalMirror.material );
+				verticalMirrorMesh.add( verticalMirror );
+				verticalMirrorMesh.position.y = 50;
+				verticalMirrorMesh.position.z = -45;
+				verticalMirrorMesh.castShadow = true;
+				scene.add( verticalMirrorMesh );
+
+				verticalMirrorMesh.receiveShadow = true;
+				verticalMirror.material.occluder = true;
+
+				//
+
+				if ( useHDRMirrors ) {
+
+					var halfFloatType   = ( backend === "webgl2" ) ? XG.HalfFloatType2 : XG.HalfFloatType1;
+					var halfFloatFormat = ( backend === "webgl2" ) ? XG.RGBA16F : XG.RGBAFormat;
+
+					groundMirror.texture.type = halfFloatType;
+					groundMirror.tempTexture.type = halfFloatType;
+
+					groundMirror.texture.internalFormat = halfFloatFormat;
+					groundMirror.tempTexture.internalFormat = halfFloatFormat;
+
+					verticalMirror.texture.type = halfFloatType;
+					verticalMirror.tempTexture.type = halfFloatType;
+
+					verticalMirror.texture.internalFormat = halfFloatFormat;
+					verticalMirror.tempTexture.internalFormat = halfFloatFormat;
+
+				}
+
+				//
+
+				groundMirror.properties.secondaryMirror = verticalMirror;
+				verticalMirror.properties.secondaryMirror = groundMirror;
+				scene.properties.mirrors = [ groundMirror, verticalMirror ];
+
+			}
+
+			// ---------------------------------------------------------------------------------------
+
+			function createScene() {
+
+				var boxParameters = {
+
+					"boxSize"	: 100,
+					"wallWidth"	: 10,
+
+					"rightColor"	: 0xffffff,
+					"leftColor"		: 0xffffff,
+					"topColor"		: 0x000000,
+					"bottomColor"	: 0x333333,
+					"frontColor"	: 0x000000,
+					"backColor"		: 0xffffff,
+
+					"shininess"	: 10
+
+				};
+
+				var box = createBox( boxParameters );
+				scene.add( box );
+
+				createMirrors( boxParameters );
+
+				// ball light
+
+				if ( 1 ) {
+
+					var ballRadius = 5;
+					var ballDistance = 100;
+					var ballIntensity = 2;
+					var ballColor = 0xffffff;
+
+					var geometry = new XG.SphereGeometry( ballRadius, 32, 16 );
+
+					ballLightMaterial = new XG.EmissiveMaterial( { "color": ballColor, "intensity": ballIntensity, "transparent": true } );
+					ballLightMaterial.occluder = true;
+
+					lightBall = new XG.Mesh( geometry, ballLightMaterial );
+					scene.add( lightBall );
+
+					ballLight = new XG.SphereLight( ballColor, ballIntensity, ballDistance, ballRadius );
+					lightBall.add( ballLight );
+
+					ballLight.castShadow = true;
+					ballLight.shadowCameraNear = 0.5;
+					ballLight.shadowCameraFar = 500;
+					ballLight.shadowDarkness = shadowDarkness;
+					ballLight.shadowMapWidth = 64;
+					ballLight.shadowMapHeight = 64;
+					//ballLight.shadowMapType = XG.BasicShadowMap;
+					ballLight.forwardShadowSide = 0;
+
+				}
+
+				// hero light
+
+				if ( 1 ) {
+
+					var heroLightColor = 0xffffff;
+					var heroLightIntensity = 6.0;
+					var heroLightDistance = 80;
+
+					frontLight = new XG.SphereLight( heroLightColor, heroLightIntensity, heroLightDistance );
+					frontLight.position.set( 0, 50, 50 );
+					scene.add( frontLight );
+
+					frontLight.castShadow = true;
+					frontLight.shadowCameraNear = 0.5;
+					frontLight.shadowCameraFar = 500;
+					frontLight.shadowDarkness = shadowDarkness;
+					frontLight.shadowMapWidth = 64;
+					frontLight.shadowMapHeight = 64;
+					frontLight.forwardShadowSide = 0;
+
+				}
+
+				// area lights
+
+				var d = 50;
+				var py = 50;
+				var offset = 0.5;
+
+				var w = 50;
+				var h = 50;
+
+				var areaIntensity = 2;
+
+				if ( 0 ) {
+
+					topLight = new XG.PolyLight( 0xffffff, areaIntensity );
+
+					topLight.width = w;
+					topLight.height = h;
+
+					topLight.normal.set( 0, 0, 1 );
+
+					topLight.color.setHSV( 0, 0, 1 );
+					topLight.position.set( 0, 2 * py - offset, 0 );
+
+					setupAreaLight( topLight, 1, -1, 1 );
+					//addAreaLightMesh( topLight );
+
+					scene.add( topLight );
+
+				}
+
+				if ( 1 ) {
+
+					rightLight = new XG.PolyLight( 0xffffff, areaIntensity );
+
+					rightLight.width = w;
+					rightLight.height = h;
+
+					rightLight.normal.set( 0, 0, 1 );
+
+					rightLight.color.setHSV( 0.1, 1, 1 );
+					rightLight.position.set( d - offset, py, 0 );
+
+					rightLight.color.setHex( boxParameters.rightColor );
+
+					scene.add( rightLight );
+
+					setupAreaLight( rightLight, -1, 1, -1 );
+					//addAreaLightMesh( rightLight );
+
+				}
+
+				if ( 1 ) {
+
+					leftLight = new XG.PolyLight( 0xffffff, areaIntensity );
+
+					leftLight.width = w;
+					leftLight.height = h;
+
+					leftLight.normal.set( 0, 0, 1 );
+
+					leftLight.color.setHSV( 0.6, 1, 1 );
+					leftLight.position.set( - ( d - offset ), py, 0 );
+					scene.add( leftLight );
+
+					leftLight.color.setHex( boxParameters.leftColor );
+
+					setupAreaLight( leftLight, -1, 1, -1 );
+					//addAreaLightMesh( leftLight );
+
+				}
+
+
+				// ambient light
+
+				if ( 0 ) {
+
+					hemiLight = new XG.HemisphereLight( 0xffffff, 0x111111, 0.2 );
+					hemiLight.position.set( 0, 1, 0 );
+					scene.add( hemiLight );
+
+				}
+
+
+
+				// character
+
+				addCharacter();
+
+				// mirror scene
+
+				addMirrorScene();
+
+			}
+
+			function addMirrorScene() {
+
+				var geo = new XG.BoxGeometry( 2.5, 2.5, 2.5 );
+
+				var mat = new XG.EmissiveMaterial( { "color": 0xff3300, "intensity": 2, "transparent": true } );
+				mat.occluder = true;
+				mat.color.setHSV( 0.56, 1, 1 );
+
+				for ( var x = 0; x <= 500; x ++ ) {
+
+					var obj = new XG.Mesh( geo, mat );
+					obj.position.x = XG.Math.randomInt( -20, 20 ) * 10;
+					obj.position.z = 200 + XG.Math.randomInt( 0, 100 ) * 10;
+					obj.position.y = 5 + XG.Math.randomInt( -20, 20 ) * 10;
+					scene.add( obj );
+
+					obj.properties.baseY = obj.position.y;
+					obj.properties.amplitudeY = XG.Math.randomInt( -20, 20 ) * 10;
+					obj.properties.speedY = obj.position.z * 0.0001;
+
+					obj.updateMatrixWorld();
+					obj.matrixAutoUpdate = false;
+
+					objects.push( obj );
+
+				}
+
+				objMaterial = mat;
+
+			}
+
+			// ---------------------------------------------------------------------------------------
+
+			function setupAreaLight( light, tx, ty, tz ) {
+
+				light.castShadow = true;
+
+				light.shadowDarkness = shadowDarkness;
+
+				light.shadowCameraNear = 0.1;
+				light.shadowCameraFar = 500;
+
+				light.shadowCameraOrtho = true;
+
+				var dd = 80;
+
+				light.shadowCameraLeft = -dd;
+				light.shadowCameraRight = dd;
+				light.shadowCameraTop = dd;
+				light.shadowCameraBottom = -dd;
+
+				var nn = 0.25;
+				light.shadowMapWidth = 512 * nn;
+				light.shadowMapHeight = 512 * nn;
+
+				//
+
+				light.target = new XG.Node();
+				light.target.position.copy( light.normal );
+				light.add( light.target );
+
+				var lightTarget = new XG.Vector3();
+				lightTarget.copy( light.position );
+				lightTarget.x *= tx;
+				lightTarget.y *= ty;
+				lightTarget.z *= tz;
+				light.lookAt( lightTarget );
+
+			}
+
+			// ---------------------------------------------------------------------------------------
+
+			function addAreaLightMesh( light ) {
+
+				var geometry = new XG.BoxGeometry( light.width * 2, light.height * 2, 0.1 );
+
+				var backColor  = new XG.Color( 0x333333 );
+				var frontColor = new XG.Color( 0xffffff );
+				geometry.addAttribute( "color", Float32Array, 3 );
+				geometry.setAttributeValue( "color", backColor );
+				geometry.setAttributeValue( "color", frontColor, 48, 60 );
+
+				var material = new XG.EmissiveMaterial( { "color": 0xffffff, "vertexColors": true } );
+				material.color.copy( light.color );
+				material.intensity = light.intensity;
+				material.occluder = true;
+
+				var lightMesh = new XG.Mesh( geometry, material );
+				lightMesh.position.copy( light.position );
+				lightMesh.rotation.copy( light.rotation );
+				scene.add( lightMesh );
+
+				lightMesh.castShadow = true;
+
+			}
+
+
+			// ---------------------------------------------------------------------------------------
+
+			function addCharacter() {
+
+				var loader = new XG.JSONLoader();
+				loader.load( "models/skinned/dude/cheering-full2.js", function( geometries, materials ) {
+
+					materials[0].shininess = 2;
+					materials[1].shininess = 2;
+					materials[2].shininess = 2;
+					materials[3].shininess = 2;
+					materials[4].shininess = 2;
+
+					var object = new XG.SkinnedMesh( geometries, materials );
+
+					var s = 50;
+					var x = 0, y = -0.5, z = 0;
+
+					object.position.set( x, y, z );
+					object.scale.set( s, s, s );
+
+					object.castShadow = true;
+					object.receiveShadow = true;
+
+					scene.add( object );
+					skins.push( object );
+
+					var animation = geometries[ 0 ].animations[ 0 ];
+					object.playAnimation( "cheer" );
+
+					checkLoading();
+
+				} );
+
+			}
+
+			// ------------------------------------------------------------------------------------------
+
+			function addSky() {
+
+				var skyMat = new XG.EmissiveMaterial();
+				skyMat.color.setHSV( 0.0, 0.0, 0.075 );
+				skyMat.side = XG.BackSide;
+				skyMat.occluder = true;
+
+				var skyGeo = new XG.SphereGeometry( 450, 32, 16 );
+
+				var sky = new XG.Mesh( skyGeo, skyMat );
+				scene.add( sky );
+
+			}
+
+			// ------------------------------------------------------------------------------------------
+
+			function checkLoading() {
+
+				loadCounter += 1;
+
+				if ( loadCounter >= 5 ) {
+
+					loadingElement.style.display = "none";
+
+				}
+
+				//console.log( "loadCounter", loadCounter );
+
+			}
+
+			// ------------------------------------------------------------------------------------------
+
+			function onWindowResize ( event ) {
+
+				WIDTH = window.innerWidth - 2 * SIDE_MARGIN;
+				HEIGHT = window.innerHeight - 2 * MARGIN;
+
+				renderer.setSize( WIDTH, HEIGHT );
+
+				renderer.domElement.style.top = MARGIN + "px";
+				renderer.domElement.style.left = SIDE_MARGIN + "px";
+
+				camera.aspect = WIDTH/ HEIGHT;
+				camera.updateProjectionMatrix();
+
+				if ( useDeferred ) {
+
+					effectSharpen.uniforms.resolution.value.set( WIDTH * SCALE, HEIGHT * SCALE );
+
+				}
+
+				titleElement.style.top = Math.floor( ( window.innerHeight - titleElement.offsetHeight ) * 0.5 ) + 'px';
+				helpElement.style.top = Math.floor( ( window.innerHeight - helpElement.offsetHeight ) * 0.5 ) + 'px';
+
+			}
+
+			function onDocumentMouseMove ( event ) {
+
+				mouseX = ( event.clientX - windowHalfX ) * 1;
+				mouseY = ( event.clientY - windowHalfY ) * 1;
+
+			}
+
+			function onTouchMove( event ) {
+
+				event.preventDefault();
+
+				var touches = event.touches;
+				var touch = touches[ 0 ];
+
+				mouseX = ( touch.clientX - windowHalfX ) * 1;
+				mouseY = ( touch.clientY - windowHalfY ) * 1;
+
+			}
+
+			// ------------------------------------------------------------------------------------------
+
+			function toggleDOF() {
+
+				if ( useDeferred ) renderer.setDOF( ! renderer.dofEnabled );
+
+			}
+
+			function toggleSharpen() {
+
+				if ( useDeferred ) effectSharpen.enabled = ! effectSharpen.enabled;
+
+			}
+
+			function toggleHeat() {
+
+				if ( useDeferred ) effectHeat.enabled = ! effectHeat.enabled;
+
+			}
+
+			function toggleColorCorrection() {
+
+				if ( useDeferred ) effectColorCorrection.enabled = ! effectColorCorrection.enabled;
+
+			}
+
+			// ------------------------------------------------------------------------------------------
+
+			function toggleUltra() {
+
+				if ( ! useDeferred ) return;
+
+				if ( !isUltra ) {
+
+					renderer.setScale( 1.5 );
+					renderer.dofLensBlurScale = baseBlurScale / 1.5;
+					isUltra = true;
+
+				} else {
+
+					renderer.setScale( SCALE );
+					renderer.dofLensBlurScale = baseBlurScale;
+					isUltra = false;
+
+				}
+
+			}
+
+			function toggleHUD() {
+
+				if ( hudVisible ) {
+
+					stats.domElement.style.display = "none";
+					infoElement.style.display = "none";
+
+					hudVisible = false;
+
+				} else {
+
+					stats.domElement.style.display = "block";
+					infoElement.style.display = "block";
+
+					hudVisible = true;
+
+				}
+
+			}
+
+			function toggleMargins() {
+
+				if ( MARGIN === 0 ) {
+
+					MARGIN = 100;
+
+				} else {
+
+					MARGIN = 0;
+
+				}
+
+				onWindowResize();
+
+			}
+
+			// ------------------------------------------------------------------------------------------
+
+			function setBoxMaterials( index ) {
+
+				var pars = matConfig[ index ];
+
+				var sideURL   = pars.texSide;
+				var backURL   = pars.texMirrorBack;
+				var groundURL = pars.texMirrorGround;
+
+				var colorLeft = pars.colorLeft;
+				var colorRight = pars.colorRight;
+				var colorCubes = pars.colorCubes;
+
+				var cubesEnabled = pars.cubesEnabled;
+
+				if ( cache[ sideURL ] === undefined ) {
+
+					loadingElementSide.style.display = "block";
+
+					var texture = XG.ImageUtils.loadTexture( sideURL, function ( tex ) {
+
+						loadingElementSide.style.display = "none";
+
+					} );
+
+					texture.anisotropy = 8;
+					texture.format = XG.RGBFormat;
+					texture.repeat.multiplyScalar( 1.25 );
+					texture.offset.set( -0.125, -0.125 )
+
+					cache[ sideURL ] = texture;
+
+				}
+
+				if ( cache[ backURL ] === undefined ) {
+
+					loadingElementBack.style.display = "block";
+
+					var texture = XG.ImageUtils.loadTexture( backURL, function ( tex ) {
+
+						loadingElementBack.style.display = "none";
+
+					} );
+
+					texture.anisotropy = 8;
+					texture.format = XG.RGBFormat;
+
+					cache[ backURL ] = texture;
+
+				}
+
+				if ( cache[ groundURL ] === undefined ) {
+
+					loadingElementGround.style.display = "block";
+
+					var texture = XG.ImageUtils.loadTexture( groundURL, function ( tex ) {
+
+						loadingElementGround.style.display = "none";
+
+					} );
+
+					texture.anisotropy = 8;
+					texture.format = XG.RGBFormat;
+					texture.wrapS = texture.wrapT = XG.RepeatWrapping;
+
+					cache[ groundURL ] = texture;
+
+				}
+
+				var mapSide = cache[ sideURL ];
+				var mapMirrorBack = cache[ backURL ];
+				var mapMirrorGround = cache[ groundURL ];
+
+				//
+
+				leftMaterial.map = mapSide;
+				rightMaterial.map = mapSide;
+
+				leftMaterial.bumpMap = mapSide;
+				rightMaterial.bumpMap = mapSide;
+				topMaterial.bumpMap = mapSide;
+
+				leftMaterial.color.setHSV( colorLeft[0], colorLeft[1], colorLeft[2] );
+				rightMaterial.color.setHSV( colorRight[0], colorRight[1], colorRight[2] );
+
+				if ( leftLight )  leftLight.color.copy( leftMaterial.color );
+				if ( rightLight ) rightLight.color.copy( rightMaterial.color );
+
+				planeRight.properties.deferredNeedsUpdate = true;
+				planeLeft.properties.deferredNeedsUpdate = true;
+				planeTop.properties.deferredNeedsUpdate = true;
+
+				//
+
+				var groundMirrorUniforms = groundMirror.material.uniforms;
+				var backMirrorUniforms = verticalMirror.material.uniforms;
+
+				groundMirrorUniforms[ "glossSampler" ].value = mapMirrorGround;
+				backMirrorUniforms[ "glossSampler" ].value = mapMirrorBack;
+
+				//
+
+				var h = colorCubes[ 0 ];
+				var s = colorCubes[ 1 ];
+				var v = colorCubes[ 2 ];
+
+				objMaterial.color.setHSV( h, s, v );
+
+				for ( var i = 0, il = objects.length; i < il; i ++ ) {
+
+					var obj = objects[ i ];
+					obj.visible = cubesEnabled;
+
+				}
+
+			}
+
+			function randomizeSettings() {
+
+				var testMatIndex;
+
+				do {
+
+					testMatIndex = XG.Math.randomInt( 0, matConfig.length - 1 );
+
+				} while ( testMatIndex === matIndex );
+
+				matIndex = testMatIndex;
+				setBoxMaterials( matIndex );
+
+			}
+
+			// ------------------------------------------------------------------------------------------
+
+			function onKeyDown ( event ) {
+
+				switch ( event.keyCode ) {
+
+					case 37: /*left*/
+					case 65: /*A*/   matIndex = ( matIndex - 1 ) % matConfig.length; if ( matIndex < 0 ) matIndex += matConfig.length; setBoxMaterials( matIndex ); break;
+
+					case 39: /*right*/
+					case 68: /*D*/    matIndex = ( matIndex + 1 ) % matConfig.length; setBoxMaterials( matIndex ); break;
+
+					case 32: /*space*/ randomizeSettings(); break;
+
+					case 90: /*Z*/	toggleZoom(); break;
+					case 80: /*P*/	toggleDOF(); break;
+
+					case 70: /*F*/	toggleFreeze(); break;
+					case 83: /*S*/	toggleSound(); break;
+
+					case 49: /*1*/	toggleColorCorrection(); break;
+					case 50: /*2*/	toggleSharpen(); break;
+					case 51: /*3*/	toggleHeat(); break;
+
+					case 67: /*C*/	toggleCredits(); break;
+					case 72: /*H*/	toggleHelp(); break;
+					case 77: /*M*/	toggleMargins(); break;
+
+					case 85: /*U*/	if ( !event.ctrlKey ) toggleUltra(); break;
+
+				}
+
+			}
+
+			// ------------------------------------------------------------------------------------------
+
+
+			function toggleHelp() {
+
+				helpVisible = ! helpVisible;
+
+				if ( helpVisible ) {
+
+					helpElement.style.display = "block";
+					helpElement.style.top = Math.floor( ( window.innerHeight - helpElement.offsetHeight ) * 0.5 ) + 'px';
+
+				} else {
+
+					helpElement.style.display = "none";
+
+				}
+
+			}
+
+			function toggleCredits() {
+
+				creditsVisible = ! creditsVisible;
+
+				if ( creditsVisible ) {
+
+					creditsElement.style.display = "block";
+					creditsElement.style.top = Math.floor( ( window.innerHeight - creditsElement.offsetHeight ) * 0.5 ) + 'px';
+
+				} else {
+
+					creditsElement.style.display = "none";
+
+				}
+
+			}
+
+			// ------------------------------------------------------------------------------------------
+
+			function toggleSound() {
+
+				volumeChangeDir *= -1;
+
+			}
+
+			function toggleFreeze() {
+
+				clockSpeedChangeDir *= -1;
+
+			}
+
+			// ------------------------------------------------------------------------------------------
+
+			function setZoom( index ) {
+
+				var cc = cameraConfig[ index ];
+
+				camera.fov = cc;
+				camera.updateProjectionMatrix();
+
+				var fovRad = XG.Math.degToRad( camera.fov );
+				renderer.dofLensFocalLength = XG.Math.fovToFocalLength( fovRad, 24 );
+
+			}
+
+			function toggleZoom() {
+
+				cameraIndex = ( cameraIndex + 1 ) % cameraConfig.length;
+				setZoom( cameraIndex );
+
+			}
+
+			// ------------------------------------------------------------------------------------------
+
+			function onClick ( event ) {
+
+				var newIndex;
+
+				do {
+
+					newIndex = XG.Math.randomInt( 0, matConfig.length - 1 );
+
+				} while ( newIndex === matIndex );
+
+				matIndex = newIndex;
+
+				setBoxMaterials( matIndex );
+
+			}
+
+			// -----------------------------------------------------------------------------------
+
+			function fadeTitle( delta ) {
+
+				//console.log( "elapsedTime", clock.elapsedTime );
+
+				titleFadeDir = 0;
+
+				if ( clock.elapsedTime > titleFadeInStart && clock.elapsedTime < titleFadeInEnd ) {
+
+					titleFadeDir = 1;
+
+				} else if ( clock.elapsedTime > titleFadeOutStart ) {
+
+					titleFadeDir = -1;
+
+				}
+
+				var titleOpacityDelta = delta * titleFadeDir * titleFadeSpeed;
+				titleOpacity = XG.Math.clamp( titleOpacity + titleOpacityDelta, 0, 1 );
+
+				if ( titleOpacity > 0 ) {
+
+					titleElement.style.opacity = titleOpacity;
+
+					if ( ! titleVisible ) {
+
+						titleElement.style.display = "block";
+						titleVisible = true;
+
+						titleElement.style.top = Math.floor( ( window.innerHeight - titleElement.offsetHeight ) * 0.5 ) + 'px';
+
+					}
+
+				} else {
+
+					if ( titleVisible ) {
+
+						titleElement.style.display = "none";
+						titleVisible = false;
+
+					}
+
+				}
+
+				if ( clock.elapsedTime > titleFadeOutStart ) {
+
+					infoElement.style.opacity = 1.0 - titleOpacity;
+
+				}
+
+			}
+
+			// ------------------------------------------------------------------------------------------
+
+
+			function animate() {
+
+				requestAnimationFrame( animate );
+				render();
+
+				stats.update();
+
+			}
+
+			function render() {
+
+				var delta = clock.getDelta();
+				var rawDelta = delta;
+				var retimedDelta = delta;
+
+				fadeTitle( rawDelta );
+
+				// update camera
+
+				targetX = mouseX * 0.04;
+				targetY = mouseY * 0.04;
+
+				angle  += 0.05 * ( targetX - angle );
+				height += 0.05 * ( targetY - height );
+
+				var d = 200;
+
+				var x =  -Math.sin( angle * 0.02 ) * d;
+				var z =   Math.cos( angle * 0.02 ) * d;
+				var y = 15 * height + 40;
+
+				camera.position.set( x, y, z );
+				camera.lookAt( target );
+
+				//
+
+				var song = songConfig[ currentSongIndex ];
+				var audioElement = song.audioElement;
+				var audioElapsedTime = audioElement.currentTime;
+
+				//
+
+				clockSpeed = XG.Math.clamp( clockSpeed + clockSpeedChangeDir * rawDelta, 0.0, 1.0 );
+
+				retimedDelta = delta * currentSongSpeed * clockSpeed;
+
+				clockElapsedTime += retimedDelta * 44;
+
+				//
+
+				if ( clockSpeed === 0.0 && playingAudio ) {
+
+					audioElement.pause();
+					playingAudio = false;
+
+				}
+
+				if ( clockSpeed > 0.0 && ! playingAudio ) {
+
+					audioElement.play();
+					playingAudio = true;
+
+				}
+
+				currentVolume = XG.Math.clamp( currentVolume + volumeChangeDir * volumeChangeSpeed * rawDelta, 0.0, 1.0 );
+				audioElement.volume = currentVolume * clockSpeed;
+
+				// update animations
+
+				for ( var i = 0, il = skins.length; i < il; i ++ ) {
+
+					skins[ i ].update( retimedDelta );
+
+				}
+
+				// update light ball
+
+				var x = Math.cos( clockElapsedTime * 0.1 ) * 30;
+				var y = Math.abs( Math.cos( clockElapsedTime * 0.2 ) ) * 20 + 5;
+				var z = Math.sin( clockElapsedTime * 0.1 ) * 30;
+
+				var yy = Math.abs( Math.cos( clockElapsedTime * 0.2 - 0.1 ) );
+
+				if ( ballLight ) {
+
+					lightBall.position.set( x, y, z );
+
+					var rx = 0;
+					var ry = ( Math.PI / 2 ) - clockElapsedTime * 0.1;
+					var rz = clockElapsedTime * 0.8;
+
+					lightBall.rotation.set( rx, ry, rz );
+
+					// update area lights
+
+					var worldPosition = lightBall.matrixWorld.getPosition();
+
+					var bounceOffset = 1.5;
+					var bounceAmplitude = 1.0;
+
+					if ( rightLight ) {
+
+						var dRight = rightLight.position.distanceTo( worldPosition );
+						rightLight.intensity = 1000 / ( dRight * dRight );
+						rightLight.intensity *= bounceAmplitude;
+						rightLight.intensity += bounceOffset;
+
+					}
+
+					if ( leftLight ) {
+
+						var dLeft = leftLight.position.distanceTo( worldPosition );
+						leftLight.intensity = 1000 / ( dLeft * dLeft );
+						leftLight.intensity *= bounceAmplitude;
+						leftLight.intensity += bounceOffset;
+
+					}
+
+					if ( topLight ) {
+
+						var dTop = topLight.position.distanceTo( worldPosition );
+						topLight.intensity = 1000 / ( dTop * dTop );
+						topLight.intensity *= 2.25;
+						topLight.intensity += bounceOffset;
+
+					}
+
+
+					var heroLightIntensity = 6;
+					frontLight.intensity = heroLightIntensity;
+
+					var fadeOutStart = 35 * ( 0.27 / currentSongSpeed );
+
+					if ( audioElapsedTime < fadeOutStart ) {
+
+						fadeMultiplier = XG.Math.clamp( fadeMultiplier + retimedDelta * lightFadeInSpeed, 0.0, 1.0 );
+
+					} else {
+
+						fadeMultiplier = XG.Math.clamp( fadeMultiplier - retimedDelta * lightFadeOutSpeed, 0.0, 1.0 );
+
+					}
+
+					rightLight.intensity *= fadeMultiplier;
+					leftLight.intensity *= fadeMultiplier;
+					frontLight.intensity *= fadeMultiplier;
+
+
+				}
+
+				// update mirrors
+
+				if ( ! useDeferred ) {
+
+					groundMirror.renderWithMirror( scene, camera, verticalMirror );
+					verticalMirror.renderWithMirror( scene, camera, groundMirror );
+
+				}
+
+				// update post-effects
+
+				if ( heatUniforms ) {
+
+					heatUniforms[ "time" ].value += retimedDelta * 3;
+					heatUniforms[ 'cameraNearFar' ].value.set( camera.near, camera.far );
+
+					heatUniforms[ 'distortionFactor'].value = 1 * 0.005 * yy;
+
+				}
+
+
+				renderer.dofFocusDistance = XG.Math.clamp( renderer.dofFocusDistance + rawDelta * 15, 1.0, 100.0 );
+
+				// render scene
+
+				renderer.render( scene, camera );
+
+			}
+
+			//
+
+			init();
+			animate();
+
+}
+		</script>
+	</body>
+</html>

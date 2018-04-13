@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>xg - text rendering</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+		<style>
+		    body {
+				color: #fff;
+				font-family:Monospace;
+				font-size:13px;
+				text-align:center;
+				font-weight: bold;
+
+				background-color: #000;
+				margin: 0px;
+				padding: 0px;
+		    }
+
+		    #info {
+				color:#fff;
+				position: relative;
+				margin: 0 auto -2.1em;
+				top: 0px;
+
+				padding: 5px;
+				z-index: 100;
+		    }
+
+		    a { color: white; }
+
+			#stats { position: absolute; top:0; left: 0 }
+			#stats #fps { background: transparent !important }
+			#stats #fps #fpsText { color: #aaa !important }
+			#stats #fps #fpsGraph { display: none }
+
+			#loading { background: #0af; color: white; padding: 0.25em 1em; position: absolute; right:0px; top: 0px; z-index: 200; }
+		</style>
+	</head>
+
+	<body>
+		<div id="loading">Loading ...</div>
+
+		<div id="info">
+			<a href="http://alteredqualia.com/xg/" target="_blank">xg</a> - text rendering - click to pause scrolling
+		</div>
+
+		<script src="js/xg.min.rgba.js"></script>
+		<script src='js/libs/stats.min.js'></script>
+
+		<script>
+
+			if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
+
+			var SCALE = 1.0;
+			var MARGIN = 0;
+
+			var BRIGHTNESS = 1.0;
+
+			var SCREEN_WIDTH = window.innerWidth;
+			var SCREEN_HEIGHT = window.innerHeight - 2 * MARGIN;
+
+			//
+
+			var container, camera, scene, renderer;
+
+			// camera controls
+
+			var mouseX = 0;
+			var mouseY = 0;
+
+			var targetX = 0.0;
+			var targetY = 0.0;
+			var angle = 0.0;
+			var height = 0.0;
+
+			var speed = 1.0;
+			var speedTarget = 1.0;
+
+			var target = new XG.Vector3();
+
+			var windowHalfX = window.innerWidth / 2;
+			var windowHalfY = window.innerHeight / 2;
+
+			// ui
+
+			var loadingElement = document.getElementById( "loading" );
+
+			var fontCounter = 0;
+			var fontsToLoad = 0;
+
+			// fonts
+
+			var sdfBebas = {'count': 95, 'chars': {32: {'yoffset': 1.5, 'width': 4, 'xadvance': 7.125, 'y': 242, 'x': 194, 'height': 4, 'xoffset': -1.5}, 33: {'yoffset': 33.688, 'width': 8, 'xadvance': 8.75, 'y': 144, 'x': 81, 'height': 36, 'xoffset': 0.438}, 34: {'yoffset': 33.688, 'width': 15, 'xadvance': 14.938, 'y': 242, 'x': 179, 'height': 13, 'xoffset': 0.313}, 35: {'yoffset': 33.688, 'width': 21, 'xadvance': 18.875, 'y': 72, 'x': 198, 'height': 36, 'xoffset': -0.813}, 36: {'yoffset': 35.75, 'width': 19, 'xadvance': 18.188, 'y': 72, 'x': 179, 'height': 40, 'xoffset': 0.063}, 37: {'yoffset': 33.875, 'width': 29, 'xadvance': 28.875, 'y': 0, 'x': 33, 'height': 36, 'xoffset': 0.063}, 38: {'yoffset': 33.688, 'width': 20, 'xadvance': 19.0, 'y': 182, 'x': 159, 'height': 36, 'xoffset': 0.375}, 39: {'yoffset': 33.688, 'width': 8, 'xadvance': 8.25, 'y': 45, 'x': 50, 'height': 13, 'xoffset': 0.188}, 40: {'yoffset': 33.688, 'width': 12, 'xadvance': 11.563, 'y': 108, 'x': 50, 'height': 36, 'xoffset': 0.688}, 41: {'yoffset': 33.688, 'width': 12, 'xadvance': 11.563, 'y': 72, 'x': 50, 'height': 36, 'xoffset': -0.813}, 42: {'yoffset': 33.688, 'width': 22, 'xadvance': 18.188, 'y': 216, 'x': 33, 'height': 21, 'xoffset': -1.438}, 43: {'yoffset': 25.625, 'width': 19, 'xadvance': 18.25, 'y': 222, 'x': 179, 'height': 20, 'xoffset': 0.125}, 44: {'yoffset': 6.375, 'width': 8, 'xadvance': 8.5, 'y': 237, 'x': 53, 'height': 13, 'xoffset': 0.313}, 45: {'yoffset': 19.938, 'width': 13, 'xadvance': 12.438, 'y': 150, 'x': 0, 'height': 8, 'xoffset': 0.125}, 46: {'yoffset': 6.375, 'width': 8, 'xadvance': 8.5, 'y': 98, 'x': 81, 'height': 8, 'xoffset': 0.313}, 47: {'yoffset': 33.688, 'width': 21, 'xadvance': 17.5, 'y': 184, 'x': 220, 'height': 36, 'xoffset': -1.313}, 48: {'yoffset': 34.063, 'width': 19, 'xadvance': 18.25, 'y': 216, 'x': 90, 'height': 36, 'xoffset': -0.063}, 49: {'yoffset': 33.688, 'width': 13, 'xadvance': 18.188, 'y': 72, 'x': 240, 'height': 36, 'xoffset': 3.438}, 50: {'yoffset': 34.063, 'width': 19, 'xadvance': 18.188, 'y': 72, 'x': 62, 'height': 36, 'xoffset': 0.313}, 51: {'yoffset': 34.063, 'width': 19, 'xadvance': 18.188, 'y': 108, 'x': 62, 'height': 36, 'xoffset': 0.063}, 52: {'yoffset': 33.688, 'width': 21, 'xadvance': 18.188, 'y': 148, 'x': 199, 'height': 36, 'xoffset': -0.875}, 53: {'yoffset': 33.688, 'width': 19, 'xadvance': 18.188, 'y': 144, 'x': 62, 'height': 36, 'xoffset': 0.125}, 54: {'yoffset': 34.063, 'width': 19, 'xadvance': 18.188, 'y': 180, 'x': 62, 'height': 36, 'xoffset': 0.0}, 55: {'yoffset': 33.688, 'width': 19, 'xadvance': 18.188, 'y': 216, 'x': 62, 'height': 36, 'xoffset': 0.0}, 56: {'yoffset': 34.063, 'width': 19, 'xadvance': 18.188, 'y': 0, 'x': 90, 'height': 36, 'xoffset': -0.313}, 57: {'yoffset': 34.063, 'width': 19, 'xadvance': 18.188, 'y': 0, 'x': 109, 'height': 36, 'xoffset': -0.188}, 58: {'yoffset': 23.875, 'width': 8, 'xadvance': 8.5, 'y': 72, 'x': 81, 'height': 26, 'xoffset': 0.313}, 59: {'yoffset': 23.875, 'width': 8, 'xadvance': 8.5, 'y': 108, 'x': 81, 'height': 31, 'xoffset': 0.313}, 60: {'yoffset': 24.938, 'width': 19, 'xadvance': 18.188, 'y': 40, 'x': 0, 'height': 18, 'xoffset': -0.125}, 61: {'yoffset': 23.063, 'width': 19, 'xadvance': 18.25, 'y': 118, 'x': 0, 'height': 15, 'xoffset': 0.125}, 62: {'yoffset': 24.938, 'width': 19, 'xadvance': 18.188, 'y': 58, 'x': 0, 'height': 18, 'xoffset': 0.313}, 63: {'yoffset': 34.063, 'width': 18, 'xadvance': 16.563, 'y': 0, 'x': 185, 'height': 36, 'xoffset': -0.563}, 64: {'yoffset': 35.563, 'width': 33, 'xadvance': 31.688, 'y': 0, 'x': 0, 'height': 40, 'xoffset': -0.375}, 65: {'yoffset': 33.688, 'width': 21, 'xadvance': 18.75, 'y': 112, 'x': 199, 'height': 36, 'xoffset': -1.0}, 66: {'yoffset': 33.688, 'width': 19, 'xadvance': 18.625, 'y': 0, 'x': 166, 'height': 36, 'xoffset': 0.313}, 67: {'yoffset': 34.063, 'width': 19, 'xadvance': 17.813, 'y': 0, 'x': 147, 'height': 36, 'xoffset': -0.063}, 68: {'yoffset': 33.688, 'width': 19, 'xadvance': 18.75, 'y': 0, 'x': 128, 'height': 36, 'xoffset': 0.313}, 69: {'yoffset': 33.688, 'width': 17, 'xadvance': 16.938, 'y': 36, 'x': 33, 'height': 36, 'xoffset': 0.313}, 70: {'yoffset': 33.688, 'width': 17, 'xadvance': 15.813, 'y': 0, 'x': 239, 'height': 36, 'xoffset': 0.313}, 71: {'yoffset': 34.063, 'width': 19, 'xadvance': 18.0, 'y': 180, 'x': 137, 'height': 36, 'xoffset': -0.063}, 72: {'yoffset': 33.688, 'width': 19, 'xadvance': 19.563, 'y': 144, 'x': 137, 'height': 36, 'xoffset': 0.313}, 73: {'yoffset': 33.688, 'width': 9, 'xadvance': 8.688, 'y': 180, 'x': 81, 'height': 36, 'xoffset': 0.313}, 74: {'yoffset': 33.688, 'width': 13, 'xadvance': 11.813, 'y': 112, 'x': 241, 'height': 36, 'xoffset': -1.063}, 75: {'yoffset': 33.688, 'width': 20, 'xadvance': 19.0, 'y': 110, 'x': 159, 'height': 36, 'xoffset': 0.313}, 76: {'yoffset': 33.688, 'width': 17, 'xadvance': 15.625, 'y': 108, 'x': 33, 'height': 36, 'xoffset': 0.313}, 77: {'yoffset': 33.688, 'width': 25, 'xadvance': 24.875, 'y': 36, 'x': 115, 'height': 36, 'xoffset': 0.313}, 78: {'yoffset': 33.688, 'width': 20, 'xadvance': 19.688, 'y': 150, 'x': 179, 'height': 36, 'xoffset': 0.313}, 79: {'yoffset': 34.063, 'width': 19, 'xadvance': 18.25, 'y': 216, 'x': 137, 'height': 36, 'xoffset': -0.063}, 80: {'yoffset': 33.688, 'width': 19, 'xadvance': 17.313, 'y': 108, 'x': 115, 'height': 36, 'xoffset': 0.313}, 81: {'yoffset': 34.063, 'width': 20, 'xadvance': 18.25, 'y': 72, 'x': 159, 'height': 38, 'xoffset': -0.063}, 82: {'yoffset': 33.688, 'width': 19, 'xadvance': 18.5, 'y': 144, 'x': 115, 'height': 36, 'xoffset': 0.313}, 83: {'yoffset': 34.063, 'width': 19, 'xadvance': 17.188, 'y': 180, 'x': 115, 'height': 36, 'xoffset': -0.438}, 84: {'yoffset': 33.688, 'width': 19, 'xadvance': 16.5, 'y': 216, 'x': 115, 'height': 36, 'xoffset': -1.063}, 85: {'yoffset': 33.688, 'width': 19, 'xadvance': 18.375, 'y': 36, 'x': 140, 'height': 36, 'xoffset': 0.125}, 86: {'yoffset': 33.688, 'width': 21, 'xadvance': 18.5, 'y': 184, 'x': 199, 'height': 36, 'xoffset': -1.0}, 87: {'yoffset': 33.688, 'width': 28, 'xadvance': 25.875, 'y': 36, 'x': 62, 'height': 36, 'xoffset': -0.813}, 88: {'yoffset': 33.688, 'width': 22, 'xadvance': 19.75, 'y': 72, 'x': 137, 'height': 36, 'xoffset': -0.813}, 89: {'yoffset': 33.688, 'width': 21, 'xadvance': 18.188, 'y': 220, 'x': 199, 'height': 36, 'xoffset': -1.375}, 90: {'yoffset': 33.688, 'width': 18, 'xadvance': 17.0, 'y': 0, 'x': 221, 'height': 36, 'xoffset': -0.438}, 91: {'yoffset': 33.688, 'width': 12, 'xadvance': 11.563, 'y': 144, 'x': 50, 'height': 36, 'xoffset': 0.688}, 92: {'yoffset': 33.688, 'width': 21, 'xadvance': 17.5, 'y': 148, 'x': 220, 'height': 36, 'xoffset': -1.313}, 93: {'yoffset': 33.688, 'width': 12, 'xadvance': 11.563, 'y': 180, 'x': 50, 'height': 36, 'xoffset': -0.5}, 94: {'yoffset': 33.688, 'width': 20, 'xadvance': 18.188, 'y': 237, 'x': 33, 'height': 18, 'xoffset': -0.625}, 95: {'yoffset': 1.063, 'width': 27, 'xadvance': 23.0, 'y': 143, 'x': 0, 'height': 7, 'xoffset': -1.5}, 96: {'yoffset': 40.625, 'width': 12, 'xadvance': 11.5, 'y': 36, 'x': 50, 'height': 9, 'xoffset': -0.188}, 97: {'yoffset': 33.688, 'width': 21, 'xadvance': 18.75, 'y': 72, 'x': 219, 'height': 36, 'xoffset': -1.0}, 98: {'yoffset': 33.688, 'width': 19, 'xadvance': 18.625, 'y': 36, 'x': 178, 'height': 36, 'xoffset': 0.313}, 99: {'yoffset': 34.063, 'width': 19, 'xadvance': 17.813, 'y': 36, 'x': 197, 'height': 36, 'xoffset': -0.063}, 100: {'yoffset': 33.688, 'width': 19, 'xadvance': 18.75, 'y': 36, 'x': 159, 'height': 36, 'xoffset': 0.313}, 101: {'yoffset': 33.688, 'width': 17, 'xadvance': 16.938, 'y': 72, 'x': 33, 'height': 36, 'xoffset': 0.313}, 102: {'yoffset': 33.688, 'width': 17, 'xadvance': 15.813, 'y': 144, 'x': 33, 'height': 36, 'xoffset': 0.313}, 103: {'yoffset': 34.063, 'width': 19, 'xadvance': 18.0, 'y': 218, 'x': 159, 'height': 36, 'xoffset': -0.063}, 104: {'yoffset': 33.688, 'width': 19, 'xadvance': 19.563, 'y': 108, 'x': 137, 'height': 36, 'xoffset': 0.313}, 105: {'yoffset': 33.688, 'width': 9, 'xadvance': 8.688, 'y': 216, 'x': 81, 'height': 36, 'xoffset': 0.313}, 106: {'yoffset': 33.688, 'width': 13, 'xadvance': 11.813, 'y': 148, 'x': 241, 'height': 36, 'xoffset': -1.063}, 107: {'yoffset': 33.688, 'width': 20, 'xadvance': 19.0, 'y': 186, 'x': 179, 'height': 36, 'xoffset': 0.313}, 108: {'yoffset': 33.688, 'width': 17, 'xadvance': 15.625, 'y': 180, 'x': 33, 'height': 36, 'xoffset': 0.313}, 109: {'yoffset': 33.688, 'width': 25, 'xadvance': 24.875, 'y': 36, 'x': 90, 'height': 36, 'xoffset': 0.313}, 110: {'yoffset': 33.688, 'width': 20, 'xadvance': 19.688, 'y': 146, 'x': 159, 'height': 36, 'xoffset': 0.313}, 111: {'yoffset': 34.063, 'width': 19, 'xadvance': 18.25, 'y': 180, 'x': 90, 'height': 36, 'xoffset': -0.063}, 112: {'yoffset': 33.688, 'width': 19, 'xadvance': 17.313, 'y': 144, 'x': 90, 'height': 36, 'xoffset': 0.313}, 113: {'yoffset': 34.063, 'width': 20, 'xadvance': 18.25, 'y': 112, 'x': 179, 'height': 38, 'xoffset': -0.063}, 114: {'yoffset': 33.688, 'width': 19, 'xadvance': 18.5, 'y': 108, 'x': 90, 'height': 36, 'xoffset': 0.313}, 115: {'yoffset': 34.063, 'width': 19, 'xadvance': 17.188, 'y': 72, 'x': 90, 'height': 36, 'xoffset': -0.438}, 116: {'yoffset': 33.688, 'width': 19, 'xadvance': 16.5, 'y': 36, 'x': 235, 'height': 36, 'xoffset': -1.063}, 117: {'yoffset': 33.688, 'width': 19, 'xadvance': 18.375, 'y': 36, 'x': 216, 'height': 36, 'xoffset': 0.125}, 118: {'yoffset': 33.688, 'width': 21, 'xadvance': 18.5, 'y': 112, 'x': 220, 'height': 36, 'xoffset': -1.0}, 119: {'yoffset': 33.688, 'width': 28, 'xadvance': 25.875, 'y': 0, 'x': 62, 'height': 36, 'xoffset': -0.813}, 120: {'yoffset': 33.688, 'width': 22, 'xadvance': 19.75, 'y': 72, 'x': 115, 'height': 36, 'xoffset': -0.813}, 121: {'yoffset': 33.688, 'width': 21, 'xadvance': 18.188, 'y': 220, 'x': 220, 'height': 36, 'xoffset': -1.375}, 122: {'yoffset': 33.688, 'width': 18, 'xadvance': 17.0, 'y': 0, 'x': 203, 'height': 36, 'xoffset': -0.438}, 123: {'yoffset': 33.688, 'width': 14, 'xadvance': 11.813, 'y': 220, 'x': 241, 'height': 36, 'xoffset': -1.0}, 124: {'yoffset': 36.688, 'width': 8, 'xadvance': 23.0, 'y': 76, 'x': 0, 'height': 42, 'xoffset': 8.188}, 125: {'yoffset': 33.688, 'width': 14, 'xadvance': 11.813, 'y': 184, 'x': 241, 'height': 36, 'xoffset': -0.75}, 126: {'yoffset': 20.938, 'width': 21, 'xadvance': 18.188, 'y': 133, 'x': 0, 'height': 10, 'xoffset': -1.188}}, 'base': 42, 'face': 'Bebas Neue'};
+			sdfBebas.img = "textures/sprites/fonts/Bebas Neue.sdf.png";
+			sdfBebas.width = 256;
+			sdfBebas.height = 256;
+
+			var sdfFiraMediumItalic = {'count': 97, 'chars': {0: {'yoffset': 1.5, 'width': 4, 'xadvance': 0.0, 'y': 238, 'x': 223, 'height': 4, 'xoffset': -1.5}, 13: {'yoffset': 1.5, 'width': 4, 'xadvance': 9.25, 'y': 252, 'x': 250, 'height': 4, 'xoffset': -1.5}, 32: {'yoffset': 1.5, 'width': 4, 'xadvance': 9.25, 'y': 252, 'x': 246, 'height': 4, 'xoffset': -1.5}, 33: {'yoffset': 27.063, 'width': 12, 'xadvance': 9.5, 'y': 0, 'x': 186, 'height': 30, 'xoffset': -0.688}, 34: {'yoffset': 27.063, 'width': 15, 'xadvance': 18.0, 'y': 15, 'x': 210, 'height': 14, 'xoffset': 3.0}, 35: {'yoffset': 26.438, 'width': 24, 'xadvance': 19.5, 'y': 125, 'x': 48, 'height': 28, 'xoffset': -1.875}, 36: {'yoffset': 32.125, 'width': 24, 'xadvance': 19.938, 'y': 65, 'x': 24, 'height': 40, 'xoffset': -1.625}, 37: {'yoffset': 27.938, 'width': 30, 'xadvance': 31.813, 'y': 94, 'x': 48, 'height': 31, 'xoffset': 1.5}, 38: {'yoffset': 24.75, 'width': 36, 'xadvance': 33.25, 'y': 38, 'x': 0, 'height': 27, 'xoffset': -0.25}, 39: {'yoffset': 27.063, 'width': 8, 'xadvance': 10.875, 'y': 238, 'x': 246, 'height': 14, 'xoffset': 3.0}, 40: {'yoffset': 33.0, 'width': 16, 'xadvance': 12.0, 'y': 105, 'x': 24, 'height': 41, 'xoffset': -0.5}, 41: {'yoffset': 33.0, 'width': 16, 'xadvance': 12.0, 'y': 211, 'x': 48, 'height': 41, 'xoffset': -2.188}, 42: {'yoffset': 28.938, 'width': 19, 'xadvance': 16.375, 'y': 238, 'x': 227, 'height': 18, 'xoffset': 0.438}, 43: {'yoffset': 20.688, 'width': 19, 'xadvance': 18.875, 'y': 237, 'x': 135, 'height': 19, 'xoffset': 0.25}, 44: {'yoffset': 6.938, 'width': 11, 'xadvance': 9.5, 'y': 15, 'x': 225, 'height': 15, 'xoffset': -2.25}, 45: {'yoffset': 14.938, 'width': 15, 'xadvance': 15.063, 'y': 247, 'x': 181, 'height': 7, 'xoffset': 0.25}, 46: {'yoffset': 6.938, 'width': 10, 'xadvance': 9.5, 'y': 243, 'x': 92, 'height': 10, 'xoffset': -0.875}, 47: {'yoffset': 31.875, 'width': 22, 'xadvance': 19.25, 'y': 94, 'x': 135, 'height': 38, 'xoffset': -1.0}, 48: {'yoffset': 26.875, 'width': 22, 'xadvance': 21.25, 'y': 65, 'x': 81, 'height': 29, 'xoffset': 0.188}, 49: {'yoffset': 26.375, 'width': 16, 'xadvance': 15.75, 'y': 0, 'x': 74, 'height': 28, 'xoffset': 0.0}, 50: {'yoffset': 26.875, 'width': 21, 'xadvance': 19.0, 'y': 65, 'x': 190, 'height': 29, 'xoffset': -1.438}, 51: {'yoffset': 26.813, 'width': 22, 'xadvance': 18.938, 'y': 65, 'x': 147, 'height': 29, 'xoffset': -2.188}, 52: {'yoffset': 27.063, 'width': 22, 'xadvance': 20.188, 'y': 65, 'x': 125, 'height': 29, 'xoffset': -0.938}, 53: {'yoffset': 26.375, 'width': 23, 'xadvance': 19.688, 'y': 182, 'x': 48, 'height': 29, 'xoffset': -1.688}, 54: {'yoffset': 26.813, 'width': 21, 'xadvance': 20.375, 'y': 65, 'x': 211, 'height': 29, 'xoffset': 0.125}, 55: {'yoffset': 26.438, 'width': 20, 'xadvance': 16.875, 'y': 65, 'x': 232, 'height': 29, 'xoffset': 0.188}, 56: {'yoffset': 26.813, 'width': 22, 'xadvance': 21.125, 'y': 65, 'x': 103, 'height': 29, 'xoffset': -0.688}, 57: {'yoffset': 26.813, 'width': 21, 'xadvance': 20.375, 'y': 222, 'x': 24, 'height': 30, 'xoffset': 0.438}, 58: {'yoffset': 20.188, 'width': 11, 'xadvance': 9.5, 'y': 185, 'x': 243, 'height': 23, 'xoffset': -0.875}, 59: {'yoffset': 20.25, 'width': 13, 'xadvance': 9.5, 'y': 0, 'x': 173, 'height': 29, 'xoffset': -2.25}, 60: {'yoffset': 22.563, 'width': 20, 'xadvance': 18.875, 'y': 0, 'x': 121, 'height': 21, 'xoffset': 0.25}, 61: {'yoffset': 18.75, 'width': 20, 'xadvance': 18.875, 'y': 0, 'x': 210, 'height': 15, 'xoffset': 0.688}, 62: {'yoffset': 22.563, 'width': 20, 'xadvance': 18.875, 'y': 0, 'x': 141, 'height': 21, 'xoffset': -0.563}, 63: {'yoffset': 27.625, 'width': 19, 'xadvance': 18.625, 'y': 185, 'x': 0, 'height': 30, 'xoffset': 0.938}, 64: {'yoffset': 27.625, 'width': 38, 'xadvance': 37.75, 'y': 0, 'x': 0, 'height': 38, 'xoffset': 0.188}, 65: {'yoffset': 27.125, 'width': 26, 'xadvance': 21.563, 'y': 209, 'x': 201, 'height': 29, 'xoffset': -3.125}, 66: {'yoffset': 27.063, 'width': 23, 'xadvance': 22.875, 'y': 123, 'x': 233, 'height': 29, 'xoffset': 0.188}, 67: {'yoffset': 27.625, 'width': 24, 'xadvance': 21.063, 'y': 187, 'x': 109, 'height': 30, 'xoffset': 0.25}, 68: {'yoffset': 27.063, 'width': 25, 'xadvance': 24.188, 'y': 123, 'x': 183, 'height': 29, 'xoffset': 0.188}, 69: {'yoffset': 27.063, 'width': 22, 'xadvance': 19.5, 'y': 94, 'x': 234, 'height': 29, 'xoffset': 0.188}, 70: {'yoffset': 27.063, 'width': 21, 'xadvance': 18.188, 'y': 65, 'x': 169, 'height': 29, 'xoffset': 0.188}, 71: {'yoffset': 27.625, 'width': 25, 'xadvance': 23.625, 'y': 153, 'x': 230, 'height': 30, 'xoffset': 0.25}, 72: {'yoffset': 27.063, 'width': 25, 'xadvance': 24.625, 'y': 94, 'x': 184, 'height': 29, 'xoffset': 0.188}, 73: {'yoffset': 27.063, 'width': 12, 'xadvance': 10.813, 'y': 0, 'x': 198, 'height': 29, 'xoffset': 0.188}, 74: {'yoffset': 27.063, 'width': 16, 'xadvance': 11.0, 'y': 215, 'x': 0, 'height': 35, 'xoffset': -3.75}, 75: {'yoffset': 27.063, 'width': 26, 'xadvance': 22.438, 'y': 209, 'x': 227, 'height': 29, 'xoffset': 0.188}, 76: {'yoffset': 27.063, 'width': 19, 'xadvance': 18.563, 'y': 0, 'x': 38, 'height': 29, 'xoffset': 0.188}, 77: {'yoffset': 27.063, 'width': 31, 'xadvance': 29.188, 'y': 94, 'x': 78, 'height': 29, 'xoffset': -1.25}, 78: {'yoffset': 27.063, 'width': 25, 'xadvance': 24.75, 'y': 123, 'x': 208, 'height': 29, 'xoffset': 0.188}, 79: {'yoffset': 27.625, 'width': 26, 'xadvance': 25.5, 'y': 123, 'x': 157, 'height': 30, 'xoffset': 0.25}, 80: {'yoffset': 27.125, 'width': 24, 'xadvance': 21.875, 'y': 123, 'x': 78, 'height': 29, 'xoffset': 0.188}, 81: {'yoffset': 27.625, 'width': 26, 'xadvance': 25.5, 'y': 94, 'x': 109, 'height': 34, 'xoffset': 0.25}, 82: {'yoffset': 27.125, 'width': 24, 'xadvance': 22.375, 'y': 217, 'x': 109, 'height': 29, 'xoffset': 0.188}, 83: {'yoffset': 27.625, 'width': 24, 'xadvance': 20.313, 'y': 157, 'x': 109, 'height': 30, 'xoffset': -1.75}, 84: {'yoffset': 27.063, 'width': 23, 'xadvance': 19.375, 'y': 153, 'x': 48, 'height': 29, 'xoffset': 0.125}, 85: {'yoffset': 27.063, 'width': 25, 'xadvance': 24.25, 'y': 153, 'x': 205, 'height': 30, 'xoffset': 0.75}, 86: {'yoffset': 27.063, 'width': 25, 'xadvance': 21.625, 'y': 94, 'x': 209, 'height': 29, 'xoffset': 0.438}, 87: {'yoffset': 27.125, 'width': 33, 'xadvance': 30.875, 'y': 65, 'x': 48, 'height': 29, 'xoffset': 0.813}, 88: {'yoffset': 27.063, 'width': 27, 'xadvance': 21.063, 'y': 94, 'x': 157, 'height': 29, 'xoffset': -3.0}, 89: {'yoffset': 27.063, 'width': 25, 'xadvance': 21.0, 'y': 128, 'x': 109, 'height': 29, 'xoffset': 0.125}, 90: {'yoffset': 27.063, 'width': 24, 'xadvance': 19.438, 'y': 152, 'x': 78, 'height': 29, 'xoffset': -2.125}, 91: {'yoffset': 31.813, 'width': 17, 'xadvance': 12.0, 'y': 146, 'x': 24, 'height': 38, 'xoffset': -1.625}, 92: {'yoffset': 31.875, 'width': 20, 'xadvance': 19.375, 'y': 209, 'x': 181, 'height': 38, 'xoffset': -0.438}, 93: {'yoffset': 31.875, 'width': 17, 'xadvance': 12.0, 'y': 184, 'x': 24, 'height': 38, 'xoffset': -1.938}, 94: {'yoffset': 32.688, 'width': 22, 'xadvance': 19.875, 'y': 238, 'x': 201, 'height': 15, 'xoffset': 0.5}, 95: {'yoffset': -0.563, 'width': 22, 'xadvance': 19.25, 'y': 248, 'x': 157, 'height': 7, 'xoffset': -3.313}, 96: {'yoffset': 31.875, 'width': 14, 'xadvance': 12.125, 'y': 243, 'x': 78, 'height': 11, 'xoffset': -0.438}, 97: {'yoffset': 21.625, 'width': 22, 'xadvance': 21.375, 'y': 38, 'x': 60, 'height': 24, 'xoffset': -0.375}, 98: {'yoffset': 29.438, 'width': 22, 'xadvance': 21.75, 'y': 132, 'x': 135, 'height': 32, 'xoffset': -0.125}, 99: {'yoffset': 21.625, 'width': 20, 'xadvance': 17.25, 'y': 38, 'x': 211, 'height': 24, 'xoffset': -0.375}, 100: {'yoffset': 29.438, 'width': 24, 'xadvance': 21.688, 'y': 153, 'x': 181, 'height': 32, 'xoffset': -0.375}, 101: {'yoffset': 21.625, 'width': 21, 'xadvance': 19.25, 'y': 38, 'x': 169, 'height': 24, 'xoffset': -0.375}, 102: {'yoffset': 29.5, 'width': 24, 'xadvance': 12.375, 'y': 65, 'x': 0, 'height': 40, 'xoffset': -4.188}, 103: {'yoffset': 21.688, 'width': 23, 'xadvance': 21.625, 'y': 216, 'x': 157, 'height': 32, 'xoffset': -1.125}, 104: {'yoffset': 29.438, 'width': 22, 'xadvance': 21.25, 'y': 212, 'x': 78, 'height': 31, 'xoffset': -0.25}, 105: {'yoffset': 30.938, 'width': 13, 'xadvance': 10.0, 'y': 0, 'x': 108, 'height': 33, 'xoffset': -0.375}, 106: {'yoffset': 30.938, 'width': 17, 'xadvance': 10.0, 'y': 196, 'x': 135, 'height': 41, 'xoffset': -4.938}, 107: {'yoffset': 29.438, 'width': 22, 'xadvance': 20.813, 'y': 181, 'x': 78, 'height': 31, 'xoffset': -0.25}, 108: {'yoffset': 29.438, 'width': 12, 'xadvance': 10.438, 'y': 0, 'x': 161, 'height': 32, 'xoffset': 0.0}, 109: {'yoffset': 21.625, 'width': 32, 'xadvance': 31.375, 'y': 185, 'x': 181, 'height': 24, 'xoffset': -0.25}, 110: {'yoffset': 21.625, 'width': 22, 'xadvance': 21.25, 'y': 38, 'x': 104, 'height': 24, 'xoffset': -0.25}, 111: {'yoffset': 21.625, 'width': 22, 'xadvance': 21.313, 'y': 38, 'x': 82, 'height': 24, 'xoffset': -0.375}, 112: {'yoffset': 21.625, 'width': 24, 'xadvance': 21.75, 'y': 153, 'x': 157, 'height': 32, 'xoffset': -1.375}, 113: {'yoffset': 21.625, 'width': 22, 'xadvance': 21.563, 'y': 164, 'x': 135, 'height': 32, 'xoffset': -0.375}, 114: {'yoffset': 21.625, 'width': 18, 'xadvance': 14.313, 'y': 0, 'x': 90, 'height': 24, 'xoffset': -0.25}, 115: {'yoffset': 21.563, 'width': 20, 'xadvance': 17.563, 'y': 38, 'x': 231, 'height': 24, 'xoffset': -1.938}, 116: {'yoffset': 26.0, 'width': 17, 'xadvance': 13.75, 'y': 0, 'x': 57, 'height': 29, 'xoffset': -0.563}, 117: {'yoffset': 21.063, 'width': 21, 'xadvance': 21.063, 'y': 38, 'x': 148, 'height': 24, 'xoffset': 0.313}, 118: {'yoffset': 21.125, 'width': 22, 'xadvance': 18.375, 'y': 38, 'x': 126, 'height': 23, 'xoffset': -0.375}, 119: {'yoffset': 21.125, 'width': 30, 'xadvance': 27.125, 'y': 185, 'x': 213, 'height': 23, 'xoffset': 0.0}, 120: {'yoffset': 21.063, 'width': 24, 'xadvance': 18.0, 'y': 38, 'x': 36, 'height': 23, 'xoffset': -3.438}, 121: {'yoffset': 21.125, 'width': 24, 'xadvance': 18.313, 'y': 185, 'x': 157, 'height': 31, 'xoffset': -2.25}, 122: {'yoffset': 21.063, 'width': 21, 'xadvance': 16.375, 'y': 38, 'x': 190, 'height': 23, 'xoffset': -2.5}, 123: {'yoffset': 32.438, 'width': 16, 'xadvance': 12.0, 'y': 145, 'x': 0, 'height': 40, 'xoffset': -0.813}, 124: {'yoffset': 31.375, 'width': 12, 'xadvance': 14.375, 'y': 211, 'x': 64, 'height': 37, 'xoffset': 1.688}, 125: {'yoffset': 32.438, 'width': 16, 'xadvance': 12.0, 'y': 105, 'x': 0, 'height': 40, 'xoffset': -2.313}, 126: {'yoffset': 16.125, 'width': 21, 'xadvance': 18.875, 'y': 246, 'x': 109, 'height': 9, 'xoffset': -0.438}}, 'base': 41, 'face': 'Fira Sans'};
+			sdfFiraMediumItalic.img = "textures/sprites/fonts/FiraSans-MediumItalic.sdf.png";
+			sdfFiraMediumItalic.width = 256;
+			sdfFiraMediumItalic.height = 256;
+
+			var sdfFiraRegular = {'count': 97, 'chars': {0: {'yoffset': 1.5, 'width': 4, 'xadvance': 0.0, 'y': 238, 'x': 252, 'height': 4, 'xoffset': -1.5}, 13: {'yoffset': 1.5, 'width': 4, 'xadvance': 10.875, 'y': 234, 'x': 252, 'height': 4, 'xoffset': -1.5}, 32: {'yoffset': 1.5, 'width': 4, 'xadvance': 10.875, 'y': 230, 'x': 252, 'height': 4, 'xoffset': -1.5}, 33: {'yoffset': 29.75, 'width': 9, 'xadvance': 10.813, 'y': 32, 'x': 243, 'height': 32, 'xoffset': 1.063}, 34: {'yoffset': 29.75, 'width': 15, 'xadvance': 18.688, 'y': 242, 'x': 15, 'height': 14, 'xoffset': 2.125}, 35: {'yoffset': 29.0, 'width': 24, 'xadvance': 20.5, 'y': 164, 'x': 124, 'height': 31, 'xoffset': -1.375}, 36: {'yoffset': 35.375, 'width': 23, 'xadvance': 20.563, 'y': 32, 'x': 101, 'height': 44, 'xoffset': -1.0}, 37: {'yoffset': 30.625, 'width': 32, 'xadvance': 34.813, 'y': 32, 'x': 40, 'height': 34, 'xoffset': 1.563}, 38: {'yoffset': 30.25, 'width': 30, 'xadvance': 31.875, 'y': 64, 'x': 124, 'height': 33, 'xoffset': 2.25}, 39: {'yoffset': 29.75, 'width': 8, 'xadvance': 11.25, 'y': 69, 'x': 93, 'height': 14, 'xoffset': 2.125}, 40: {'yoffset': 36.125, 'width': 14, 'xadvance': 13.313, 'y': 162, 'x': 40, 'height': 44, 'xoffset': 0.125}, 41: {'yoffset': 36.125, 'width': 14, 'xadvance': 13.313, 'y': 162, 'x': 54, 'height': 44, 'xoffset': 0.0}, 42: {'yoffset': 31.813, 'width': 20, 'xadvance': 18.063, 'y': 223, 'x': 15, 'height': 19, 'xoffset': -0.563}, 43: {'yoffset': 21.938, 'width': 19, 'xadvance': 20.5, 'y': 151, 'x': 19, 'height': 19, 'xoffset': 1.063}, 44: {'yoffset': 6.688, 'width': 10, 'xadvance': 10.813, 'y': 128, 'x': 59, 'height': 16, 'xoffset': 0.563}, 45: {'yoffset': 15.938, 'width': 15, 'xadvance': 16.625, 'y': 248, 'x': 72, 'height': 7, 'xoffset': 1.0}, 46: {'yoffset': 6.688, 'width': 9, 'xadvance': 10.813, 'y': 122, 'x': 196, 'height': 9, 'xoffset': 1.063}, 47: {'yoffset': 34.75, 'width': 16, 'xadvance': 21.313, 'y': 166, 'x': 72, 'height': 41, 'xoffset': 2.75}, 48: {'yoffset': 29.375, 'width': 22, 'xadvance': 23.0, 'y': 32, 'x': 177, 'height': 32, 'xoffset': 0.813}, 49: {'yoffset': 28.938, 'width': 15, 'xadvance': 16.375, 'y': 176, 'x': 0, 'height': 31, 'xoffset': -0.75}, 50: {'yoffset': 29.375, 'width': 21, 'xadvance': 20.813, 'y': 66, 'x': 40, 'height': 31, 'xoffset': -0.438}, 51: {'yoffset': 29.375, 'width': 21, 'xadvance': 20.563, 'y': 101, 'x': 72, 'height': 32, 'xoffset': -0.938}, 52: {'yoffset': 29.438, 'width': 22, 'xadvance': 21.5, 'y': 179, 'x': 101, 'height': 31, 'xoffset': 0.0}, 53: {'yoffset': 28.938, 'width': 21, 'xadvance': 21.063, 'y': 97, 'x': 40, 'height': 31, 'xoffset': -0.188}, 54: {'yoffset': 29.375, 'width': 21, 'xadvance': 21.938, 'y': 69, 'x': 72, 'height': 32, 'xoffset': 0.813}, 55: {'yoffset': 28.938, 'width': 19, 'xadvance': 18.125, 'y': 0, 'x': 133, 'height': 31, 'xoffset': -0.5}, 56: {'yoffset': 29.375, 'width': 22, 'xadvance': 22.75, 'y': 32, 'x': 199, 'height': 32, 'xoffset': 0.438}, 57: {'yoffset': 29.375, 'width': 21, 'xadvance': 21.875, 'y': 133, 'x': 235, 'height': 32, 'xoffset': 0.438}, 58: {'yoffset': 22.0, 'width': 9, 'xadvance': 10.813, 'y': 133, 'x': 92, 'height': 25, 'xoffset': 1.063}, 59: {'yoffset': 22.0, 'width': 10, 'xadvance': 10.813, 'y': 64, 'x': 246, 'height': 31, 'xoffset': 0.563}, 60: {'yoffset': 24.125, 'width': 20, 'xadvance': 20.5, 'y': 176, 'x': 15, 'height': 21, 'xoffset': 1.063}, 61: {'yoffset': 19.813, 'width': 19, 'xadvance': 20.563, 'y': 125, 'x': 12, 'height': 15, 'xoffset': 1.063}, 62: {'yoffset': 24.125, 'width': 20, 'xadvance': 20.5, 'y': 232, 'x': 151, 'height': 21, 'xoffset': 0.313}, 63: {'yoffset': 30.25, 'width': 20, 'xadvance': 20.813, 'y': 133, 'x': 72, 'height': 33, 'xoffset': 0.188}, 64: {'yoffset': 30.25, 'width': 40, 'xadvance': 41.813, 'y': 0, 'x': 0, 'height': 41, 'xoffset': 1.375}, 65: {'yoffset': 29.813, 'width': 27, 'xadvance': 23.75, 'y': 133, 'x': 151, 'height': 32, 'xoffset': -1.313}, 66: {'yoffset': 29.75, 'width': 23, 'xadvance': 25.688, 'y': 64, 'x': 223, 'height': 32, 'xoffset': 2.813}, 67: {'yoffset': 30.25, 'width': 24, 'xadvance': 23.438, 'y': 197, 'x': 229, 'height': 33, 'xoffset': 1.063}, 68: {'yoffset': 29.813, 'width': 24, 'xadvance': 26.938, 'y': 97, 'x': 207, 'height': 32, 'xoffset': 2.813}, 69: {'yoffset': 29.813, 'width': 19, 'xadvance': 22.125, 'y': 0, 'x': 114, 'height': 32, 'xoffset': 2.813}, 70: {'yoffset': 29.813, 'width': 19, 'xadvance': 20.375, 'y': 0, 'x': 95, 'height': 32, 'xoffset': 2.813}, 71: {'yoffset': 30.25, 'width': 25, 'xadvance': 26.188, 'y': 197, 'x': 204, 'height': 33, 'xoffset': 1.063}, 72: {'yoffset': 29.813, 'width': 23, 'xadvance': 27.875, 'y': 64, 'x': 154, 'height': 32, 'xoffset': 2.813}, 73: {'yoffset': 29.813, 'width': 7, 'xadvance': 12.563, 'y': 101, 'x': 93, 'height': 32, 'xoffset': 2.813}, 74: {'yoffset': 29.813, 'width': 12, 'xadvance': 12.625, 'y': 166, 'x': 88, 'height': 38, 'xoffset': -1.313}, 75: {'yoffset': 29.813, 'width': 24, 'xadvance': 24.313, 'y': 165, 'x': 230, 'height': 32, 'xoffset': 2.813}, 76: {'yoffset': 29.813, 'width': 19, 'xadvance': 20.625, 'y': 0, 'x': 76, 'height': 32, 'xoffset': 2.813}, 77: {'yoffset': 29.813, 'width': 31, 'xadvance': 32.625, 'y': 32, 'x': 124, 'height': 32, 'xoffset': 1.0}, 78: {'yoffset': 29.813, 'width': 23, 'xadvance': 28.25, 'y': 195, 'x': 124, 'height': 32, 'xoffset': 2.813}, 79: {'yoffset': 30.25, 'width': 27, 'xadvance': 28.563, 'y': 97, 'x': 124, 'height': 33, 'xoffset': 1.063}, 80: {'yoffset': 29.813, 'width': 22, 'xadvance': 24.0, 'y': 32, 'x': 221, 'height': 32, 'xoffset': 2.813}, 81: {'yoffset': 30.25, 'width': 29, 'xadvance': 28.563, 'y': 32, 'x': 72, 'height': 37, 'xoffset': 1.063}, 82: {'yoffset': 29.813, 'width': 23, 'xadvance': 24.875, 'y': 64, 'x': 177, 'height': 32, 'xoffset': 2.813}, 83: {'yoffset': 30.25, 'width': 23, 'xadvance': 22.375, 'y': 97, 'x': 231, 'height': 33, 'xoffset': -0.438}, 84: {'yoffset': 29.75, 'width': 24, 'xadvance': 21.125, 'y': 200, 'x': 151, 'height': 32, 'xoffset': -0.875}, 85: {'yoffset': 29.813, 'width': 23, 'xadvance': 27.5, 'y': 64, 'x': 200, 'height': 32, 'xoffset': 2.375}, 86: {'yoffset': 29.813, 'width': 26, 'xadvance': 24.0, 'y': 133, 'x': 178, 'height': 32, 'xoffset': -0.938}, 87: {'yoffset': 29.813, 'width': 36, 'xadvance': 34.0, 'y': 0, 'x': 40, 'height': 32, 'xoffset': -0.5}, 88: {'yoffset': 29.813, 'width': 26, 'xadvance': 22.75, 'y': 165, 'x': 178, 'height': 32, 'xoffset': -1.313}, 89: {'yoffset': 29.813, 'width': 26, 'xadvance': 22.563, 'y': 165, 'x': 204, 'height': 32, 'xoffset': -1.313}, 90: {'yoffset': 29.813, 'width': 22, 'xadvance': 21.375, 'y': 32, 'x': 155, 'height': 32, 'xoffset': -0.25}, 91: {'yoffset': 35.0, 'width': 12, 'xadvance': 13.313, 'y': 109, 'x': 0, 'height': 42, 'xoffset': 1.25}, 92: {'yoffset': 34.75, 'width': 16, 'xadvance': 21.313, 'y': 207, 'x': 72, 'height': 41, 'xoffset': 2.75}, 93: {'yoffset': 35.0, 'width': 12, 'xadvance': 13.313, 'y': 67, 'x': 0, 'height': 42, 'xoffset': 0.563}, 94: {'yoffset': 36.0, 'width': 22, 'xadvance': 21.313, 'y': 109, 'x': 12, 'height': 16, 'xoffset': -0.313}, 95: {'yoffset': -1.063, 'width': 23, 'xadvance': 21.313, 'y': 244, 'x': 101, 'height': 7, 'xoffset': -0.813}, 96: {'yoffset': 34.375, 'width': 13, 'xadvance': 12.188, 'y': 144, 'x': 59, 'height': 10, 'xoffset': -0.313}, 97: {'yoffset': 23.625, 'width': 22, 'xadvance': 22.375, 'y': 227, 'x': 124, 'height': 26, 'xoffset': 0.375}, 98: {'yoffset': 32.313, 'width': 21, 'xadvance': 24.25, 'y': 76, 'x': 101, 'height': 35, 'xoffset': 2.5}, 99: {'yoffset': 23.625, 'width': 20, 'xadvance': 19.5, 'y': 0, 'x': 211, 'height': 26, 'xoffset': 0.813}, 100: {'yoffset': 32.313, 'width': 22, 'xadvance': 24.375, 'y': 165, 'x': 151, 'height': 35, 'xoffset': 0.813}, 101: {'yoffset': 23.625, 'width': 21, 'xadvance': 22.375, 'y': 0, 'x': 170, 'height': 26, 'xoffset': 0.813}, 102: {'yoffset': 32.313, 'width': 19, 'xadvance': 13.75, 'y': 128, 'x': 40, 'height': 34, 'xoffset': -0.625}, 103: {'yoffset': 25.563, 'width': 24, 'xadvance': 21.5, 'y': 97, 'x': 151, 'height': 36, 'xoffset': -0.25}, 104: {'yoffset': 32.25, 'width': 20, 'xadvance': 24.125, 'y': 210, 'x': 101, 'height': 34, 'xoffset': 2.5}, 105: {'yoffset': 33.188, 'width': 9, 'xadvance': 11.438, 'y': 67, 'x': 12, 'height': 35, 'xoffset': 1.563}, 106: {'yoffset': 33.188, 'width': 12, 'xadvance': 11.438, 'y': 207, 'x': 88, 'height': 44, 'xoffset': -1.938}, 107: {'yoffset': 32.313, 'width': 21, 'xadvance': 21.063, 'y': 145, 'x': 101, 'height': 34, 'xoffset': 2.5}, 108: {'yoffset': 32.313, 'width': 11, 'xadvance': 11.875, 'y': 207, 'x': 0, 'height': 35, 'xoffset': 2.125}, 109: {'yoffset': 23.625, 'width': 31, 'xadvance': 35.375, 'y': 133, 'x': 204, 'height': 26, 'xoffset': 2.5}, 110: {'yoffset': 23.625, 'width': 20, 'xadvance': 24.125, 'y': 0, 'x': 191, 'height': 26, 'xoffset': 2.5}, 111: {'yoffset': 23.625, 'width': 23, 'xadvance': 23.875, 'y': 230, 'x': 229, 'height': 26, 'xoffset': 0.813}, 112: {'yoffset': 23.625, 'width': 21, 'xadvance': 24.25, 'y': 111, 'x': 101, 'height': 34, 'xoffset': 2.5}, 113: {'yoffset': 23.625, 'width': 22, 'xadvance': 24.375, 'y': 130, 'x': 124, 'height': 34, 'xoffset': 0.813}, 114: {'yoffset': 23.625, 'width': 15, 'xadvance': 15.688, 'y': 197, 'x': 15, 'height': 26, 'xoffset': 2.5}, 115: {'yoffset': 23.625, 'width': 20, 'xadvance': 19.438, 'y': 0, 'x': 231, 'height': 26, 'xoffset': -0.5}, 116: {'yoffset': 28.5, 'width': 18, 'xadvance': 15.063, 'y': 0, 'x': 152, 'height': 31, 'xoffset': -0.625}, 117: {'yoffset': 23.125, 'width': 20, 'xadvance': 23.813, 'y': 41, 'x': 0, 'height': 26, 'xoffset': 2.313}, 118: {'yoffset': 23.125, 'width': 23, 'xadvance': 20.25, 'y': 230, 'x': 204, 'height': 25, 'xoffset': -1.063}, 119: {'yoffset': 23.125, 'width': 32, 'xadvance': 29.875, 'y': 97, 'x': 175, 'height': 25, 'xoffset': -0.688}, 120: {'yoffset': 23.125, 'width': 23, 'xadvance': 19.625, 'y': 231, 'x': 178, 'height': 25, 'xoffset': -1.438}, 121: {'yoffset': 23.125, 'width': 23, 'xadvance': 20.125, 'y': 197, 'x': 178, 'height': 34, 'xoffset': -1.063}, 122: {'yoffset': 23.125, 'width': 19, 'xadvance': 18.063, 'y': 151, 'x': 0, 'height': 25, 'xoffset': -0.438}, 123: {'yoffset': 35.875, 'width': 14, 'xadvance': 13.313, 'y': 206, 'x': 54, 'height': 43, 'xoffset': -0.438}, 124: {'yoffset': 34.625, 'width': 7, 'xadvance': 16.5, 'y': 67, 'x': 21, 'height': 41, 'xoffset': 5.063}, 125: {'yoffset': 35.875, 'width': 14, 'xadvance': 13.313, 'y': 206, 'x': 40, 'height': 43, 'xoffset': 0.188}, 126: {'yoffset': 17.063, 'width': 21, 'xadvance': 20.5, 'y': 122, 'x': 175, 'height': 9, 'xoffset': 0.125}}, 'base': 44, 'face': 'Fira Sans'};
+			sdfFiraRegular.img = "textures/sprites/fonts/FiraSans-Regular.sdf.png";
+			sdfFiraRegular.width = 256;
+			sdfFiraRegular.height = 256;
+
+			var sdfGeorgia = {'count': 95, 'chars': {32: {'yoffset': 1.5, 'width': 4, 'xadvance': 8.688, 'y': 251, 'x': 229, 'height': 4, 'xoffset': -1.5}, 33: {'yoffset': 27.063, 'width': 8, 'xadvance': 11.875, 'y': 174, 'x': 137, 'height': 29, 'xoffset': 2.125}, 34: {'yoffset': 28.375, 'width': 14, 'xadvance': 14.813, 'y': 236, 'x': 31, 'height': 13, 'xoffset': 0.563}, 35: {'yoffset': 23.125, 'width': 21, 'xadvance': 23.125, 'y': 230, 'x': 235, 'height': 25, 'xoffset': 1.188}, 36: {'yoffset': 28.25, 'width': 20, 'xadvance': 22.0, 'y': 174, 'x': 117, 'height': 36, 'xoffset': 1.25}, 37: {'yoffset': 27.0, 'width': 29, 'xadvance': 29.5, 'y': 57, 'x': 59, 'height': 30, 'xoffset': 0.438}, 38: {'yoffset': 27.0, 'width': 28, 'xadvance': 25.625, 'y': 144, 'x': 117, 'height': 30, 'xoffset': -0.188}, 39: {'yoffset': 28.375, 'width': 7, 'xadvance': 7.688, 'y': 230, 'x': 195, 'height': 13, 'xoffset': 0.375}, 40: {'yoffset': 28.438, 'width': 14, 'xadvance': 13.5, 'y': 167, 'x': 45, 'height': 36, 'xoffset': 0.563}, 41: {'yoffset': 28.438, 'width': 14, 'xadvance': 13.5, 'y': 62, 'x': 0, 'height': 36, 'xoffset': -0.313}, 42: {'yoffset': 27.063, 'width': 18, 'xadvance': 17.0, 'y': 236, 'x': 88, 'height': 16, 'xoffset': 0.0}, 43: {'yoffset': 20.375, 'width': 22, 'xadvance': 23.125, 'y': 29, 'x': 93, 'height': 22, 'xoffset': 1.0}, 44: {'yoffset': 5.938, 'width': 9, 'xadvance': 9.75, 'y': 236, 'x': 106, 'height': 14, 'xoffset': 0.188}, 45: {'yoffset': 12.438, 'width': 14, 'xadvance': 13.5, 'y': 136, 'x': 194, 'height': 6, 'xoffset': 0.0}, 46: {'yoffset': 5.875, 'width': 8, 'xadvance': 9.75, 'y': 241, 'x': 137, 'height': 8, 'xoffset': 1.0}, 47: {'yoffset': 28.25, 'width': 18, 'xadvance': 16.875, 'y': 87, 'x': 59, 'height': 38, 'xoffset': -0.688}, 48: {'yoffset': 20.938, 'width': 22, 'xadvance': 22.125, 'y': 230, 'x': 173, 'height': 24, 'xoffset': 0.313}, 49: {'yoffset': 20.938, 'width': 15, 'xadvance': 15.5, 'y': 0, 'x': 72, 'height': 23, 'xoffset': 0.813}, 50: {'yoffset': 20.938, 'width': 20, 'xadvance': 20.125, 'y': 29, 'x': 137, 'height': 23, 'xoffset': 0.438}, 51: {'yoffset': 20.875, 'width': 20, 'xadvance': 19.813, 'y': 57, 'x': 138, 'height': 29, 'xoffset': -0.375}, 52: {'yoffset': 20.75, 'width': 22, 'xadvance': 20.375, 'y': 86, 'x': 207, 'height': 29, 'xoffset': -0.625}, 53: {'yoffset': 20.313, 'width': 20, 'xadvance': 19.063, 'y': 57, 'x': 118, 'height': 29, 'xoffset': -0.438}, 54: {'yoffset': 27.063, 'width': 21, 'xadvance': 20.375, 'y': 193, 'x': 59, 'height': 30, 'xoffset': 0.313}, 55: {'yoffset': 20.375, 'width': 20, 'xadvance': 18.063, 'y': 57, 'x': 158, 'height': 29, 'xoffset': 0.063}, 56: {'yoffset': 27.063, 'width': 21, 'xadvance': 21.438, 'y': 223, 'x': 59, 'height': 30, 'xoffset': 0.313}, 57: {'yoffset': 20.938, 'width': 21, 'xadvance': 20.375, 'y': 65, 'x': 31, 'height': 30, 'xoffset': 0.0}, 58: {'yoffset': 18.875, 'width': 8, 'xadvance': 11.188, 'y': 115, 'x': 248, 'height': 21, 'xoffset': 1.688}, 59: {'yoffset': 18.938, 'width': 9, 'xadvance': 11.25, 'y': 125, 'x': 77, 'height': 27, 'xoffset': 0.938}, 60: {'yoffset': 20.813, 'width': 20, 'xadvance': 23.125, 'y': 29, 'x': 218, 'height': 22, 'xoffset': 1.875}, 61: {'yoffset': 15.688, 'width': 21, 'xadvance': 23.125, 'y': 236, 'x': 0, 'height': 12, 'xoffset': 1.188}, 62: {'yoffset': 20.813, 'width': 20, 'xadvance': 23.125, 'y': 170, 'x': 0, 'height': 22, 'xoffset': 2.0}, 63: {'yoffset': 27.0, 'width': 17, 'xadvance': 17.188, 'y': 57, 'x': 221, 'height': 29, 'xoffset': 0.375}, 64: {'yoffset': 25.563, 'width': 31, 'xadvance': 33.438, 'y': 29, 'x': 0, 'height': 33, 'xoffset': 1.438}, 65: {'yoffset': 26.813, 'width': 29, 'xadvance': 24.188, 'y': 115, 'x': 117, 'height': 29, 'xoffset': -2.188}, 66: {'yoffset': 26.438, 'width': 24, 'xadvance': 23.563, 'y': 115, 'x': 146, 'height': 28, 'xoffset': 0.125}, 67: {'yoffset': 27.0, 'width': 25, 'xadvance': 23.125, 'y': 174, 'x': 145, 'height': 30, 'xoffset': -0.125}, 68: {'yoffset': 26.438, 'width': 28, 'xadvance': 27.0, 'y': 174, 'x': 202, 'height': 28, 'xoffset': 0.125}, 69: {'yoffset': 26.438, 'width': 24, 'xadvance': 23.5, 'y': 174, 'x': 230, 'height': 28, 'xoffset': 0.0}, 70: {'yoffset': 26.438, 'width': 23, 'xadvance': 21.563, 'y': 86, 'x': 140, 'height': 28, 'xoffset': 0.0}, 71: {'yoffset': 27.0, 'width': 28, 'xadvance': 26.125, 'y': 144, 'x': 145, 'height': 30, 'xoffset': -0.125}, 72: {'yoffset': 26.438, 'width': 29, 'xadvance': 29.375, 'y': 202, 'x': 173, 'height': 28, 'xoffset': 0.25}, 73: {'yoffset': 26.438, 'width': 15, 'xadvance': 14.063, 'y': 57, 'x': 238, 'height': 28, 'xoffset': -0.125}, 74: {'yoffset': 26.375, 'width': 21, 'xadvance': 18.625, 'y': 86, 'x': 229, 'height': 29, 'xoffset': -1.313}, 75: {'yoffset': 26.438, 'width': 28, 'xadvance': 25.0, 'y': 202, 'x': 202, 'height': 28, 'xoffset': 0.313}, 76: {'yoffset': 26.438, 'width': 23, 'xadvance': 21.75, 'y': 86, 'x': 117, 'height': 28, 'xoffset': 0.25}, 77: {'yoffset': 26.438, 'width': 34, 'xadvance': 33.313, 'y': 29, 'x': 59, 'height': 28, 'xoffset': -0.688}, 78: {'yoffset': 26.438, 'width': 30, 'xadvance': 27.563, 'y': 57, 'x': 88, 'height': 29, 'xoffset': -1.125}, 79: {'yoffset': 27.0, 'width': 28, 'xadvance': 26.813, 'y': 144, 'x': 173, 'height': 30, 'xoffset': -0.125}, 80: {'yoffset': 26.438, 'width': 23, 'xadvance': 22.0, 'y': 115, 'x': 225, 'height': 28, 'xoffset': 0.125}, 81: {'yoffset': 27.063, 'width': 28, 'xadvance': 26.813, 'y': 29, 'x': 31, 'height': 36, 'xoffset': -0.125}, 82: {'yoffset': 26.438, 'width': 28, 'xadvance': 25.313, 'y': 144, 'x': 201, 'height': 28, 'xoffset': 0.25}, 83: {'yoffset': 27.0, 'width': 21, 'xadvance': 20.25, 'y': 163, 'x': 59, 'height': 30, 'xoffset': 0.25}, 84: {'yoffset': 26.438, 'width': 25, 'xadvance': 22.313, 'y': 202, 'x': 230, 'height': 28, 'xoffset': -1.25}, 85: {'yoffset': 26.375, 'width': 29, 'xadvance': 27.25, 'y': 115, 'x': 88, 'height': 29, 'xoffset': -0.188}, 86: {'yoffset': 26.375, 'width': 29, 'xadvance': 24.0, 'y': 86, 'x': 88, 'height': 29, 'xoffset': -2.188}, 87: {'yoffset': 26.375, 'width': 39, 'xadvance': 35.188, 'y': 0, 'x': 0, 'height': 29, 'xoffset': -1.563}, 88: {'yoffset': 26.438, 'width': 29, 'xadvance': 25.625, 'y': 174, 'x': 173, 'height': 28, 'xoffset': -1.25}, 89: {'yoffset': 26.438, 'width': 27, 'xadvance': 22.188, 'y': 144, 'x': 229, 'height': 28, 'xoffset': -2.25}, 90: {'yoffset': 26.438, 'width': 24, 'xadvance': 21.688, 'y': 115, 'x': 170, 'height': 28, 'xoffset': -1.0}, 91: {'yoffset': 28.188, 'width': 13, 'xadvance': 13.5, 'y': 98, 'x': 0, 'height': 36, 'xoffset': 1.438}, 92: {'yoffset': 28.25, 'width': 18, 'xadvance': 16.875, 'y': 125, 'x': 59, 'height': 38, 'xoffset': 0.063}, 93: {'yoffset': 28.188, 'width': 13, 'xadvance': 13.5, 'y': 134, 'x': 0, 'height': 36, 'xoffset': -0.313}, 94: {'yoffset': 27.125, 'width': 20, 'xadvance': 23.125, 'y': 241, 'x': 117, 'height': 15, 'xoffset': 1.813}, 95: {'yoffset': -1.688, 'width': 27, 'xadvance': 23.188, 'y': 251, 'x': 202, 'height': 5, 'xoffset': -1.563}, 96: {'yoffset': 28.5, 'width': 11, 'xadvance': 18.0, 'y': 152, 'x': 77, 'height': 11, 'xoffset': 4.25}, 97: {'yoffset': 19.313, 'width': 20, 'xadvance': 18.125, 'y': 29, 'x': 178, 'height': 22, 'xoffset': -0.125}, 98: {'yoffset': 28.5, 'width': 23, 'xadvance': 20.188, 'y': 175, 'x': 88, 'height': 31, 'xoffset': -1.75}, 99: {'yoffset': 19.375, 'width': 19, 'xadvance': 16.313, 'y': 192, 'x': 0, 'height': 22, 'xoffset': -0.25}, 100: {'yoffset': 28.5, 'width': 23, 'xadvance': 20.688, 'y': 210, 'x': 117, 'height': 31, 'xoffset': -0.25}, 101: {'yoffset': 19.375, 'width': 19, 'xadvance': 17.375, 'y': 214, 'x': 0, 'height': 22, 'xoffset': -0.25}, 102: {'yoffset': 28.688, 'width': 17, 'xadvance': 11.75, 'y': 205, 'x': 31, 'height': 31, 'xoffset': -1.063}, 103: {'yoffset': 19.313, 'width': 20, 'xadvance': 18.313, 'y': 57, 'x': 178, 'height': 29, 'xoffset': -0.75}, 104: {'yoffset': 28.5, 'width': 24, 'xadvance': 21.0, 'y': 204, 'x': 145, 'height': 31, 'xoffset': -1.375}, 105: {'yoffset': 28.125, 'width': 12, 'xadvance': 10.563, 'y': 62, 'x': 14, 'height': 30, 'xoffset': -0.75}, 106: {'yoffset': 28.125, 'width': 14, 'xadvance': 10.563, 'y': 167, 'x': 31, 'height': 38, 'xoffset': -4.125}, 107: {'yoffset': 28.5, 'width': 23, 'xadvance': 19.313, 'y': 144, 'x': 88, 'height': 31, 'xoffset': -1.375}, 108: {'yoffset': 28.5, 'width': 13, 'xadvance': 10.313, 'y': 134, 'x': 13, 'height': 31, 'xoffset': -1.5}, 109: {'yoffset': 19.25, 'width': 33, 'xadvance': 31.688, 'y': 230, 'x': 202, 'height': 21, 'xoffset': -0.5}, 110: {'yoffset': 19.25, 'width': 23, 'xadvance': 21.25, 'y': 235, 'x': 145, 'height': 21, 'xoffset': -0.438}, 111: {'yoffset': 19.375, 'width': 20, 'xadvance': 19.438, 'y': 29, 'x': 198, 'height': 22, 'xoffset': -0.25}, 112: {'yoffset': 19.25, 'width': 22, 'xadvance': 20.563, 'y': 86, 'x': 163, 'height': 29, 'xoffset': -0.938}, 113: {'yoffset': 19.75, 'width': 23, 'xadvance': 20.125, 'y': 206, 'x': 88, 'height': 30, 'xoffset': -0.25}, 114: {'yoffset': 19.25, 'width': 17, 'xadvance': 14.688, 'y': 0, 'x': 39, 'height': 21, 'xoffset': -0.438}, 115: {'yoffset': 19.375, 'width': 16, 'xadvance': 15.563, 'y': 0, 'x': 56, 'height': 22, 'xoffset': -0.125}, 116: {'yoffset': 24.125, 'width': 15, 'xadvance': 12.438, 'y': 29, 'x': 238, 'height': 27, 'xoffset': -1.25}, 117: {'yoffset': 19.063, 'width': 23, 'xadvance': 20.688, 'y': 57, 'x': 198, 'height': 22, 'xoffset': -0.938}, 118: {'yoffset': 18.813, 'width': 22, 'xadvance': 17.938, 'y': 29, 'x': 115, 'height': 21, 'xoffset': -1.813}, 119: {'yoffset': 18.813, 'width': 31, 'xadvance': 26.563, 'y': 115, 'x': 194, 'height': 21, 'xoffset': -1.563}, 120: {'yoffset': 18.813, 'width': 21, 'xadvance': 18.125, 'y': 29, 'x': 157, 'height': 21, 'xoffset': -1.313}, 121: {'yoffset': 18.813, 'width': 22, 'xadvance': 17.75, 'y': 86, 'x': 185, 'height': 29, 'xoffset': -1.813}, 122: {'yoffset': 18.813, 'width': 18, 'xadvance': 15.938, 'y': 98, 'x': 13, 'height': 21, 'xoffset': -0.563}, 123: {'yoffset': 28.438, 'width': 17, 'xadvance': 15.438, 'y': 131, 'x': 31, 'height': 36, 'xoffset': -0.25}, 124: {'yoffset': 28.25, 'width': 6, 'xadvance': 13.5, 'y': 87, 'x': 77, 'height': 38, 'xoffset': 4.125}, 125: {'yoffset': 28.438, 'width': 17, 'xadvance': 15.438, 'y': 95, 'x': 31, 'height': 36, 'xoffset': -0.375}, 126: {'yoffset': 14.625, 'width': 22, 'xadvance': 23.125, 'y': 0, 'x': 87, 'height': 10, 'xoffset': 0.75}}, 'base': 38, 'face': 'Georgia'};
+			sdfGeorgia.img = "textures/sprites/fonts/Georgia.sdf.png";
+			sdfGeorgia.width = 256;
+			sdfGeorgia.height = 256;
+
+
+			//
+
+			var zMaterial;
+
+			var titlePage;
+			var quotePage;
+			var contentPage;
+			var backgroundPage;
+
+			//
+
+			var clock = new XG.Clock();
+
+			//
+
+			init();
+			animate();
+
+			function init() {
+
+				container = document.createElement( 'div' );
+				document.body.appendChild( container );
+
+				// renderer
+
+				var pars = {
+
+					"width": SCREEN_WIDTH, "height": SCREEN_HEIGHT, "scale": SCALE,
+					"antialias": false, "tonemapping": XG.NoOperator, "brightness": BRIGHTNESS,
+					"clearColor": 0x050505, "clearAlpha": 1.0
+
+				};
+
+				renderer = new XG.ForwardRenderer( pars );
+
+				container.appendChild( renderer.domElement );
+
+				renderer.domElement.style.position = "absolute";
+				renderer.domElement.style.top = MARGIN + "px";
+				renderer.domElement.style.left = "0px";
+
+				// camera
+
+				camera = new XG.PerspectiveCamera( 65, SCREEN_WIDTH / SCREEN_HEIGHT, 1, 2000 );
+				camera.position.set( 0, 0, 200 );
+
+				// scene
+
+				scene = new XG.Scene();
+				scene.add( camera );
+
+				// fonts
+
+				fontsToLoad = 4;
+
+				loadFont( sdfBebas );
+				loadFont( sdfFiraMediumItalic );
+				loadFont( sdfFiraRegular );
+				loadFont( sdfGeorgia );
+
+
+				// objects
+
+				var materialParameters =  {
+
+					"fogEnabled"	: true,
+					"fogDensity"	: 0.002,
+					"fogColor"		: 0x050505
+
+				};
+
+				titlePage = new XG.Node();
+				quotePage = new XG.Node();
+				contentPage = new XG.Node();
+				backgroundPage = new XG.Node();
+
+				scene.add( titlePage );
+				scene.add( quotePage );
+				scene.add( contentPage );
+				scene.add( backgroundPage );
+
+				if ( 1 ) {
+
+					var title = generateText( "The Library of Babel", sdfBebas, 0.5, 0.1, materialParameters );
+					var author = generateText( "by Jorge Luis Borges", sdfBebas, 0.25, 0.1, materialParameters );
+					var quote1 = generateText( "By this art you may contemplate the variations of the 23 letters...", sdfFiraMediumItalic, 0.125, 0.1, materialParameters );
+					var quote2 = generateText( "The Anatomy of Melancholy, part 2, sect. II, mem. IV", sdfFiraRegular, 0.125, 0.1, materialParameters );
+
+
+					title.renderDepth = -300;
+					author.renderDepth = -200;
+
+					title.position.z += 25;
+					author.position.z += 0;
+					author.position.y -= 20;
+
+					quotePage.position.y -= 150;
+					quote2.position.y -= 10;
+					quote1.position.z += 5;
+
+					titlePage.add( title );
+					titlePage.add( author );
+
+					quotePage.add( quote1 );
+					quotePage.add( quote2 );
+
+					loadText( "texts/babel.txt", function ( text ) {
+
+						var content = generateText( text, sdfGeorgia, 0.125, 0.075, materialParameters );
+						content.renderDepth = -100;
+						content.position.y = -250;
+
+						contentPage.add( content );
+
+					} );
+
+				}
+
+				if ( 1 ) {
+
+					var numSprites = 500000;
+					var fieldSize = 500;
+
+					var characterField = generateCharacterField( sdfFiraMediumItalic, numSprites, fieldSize, materialParameters );
+					backgroundPage.add( characterField );
+
+				}
+
+
+				// stats
+
+				stats = new Stats();
+				container.appendChild( stats.domElement );
+
+				// events
+
+				window.addEventListener( 'resize', onWindowResize, false );
+				document.addEventListener( 'mousemove', onDocumentMouseMove, false );
+				document.addEventListener( 'mousedown', onDocumentMouseClick, false );
+
+			}
+
+			// event handlers
+
+			function onWindowResize ( event ) {
+
+				SCREEN_WIDTH = window.innerWidth;
+				SCREEN_HEIGHT = window.innerHeight - 2 * MARGIN;
+
+				renderer.setSize( SCREEN_WIDTH, SCREEN_HEIGHT );
+
+				camera.aspect = SCREEN_WIDTH/ SCREEN_HEIGHT;
+				camera.updateProjectionMatrix();
+
+			}
+
+			function onDocumentMouseMove ( event ) {
+
+				mouseX = ( event.clientX - windowHalfX ) * 1;
+				mouseY = ( event.clientY - windowHalfY ) * 1;
+
+			}
+
+			function onDocumentMouseClick ( event ) {
+
+				if ( speedTarget > 0 )
+					speedTarget = 0;
+				else
+					speedTarget = 1;
+
+			}
+
+
+			//
+
+			function generateCharacterField ( font, numSprites, fieldSize, materialParameters ) {
+
+				var textureAtlasInfo = {
+
+					"width"		: font.width,
+					"height"	: font.height,
+					"base"		: font.base
+
+				};
+
+				var material = new XG.SpriteMaterial( {
+
+					"textureAtlas"	: font.map,
+					"billboard"		: true,
+					"antialias"		: true,
+					"sdf"			: true,
+					"fog"			: materialParameters.fogEnabled,
+					"fogDensity"	: materialParameters.fogDensity,
+					"fogColor"		: materialParameters.fogColor
+
+				} );
+
+				var geometry = new XG.SpriteGeometry( numSprites );
+
+				var color = new XG.Color();
+
+				for ( var i = 0; i < numSprites; i ++ ) {
+
+					var x = ( XG.Math.randomFloat16() - 0.5 ) * fieldSize * 4;
+					var y = ( XG.Math.randomFloat16() - 0.5 ) * fieldSize * 4 - fieldSize * 1.5;
+					var z = ( XG.Math.randomFloat16() - 0.5 ) * fieldSize * 1 - fieldSize * 0.4;
+
+					//
+
+					var h = x > 0 ? 0.0 : 0.55;
+					var s = y > 0 ? 0.95 : 0.0;
+					var v = y > 0 ? 1.0 : 0.1;
+
+					var c = fieldSize * 0.75;
+					var n = XG.Math.clamp( Math.abs( x ) / c, 0.0, 1.0 );
+
+					if ( y < 0 && Math.abs( x ) > c && Math.random() < n ) {
+
+						h = x > 0 ? 0.0 : 0.55;
+						//h = 0.05;
+						s = 1;
+						v = 1;
+
+					}
+					h += Math.random() * 0.075;
+
+					color.setHSV( h, s, v );
+
+					var r = color.r;
+					var g = color.g;
+					var b = color.b;
+
+					//
+
+					var s = XG.Math.randomFloat( 0.05, 0.15 );
+
+					var sx = s;
+					var sy = s;
+
+					//
+
+					//var index = XG.Math.randomInt( 97, 122 );
+					var index = XG.Math.randomInt( 65, 90 );
+					//var index = XG.Math.randomInt( 48, 57 );
+					var glyphInfo = font.chars[ index ];
+
+					//
+
+					geometry.setSpritePosition( i, x, y, z );
+					geometry.setSpriteColor( i, r, g, b );
+					geometry.setSpriteScale( i, sx, sy );
+					geometry.setSpriteTexture( i, glyphInfo, textureAtlasInfo );
+
+				}
+
+				var mesh = new XG.Mesh( geometry, material );
+
+				zMaterial = material;
+
+				return mesh;
+
+			}
+
+			//
+
+			function fontCallback () {
+
+				fontCounter += 1;
+
+				if ( fontCounter >= fontsToLoad ) {
+
+					loadingElement.style.display = "none";
+
+				}
+
+			}
+
+			function loadFont ( font ) {
+
+				var map = XG.ImageUtils.loadTexture( font.img, fontCallback );
+				map.anisotropy = 16;
+
+				font.map = map;
+
+			}
+
+			//
+
+			function generateText ( text, font, fontSize, fontSmoothness, materialParameters ) {
+
+				var textureAtlasInfo = {
+
+					"width"		: font.width,
+					"height"	: font.height,
+					"base"		: font.base
+
+				};
+
+				var material = new XG.SpriteMaterial( {
+
+				"textureAtlas"	: font.map,
+				"billboard"		: false,
+				"antialias"		: true,
+				"transparent"	: true,
+				"sdf"			: true,
+				"fog"			: materialParameters.fogEnabled,
+				"fogDensity"	: materialParameters.fogDensity,
+				"fogColor"		: materialParameters.fogColor,
+				"epsilon"		: fontSmoothness
+
+				} );
+
+				var numSprites = text.length;
+				var geometry = new XG.SpriteGeometry( numSprites );
+
+				var metrics = {
+
+					"width"		: 0,
+					"height"	: 0
+
+				};
+
+				var parameters = {
+
+					"font"			: font,
+					"fontSize"		: fontSize,
+					"wordWrap"		: true,
+					"lineLength"	: 160,
+					"lineHeight"	: 1.3333
+
+				};
+
+				geometry.setText( text, 0, 0, 0, parameters, metrics );
+
+				var sx = - ( metrics.width * 0.5 );
+				var sy = + ( metrics.height * 0.5 );
+				var sz = 65;
+
+				mesh = new XG.Mesh( geometry, material );
+				mesh.position.set( sx, sy, sz );
+
+				return mesh;
+
+			}
+
+			//
+
+			function loadText( url, callback ) {
+
+				var xhr = new XMLHttpRequest();
+
+				xhr.onreadystatechange = function () {
+
+					if ( xhr.readyState === xhr.DONE ) {
+
+						if ( xhr.status === 200 || xhr.status === 0 ) {
+
+							if ( xhr.responseText ) {
+
+								callback( xhr.responseText );
+
+							} else {
+
+								console.warn( "loadText: [" + url + "] seems to be unreachable or file there is empty" );
+
+							}
+
+
+
+						} else {
+
+							console.error( "loadText: Couldn't load [" + url + "] [" + xhr.status + "]" );
+
+						}
+
+					}
+
+				};
+
+				xhr.open( "GET", url, true );
+				xhr.send( null );
+
+			}
+
+			// updates
+
+			function animate() {
+
+				requestAnimationFrame( animate );
+				render();
+
+				stats.update();
+
+			}
+
+			function render() {
+
+				var delta = clock.getDelta();
+				var time = Date.now() * 0.001;
+
+				// update camera
+
+				targetX = mouseX * 0.04;
+				targetY = mouseY * 0.04;
+
+				angle  += 0.05 * ( targetX - angle );
+				height += 0.05 * ( targetY - height );
+
+				var d = 200;
+				var f = 0.02;
+
+				var x =  -Math.sin( angle * f ) * d;
+				var z =   Math.cos( angle * f ) * d;
+				var y = 1.5 * height + 0;
+
+				targetY = -Math.sin( 3.14 * mouseY / SCREEN_HEIGHT ) * 10;
+				speed += ( speedTarget - speed ) * delta * 5;
+
+				var y = camera.position.y + 0.2 * targetY * speed;
+				if ( y > 0 && targetY > 0 ) speedTarget = 0;
+				if ( y > 0 && targetY < 0 ) speedTarget = 1;
+				target.y = y;
+
+				camera.position.set( x, y, z );
+				camera.lookAt( target );
+
+				// render scene
+
+				renderer.render( scene, camera );
+
+			}
+
+		</script>
+
+	</body>
+</html>

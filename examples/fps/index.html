@@ -1,0 +1,74 @@
+<!doctype html>
+
+<html>
+<head lang="en">
+
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="description" content="Fast-paced '90s-style first-person shooter with an abstract 2.5D-meets-voxels aesthetic, made entirely in JavaScript / WebGL.">
+
+	<meta property="og:title" content="gorescript" />
+	<meta property="og:site_name" content="gorescript"/>
+	<meta property="og:url" content="http://gorescript.com" />
+	<meta property="og:description" content="Fast-paced '90s-style first-person shooter with an abstract 2.5D-meets-voxels aesthetic, made entirely in JavaScript / WebGL." />
+	<meta property="og:image" content="http://gorescript.com/img/gs_og.jpg" />
+
+	<title>gorescript</title>
+
+	<link href="css/font-awesome.min.css" type="text/css" rel="stylesheet">
+
+	<style>
+
+		body { margin: 0; padding: 0; overflow: hidden; background-color: #000; }
+		canvas { position: fixed; }
+
+		.news-box { position: absolute; box-sizing: border-box; right: 10px; top: 10px; padding: 0; z-index: 10000;
+					text-align: center; display: none; }
+		.news-box a { color: #fff; font-size: 4vw; font-family: "hudFont"; text-decoration: none; }
+		.news-box a:hover { text-decoration: underline; }
+
+		.social-media a {
+			font-size: 5vh !important;
+		}
+
+		.media-icon {
+			display: inline-block;
+			vertical-align: middle;
+			margin: 0.5vh;
+			padding: 0.25vh;
+		}
+
+		.media-icon:hover {
+			background: #fff;
+			color: #000;
+		}
+
+		.fatal-error { font-size: 32px; font-family: "hudFont"; color: #fff; }
+		.fatal-error-link, .custom-map-link { font-size: 32px; font-family: "hudFont"; color: #fff; text-decoration: none; cursor: pointer; }
+		.fatal-error-link:hover, .custom-map-link:hover { text-decoration: underline; }
+		.custom-map-link { font-size: 2vw !important; position: fixed; left: 20px; bottom: 20px; }
+		#customMapInput { display: none; }
+
+	</style>
+
+</head>
+<body>
+
+	<div class="news-box">
+		<div class="social-media">
+			<a href="https://twitter.com/gorescript" target="_blank"><span class="media-icon fa fa-twitter"></span></a>
+			<a href="https://www.facebook.com/gorescript" target="_blank"><span class="media-icon fa fa-facebook-square"></span></a>
+			<a href="https://gorescript.tumblr.com" target="_blank"><span class="media-icon fa fa-tumblr-square"></span></a>
+			<a href="https://youtube.com/c/gorescript" target="_blank"><span class="media-icon fa fa-youtube-square"></span></a>
+		</div>
+		<a class="custom-map-link" onclick="GAME.customMap()">load custom map</a>
+	</div>
+
+	<input id="customMapInput" type="file" accept=".js, .json" onchange="GAME.customMap()">
+
+	<script src="gorescript-deps.min.js"></script>
+	<script src="gorescript.min.js"></script>
+
+</body>
+</html>

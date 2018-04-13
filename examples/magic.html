@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>魔方动画_基于WebGL技术在线预览玩具</title>
+        <script src="http://www.yanhuangxueyuan.com/3D/example/three.js"></script>
+        <link href="http://www.yanhuangxueyuan.com/style.css" rel="stylesheet" type="text/css">
+        <style>
+            canvas {
+                width: 100%;
+                height: 100%;
+            }
+
+            body {
+                margin: 0;
+                overflow: hidden;
+            }
+        </style>
+    </head>
+    <body>
+        <audio src="http://www.yanhuangxueyuan.com\3D\magic\magic.wav" id="audio"></audio>
+        <nav style="height: 45px;background-color: #333333;margin-bottom: 0px;position: fixed;width: 100%;top: 0px;z-index: 99">
+            <!--<canvas id="canvas" width="30px" height="45px" style="display: block;float: left"></canvas>-->
+            <img src="http://www.yanhuangxueyuan.com/favicon.png" alt="WebGL教程_Three.js教程_郭隆邦技术博客" width="40px" height="40px" style="display: block;float: left;margin-top: 2px">
+            <a class="nav_hover nav_a" href="http://www.yanhuangxueyuan.com/" style="margin-left: 0px;font-family: '楷体';font-size: 20px;margin-top: 12px">郭隆邦_技术博客</a>
+            <div style="margin: auto;width: 650px">
+                <a class="nav_hover nav_a" href="http://www.yanhuangxueyuan.com/" style="margin-left: 10%">首页 </a>
+                <a class="nav_hover nav_a" href="http://www.yanhuangxueyuan.com/WebGL_course.html" target="_blank">WebGL教程</a>
+                <a class="nav_hover nav_a" href="http://www.yanhuangxueyuan.com/Three.js_course.html" target="_blank">Three.js教程</a>
+                <ul class="nav_ul" id="ul_2" style="margin-left: -5px">
+                    <a class="nav_hover nav_a" href="http://www.yanhuangxueyuan.com/3D.html" target="_blank">3D案例</a>
+                </ul>
+                <ul class="nav_ul" id="ul_1" style="margin-left: -35px;">
+                    <a class="nav_hover nav_a" href="#" target="_blank">帮助文档</a>
+                    <li class="li_1 nav_li">
+                        <a class="nav_hover nav_a nav_li_a" href="http://www.yanhuangxueyuan.com/doc/WebGL.html" target="_blank" style="margin-top: 10px">WebGL文档</a>
+                    </li>
+                    <li class="li_1 nav_li">
+                        <a class="nav_hover nav_a nav_li_a" href="http://www.yanhuangxueyuan.com/doc/three.js.html" target="_blank">Three.js文档</a>
+                    </li>
+                    <li class="li_1 nav_li">
+                        <a class="nav_hover nav_a nav_li_a" href="http://www.yanhuangxueyuan.com/doc/GLSL ES.html" target="_blank">GLSL ES文档</a>
+                    </li>
+                    <li class="li_1 nav_li">
+                        <a class="nav_hover nav_a nav_li_a" href="http://www.yanhuangxueyuan.com/doc/stats.html" target="_blank">stats文档</a>
+                    </li>
+                </ul>
+                <a class="nav_hover nav_a" href="http://www.yanhuangxueyuan.com/work.html" target="_blank" style="margin-left: -5px">WebGL工作</a>
+                <a class="nav_hover nav_a" href="http://www.yanhuangxueyuan.com/links.html" target="_blank" style="">外链资源</a>
+            </div>
+        </nav>
+<script type="text/javascript">
+
+//导航栏下拉菜单—3D
+var ul_2=document.getElementById('ul_2');
+var li_2=document.getElementsByClassName('li_2');
+ul_2.addEventListener('mouseover',function hide() {
+    for(var i = 0;i<li_2.length;i++)
+        li_2[i].style.display='block' ;
+
+});
+ul_2.addEventListener('mouseout',function hide() {
+    for(var i = 0;i<li_2.length;i++)
+        li_2[i].style.display='none' ;
+});
+
+//导航栏下拉菜单—文档
+var ul_1=document.getElementById('ul_1');
+var li_1=document.getElementsByClassName('li_1');
+
+ul_1.addEventListener('mouseover',function hide() {
+    for(var i = 0;i<li_1.length;i++)
+        li_1[i].style.display='block' ;
+
+});
+ul_1.addEventListener('mouseout',function hide() {
+    for(var i = 0;i<li_1.length;i++)
+        li_1[i].style.display='none' ;
+});
+
+</script>
+<script>
+var scene = new THREE.Scene();
+var face = [];
+var texture1 = THREE.ImageUtils.loadTexture("magic/green.png");
+var texture2 = THREE.ImageUtils.loadTexture("magic/blue.png");
+var texture3 = THREE.ImageUtils.loadTexture("magic/yellow.png");
+var texture4 = THREE.ImageUtils.loadTexture("magic/white.png");
+var texture5 = THREE.ImageUtils.loadTexture("magic/red.png");
+var texture6 = THREE.ImageUtils.loadTexture("magic/orange.png");
+face.push(new THREE.MeshPhongMaterial({
+    map: texture1
+}));
+face.push(new THREE.MeshPhongMaterial({
+    map: texture2
+}));
+face.push(new THREE.MeshPhongMaterial({
+    map: texture3
+}));
+face.push(new THREE.MeshPhongMaterial({
+    map: texture4
+}));
+face.push(new THREE.MeshPhongMaterial({
+    map: texture5
+}));
+face.push(new THREE.MeshPhongMaterial({
+    map: texture6
+}));
+var faceMaterial = new THREE.MeshFaceMaterial(face);
+var a = 10;
+var mesh = [];
+var i = 0;
+var b = 5;
+var c = 0;
+var object = new THREE.Object3D();
+for (var x = 0; x < b; x++) {
+    for (var y = 0; y < b; y++) {
+        for (var z = 0; z < b; z++) {
+            var box = new THREE.CubeGeometry(a,a,a);
+            mesh[i] = new THREE.Mesh(box,faceMaterial);
+            mesh[i].position.set(x * (a + c) - a * (b - 1) / 2, y * (a + c) - a * (b - 1) / 2, z * (a + c) - a * (b - 1) / 2);
+            object.add(mesh[i]);
+            i++
+        }
+    }
+}
+scene.add(object);
+var arr = [];
+for (var i = 0; i < b; i++) {
+    var arrChild = [];
+    for (var j = 0; j < b * b; j++) {
+        arrChild.push(j + b * b * i)
+    }
+    arr.push(arrChild)
+}
+for (var i = 0; i < b; i++) {
+    var arrChild = [];
+    for (var j = 0; j < b; j++) {
+        for (var k = 0; k < b; k++) {
+            arrChild.push(k + b * b * j + b * i)
+        }
+    }
+    arr.push(arrChild)
+}
+for (var i = 0; i < b; i++) {
+    var arrChild = [];
+    for (var j = 0; j < b * b; j++) {
+        arrChild.push(j * b + i)
+    }
+    arr.push(arrChild)
+}
+var angle = Math.PI / 2;
+var obj = new THREE.Object3D();
+for (var j = 0; j < 25; j++) {
+    obj.add(mesh[arr[2][j]])
+}
+object.add(obj);
+var obj2 = new THREE.Object3D();
+for (var j = 0; j < 25; j++) {
+    obj2.add(mesh[arr[0][j]])
+}
+object.add(obj2);
+var obj3 = new THREE.Object3D();
+for (var j = 0; j < 25; j++) {
+    obj3.add(mesh[arr[4][j]])
+}
+object.add(obj3);
+var point = new THREE.PointLight(6710886);
+point.position.set(400, 200, 300);
+scene.add(point);
+var point1 = new THREE.PointLight(6710886);
+point1.position.set(401, 201, 301);
+scene.add(point1);
+var ambient = new THREE.AmbientLight(11184810);
+scene.add(ambient);
+var k = 15;
+var width = window.innerWidth;
+var height = window.innerHeight;
+var camera = new THREE.OrthographicCamera(-width / k,width / k,height / k,-height / k,1,1000);
+camera.position.set(400, 400, 400);
+camera.lookAt(scene.position);
+var renderer = new THREE.WebGLRenderer();
+renderer.setSize(width, height);
+renderer.setClearColor(12178431, 1);
+document.body.appendChild(renderer.domElement);
+var t = 0;
+var audio = document.getElementById("audio");
+function render() {
+    renderer.render(scene, camera);
+    requestAnimationFrame(render);
+    object.rotation.x += 0.005;
+    object.rotation.y += 0.005;
+    object.rotation.z += 0.005;
+    t++;
+    if (t < 21) {
+        obj.rotateX(Math.PI / 20);
+        if (t == 1) {
+            audio.play()
+        }
+    } else {
+        if (t >= 100 && t < 130) {
+            obj2.rotateX(Math.PI / 20);
+            if (t == 100) {
+                audio.play()
+            }
+        } else {
+            if (t >= 200 && t < 250) {
+                obj3.rotateX(Math.PI / 20);
+                if (t == 200) {
+                    audio.play()
+                }
+            }
+        }
+    }
+    if (t >= 280 && t < 300) {
+        obj.rotateX(-Math.PI / 20);
+        if (t == 280) {
+            audio.play()
+        }
+    } else {
+        if (t >= 300 && t < 330) {
+            obj2.rotateX(-Math.PI / 20);
+            if (t == 300) {
+                audio.play()
+            }
+        } else {
+            if (t >= 340 && t < 390) {
+                obj3.rotateX(-Math.PI / 20);
+                if (t == 340) {
+                    audio.play()
+                }
+            } else {
+                if (t > 500) {
+                    t = 0
+                }
+            }
+        }
+    }
+}
+render();
+</script>
+</body>
+</html>
