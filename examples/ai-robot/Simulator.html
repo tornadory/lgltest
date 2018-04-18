@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>智能培训</title>
+		<meta content="initial-scale=1.0,user-scalable=no,maximum-scale=1,width=device-width" name="viewport" />
+		<meta content="initial-scale=1.0,user-scalable=no,maximum-scale=1" media="(device-height: 568px)" name="viewport">
+		<link href="css/bootstrap.min.css" rel="stylesheet" />
+		<style>
+			.footer {
+			    background: #f4f4f4;
+			    /*padding: 10px 0 5px 0;*/
+			    width: 100%;
+			    position: fixed;
+			    left: 0;
+			    bottom: 0;
+			}
+			.footer ul {
+			    height: 0px;
+			}
+			.footer ul li {
+			    float: left;
+			    width: 33.333333%;
+			    height: 50px;
+			    list-style-type: none;
+			    margin: 0px;
+			    padding: 0px;
+			    /*line-height: 7em;*/
+			   text-align: center;
+			}
+			.footer ul li span {
+			    display: block;
+			    /*color: #fff;*/
+			    font-size: 12px;
+			    font-family: "微软雅黑";
+			    text-align: center;
+			}
+			a {
+			    color: #000;
+			    text-decoration: none;
+			}
+			* {
+			    padding: 0;
+			    margin: 0;
+			    list-style: none;
+			    font-weight: normal;
+			}
+			.head {
+			    background: #fcfbfb;
+			    /*padding: 2em 0 2em 0;*/
+			    width: 100%;
+			    height: 50px;
+			    line-height: 50px;
+			    border-bottom: 1px solid #cacaca;
+			    vertical-align: middle;
+			    
+			}
+			.left{
+				float: left;
+			}
+			/*.headImg{
+				margin-top: 14px;
+				padding: 0 20px;
+			}*/
+			.headImg1{
+				margin-top: 9px;
+				padding: 0 20px;
+			}
+			.right{
+				float: right;
+			}
+			.issueImg{
+				margin-top: 11px;
+			}
+			.issueWord{
+				height:32px;
+				line-height: 20px;
+				display: inline-block;
+				border: 1px solid #f9f4f1;
+				background-color: #f9f4f1;
+				border-radius: 20px;
+				padding: 5px 5px;
+				width: 86%;
+				/*overflow: hidden;*/
+				font-size:14px;
+				overflow: hidden;
+				text-overflow: ellipsis;
+				white-space: nowrap;
+			}
+			.col-xs-4{margin-bottom: 10px;width: 33% !important;}
+			.col-xs-12{padding-left: 10px !important;padding-right: 10px !important;}
+			.sceneClick{
+				float: left;
+				display: block;
+			}
+		</style>
+	</head>
+	<body>
+		<header style="padding-bottom: 1.3em;">
+			<div class="head" >
+				<!--<img class="headImg left backOriginalpage" src="img/left_arrow.png" />-->
+				<p style="font-size: 18px;display: inline-block;"></p>
+				<p style="display: inline-block;position: absolute;left: 39.7%;font-size: 18px;">训练场景</p>
+				<img class="headImg1 right" src="img/more.png" />
+			</div>	
+		</header>
+		<div class="middle ">
+			
+			
+		</div>
+		<footer class="footer">
+            <ul>
+                <li>
+                	<img src="img/my_grade.png" style="height: 47%;margin-top:5px;"/>
+                    <span>我的成绩</span>
+                </li>
+                <li>
+                	<img src="img/recording.png" style="height: 47%;margin-top:5px;"/>
+                    <span style="color: #f7a74e;">模拟训练</span>
+                </li>
+                <li>
+                	<img src="img/talk.png" style="height: 47%;margin-top:5px;"/>
+                    <span>话术学习</span>
+                </li>
+            </ul>
+       </footer>
+	</body>
+	
+	<script type="text/javascript" src="js/jquery-1.11.0.js"></script>
+	<script type="text/javascript" src="js/gongyong.js" ></script>
+	<script type="text/javascript">
+		
+		//全局参数定义
+		var simulatorSelectArr = [];//场景选择暂存数组
+		
+		//初始化方法
+		$(document).ready(function(){
+
+			//初始化场景选择列表
+			initSimulatorSelect();
+    	});
+    	
+    	
+    	//初始化场景选择列表
+    	function initSimulatorSelect(){
+    		var data = {
+			}
+    		//调用AJAX请求方法
+			ajaxRequst("get","trainings/scene-list",data,function(data){
+				console.log(data)
+				
+				//获取到场景选择列表
+				var datas = data.data;
+				simulatorSelectArr = data.data;
+				var modelHtml = "";
+				
+				
+				for(var i = 0;i < datas.length;i++){
+					
+					modelHtml = "";
+					
+					//当前模式是否存在标识
+					var isExistFlag = false;
+			
+					
+					//遍历存在模式判断是否已存在
+					$("div[class='MiddleContent']").each(function(){
+						var id = $(this).attr("id");
+						console.log(id)
+						
+						if(id == datas[i].modelId){
+							isExistFlag = true;
+						}
+					});
+					
+					//
+					if(isExistFlag){//存在
+						
+						modelHtml += "<div value='"+i+"' name='"+datas[i].sceneName+"'  class='sceneClick col-xs-4 model"+datas[i].modelId+"'>";
+						modelHtml += "<img src='img/star.png' style='float: left;width:13%' class='issueImg'/>";
+						modelHtml += "<span class='issueWord'>"+datas[i].sceneName+"</span>";
+						modelHtml += "</div>";
+						
+						$("#model"+datas[i].modelId).append(modelHtml);
+					}else{//不存在
+						
+						
+						modelHtml += "<div class='MiddleContent' id='"+datas[i].modelId+"'>";
+						modelHtml += "<div style='text-align: center;margin-bottom: 10px;'>";
+						modelHtml += "<span style='width: 7px;color:#f7a74e;'>一</span>";
+						modelHtml += "<span style='font-size: 21px;display: inline-block;padding: 0 5px;font-weight: 600;'>"+datas[i].modelName+"</span>";
+						modelHtml += "<span style='width: 7px;color:#f7a74e;'>一</span>";
+						modelHtml += "</div>";
+						modelHtml += "<div id='model"+datas[i].modelId+"' style='width: 100%;text-align: center;' class='col-xs-12'>";
+						
+						modelHtml += "<div  value='"+i+"' name='"+datas[i].sceneName+"'  class='sceneClick col-xs-4 model"+datas[i].modelId+"' >";
+						modelHtml += "<img src='img/star.png' style='float: left;width:13%' class='issueImg'/>";
+						modelHtml += "<span class='issueWord'>"+datas[i].sceneName+"</span>";
+						modelHtml += "</div>";
+						
+						modelHtml += "</div>";
+						modelHtml += "</div>";
+						
+						$(".middle").append(modelHtml);
+					}
+				}	
+			});	
+    	}
+    	
+    	
+    	//鼠标悬浮场景框点击进行训练
+    	$("body").delegate(".sceneClick","touchend",function(){
+    		
+    		//
+    		var num = $(this).attr("value");
+			var name = $(this).attr("name");
+			
+			sessionStorage.setItem("wensihaihuiSceneIdNow",simulatorSelectArr[num].id);
+			sessionStorage.setItem("wensihaihuiSceneNameNow",name);
+			
+//			alert("当前选择场景"+name+"---ID"+simulatorSelectArr[num].id);
+			
+			window.location.href = "Simulatordialog.html";
+		});	
+    </script>	
+</html>

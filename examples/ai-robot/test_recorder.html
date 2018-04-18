@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Recorder test</title>
+<script type="text/javascript" src="js/libs/recorder.js"></script>
+<script>
+window.AudioContext = window.AudioContext || window.webkitAudioContext;
+navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
+window.URL = window.URL || window.webkitURL;
+
+var audio_context;
+var recorder;
+
+function init_recording(){
+	audio_context= new AudioContext();
+	navigator.getUserMedia({audio: true},
+							function (stream){
+								var source=audio_context.createMediaStreamSource(stream);
+								recorder=new Recorder(source); // defined in recorder.js
+							},
+							function(error) {
+		  						alert('No live audio input');
+							}
+	);
+}
+
+function onRecord(){
+	recorder.clear(); // erase existing content in the recorder (very useful for the second recording:-)
+	recorder.record();
+}
+
+function onStop(){
+	recorder.stop();
+	recorder.exportWAV(function(blob) {
+	    var url = window.URL.createObjectURL(blob);
+	    var myAudio=window.document.getElementById('myAudio');
+	    myAudio.src=url;
+	});
+}
+
+init_recording();
+</script>
+</head>
+<body>
+<button onclick="onRecord()">Record</button>
+<button onclick="onStop()">Stop</button>
+<audio id="myAudio" controls></audio>
+</body>
+</html>

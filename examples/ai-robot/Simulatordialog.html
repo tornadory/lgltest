@@ -1,0 +1,911 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>智能培训</title>
+		<meta content="initial-scale=1.0,user-scalable=no,maximum-scale=1,width=device-width" name="viewport" />
+		<meta content="initial-scale=1.0,user-scalable=no,maximum-scale=1" media="(device-height: 568px)" name="viewport">
+		<link href="css/bootstrap.min.css" rel="stylesheet" />
+		<link rel="stylesheet" type="text/css" href="css/jscrollpane1.css" />
+		<link href="css/mui.min.css" rel="stylesheet" />
+		
+		<style>
+			.footer {
+			    padding: 15px 0 5px 0;
+			    width: 100%;
+			    position: fixed;
+			    left: 0;
+			    bottom: 0;
+			}
+			
+			a {
+			    color: #000;
+			    text-decoration: none;
+			}
+			* {
+			    padding: 0;
+			    margin: 0;
+			    list-style: none;
+			    font-weight: normal;
+			}
+			.head {
+			    background: #fcfbfb;
+			    /*padding: 2em 0 2em 0;*/
+			    width: 100%;
+			    height: 50px;
+			    line-height: 50px;
+			    border-bottom: 1px solid #cacaca;
+			    vertical-align: middle;
+			    
+			}
+			.left{
+				float: left;
+			}
+			.headImg{
+				margin-top: 8px;
+				padding: 0 20px;
+			}
+			.headImg1{
+				margin-top: 9px;
+				padding: 0 20px;
+			}
+			.right{
+				float: right;
+			}
+			.issueImg{
+				margin-top: 28px;
+			}
+			.issueWord{
+				height:80px;
+				line-height: 80px;
+				display: inline-block;
+				border: 1px solid #f9f4f1;
+				background-color: #f9f4f1;
+				border-radius: 20px;
+				padding: 0 5px;
+				width: 80%;
+				overflow: hidden;
+			}
+			.jspPane{width: 100% !important}
+			.jp-container{width: 100% !important;height: 100% !important;}
+			.jspContainer{width: 100% !important;height: 100% !important;}
+			.outText{
+				font-family: "microsoft yahei";
+				display: inline-block;
+				position: absolute;
+				width: 101px;
+				left: 39.5%;
+				font-size: 20px;
+				overflow: hidden;
+				text-overflow:ellipsis;
+				white-space: nowrap;
+				color: black;
+			}
+			.mask{ 
+				diaplay:none;
+			    position: absolute;
+			    left:0;
+			    right:0;
+			    top:0;
+			    bottom:0;
+			    background:rgba(0,0,0,.5);
+			    
+			}
+			.Stup{
+				text-align:right;
+				font-size: 21px;padding: 20px;color: white;}
+			.grade{
+				color:#ececec;
+				width:50%;
+				text-align:center;
+			    font-size:24px;
+			    margin-left:auto;margin-right:auto;
+				margin-top:10px;
+				z-index:4;
+				 }
+			.Bombbox{
+				display: block;
+				width: 98%;
+				padding-left: 47px;
+				margin-top: -71px;
+				z-index:3;
+			}
+			body {
+			font: "微软雅黑";
+			letter-spacing: normal;
+			
+		}
+		
+		#content {
+			position:relative;
+			top:-24px;
+			width: 100%;
+            padding: 0;
+            margin: 0 auto;
+           	overflow-y: scroll;
+		    max-height: 180px;
+		    min-height: 130px;
+			}
+		#table1{
+            font: bold 16px/1.4em "Trebuchet MS", sans-serif;
+              	width:50%;
+              	text-align:center;
+              	margin: 0 	auto;
+             
+        }
+        
+        #table1 td{
+        	height:30px;
+            border:0;
+            padding: 0;
+            font-size: 16px;
+            padding:4px 0;
+        }	
+        .table_left{
+        	border-right:1px solid white !important;
+        }
+        .table_right{
+        	width:50%;
+        }
+        .one{
+        	background-color:#ececec;
+        	opacity:.8;
+        }
+        .two{
+        	 	background-color:#fcfcfc;}
+        .button{
+        	font-family:"微软雅黑";
+        	border-radius:10px;
+        	width:120px;
+        	background-color:#ececec;
+        	color:#101010;
+        	font-size:18px;
+        	text-align:center;
+        	padding:5px;
+        	margin-left:auto;margin-right:auto;
+        }
+		</style>
+	</head>
+	<body>
+		<header>
+			<div class="head" >
+				<img class="headImg left backOriginalpage" src="img/left_arrow.png" />
+				<p style="font-size: 18px;display: inline-block;font-family:'microsoft yahei';"></p>
+				<p id="wensihaihuiSceneNameNow" class="outText">训练场景</p>
+				<img class="headImg1 right" src="img/more.png" />
+			</div>	
+		</header>
+		
+		
+		<div class="middle">
+			<div class="talk">
+				<!--<div class="talk_title"><span>12345</span></div>-->
+				<div class="talk_record">
+					<audio id="problemVio" style="display: none;" src="" autoplay="autoplay" controls="controls">
+					Your browser does not support the audio element.
+					</audio>
+					<div id="jp-container" class="jp-container">						
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		
+		<div class="footer" style="text-align: center;">
+           
+                	<!--<img src="img/left_recording.png" style="width: 28%;height: 85px;"/>-->
+                	<!--<img src="img/bigrecording.png" style="width: 28%;height: 85px;"/>-->
+
+                	<!--<img src="img/yuyintubiao.gif"  style="width:70%;"/>-->
+                	<img src="img/yuyintubiao.gif"  disabled="disabled"  style="width:70%;"/>
+                	<!--<img src="img/right_recording.png" style="width: 28%;height: 85px;"/>-->
+                   <!-- <a href="#"><span style="c《olor: #f7a74e;">模拟训练</span></a>-->
+                
+        </div>
+        <div class="mask" style="display: none;">
+        	<div>  
+        		<p class="Stup">关闭</p>
+        		<p class="grade">一&nbsp;&nbsp;本次得分&nbsp;&nbsp;一</p>
+        		<p id="score" style="text-align:center;font-size:32px;color:red;margin-left:auto;margin-right:auto;">90</p>
+        		<img src=""  class="Bombbox"/>
+        	</div>
+        	<div id="content">
+				<tbody>
+					<table id="table1" cellpadding="0" cellspacing="0">
+					</table>
+				</tbody>
+			</div>
+			<div class="button">查询更多</div>
+        </div>
+	</body>
+	
+	<script type="text/javascript" src="js/jquery-1.11.0.js"></script>
+	<script type="text/javascript" src="js/gongyong.js" ></script>
+	<script type="text/javascript" src="js/jquery.mousewheel.js"></script>
+	<script type="text/javascript" src="js/recorder.js"></script>
+	<script type="text/javascript" src="js/mui.min.js" ></script>
+	<script type="text/javascript" src="js/wx-audio.js" ></script>
+	<!-- the jScrollPane script -->
+	<script type="text/javascript" src="js/jquery.jscrollpane.min.js"></script>
+	<script type="text/javascript" src="js/scroll-startstop.events.jquery.js"></script>
+	<script type="text/javascript">
+		
+		var problemArr = [];//当前训练的问题列表
+		var problemNowNum = 0;//当前训练的第几个问题，默认为第一个
+		var ws;
+		var sceneIdNow = "";//当前训练场景ID
+		var problemIdNow = "";//当前回答问题ID
+		var trainTime = "";//训练开始时间
+		var scaCompleteFlag = false;
+		var audioCompleteFlag = false;
+		var isNewAnswer = true;//是否为一次新的回答
+		var noSpeakFlag = true;//是否在说话。默认为不说话
+		var noFirstSpeakFlag = false;//判断第一句话是否没有回答，默认有回答
+		var isFirstPro = true;//判断是否为第一个问题
+		var isShowProblem = true;//默认为当前正在播发问题
+		
+		//获取参数
+		var trainQuestionWaitTime = sessionStorage.getItem("trainQuestionWaitTime");//模拟训练时问题问完间隔时间
+	    var trainConversationWaitTime = sessionStorage.getItem("trainConversationWaitTime");//模拟训练时回答时中间时间间隔
+		var sceneIdNow = sessionStorage.getItem("wensihaihuiSceneIdNow");
+		var wensihaihuiSceneNameNow = sessionStorage.getItem("wensihaihuiSceneNameNow");
+		
+		$("#wensihaihuiSceneNameNow").text(wensihaihuiSceneNameNow);
+		
+		$(".talk_record").css("height",($(window).height()-205)+"px");
+		//请求当前点击的训练的问题列表
+		var data  = {
+			"sceneId" : sceneIdNow //场景ID
+		}
+		
+		
+//		var wxAudio = new Wxaudio({
+//		     ele: '#problemVio',
+//		     title: '河山大好',
+//		     disc: '许嵩',
+//		     src: '',
+//		     width: '320px'
+//		  });
+
+		//获取问题列表
+		ajaxRequst("get","/trainings/scene-problem-list",data,function(data){
+			
+			//获取问题列表
+			problemArr = data.data;
+			
+			//初始化WS
+			initWS();
+		});	
+		
+		
+		
+    	
+    	function showProblem(){
+
+    		var problemHtml = "";
+			
+			if(!noFirstSpeakFlag && problemNowNum < problemArr.length){
+				
+				if(isFirstPro){
+					isFirstPro = false;
+	    			noFirstSpeakFlag = true;
+	    		}
+				
+				//问题播放开始时间
+				problemBeginTime = getDataTime();
+				
+				problemHtml += "<div class='talk_recordbox'>";
+				problemHtml += "<div class='user'><img src='img/thumbs/user01.png'/>客户</div>";
+				problemHtml += "<div class='talk_recordtextbg'>&nbsp;</div>";
+				problemHtml += "<div class='talk_recordtext'>";
+				problemHtml += "<h3>"+problemArr[problemNowNum].problemContent+"</h3>";
+				problemHtml += "<span class='talk_time'>"+getData()+"</span>";
+				problemHtml += "</div>";
+				problemHtml += "</div>";
+				
+				//获取当前问题ID
+				problemIdNow = problemArr[problemNowNum].id;
+				
+				//展示问题文字
+				$(".jspPane").append(problemHtml);
+				
+				$('.jspContainer').css("overflow","auto");
+				$('.jspContainer').css("overflow-x","hidden");
+				
+//				$('.jspContainer').animate({scrollTop: $(document).height()}, 50);
+				$('.jspContainer').scrollTop( $('.jspContainer')[0].scrollHeight );
+				
+				$("#problemVio").attr("src",urlRequst+"trainings/question-"+problemArr[problemNowNum].id+".wav")
+//				wxAudio.audioCut(urlRequst+"trainings/question-"+problemArr[problemNowNum].id+".wav","","")
+				
+				//问题自增
+				problemNowNum++;
+				
+			}else{
+				//关闭录音
+				stopRecording();
+				
+			}
+			
+    	}
+    	
+    	
+    	//训练中一个问题结束进行下一个问题
+    	var pollerInterval = trainQuestionWaitTime;
+		var dealingAjax;
+		var timer;
+		var hadReply = false;
+		function poller(){
+			pollerInterval--;
+			// 有答复 或者 超过3s则重新轮询。
+			if(hadReply || !pollerInterval) {
+				// 如果是未应答，那么进入到下个问题。
+				if(!pollerInterval) {
+					
+					if(noSpeakFlag){//不在说话
+						// 重新轮询表示重置3s，重置计时器和应答状态
+						pollerInterval = trainQuestionWaitTime;
+						hadReply = false;
+						
+						isShowProblem = true;
+						// nextQueryDealing
+						nextQueryDealing();
+						
+						console.log("倒计时结束，开始下个问题!") 
+						
+						
+						//开始下个问题
+				   		showProblem();
+					}else{
+						console.log("正在等待finish") 
+						
+						nextQueryDealing();
+						timer = setTimeout("poller()", 1000);
+					}
+				}else{
+					console.log("倒计时:"+pollerInterval+"秒后下个问题") 
+					
+					nextQueryDealing();
+					timer = setTimeout("poller()", 1000);
+				}
+				
+			}else{
+				console.log("倒计时:"+pollerInterval+"秒后下个问题") 
+				
+				nextQueryDealing();
+				timer = setTimeout("poller()", 1000);
+			}
+			
+		}
+		
+		// nextQueryDealing在计时器中自动触发调用，也可以手动触发调用
+		function nextQueryDealing() {
+			// 不再计时了，此时应该等待应答
+			clearTimeout(timer);
+//			// 每次开始都是未应答状态
+//			hasReply = false;
+//			var ajax = ajax_logic //接口请求逻辑
+//			// 全局保存当前的ajax请求
+//			dealingAjax = ajax;
+//			ajax.then(function() {
+//				// 中间可能吊用过多次nextQueryDealing，那么dealingAjax只保存最新的那个ajax
+//				if(ajax === dealingAjax) {
+//					// 有应答了
+//					hadReply = true;
+//					// 继续轮询
+//					poller();
+//				}
+//			});
+		}
+		
+    	//播放完毕开始倒计时
+    	$("#problemVio").bind('ended', function(){
+    		
+    		var data = {
+				"problemId" : problemIdNow,//问题Id
+				"beginTime" : problemBeginTime - trainTime,//开始时间  Long 毫秒数
+				"endTime" : getDataTime() - trainTime //结束时间 同上
+			}
+			data = JSON.stringify(data)
+//			mui.alert(data)
+			ws.send(data);
+    		
+    		//开始倒计时
+			console.log("问题倒计时开始!")
+			
+			isShowProblem = false;
+			timer = setTimeout("poller()", 1000);
+		});
+    	
+    	//------------------录音模块 start--------------------------
+    	function initWS(){
+    		ws = new WebSocket(WSURL + "ws/asr-service")
+					
+            ws.onopen = function () {
+                console.log("Openened connection to websocket");
+            };
+            ws.onclose = function (){
+                 console.log("Close connection to websocket");
+            }
+            ws.onmessage = function(e) {
+    				
+//          	console.log(e);
+            	
+            	//获取录音数组
+            	var data = e.data;
+            	
+            	data = JSON.parse(data);
+            	datas = data.data;
+            	console.log(datas);
+            	console.log("----------------------当次回答"+datas.sentenceId);	
+            	
+            	if(isNull(datas.type) && "status" == datas.type && "start" == datas.status){
+            		
+            		//
+            		var data = {
+						"sceneId" : sceneIdNow,//场景 ID
+					}
+            		data = JSON.stringify(data)
+					ws.send(data);
+            		
+            		//开始传输录音
+    				startRecording();
+            	}else if(isNull(datas.type) && "asr" == datas.type && datas.finished){
+					
+					noFirstSpeakFlag = false;
+					noSpeakFlag = true;
+					isNewAnswer = true;
+        			
+        			//
+        			$("h3[name='isNewAnswerText']").each(function(){
+        				if($(this).attr("id") == ("isNewAnswerText"+datas.sentenceId)){
+        					isNewAnswer = false;
+        					
+        					return
+        				}
+        			})
+        			//为一次新的回答
+        			if(isNewAnswer){
+        				console.log("新的回答"+datas.sentenceId+"--------------------新的回答"+datas.sentenceId);
+        				
+        				var answerHtml = "";
+	        			answerHtml += "<div class='talk_recordboxme'>";
+						answerHtml += "<div class='user'><img src='img/thumbs/user02.png'/></div>";
+						answerHtml += "<div class='talk_recordtextbg'>&nbsp;</div>";
+						answerHtml += "<div class='talk_recordtext'>";
+						answerHtml += "<h3 name='isNewAnswerText' id='isNewAnswerText"+datas.sentenceId+"'>"+datas.text+"</h3>";
+						answerHtml += "<span class='talk_time'>"+getData()+"</span>";
+						answerHtml += "</div>";
+						answerHtml += "</div>";
+						
+						//展示回答文字
+						$(".jspPane").append(answerHtml);
+        			}else{
+        				console.log("覆盖"+datas.sentenceId+"---------覆盖"+datas.sentenceId);
+        				
+        				$("#isNewAnswerText"+datas.sentenceId).text(datas.text);
+        			}
+					console.log("开启一次新的回答----------------------");
+					
+					//倒计时重置
+					console.log("倒计时重置-----------------------") 
+					// 有应答了
+					hadReply = true;
+					//如果不在播放问题
+					if(!isShowProblem){
+						pollerInterval = trainConversationWaitTime;
+						
+						// 继续轮询
+						poller();
+					}
+					
+        		}else if(isNull(datas.type) && "asr" == datas.type){
+        			console.log("----------------------当次回答"+datas.sentenceId);
+        			
+        			//
+        			noFirstSpeakFlag = false;
+        			noSpeakFlag = false;
+        			isNewAnswer = true;
+        			
+        			//
+        			$("h3[name='isNewAnswerText']").each(function(){
+        				if($(this).attr("id") == ("isNewAnswerText"+datas.sentenceId)){
+        					isNewAnswer = false;
+        					
+        					return
+        				}
+        			})
+        			//为一次新的回答
+        			if(isNewAnswer){
+        				console.log("新的回答"+datas.sentenceId+"--------------------新的回答"+datas.sentenceId);
+        				
+        				var answerHtml = "";
+	        			answerHtml += "<div class='talk_recordboxme'>";
+						answerHtml += "<div class='user'><img src='img/thumbs/user02.png'/></div>";
+						answerHtml += "<div class='talk_recordtextbg'>&nbsp;</div>";
+						answerHtml += "<div class='talk_recordtext'>";
+						answerHtml += "<h3 name='isNewAnswerText' id='isNewAnswerText"+datas.sentenceId+"'>"+datas.text+"</h3>";
+						answerHtml += "<span class='talk_time'>"+getData()+"</span>";
+						answerHtml += "</div>";
+						answerHtml += "</div>";
+						
+						//展示回答文字
+						$(".jspPane").append(answerHtml);
+        			}else{
+        				
+        				console.log("覆盖"+datas.sentenceId+"---------覆盖"+datas.sentenceId);
+        				
+        				$("#isNewAnswerText"+datas.sentenceId).text(datas.text);
+        			}
+					
+//					$('.jspContainer').animate({scrollTop: $(document).height()}, 50);
+            		$('.jspContainer').scrollTop( $('.jspContainer')[0].scrollHeight );
+            		//倒计时重置
+					console.log("倒计时重置-----------------------") 
+					// 有应答了
+					hadReply = true;
+					//如果不在播放问题
+					if(!isShowProblem){
+						pollerInterval = trainConversationWaitTime;
+						
+						// 继续轮询
+						poller();
+					}
+            	}else if(isNull(datas.type) && "status" == datas.type && "sca-complete" == datas.status){
+            		//质检有结果
+            		var trainId = datas.trainId;
+            		
+            		//调用展示质检结果方法
+            		showTrain(trainId);
+					$(".mask").show();
+//					alert("训练结束,谢谢使用!");
+            		
+            		scaCompleteFlag = true;
+            		if(scaCompleteFlag && audioCompleteFlag){
+            			ws.close()
+            		}
+            	}else if(isNull(datas.type) && "status" == datas.type && "audio-complete" == datas.status){
+            		//录音回听有结果
+            		var trainId = datas.trainId;
+					$("#problemVioOne").attr("src",urlRequst+"trainings/train-"+trainId+".wav")
+					
+					audioCompleteFlag = true;
+            		if(scaCompleteFlag && audioCompleteFlag){
+            			ws.close()
+            		}
+            	}else if(isNull(datas.type) && "status" == datas.type && "sca-fail" == datas.status){
+            		//质检失败
+            		hideShengJi();//隐藏loading
+            		
+            		mui.alert('异常结束');
+            	}	
+            }
+    	}
+		
+		  var audio_context;
+		  var recorder;
+		
+		  function startUserMedia(stream) {
+		    var input = audio_context.createMediaStreamSource(stream);		    
+		    recorder = new Recorder(input, {numChannels: 1, downSampleRate: SampleRate});
+		  }
+		
+		  function startRecording() { 
+		  	//录音开始时间
+		  	trainTime = getDataTime();
+		  	
+		  	//调用展示问题方法
+			showProblem();
+		  	
+		    recorder && recorder.record();
+		    
+            intervalKey = setInterval(exportPCM, 200);
+		  }
+		  
+		  function exportPCM(end) {
+                recorder.exportPCM(function(blob) {
+//					console.log(blob.size);
+                    
+					if (blob.size > 0) {
+						ws.send(blob);
+					}
+                    
+					if (end) {
+						ws.send(new Blob([2,2,2,2,2,2,2,2,2,2,2]));
+					}
+                });
+          }
+		
+		  function stopRecording() {
+		    recorder && recorder.stop();
+			clearInterval(intervalKey);
+			
+//		    button.disabled = true;
+//		    button.previousElementSibling.disabled = false;
+			exportPCM(true);
+		    
+		  }
+		
+		  window.onload = function init() {
+		    try {
+		      // webkit shim
+		      window.AudioContext = window.AudioContext || window.webkitAudioContext;
+//		      navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia;
+		      navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia;
+
+		      window.URL = window.URL || window.webkitURL;
+		      
+		      audio_context = new AudioContext;
+		     
+		    } catch (e) {
+		    	mui.alert('浏览器不支持录音');
+		    }
+		    
+		    navigator.getUserMedia({audio: true}, startUserMedia, function(e) {
+		    	mui.alert('没有获取到录音权限,请插入耳麦');
+		    });
+		  };
+    	//------------------录音模块 end--------------------------
+    	
+    	
+    	
+    	
+    	//展示质检结果 trainId
+    	function showTrain(trainId){
+    		var data = {
+    			"trainId" : trainId
+    		}
+    		//调用AJAX请求方法
+			ajaxRequst("get","trainings/sca-result",data,function(data){
+				
+				//
+				if("Success" == data.message){
+					var datas = data.data;
+					
+					$("#score").text(datas.score);//总分
+					
+					if(datas.score >= 80){
+						//展示动画
+						$(".Bombbox").attr("src","img/youxiu.png");
+					}else if(datas.score >= 60){
+						//展示动画
+						$(".Bombbox").attr("src","img/lianghao.png");
+					}else{
+						//展示动画
+						$(".Bombbox").attr("src","img/buhege.png");
+					}
+					
+					
+					//获取问题List
+					var resultsList = datas.results;
+					
+					var tbodyHtml = "";
+					for(var i = 0;i < resultsList.length;i++){
+						if(i % 2 == 0){
+							tbodyHtml += "<tr class='one'>";
+							if(!isNull(resultsList[i].ruleName)){
+								
+								tbodyHtml += "<td class='table_left'>--</td>";
+							}else{
+								tbodyHtml += "<td class='table_left'>"+resultsList[i].ruleName+"</td>";
+							}
+							if(!isNull(resultsList[i].offsetValue)){
+								tbodyHtml += "<td>--</td>";
+							}else{
+								tbodyHtml += "<td>"+resultsList[i].offsetValue+"</td>";
+							}
+							
+							tbodyHtml += "</tr>";
+						}else{
+							tbodyHtml += "<tr class='two'>";
+							if(!isNull(resultsList[i].ruleName)){
+								
+								tbodyHtml += "<td class='table_left'>--</td>";
+							}else{
+								tbodyHtml += "<td class='table_left'>"+resultsList[i].ruleName+"</td>";
+							}
+							if(!isNull(resultsList[i].offsetValue)){
+								tbodyHtml += "<td>--</td>";
+							}else{
+								tbodyHtml += "<td>"+resultsList[i].offsetValue+"</td>";
+							}
+							
+							tbodyHtml += "</tr>";
+						}
+						
+						$("#table1").html(tbodyHtml);
+					}	
+				}
+			});
+    	}
+    	
+    	//获取当前时间
+    	function getDataTime(){
+    		var day=new Date();
+    		
+//  		return day.getHours()+":"+day.getMinutes()+":"+day.getSeconds();
+			return day.getTime();
+    	}
+    	
+    	//获取当前时间
+    	function getData(){
+    		var d = new Date();
+			var hours = d.getHours();
+			var minutes = d.getMinutes();
+			var seconds = d.getSeconds();
+			var ms = d.getMilliseconds();
+			var curDateTime = "";
+			if(hours > 9) {
+				curDateTime = curDateTime + "" + hours;
+			} else {
+				curDateTime = curDateTime + "0" + hours;
+			}
+			if(minutes > 9) {
+				curDateTime = curDateTime + ":" + minutes;
+			} else {
+				curDateTime = curDateTime + ":0" + minutes;
+			}
+			if(seconds > 9) {
+				curDateTime = curDateTime + ":" + seconds;
+			} else {
+				curDateTime = curDateTime + ":0" + seconds;
+			}
+
+			return curDateTime;
+    	}
+		
+	</script>	
+	
+	
+	<script type="text/javascript">
+		$(function(){
+		
+			// the element we want to apply the jScrollPane
+			var $el= $('#jp-container').jScrollPane({
+				verticalGutter 	: -16
+			}),
+					
+			// the extension functions and options 	
+				extensionPlugin 	= {
+					
+					extPluginOpts	: {
+						// speed for the fadeOut animation
+						mouseLeaveFadeSpeed	: 500,
+						// scrollbar fades out after hovertimeout_t milliseconds
+						hovertimeout_t		: 1000,
+						// if set to false, the scrollbar will be shown on mouseenter and hidden on mouseleave
+						// if set to true, the same will happen, but the scrollbar will be also hidden on mouseenter after "hovertimeout_t" ms
+						// also, it will be shown when we start to scroll and hidden when stopping
+						useTimeout			: true,
+						// the extension only applies for devices with width > deviceWidth
+						deviceWidth			: 980
+					},
+					hovertimeout	: null, // timeout to hide the scrollbar
+					isScrollbarHover: false,// true if the mouse is over the scrollbar
+					elementtimeout	: null,	// avoids showing the scrollbar when moving from inside the element to outside, passing over the scrollbar
+					isScrolling		: false,// true if scrolling
+					addHoverFunc	: function() {
+						
+						// run only if the window has a width bigger than deviceWidth
+						if( $(window).width() <= this.extPluginOpts.deviceWidth ) return false;
+						
+						var instance		= this;
+						
+						// functions to show / hide the scrollbar
+						$.fn.jspmouseenter 	= $.fn.show;
+						$.fn.jspmouseleave 	= $.fn.fadeOut;
+						
+						// hide the jScrollPane vertical bar
+						var $vBar			= this.getContentPane().siblings('.jspVerticalBar').hide();
+						
+						/*
+						 * mouseenter / mouseleave events on the main element
+						 * also scrollstart / scrollstop - @James Padolsey : http://james.padolsey.com/javascript/special-scroll-events-for-jquery/
+						 */
+						$el.bind('mouseenter.jsp',function() {
+							
+							// show the scrollbar
+							$vBar.stop( true, true ).jspmouseenter();
+							
+							if( !instance.extPluginOpts.useTimeout ) return false;
+							
+							// hide the scrollbar after hovertimeout_t ms
+							clearTimeout( instance.hovertimeout );
+							instance.hovertimeout 	= setTimeout(function() {
+								// if scrolling at the moment don't hide it
+								if( !instance.isScrolling )
+									$vBar.stop( true, true ).jspmouseleave( instance.extPluginOpts.mouseLeaveFadeSpeed || 0 );
+							}, instance.extPluginOpts.hovertimeout_t );
+							
+							
+						}).bind('mouseleave.jsp',function() {
+							
+							// hide the scrollbar
+							if( !instance.extPluginOpts.useTimeout )
+								$vBar.stop( true, true ).jspmouseleave( instance.extPluginOpts.mouseLeaveFadeSpeed || 0 );
+							else {
+							clearTimeout( instance.elementtimeout );
+							if( !instance.isScrolling )
+									$vBar.stop( true, true ).jspmouseleave( instance.extPluginOpts.mouseLeaveFadeSpeed || 0 );
+							}
+							
+						});
+						
+						if( this.extPluginOpts.useTimeout ) {
+							
+							$el.bind('scrollstart.jsp', function() {
+							
+								// when scrolling show the scrollbar
+							clearTimeout( instance.hovertimeout );
+							instance.isScrolling	= true;
+							$vBar.stop( true, true ).jspmouseenter();
+							
+						}).bind('scrollstop.jsp', function() {
+							
+								// when stop scrolling hide the scrollbar (if not hovering it at the moment)
+							clearTimeout( instance.hovertimeout );
+							instance.isScrolling	= false;
+							instance.hovertimeout 	= setTimeout(function() {
+								if( !instance.isScrollbarHover )
+										$vBar.stop( true, true ).jspmouseleave( instance.extPluginOpts.mouseLeaveFadeSpeed || 0 );
+								}, instance.extPluginOpts.hovertimeout_t );
+							
+						});
+						
+							// wrap the scrollbar
+							// we need this to be able to add the mouseenter / mouseleave events to the scrollbar
+						var $vBarWrapper	= $('<div/>').css({
+							position	: 'absolute',
+							left		: $vBar.css('left'),
+							top			: $vBar.css('top'),
+							right		: $vBar.css('right'),
+							bottom		: $vBar.css('bottom'),
+							width		: $vBar.width(),
+							height		: $vBar.height()
+						}).bind('mouseenter.jsp',function() {
+							
+							clearTimeout( instance.hovertimeout );
+							clearTimeout( instance.elementtimeout );
+							
+							instance.isScrollbarHover	= true;
+							
+								// show the scrollbar after 100 ms.
+								// avoids showing the scrollbar when moving from inside the element to outside, passing over the scrollbar								
+							instance.elementtimeout	= setTimeout(function() {
+								$vBar.stop( true, true ).jspmouseenter();
+							}, 100 );	
+							
+						}).bind('mouseleave.jsp',function() {
+							
+								// hide the scrollbar after hovertimeout_t
+							clearTimeout( instance.hovertimeout );
+							instance.isScrollbarHover	= false;
+							instance.hovertimeout = setTimeout(function() {
+									// if scrolling at the moment don't hide it
+								if( !instance.isScrolling )
+										$vBar.stop( true, true ).jspmouseleave( instance.extPluginOpts.mouseLeaveFadeSpeed || 0 );
+								}, instance.extPluginOpts.hovertimeout_t );
+							
+						});
+						
+						$vBar.wrap( $vBarWrapper );
+						
+					}
+					
+					}
+					
+				},
+				
+				// the jScrollPane instance
+				jspapi 			= $el.data('jsp');
+				
+			// extend the jScollPane by merging	
+			$.extend( true, jspapi, extensionPlugin );
+			jspapi.addHoverFunc();
+		
+		});
+		$(".Stup").click(function(){
+			$(".mask").hide();
+		})
+</script>
+</html>

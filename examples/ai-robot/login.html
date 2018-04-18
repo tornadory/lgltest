@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta content="initial-scale=1.0,user-scalable=no,maximum-scale=1,width=device-width" name="viewport" />
+<meta content="initial-scale=1.0,user-scalable=no,maximum-scale=1" media="(device-height: 568px)" name="viewport">
+<meta content="yes" name="apple-mobile-web-app-capable" />
+<meta content="black" name="apple-mobile-web-app-status-bar-style" />
+<meta content="telephone=no" name="format-detection" />
+<title>智能培训</title>
+<style>
+body{ margin:0; padding:0; color:#666; background-image: url(img/bg.png);background-repeat:no-repeat;background-size:100% 100%;}
+.form_login{ max-width:640px; margin:auto; text-align:center; padding-top:75px;padding-left: 10px;padding-right: 10px;padding-bottom: 25px;}
+.form-group{ width:100%; margin:0 auto; height:50px; margin-bottom:20px;}
+.form-group .fa{ display:block; width:15%; height:100%; float:left;}
+.form-group .form-control{ display:block; width:84.3333%; height:48px; float:left; border:1px solid #ccc; padding:0; margin-left:0; text-indent:1em; themeColor: #00a988;}
+.form-group .form-control:hover{ border:1px solid #0160A0;}
+.form-group .checkfont{ color:#666;}
+.form-group .btn{ width:100%; height:50px; background-color:#f5993f; border:0px; color:#fff; font-size:14px;}
+.fa-user{ background:url(img/user.png) no-repeat center;background-repeat:no-repeat; background-size:100% 100%;-moz-background-size:100% 100%;}
+.fa-key{ background:url(img/password.png) no-repeat center; background-size:100% 100%;-moz-background-size:100% 100%;}
+.form_footer{ margin-top:100px; font-size:12px; color:#5B809A;}
+.form_logo {width: 80px;height: 80px; border-radius: 50%; background: white; margin: 0 auto; margin-bottom: 15px;}
+.form_logo img{width: 100%; height: 100%;border-radius: 50%;}
+.service{color: #f5993f; font-size: 26px;}
+</style>
+</head>
+
+<body>
+<div class="form_login">
+	<p class="service">智能培训</p>
+<div class="form_logo"><img src="img/169438021332074798.png" /></div>
+<form method="post" role="form" id="form_login">
+
+    <div class="form-group">
+    	<i class="fa fa-user"></i>
+		<input type="text" class="form-control" name="username" id="username" placeholder="用户名" autocomplete="off">
+    </div>
+
+    <div class="form-group">
+		<i class="fa fa-key"></i>
+        <input type="password" class="form-control" name="password" id="password" placeholder="密码" autocomplete="off">
+    </div>
+    <div class="form-group" style="height:25px; line-height:25px; text-align:left;">
+        <span class="checkfont">忘记密码?</span>
+    </div>
+    <div class="form-group">
+        <button type="button" class="btn btn-primary btn-block btn-login">登录</button>
+    </div>
+
+</form>
+<!--<div class="form_footer">新用户?击这里注册</div>-->
+</div>
+</body>
+<script type="text/javascript" src="js/jquery-1.11.0.js"></script>
+<script type="text/javascript" src="js/gongyong.js" ></script>
+<script type="text/javascript">
+	
+	
+	$(".btn-login").click(function() {
+		var userName = $("#username").val();
+		if (userName == '' || userName == null) {
+			alert("用户名输入不能为空");
+			return;
+		}
+
+		var password = $("#password").val();
+		if (password == '' || password == null) {
+			alert("密码输入不能为空");
+			return;
+		}
+		password = password.replace(/\s/g,"")
+		
+		
+		//登陆请求参数
+		var data = [];
+		
+		//
+//		if("0" == $("input[name='umOrCard']:checked").attr("value")){
+			data = {'cardNo' : userName , 
+					'password' : password
+					}
+//		}else{
+//			data = {'umCode' : userName , 
+//					'password' : password
+//					}
+//		}
+		
+		//调用AJAX请求方法
+		ajaxRequst("post","auth/login",data,loadingCallBack);
+		
+		//登陆请求返回回调函数
+		function loadingCallBack(data){
+			if (data.code != "1") {
+				alert(data.message);
+				
+				return
+			} else {
+    		
+				sessionStorage.setItem("loginFlag","1");
+				
+				//设置等级
+				setLevel(data.data);
+				if("STUDENT" == data.data.roleName){
+					//登陆成功跳转首页
+					window.location.href = "Simulator.html";
+				}else{
+					window.location.href = "Simulator.html";
+				}
+			}
+		}
+		
+	});
+</script>
+</html>
