@@ -1,0 +1,19 @@
+{
+   "group_count" : 1,
+   "has_ao" : 0,
+   "mesh" : [
+      {
+         "faceCount" : 8444,
+         "faceSize" : 2,
+         "material" : {
+            "color" : 9803158,
+            "emissive" : 0,
+            "opacity" : 1.0,
+            "shininess" : 0.15000000596046448,
+            "side" : 2,
+            "specular" : 0
+         },
+         "name" : "Box027.001"
+      }
+   ]
+}
