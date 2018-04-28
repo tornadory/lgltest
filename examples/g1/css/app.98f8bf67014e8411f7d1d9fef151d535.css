@@ -1,0 +1,129 @@
+* {
+    padding: 0;
+    margin: 0
+}
+
+h1[data-v-d8ec41bc],h2[data-v-d8ec41bc] {
+    font-weight: 400
+}
+
+ul[data-v-d8ec41bc] {
+    list-style-type: none;
+    padding: 0
+}
+
+li[data-v-d8ec41bc] {
+    display: inline-block;
+    margin: 0 .133333rem
+}
+
+a[data-v-d8ec41bc] {
+    color: #42b983
+}
+
+body[data-v-4c304b56] {
+    padding: 0;
+    margin: 0
+}
+
+.mask[data-v-4c304b56] {
+    position: fixed;
+    width: 100%;
+    height: 100%
+}
+
+.content[data-v-4c304b56],.mask[data-v-4c304b56] {
+    display: -ms-flexbox;
+    display: flex;
+    -ms-flex-direction: column;
+    flex-direction: column;
+    -ms-flex-pack: center;
+    justify-content: center;
+    -ms-flex-align: center;
+    align-items: center;
+    background: rgba(0,0,0,.4)
+}
+
+.content[data-v-4c304b56] {
+    width: 6.666667rem;
+    height: 6.666667rem;
+    border-radius: .266667rem;
+    border: .066667rem solid hsla(0,0%,100%,.05)
+}
+
+.score-container[data-v-4c304b56] {
+    color: #fff;
+    text-align: center
+}
+
+.title[data-v-4c304b56] {
+    font-size: .266667rem;
+    font-weight: 700;
+    color: hsla(0,0%,100%,.6)
+}
+
+.score[data-v-4c304b56] {
+    font-size: 1.333333rem;
+    font-weight: 700;
+    margin-top: .266667rem
+}
+
+button.restart[data-v-4c304b56] {
+    width: 2.666667rem;
+    height: .533333rem;
+    border-radius: .266667rem;
+    background: #fff;
+    border: none;
+    font-weight: 700;
+    font-size: .266667rem;
+    cursor: pointer
+}
+
+button.restart[data-v-4c304b56]:hover {
+    color: #232323
+}
+
+.info[data-v-4c304b56] {
+    margin: .266667rem 0;
+    position: absolute;
+    text-align: center;
+    opacity: .2;
+    width: 100%
+}
+
+.info a[data-v-4c304b56] {
+    display: block;
+    font-size: .213333rem;
+    line-height: .373333rem;
+    color: #fff;
+    text-decoration: none
+}
+
+a.title[data-v-4c304b56] {
+    font-size: .266667rem;
+    font-weight: 700
+}
+
+.score-gaming[data-v-4c304b56] {
+    margin-top: .133333rem;
+    color: #fff;
+    font-size: .213333rem
+}
+
+#button-red[data-v-4c304b56] {
+    left: 2.666667rem
+}
+
+#button-blue[data-v-4c304b56],#button-red[data-v-4c304b56] {
+    position: fixed;
+    z-index: 100;
+    width: 5.2rem;
+    height: 5.2rem;
+    bottom: 4.693333rem
+}
+
+#button-blue[data-v-4c304b56] {
+    right: 2.666667rem
+}
+
+/*# sourceMappingURL=app.98f8bf67014e8411f7d1d9fef151d535.css.map */
