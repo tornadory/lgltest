@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title>Light Switch</title>
+<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js">
+</script>
+<script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jqueryui/1.11.2/jquery-ui.min.js">
+</script>
+
+<link rel="stylesheet" href="//ajax.googleapis.com/ajax/libs/jqueryui/1.11.2/themes/smoothness/jquery-ui.css" media="screen" title="no title" charset="utf-8">
+<style media="screen">
+    /*@import "compass/css3";*/
+
+    body {
+  background: #46484b;
+}
+
+#light-bulb {
+  position: relative;
+  width: 150px;
+  height: 150px;
+  margin: 0 auto;
+  transition: opacity 0.5s;
+}
+#light-bulb .bulb {
+  position: absolute;
+  display: inline-block;
+  width: 100%;
+  height: 100%;
+  background-image: url(https://lh4.googleusercontent.com/-katLGTSCm2Q/UJC0_N7XCrI/AAAAAAAABq0/6GxNfNW-Ra4/s300/lightbulb.png);
+}
+#light-bulb .bulb.off {
+  background-position-x: -150px;
+}
+#light-bulb .bulb.on {
+  background-position-x: 0;
+}
+#light-bulb.off .bulb.on {
+  opacity: 0;
+}
+#light-bulb.off .bulb.off {
+  opacity: 1;
+}
+#light-bulb.on .bulb.on {
+  opacity: 1;
+}
+#light-bulb.on .bulb.off {
+  opacity: 0;
+}
+
+.cube-switch {
+  position: relative;
+  width: 100px;
+  height: 100px;
+  margin: 5% 0px 0px 10%;
+  display: block;
+  overflow: hidden;
+  white-space: nowrap;
+  background: #333;
+  border-radius: 10px;
+  border: 1px solid rgba(0, 0, 0, 0.4);
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.6), inset 0 100px 50px rgba(255, 255, 255, 0.1);
+  /* Prevents clicks on the back */
+  cursor: default;
+  pointer-events: none;
+}
+.cube-switch .switch {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 60px;
+  height: 60px;
+  margin-left: -30px;
+  margin-top: -30px;
+  display: block;
+  background: #666;
+  border: 1px solid rgba(0, 0, 0, 0.6);
+  border-radius: 0.7em;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.3), inset 0 -7px 0 rgba(0, 0, 0, 0.2), inset 0 50px 10px rgba(0, 0, 0, 0.2), 0 1px 0 rgba(255, 255, 255, 0.2);
+  transition: all 0.2s ease-out;
+  /* Allows click */
+  cursor: pointer;
+  pointer-events: auto;
+}
+.cube-switch .switch-state {
+  display: block;
+  position: absolute;
+  left: 40%;
+  color: #fff;
+  font-size: 0.5em;
+  text-align: center;
+}
+.cube-switch .switch-state.on {
+  bottom: 15%;
+}
+.cube-switch .switch-state.off {
+  top: 15%;
+}
+.cube-switch.active:after, .cube-switch.active:before {
+  background: #333;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.1), inset 1px 2px 1px rgba(0, 0, 0, 0.5), inset 3px 6px 2px rgba(200, 200, 200, 0.1), inset -1px -2px 1px rgba(0, 0, 0, 0.3);
+}
+.cube-switch.active .switch {
+  background: #333;
+  box-shadow: inset 0 6px 0 rgba(255, 255, 255, 0.1), inset 0 7px 0 rgba(0, 0, 0, 0.2), inset 0 -50px 10px rgba(0, 0, 0, 0.1), 0 1px 0 rgba(205, 205, 205, 0.1);
+}
+.cube-switch.active .switch:after, .cube-switch.active .switch:before {
+  background: #222;
+  border: none;
+  margin-top: 0;
+  height: 1px;
+}
+
+    </style>
+  </head>
+  <body>
+    <div id="light-bulb" class="off" >
+      <span class="bulb off"></span>
+      <span class="bulb on"></span>
+    </div>
+
+    <div href="" class="cube-switch">
+      <span class="switch">
+          <span class="switch-state off">Off</span>
+          <span class="switch-state on">On</span>
+      </span>
+    </div>
+
+<script type="text/javascript">
+$('.cube-switch .switch').click(function() {
+  if ($('.cube-switch').hasClass('active')) {
+      $('.cube-switch').removeClass('active');
+      $('#light-bulb').attr('class', 'off');
+  } else {
+      $('.cube-switch').addClass('active');
+      $('#light-bulb').attr('class', 'on');
+  }
+});
+</script>
+  </body>
+</html>

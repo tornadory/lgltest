@@ -1,0 +1,324 @@
+a:hover,a:active,a:link{outline: 0px none;text-decoration: none;}
+
+.background {
+  /*min-height: 170vh;*/
+
+
+  background-color: #eeeeee;
+  background-position: center center;
+  background-size: cover;
+  padding-top: 5em;
+}
+
+
+.nav-text {
+    font-size: 1.1em;
+    margin-left:0.7em;
+    margin-right:0.7em;
+    color: white;
+}
+
+.nav-text:hover {
+    text-decoration: none;
+    color: white;
+}
+
+.mynavbar {
+    position: relative;
+    z-index: 2;
+    margin-bottom: 0;
+    border: none;
+    position: fixed;
+    width: 100%;
+    background-color: #393939;
+}
+
+.mynavbar-header {
+    float: left;
+    width: 0px;
+    visibility: hidden;
+}
+
+.mynavbar-table {
+    margin: 0;
+    padding: 0;
+    list-style-type: none;
+    text-align: center;
+    margin: auto;
+}
+
+.navbar-button-down {
+    background-color: rgba(0,0,0,0.5);
+    display: inline-block;
+    padding-top: 1em;
+    padding-bottom: 1em;
+}
+
+.navbar-button-up {
+    display: inline-block;
+    padding-top: 1em;
+    padding-bottom: 1em;
+}
+
+.containerChild {
+    margin-left: auto;
+    vertical-align: top;
+    background-color: rgba(255, 255, 255, 1);
+}
+
+.containerChildLeft.containerChild {
+    width: 100%;
+    min-height: 51vh;
+}
+
+.containerChildRight.containerChild {
+    width: 100%;
+    margin-top: 2em;
+    padding-top: 2em;
+    padding-bottom: 2em;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    -o-user-select: none;
+    user-select: none;
+}
+
+#container
+{
+    /*border: solid 1px #ff0000;*/
+    text-align: center;
+    margin: 0px auto;
+    padding-bottom: 8vh;
+    width: 90%;
+}
+
+.checkJStext {
+    padding-top: 3em;
+    width: 80%;
+    text-align: center;
+    margin: auto;
+}
+
+.smallHeadline {
+    font-size: 2em;
+    margin-top: 0.8em;
+    margin: 0;
+    padding: 0;
+}
+
+.rotationTable {
+    width: 80%;
+    margin: auto;
+    margin-top: 1.5em;
+    border-collapse:separate;
+    border-spacing: 0.5em;
+}
+
+.rotVarnameTd {
+    width: 15%;
+}
+
+.rotInputTd {
+    width: 40%;
+    padding-right: 20px;
+}
+
+.quaternionInput {
+    width: 100%;
+    font-family: 'Courier New';
+    text-align: center;
+}
+
+.slider {
+    background-color: #eeeeee;
+    border: solid 1px #dddddd;
+    width: 100%;
+    height: 20px;
+    cursor: pointer;
+}
+
+.sliderSegment {
+    background-color: #cccccc;
+    height: 100%;
+    float: left;
+    cursor: pointer;
+}
+
+.sliderMiddle {
+    height:100%;
+    width:1px;
+    margin: auto;
+    background-color:#777777;
+    position: relative;
+    z-index: 0;
+}
+
+.inputApplyButton {
+    margin-top: 1em;
+}
+
+
+
+
+.dropbtn {
+    background-color: #ffffff;
+    padding: 6px;
+    padding-left: 10px;
+    padding-right: 10px;
+    font-size: 12px;
+    border: none;
+    cursor: pointer;
+}
+
+.dropbtn:hover, .dropbtn:focus {
+    background-color: #cccccc;
+}
+
+.dropdown {
+    position: relative;
+    display: inline-block;
+    z-index: 1;
+}
+
+/* Dropdown Content (Hidden by Default) */
+.dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: #f9f9f9;
+    min-width: 160px;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+}
+
+.dropdown-content div {
+    cursor:pointer;
+    color: black;
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+    font-size: 14px;
+}
+
+.dropdown-content div:hover {background-color: #f1f1f1}
+
+/* Show the dropdown menu (use JS to add this class to the .dropdown-content container when the user clicks on the dropdown button) */
+.show {display:block;}
+
+
+.big-title {
+    font-size: 2.2em;
+    margin-top: 1em;
+    margin-bottom: 1em;
+    text-align: center;
+}
+
+.medium-title {
+    font-size: 1.9em;
+    margin-top: 1em;
+    text-align: center;
+}
+
+.feature-list {
+    font-size: 1.3em;
+    width: 90%;
+    margin:auto;
+    margin-top: 2em;
+    padding-bottom: 3em;
+
+}
+
+.center-text {
+    text-align: center;
+    padding-top: 2em;
+    padding-bottom: 5em;
+    width: 70%;
+    font-size: 1.3em;
+    margin: auto;
+}
+
+.centering-link {
+    margin-top: 2em;
+    text-align: center;
+    font-size: 2em;
+}
+
+
+
+
+#feedback-section {
+  background-color: #C0C0C0;
+}
+
+.section-title {
+    padding-top: 2vh;
+    font-size: 1.8em;
+}
+
+.contact-input {
+  padding: 25px;
+  margin: 25px 0;
+}
+
+.contact-submit {
+  padding: 5px;
+  width: 200px;
+  margin-bottom: 13vh;
+}
+
+.contact-notification {
+  display: none;
+  margin-bottom: 0;
+}
+
+@media (max-width: 480px) {
+  .contact-input {
+    margin: 25px 0;
+  }
+
+  .contact-input:first-child {
+    margin-top: 25px;
+  }
+
+  .contact-submit {
+    margin-left: 0;
+    width: 100%;
+  }
+}
+
+.button-wrapper {
+  text-align: center;
+}
+
+.checkboxDiv {
+    width: 100%;
+    margin: auto;
+    padding: 0;
+}
+
+.smallCheckboxDiv {
+    width: 80%;
+    margin: auto;
+    padding-top: 16px;
+}
+
+.inlineCheckbox {
+    display: inline-block;
+}
+
+.inlineCheckboxLabel {
+    display: inline-block;
+    cursor: pointer;
+}
+
+.secondHline {
+    margin-bottom: 0.5em;
+}
+
+footer {
+    background-color: #eeeeee;
+
+    padding: 2em;
+    text-align: center;
+    font-size: 0.7em;
+}

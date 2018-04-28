@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title></title>
+
+    <link href='https://fonts.googleapis.com/css?family=Roboto' rel='stylesheet' type='text/css'>
+    <link href='https://fonts.googleapis.com/css?family=Roboto+Condensed:400,700' rel='stylesheet' type='text/css'>
+
+    <style media="screen">
+    html {
+  box-sizing: border-box;
+}
+*, *:before, *:after {
+  box-sizing: inherit;
+}
+
+html, body {
+  margin: 0;
+}
+
+html {
+  background-color: rgb(40, 40, 40);
+}
+
+body {
+  align-items: center;
+  color: white;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  font-family: 'Roboto', sans-serif;
+  padding: 2rem;
+}
+
+.control-panel {
+  box-shadow: 0 4px 12px 2px rgba(0, 0, 0, 1);
+  margin-bottom: 4rem;
+  max-width: 30rem;
+  width: 100%;
+  input {
+      color: rgb(0, 0, 0);
+  }
+}
+
+.action {
+  border: 1px solid rgba(0, 0, 0, 1);
+  border-radius: 5px;
+  box-shadow: 0 2px 8px 0px rgba(0, 0, 0, 1);
+  cursor: pointer;
+  float: left;
+  margin: 0 1rem 2rem 0;
+  outline: 0;
+  position: relative;
+  transition: 100ms;
+  &:after {
+      bottom: 0;
+      content: '';
+      display: block;
+      height: 100%;
+      left: 0;
+      position: absolute;
+      right: 0;
+      top: 0;
+      width: 100%;
+  }
+  &:hover, &.active {
+      border: 1px solid rgb(253, 255, 173);
+      box-shadow: 0 0 6px 1px rgb(253, 255, 173);
+  }
+  &:last-child {
+      margin-right: 0;
+  }
+}
+.action-internal {
+  background: transparent;
+  border-radius: 5px;
+  box-sizing: content-box;
+  color: white;
+  font-size: 1.2em;
+  height: 5rem;
+  overflow: hidden;
+  position: relative;
+  user-select: none;
+  width: 5rem;
+  &:after {
+      box-shadow: 0 34px 16px -16px rgba(255, 255, 255, 0.4) inset;
+      bottom: 0;
+      content: '';
+      display: block;
+      height: 100%;
+      left: 0;
+      position: absolute;
+      right: 0;
+      top: 0;
+      width: 100%;
+  }
+  &:before {
+      bottom: 0;
+      box-shadow:
+          0 1px 1px -1px rgba(255, 255, 255, 1) inset,
+          0 2px 1px 0px rgba(255, 255, 255, 0.4) inset,
+          0 -1px 2px -1px rgba(255, 255, 255, 0.4) inset;
+      content: '';
+      display: block;
+      height: 100%;
+      left: 0;
+      position: absolute;
+      right: 0;
+      top: 0;
+      width: 100%;
+  }
+  .contents {
+      align-items: center;
+      display: flex;
+      height: 100%;
+      justify-content: center;
+      width: 100%;
+      img {
+          display: block;
+          margin: 0;
+          height: 100%;
+          width: 100%;
+      }
+  }
+  canvas {
+      left: 50%;
+      position: absolute;
+      top: 50%;
+      z-index: 2;
+  }
+  &:last-child {
+      margin-right: 0;
+  }
+}
+
+.panel-header {
+  background-color: rgb(93, 93, 93);
+  background: linear-gradient(to bottom, rgb(93, 93, 93), rgb(41, 41, 41));
+  border-radius: 6px 6px 0 0;
+  overflow: hidden;
+  padding: 0.75rem 1rem 0.75rem 1rem;
+  position: relative;
+  h3 {
+      font-family: 'Roboto Condensed', sans-serif;
+      font-size: 20px;
+      font-weight: 400;
+      line-height: 1;
+      margin: 0;
+      position: relative;
+      z-index: 2;
+  }
+  &:after {
+      background-color: rgb(80, 97, 77);
+      background: linear-gradient(to right, rgb(80, 97, 77), rgb(67, 92, 64), transparent 60%);
+      bottom: 0;
+      box-shadow: 0 5px 5px -5px rgba(255, 255, 255, 1) inset;
+      content: '';
+      height: 100%;
+      left: 0;
+      position: absolute;
+      right: 0;
+      top: 0;
+      width: 100%;
+  }
+}
+
+.panel-body {
+  background: linear-gradient(to bottom, rgb(33, 33, 33), rgb(21, 24, 21));
+  padding: 1.25rem 1rem 1.25rem;
+}
+
+.option {
+  display: table;
+  font-size: 15px;
+  width: 100%;
+  margin-bottom: 1rem;
+  .label {
+      display: table-cell;
+      vertical-align: middle;
+      width: 9rem;
+  }
+  .input {
+      display: table-cell;
+      vertical-align: middle;
+  }
+  &:last-child {
+      margin-bottom: 0;
+  }
+  input[type="text"] {
+      color: white;
+      font-size: 15px;
+      padding: 0.25rem;
+      width: 4rem;
+  }
+  .unit {
+      font-size: 13px;
+      padding-left: 0.25rem;
+  }
+  input {
+      background-color: rgb(7, 7, 5);
+      border: 2px solid rgb(42, 42, 39);
+      font-family: 'Roboto', sans-serif;
+      outline-color: rgb(253, 255, 173);
+  }
+}
+
+.key {
+  font: 700 1.4em 'Roboto Condensed', sans-serif;
+  left: 0.75rem;
+  position: absolute;
+  text-shadow:
+      -1px -1px 0 #000,
+      1px -1px 0 #000,
+      -1px 1px 0 #000,
+      1px 1px 0 #000;
+  top: -0.8rem;
+  z-index: 3;
+}
+    </style>
+  </head>
+  <body>
+    <div class="control-panel">
+    <div class="panel-header">
+        <h3>Customize</h3>
+    </div>
+    <div class="panel-body">
+        <div class="option">
+            <div class="label">
+                <label for="cooldown-length">Cooldown duration</label>
+            </div>
+
+            <div class="input">
+                <input type="text" id="cooldown-length" value="1500" tabindex="0"> <span class="unit">milliseconds</span>
+            </div>
+
+        </div>
+        <div class="option">
+            <div class="label">
+                <label for="global-cooldown">Global Cooldown</label>
+            </div>
+
+            <div class="input">
+                <input type="checkbox" id="gcd" tabindex="1">
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<div class="actions">
+
+    <div class="action" data-keybind="1" id="action-1">
+        <div class="key">1</div>
+        <div class="action-internal">
+            <div class="contents">
+                <img src="http://alwaysdev.net/images/fireball-small.jpg" alt="">
+            </div>
+            <canvas class="status"></canvas>
+        </div>
+    </div>
+
+    <div class="action" data-keybind="2" id="action-2">
+        <div class="key">2</div>
+        <div class="action-internal">
+            <div class="contents">
+                <img src="http://alwaysdev.net/images/fireball-2-small.jpg" alt="">
+            </div>
+            <canvas class="status"></canvas>
+        </div>
+    </div>
+
+    <div class="action" data-keybind="3" id="action-3">
+        <div class="key">3</div>
+        <div class="action-internal">
+            <div class="contents">
+                <img src="http://alwaysdev.net/images/color-small.jpg" alt="">
+            </div>
+            <canvas class="status"></canvas>
+        </div>
+    </div>
+
+    <div class="action" data-keybind="4" id="action-4">
+        <div class="key">4</div>
+        <div class="action-internal">
+            <div class="contents">
+                <img src="http://alwaysdev.net/images/icebolt-small.jpg" alt="">
+            </div>
+            <canvas class="status"></canvas>
+        </div>
+    </div>
+
+    <div class="action" data-keybind="5" id="action-5">
+        <div class="key">5</div>
+        <div class="action-internal">
+            <div class="contents">
+                <img src="http://alwaysdev.net/images/lightning-small.jpg" alt="">
+            </div>
+            <canvas class="status"></canvas>
+        </div>
+    </div>
+
+</div>
+
+<script type="text/javascript">
+var actions = document.querySelectorAll('.action');
+var actionObjs = [];
+var cd;
+var gcd = document.querySelector('#gcd');
+
+// Request animationFrame
+
+window.requestAnimationFrame = (function(){
+  return  window.requestAnimationFrame       ||
+          window.webkitRequestAnimationFrame ||
+          window.mozRequestAnimationFrame    ||
+          window.oRequestAnimationFrame      ||
+          window.msRequestAnimationFrame     ||
+          function (callback) {
+              window.setTimeout(callback, 1000 / 60);
+          };
+})();
+
+function Cooldown(el) {
+
+  this.canvas = el.querySelector('canvas');
+  this.cd = cd;
+  this.ctx = this.canvas.getContext('2d');
+  this.element = el;
+  this.keybind = el.getAttribute('data-keybind');
+  this.timer;
+  this.timerStart;
+
+  this.clearCanvas = function() {
+      this.ctx.setTransform(1, 0, 0, 1, 0, 0);
+      this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+  };
+
+  this.endCooldown = function() {
+      this.clearCanvas();
+      this.timer = null;
+
+      var canvas = this.canvas;
+      var ctx = this.canvas.getContext('2d');
+      ctx.fillStyle = 'rgba(253, 255, 173, 0.5)';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      window.setTimeout(function() {
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+      }, 20);
+  };
+
+  this.gaugeCooldown = function() {
+      if (!this.timer) {
+          if (gcd.checked) {
+              Array.prototype.forEach.call(actionObjs, function(el, i) {
+                  if (!actionObjs[i].timer) {
+                      actionObjs[i].initiateCooldown();
+                  }
+              });
+          }
+          else {
+              this.initiateCooldown();
+          }
+      }
+  };
+
+  this.initiateCooldown = function() {
+      this.cd = document.querySelector('#cooldown-length').value;
+      if (!this.timer) {
+          this.timer = window.setTimeout(this.endCooldown.bind(this), this.cd);
+          this.timerStart = (new Date()).getTime();
+          this.runCooldown();
+      }
+  };
+
+  this.runCooldown = function() {
+      if (this.timer) {
+          var timeElapsed = (new Date()).getTime() - this.timerStart;
+          var timeElapsedPercentage = timeElapsed / this.cd;
+          var degrees = 360*timeElapsedPercentage;
+
+          var canvas = this.canvas;
+          var ctx = this.canvas.getContext('2d');
+          var hypoteneuse = Math.sqrt(Math.pow(this.element.clientWidth, 2) + Math.pow(this.element.clientHeight, 2));
+          ctx.setTransform(1, 0, 0, 1, 0, 0);
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+          canvas.height = hypoteneuse;
+          canvas.width = hypoteneuse;
+
+          canvas.style.marginLeft = -hypoteneuse/2 + "px";
+          canvas.style.marginTop = -hypoteneuse/2 + "px";
+
+          ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
+
+          ctx.translate(canvas.width/2, canvas.height/2);
+          ctx.rotate(-Math.PI/2);
+
+          ctx.beginPath();
+          ctx.moveTo(0, 0);
+          ctx.lineTo( (hypoteneuse/2) * Math.cos(0).toFixed(15), (hypoteneuse/2) * Math.sin(0).toFixed(15));
+          ctx.lineWidth = 2;
+          ctx.strokeStyle = 'rgba(255, 255, 255, 0.9)';
+
+          ctx.shadowColor = 'rgba(255, 255, 255, 0.6)';
+          ctx.shadowBlur = 10;
+
+          ctx.stroke();
+          ctx.moveTo(0, 0);
+          ctx.lineTo((hypoteneuse/2) * Math.cos(degrees * Math.PI/180).toFixed(15), (hypoteneuse/2) * Math.sin(degrees * Math.PI/180).toFixed(15));
+          ctx.stroke();
+
+          ctx.shadowColor = null;
+          ctx.shadowBlur = null;
+
+          ctx.arc(0, 0, hypoteneuse/2, degrees * Math.PI/180, Math.PI*2, false);
+          ctx.fill();
+          ctx.closePath();
+
+          requestAnimationFrame(this.runCooldown.bind(this));
+      }
+  };
+}
+
+Array.prototype.forEach.call(actions, function(el, i) {
+  var action = new Cooldown(el);
+  actionObjs.push(action);
+
+  el.addEventListener('click', function() {
+      action.gaugeCooldown();
+  });
+});
+
+/*  Keybindings  */
+
+document.addEventListener('keydown', function(event) {
+  var hotkeyValue = String.fromCharCode(event.keyCode);
+  if (document.querySelector('#cooldown-length') != document.activeElement) {
+      Array.prototype.forEach.call(actionObjs, function(el, i) {
+          if (actionObjs[i].keybind === hotkeyValue) {
+              actionObjs[i].element.classList.add('active');
+              window.setTimeout(function() {
+                  actionObjs[i].element.classList.remove('active');
+              }, 100);
+              actionObjs[i].gaugeCooldown();
+          }
+      });
+  }
+});
+
+window.addEventListener('load', function() {
+  FastClick.attach(document.body);
+}, false);
+
+
+</script>
+  </body>
+</html>

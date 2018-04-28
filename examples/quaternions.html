@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang='en'>
+    <head>
+        <title>Quaternions - Visualisation</title>
+        <meta name="description" content="Visualising Quaternions, Converting to and from Euler Angles, Explanation of Quaternions">
+        <meta name="keywords" content="Quaternion, Quaternions, Visualisation, Visualization, Calculator, Conversion, convert, Explanation, Rotation, rotate">
+        <meta charset="UTF-8">
+        <meta name=viewport content="width=device-width, initial-scale=1">
+        <meta property="og:image" content="/logo.png" />
+        <meta property="og:image:type" content="image/png" />
+
+
+        <link rel='stylesheet' href='css/bootstrap.min.css'>
+        <link rel="stylesheet" type="text/css" href="css/style_mobile.css" media="screen, handheld" />
+        <link rel="stylesheet" type="text/css" href="css/q-style.css" media="screen  and (min-width: 40.5em)" />
+
+        <!-- Piwik -->
+        <script type="text/javascript">
+            var _paq = _paq || [];
+            _paq.push(["setDomains", ["*.quaternions.online"]]);
+            _paq.push(['trackPageView']);
+            _paq.push(['enableLinkTracking']);
+            (function() {
+                var u="//quaternions.online/analytics/";
+                _paq.push(['setTrackerUrl', u+'piwik.php']);
+                _paq.push(['setSiteId', 1]);
+                var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
+                g.type='text/javascript'; g.async=true; g.defer=true; g.src=u+'piwik.js'; s.parentNode.insertBefore(g,s);
+            })();
+        </script>
+        <noscript><p><img src="//quaternions.online/analytics/piwik.php?idsite=1" style="border:0;" alt="" /></p></noscript>
+        <!-- End Piwik Code -->
+
+	<!-- <script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<script>
+  (adsbygoogle = window.adsbygoogle || []).push({
+    google_ad_client: "ca-pub-7901325924046356",
+    enable_page_level_ads: true
+  });
+</script> -->
+    </head>
+    <body>
+        <nav class='mynavbar'>
+            <div class='mynavbar-container'>
+                <div class='mynavbar-header'>
+                    <a class='nav-text' href='/'>
+                        Quaternions
+                    </a>
+                </div>
+                <div>
+                    <ul class='mynavbar-table'>
+                         <li class='navbar-button-down'>
+                            <a class='nav-text' href='/'>Visualisation</a></li>
+
+                         <!--li class='navbar-button-up'>
+                            <a class='nav-text' href='calculator.html'>Calculator</a></li>
+
+                         <li class='navbar-button-up'>
+                            <a class='nav-text' href='explanation.html'>Explanation</a></li-->
+                    </ul>
+                </div>
+            </div>
+        </nav>
+
+
+
+<main class='background'>
+    <div id='container'>
+        <div id='renderDiv' class='containerChild containerChildLeft'>
+            <h3 id="checkJStext" class="checkJStext">Please check if JavaScript and <a href="http://get.webgl.org">WebGL</a> are turned on in your browser.</h3>
+        </div>
+        <div class='containerChild containerChildRight'>
+            <h1 class='smallHeadline'>Quaternion</h1>
+            <table class='rotationTable'>
+                <tr>
+                    <td class='rotVarnameTd'>w:</td>
+                    <td class='rotInputTd'><form><input id='inputQW' class='quaternionInput' type="text" onkeydown="return checkEnter(event, &quot;quaternion&quot;);" onclick="inputSelected()"></input></form></td>
+                    <td><div class='slider' id='wholesliderQW' ontouchstart="sliderClick(&quot;sliderQW&quot;)" onmousedown="sliderClick(&quot;sliderQW&quot;)">
+                        <span class='sliderSegment' id='sliderQW' style='width:50%;margin-left:50%'></span>
+                        <div class='sliderMiddle'></div>
+                    </div></td>
+                </tr>
+                <tr>
+                    <td class='rotVarnameTd'>x:</td>
+                    <td class='rotInputTd'><form><input id='inputQX' class='quaternionInput' type="text" onkeydown="return checkEnter(event, &quot;quaternion&quot;);" onclick="inputSelected()"></input></form></td>
+                    <td><div class='slider' id='wholesliderQX' ontouchstart="sliderClick(&quot;sliderQX&quot;)" onmousedown="sliderClick(&quot;sliderQX&quot;)">
+                        <span class='sliderSegment' id='sliderQX' style='width:0%;margin-left:50%'></span>
+                        <div class='sliderMiddle'></div>
+                    </div></td>
+                </tr>
+                <tr>
+                    <td class='rotVarnameTd'>y:</td>
+                    <td class='rotInputTd'><form><input id='inputQY' class='quaternionInput' type="text" onkeydown="return checkEnter(event, &quot;quaternion&quot;);" onclick="inputSelected()"></input></form></td>
+                    <td><div class='slider' id='wholesliderQY' ontouchstart="sliderClick(&quot;sliderQY&quot;)" onmousedown="sliderClick(&quot;sliderQY&quot;)">
+                        <div class='sliderSegment' id='sliderQY' style='width:0%;margin-left:50%'></div>
+                        <div class='sliderMiddle'></div>
+                    </div></td>
+                </tr>
+                <tr>
+                    <td class='rotVarnameTd'>z:</td>
+                    <td class='rotInputTd'><form><input id='inputQZ' class='quaternionInput' type="text" onkeydown="return checkEnter(event, &quot;quaternion&quot;);" onclick="inputSelected()"></input></form></td>
+                    <td><div class='slider' id='wholesliderQZ' ontouchstart="sliderClick(&quot;sliderQZ&quot;)" onmousedown="sliderClick(&quot;sliderQZ&quot;)">
+                        <span class='sliderSegment' id='sliderQZ' style='width:0%;margin-left:50%'></span>
+                        <div class='sliderMiddle'></div>
+                    </div></td>
+                </tr>
+            </table>
+            <button type="button" class="btn btn-default inputApplyButton" onclick="applyQuaternionRotation()">Apply Rotation</button>
+            <hr></hr>
+            <h1 class='smallHeadline'>Euler Angles</h1>
+            <div>
+                <div class="dropdown">
+                    <button id="eulerOrderButton" onclick="orderDropdownClicked()" class="dropbtn">XYZ - Order &#x25BE</button>
+                    <div id="orderDropdownMenu" class="dropdown-content">
+                        <div onclick="eulerOrderChanged(&quot;XYZ&quot;)">XYZ - Order</div>
+                        <div onclick="eulerOrderChanged(&quot;ZYX&quot;)">ZYX - Order</div>
+                        <div onclick="eulerOrderChanged(&quot;YZX&quot;)">YZX - Order</div>
+                    </div>
+                </div>
+                <div class="dropdown">
+                    <button id="eulerAngleFormatButton" onclick="angleDropdownClicked()" class="dropbtn">Degrees &#x25BE</button>
+                    <div id="angleDropdownMenu" class="dropdown-content">
+                        <div onclick="eulerAngleFormatChanged(&quot;Degrees&quot;)">Degrees</div>
+                        <div onclick="eulerAngleFormatChanged(&quot;Radians&quot;)">Radians</div>
+                    </div>
+                </div>
+            </div>
+
+            <table class='rotationTable'>
+                <td class='rotVarnameTd'>x:</td>
+                <td class='rotInputTd'><form><input id='inputEX' class='quaternionInput' type="text" onkeydown="return checkEnter(event, &quot;euler&quot;);" onclick="inputSelected()"></input></form></td>
+                <td><div class='slider' id='wholesliderEX' ontouchstart="sliderClick(&quot;sliderEX&quot;)" onmousedown="sliderClick(&quot;sliderEX&quot;)">
+                    <span class='sliderSegment' id='sliderEX' style='width:0%;margin-left:50%'></span>
+                    <div class='sliderMiddle'></div>
+                </div></td>
+            </tr>
+            <tr>
+                <td class='rotVarnameTd'>y:</td>
+                <td class='rotInputTd'><form><input id='inputEY' class='quaternionInput' type="text" onkeydown="return checkEnter(event,  &quot;euler&quot;);" onclick="inputSelected()"></input></form></td>
+                <td><div class='slider' id='wholesliderEY' ontouchstart="sliderClick(&quot;sliderEY&quot;)" onmousedown="sliderClick(&quot;sliderEY&quot;)">
+                    <span class='sliderSegment' id='sliderEY' style='width:0%;margin-left:50%'></span>
+                    <div class='sliderMiddle'></div>
+                </div></td>
+            </tr>
+            <tr>
+                <td class='rotVarnameTd'>z:</td>
+                <td class='rotInputTd'><form><input id='inputEZ' class='quaternionInput' type="text" onkeydown="return checkEnter(event,  &quot;euler&quot;);" onclick="inputSelected()"></input></form></td>
+                <td><div class='slider' id='wholesliderEZ' ontouchstart="sliderClick(&quot;sliderEZ&quot;)" onmousedown="sliderClick(&quot;sliderEZ&quot;)">
+                    <span class='sliderSegment' id='sliderEZ' style='width:0%;margin-left:50%'></span>
+                    <div class='sliderMiddle'></div>
+                </div></td>
+            </tr>
+        </table>
+        <button type="button" class="btn btn-default inputApplyButton" onclick="applyEulerRotation()">Apply Rotation</button>
+        <hr class="secondHline"></hr>
+        <div class='checkboxDiv'>
+            <div class='smallCheckboxDiv'>
+                <form class='inlineCheckbox'><input id='showAxisCheckbox' type='checkbox' onchange='showAxisCheckboxChanged()'></input></form>
+                <div class='inlineCheckboxLabel' onclick='switchShowAxis()'>Show axis of rotation</div>
+            </div>
+            <div class='smallCheckboxDiv'>
+                <form class='inlineCheckbox'><input id='animationCheckbox' type='checkbox' onchange='animationCheckboxChanged()'></input></form>
+                <div class='inlineCheckboxLabel' onclick='switchAnimation()'>Animation</div>
+            </div>
+        </div>
+    </div>
+</div>
+</main>
+
+
+        <section id='feedback-section'>
+            <div class='container'>
+                <h2 class='section-title' id='feedback-title'>Give me your feedback!</h2>
+                <form>
+                    <textarea id='message_area' class='form-control contact-input message' name='message' maxlength='1980' placeholder='Thanks for the feedback ☺'></textarea>
+                    <input class='btn btn-default contact-submit' type='button' value='Submit' onclick="submitFeedback()">
+                </form>
+            </div>
+        </section>
+
+        <footer>
+            &copy; 2016
+            <a href='imprint.html'>Imprint</a>
+        </footer>
+    </body>
+
+    <script>
+        var checkJStext = document.getElementById("checkJStext");
+        checkJStext.parentNode.removeChild(checkJStext);
+    </script>
+    <script src="js/three.min.js"></script>
+    <script src="js/quaternions-main.js"></script>
+    <script src="js/feedback.js"></script>
+</html>

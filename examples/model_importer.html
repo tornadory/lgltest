@@ -13,6 +13,7 @@
 		<script src="/three.js/examples/js/loaders/GLTFLoader.js"></script>
 		<script src="/three.js/examples/js/loaders/ColladaLoader.js"></script>
 		<script src="/three.js/examples/js/libs/stats.min.js"></script>
+		<script src="/three.js/examples/js/controls/TrackballControls.js"></script>
 		<style>
 			body {
 				font-family: Monospace;
@@ -99,6 +100,22 @@
 
 				camera = new THREE.PerspectiveCamera( 60, window.innerWidth / window.innerHeight, 1, 5000 );
 
+				// controls = new THREE.TrackballControls( camera );
+				//
+				// controls.rotateSpeed = 1.0;
+				// controls.zoomSpeed = 1.2;
+				// controls.panSpeed = 0.8;
+				//
+				// controls.noZoom = false;
+				// controls.noPan = false;
+				//
+				// controls.staticMoving = true;
+				// controls.dynamicDampingFactor = 0.3;
+				//
+				// controls.keys = [ 65, 83, 68 ];
+				//
+				// controls.addEventListener( 'change', render );
+
 				scene = new THREE.Scene();
 
 				// grid helper
@@ -121,7 +138,7 @@
 				renderer.setClearColor( 0xAAAAAA );
 				container.appendChild( renderer.domElement );
 
-				// controls, camera
+				controls, camera
 				controls = new THREE.OrbitControls( camera, renderer.domElement );
 				controls.target.set( 0, 0, 0 );
 				camera.position.set( 2, 8, 8 );
@@ -168,6 +185,8 @@
 				camera.aspect = window.innerWidth / window.innerHeight;
 				camera.updateProjectionMatrix();
 				renderer.setSize( window.innerWidth, window.innerHeight );
+
+				// controls.handleResize();
 			}
 
 			//
@@ -181,11 +200,13 @@
 					}
 				}
 				stats.update();
+				// controls.update();
 				render();
 			}
 
 			function render() {
 				renderer.render( scene, camera );
+				stats.update();
 			}
 
 			function changeScale(ev){
