@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>模型测试小程序</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+		<script src=/three.js/build/three.js></script>
+    <script src="/three.js/examples/js/libs/inflate.min.js"></script>
+		<script src="/three.js/examples/js/controls/OrbitControls.js"></script>
+		<script src="/three.js/examples/js/curves/NURBSCurve.js"></script>
+		<script src="/three.js/examples/js/curves/NURBSUtils.js"></script>
+		<script src="/three.js/examples/js/loaders/FBXLoader.js"></script>
+		<script src="/three.js/examples/js/loaders/GLTFLoader.js"></script>
+		<script src="/three.js/examples/js/loaders/ColladaLoader.js"></script>
+		<script src="/three.js/examples/js/libs/stats.min.js"></script>
+		<style>
+			body {
+				font-family: Monospace;
+				background-color: #000;
+				color: #fff;
+				margin: 0px;
+				overflow: hidden;
+			}
+			#removeBtn{
+				position: absolute;
+				top: 50px;
+				margin-top: 5px;
+				margin-left: 10px;
+				z-index: 100;
+			}
+			#scaleInputInfo{
+				position: absolute;
+				top: 150px;
+				margin-top: 5px;
+				margin-left: 10px;
+				z-index: 100;
+			}
+			#scaleInput{
+				position: absolute;
+				top:170px;
+				margin-top: 0px;
+				margin-left: 10px;
+				z-index: 100;
+			}
+			#info{
+				position: absolute;
+				top:100px;
+				width: 400px;
+				margin-top: 5px;
+				margin-left: 10px;
+				z-index: 100;
+			}
+			#title {
+				font-family: "Microsoft YaHei";
+	      font-size: 24px;
+	      color: #b04bff;
+				position: absolute;
+				top: 10px;
+				width: 100%;
+				text-align: center;
+				z-index: 100;
+				display:block;
+			}
+			#title a, .button { color: #f00; font-weight: bold; text-decoration: underline; cursor: pointer }
+		</style>
+	</head>
+
+	<body>
+		<button type="button" id="removeBtn" onclick="btnClick()">移除最后一个模型</button>
+		<div id="info">
+		</div>
+		<div id="inputA">
+			<div id="scaleInputInfo">输入数字，按Enter键确认</div>
+		  <input id="scaleInput" type="text" size="30" placeholder="输入数字可以缩放最后导入的模型大小"  onkeyup="changeScale(event)">
+	  </div>
+		<div id="title">
+			模型加载测试
+		</div>
+
+
+		<script>
+
+			var infoTag = document.getElementById("info");
+			var object = null;
+
+			var container, stats, controls;
+			var camera, scene, renderer, light;
+			var clock = new THREE.Clock();
+			var action;
+			var mixers = [];
+			var mixer;
+
+			init();
+
+			function init() {
+
+				container = document.createElement( 'div' );
+				document.body.appendChild( container );
+
+				camera = new THREE.PerspectiveCamera( 60, window.innerWidth / window.innerHeight, 1, 5000 );
+
+				scene = new THREE.Scene();
+
+				// grid helper
+				var gridHelper = new THREE.GridHelper( 28, 28, 0x303030, 0x303030 );
+				gridHelper.position.set( 0, - 0.04, 0 );
+				scene.add( gridHelper );
+
+				// skeleton helper
+				// var helper = new THREE.SkeletonHelper( mesh );
+				// helper.material.linewidth = 3;
+				// scene.add( helper );
+
+				// stats
+				stats = new Stats();
+				container.appendChild( stats.dom );
+
+				renderer = new THREE.WebGLRenderer();
+				renderer.setPixelRatio( window.devicePixelRatio );
+				renderer.setSize( window.innerWidth, window.innerHeight );
+				renderer.setClearColor( 0xAAAAAA );
+				container.appendChild( renderer.domElement );
+
+				// controls, camera
+				controls = new THREE.OrbitControls( camera, renderer.domElement );
+				controls.target.set( 0, 0, 0 );
+				camera.position.set( 2, 8, 8 );
+				controls.update();
+
+				window.addEventListener( 'resize', onWindowResize, false );
+
+				light = new THREE.HemisphereLight(0xffffff, 0x444444, 1.0);
+				light.position.set(1, 2, 1);
+				scene.add(light);
+
+				// light = new THREE.DirectionalLight(0xffffff, 1.0);
+				// light.position.set(-1, -2, -1);
+				// scene.add(light);
+				//
+				// light = new THREE.DirectionalLight(0xffffff, 1.0);
+				// light.position.set(10, 10, 10);
+				// scene.add(light);
+				//
+				// light = new THREE.DirectionalLight(0xffffff, 1.0);
+				// light.position.set(0, 0, 5);
+				// scene.add(light);
+				//
+				// light = new THREE.HemisphereLight(0xffffff, 0x444444, 1.0);
+				// light.position.set(0, 1, 0);
+				// scene.add(light);
+				//
+				// light = new THREE.DirectionalLight(0xffffff, 1.0);
+				// light.position.set(10, 10, 10);
+				// scene.add(light);
+				//
+				// light = new THREE.HemisphereLight(0xffffff, 0x444444, 1.0);
+				// light.position.set(-5, 5, -5);
+				// scene.add(light);
+				//
+				// light = new THREE.DirectionalLight(0xffffff, 1.0);
+				// light.position.set(0, 0, 0);
+				// scene.add(light);
+
+				animate();
+			}
+
+			function onWindowResize() {
+				camera.aspect = window.innerWidth / window.innerHeight;
+				camera.updateProjectionMatrix();
+				renderer.setSize( window.innerWidth, window.innerHeight );
+			}
+
+			//
+
+			function animate() {
+				requestAnimationFrame( animate );
+				var delta = clock.getDelta();
+				if ( mixers.length > 0 ) {
+					for ( var i = 0; i < mixers.length; i ++ ) {
+						mixers[ i ].update(delta);
+					}
+				}
+				stats.update();
+				render();
+			}
+
+			function render() {
+				renderer.render( scene, camera );
+			}
+
+			function changeScale(ev){
+				if(ev.keyCode == 13){
+					var inputText = document.getElementById("scaleInput");
+					var v = parseFloat(inputText.value);
+					if(!isNaN(v)){
+						if(object != null){
+							object.scale.x = v;
+							object.scale.y = v;
+							object.scale.z = v;
+							infoTag.innerHTML = "缩放模型对象*"+v;
+							console.log("object is scaled by " + v);
+						}else{
+							console.log("no object can be scaled right now");
+							infoTag.innerHTML = "没有可以缩放的模型对象";
+						}
+					}else {
+						console.log("please input a valid number and then press enter to scale the latest object");
+						infoTag.innerHTML = "输入有效数字可以缩放最后导入的模型";
+					}
+				}
+			}
+
+
+			document.body.ondrop = function(event)
+			{
+				event.preventDefault();
+				for(var i = 0; i < event.dataTransfer.files.length; i++)
+				{
+					var file = event.dataTransfer.files[i];
+					//Project file
+					if(file.name.toLowerCase().endsWith(".fbx"))
+					{
+						var path = (file.path !== undefined) ? FileSystem.getFilePath(file.path) : "";
+						try{
+								var reader = new FileReader();
+								reader.onload = function()
+								{
+									try
+									{
+										var loader = new THREE.FBXLoader();
+										try{
+											object = loader.parse(reader.result, path);
+										}catch(err){
+											console.error("Error during object parsing ", err);
+										}
+
+
+										console.log("pared object from THREE.FBXLoader is ", object);
+
+										if(object.animations.length > 0)
+										{
+											object.traverse(function(child)
+											{
+												if(child instanceof THREE.SkinnedMesh)
+												{
+													child.animations = object.animations;
+												}
+											});
+
+											mixer = object.mixer = new THREE.AnimationMixer( object );
+											mixers.push( mixer );
+
+											action = object.mixer.clipAction( object.animations[0]);
+											action.timeScale = 1;
+											action.play();
+										}
+
+
+
+										scene.add(object);
+										infoTag.innerHTML = "模型加载成功";
+									}
+									catch(e)
+									{
+										console.error("Error loading file", e);
+										infoTag.innerHTML = "模型加载失败，请检查文件"+file.name;
+									}
+								};
+								reader.readAsArrayBuffer(file);
+							// }
+						}catch(e)
+						{
+							console.error("Error importing file", e);
+							infoTag.innerHTML = "模型加载失败，请检查文件"+file.name;
+						}
+					}
+
+					if(file.name.toLowerCase().endsWith(".gltf") || file.name.toLowerCase().endsWith(".glb"))
+					{
+						var path = (file.path !== undefined) ? FileSystem.getFilePath(file.path) : "";
+						try{
+								var reader = new FileReader();
+								reader.onload = function()
+								{
+									try
+									{
+										var loader = new THREE.GLTFLoader();
+										try{
+											loader.parse(reader.result, path, function(gltf){
+												console.log("pared object from THREE.GLTFLoader is ", gltf);
+
+												object = gltf.scene;
+												// object.type = "Group";
+												// object.name = FileSystem.getNameWithoutExtension(name);
+
+												if(gltf.animations.length > 0)
+												{
+													object.traverse(function(child)
+													{
+														if(child instanceof THREE.SkinnedMesh)
+														{
+															child.animations = gltf.animations;
+														}
+													});
+
+													object.mixer = mixer = new THREE.AnimationMixer( object );
+													mixers.push( mixer );
+													action = object.mixer.clipAction( gltf.animations[0]);
+													action.timeScale = 1;
+													action.play();
+													// for ( var i = 0; i < gltf.animations.length; i ++ ) {
+													// 	var animation = gltf.animations[ i ];
+													// 	// There's .3333 seconds junk at the tail of the Monster animation that
+													// 	// keeps it from looping cleanly. Clip it at 3 seconds
+													// 	mixer.clipAction( animation ).play();
+													// }
+												}
+
+												scene.add(object);
+												infoTag.innerHTML = "模型加载成功";
+											});
+										}catch(err){
+											console.error("Error during object parsing ", err);
+										}
+
+
+
+									}
+									catch(e)
+									{
+										console.error("Error loading file", e);
+										infoTag.innerHTML = "模型加载失败，请检查文件"+file.name;
+									}
+								};
+								reader.readAsArrayBuffer(file);
+							// }
+						}catch(e)
+						{
+							console.error("Error importing file", e);
+							infoTag.innerHTML = "模型加载失败，请检查文件"+file.name;
+						}
+					}
+
+					if(file.name.toLowerCase().endsWith(".dae")){
+						var path = (file.path !== undefined) ? FileSystem.getFilePath(file.path) : "";
+						try{
+								var reader = new FileReader();
+								reader.onload = function()
+								{
+									try
+									{
+										var loader = new THREE.ColladaLoader();
+										var collada;
+										try{
+											collada = loader.parse(reader.result, path);
+										}catch(err){
+											console.error("Error during object parsing ", err);
+										}
+										object = collada.scene;
+
+										console.log("pared object from THREE.ColladaLoader is ", collada);
+
+										// if(collada.animations.length > 0)
+										// {
+										// 	object.traverse(function(child)
+										// 	{
+										// 		if(child instanceof THREE.SkinnedMesh)
+										// 		{
+										// 			child.animations = collada.animations;
+										// 		}
+										// 	});
+                    //
+										// 	mixer = object.mixer = new THREE.AnimationMixer( collada );
+										// 	mixers.push( mixer );
+                    //
+										// 	action = collada.mixer.clipAction( collada.animations[0]);
+										// 	action.timeScale = 1;
+										// 	action.play();
+										// }
+
+
+
+										scene.add(object);
+										infoTag.innerHTML = "模型加载成功";
+									}
+									catch(e)
+									{
+										console.error("Error loading file", e);
+										infoTag.innerHTML = "模型加载失败，请检查文件"+file.name;
+									}
+								};
+								reader.readAsText(file);
+							// }
+						}catch(e)
+						{
+							console.error("Error importing file", e);
+							infoTag.innerHTML = "模型加载失败，请检查文件"+file.name;
+						}
+					}
+				}
+			}
+
+			function btnClick(){
+				if(object){
+					console.log("try to remove object " + object.name);
+					infoTag.innerHTML = "移除模型";
+					scene.remove(object);
+				}else{
+					console.log("no object can be removed");
+					infoTag.innerHTML = "无可移除模型";
+				}
+			}
+
+			document.body.ondragover = function(event)
+			{
+				event.preventDefault();
+			}
+
+		</script>
+
+	</body>
+</html>
