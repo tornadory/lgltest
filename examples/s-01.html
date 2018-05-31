@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title></title>
+
+    <script src='http://mrdoob.github.com/three.js/build/three.min.js'></script>
+<script src="http://mrdoob.github.com/three.js/examples/js/Detector.js"></script>
+<script src="http://mrdoob.github.com/three.js/examples/js/libs/stats.min.js"></script>
+<script src="http://mrdoob.github.com/three.js/examples/js/controls/OrbitControls.js"></script>
+<!-- Render texture vertex shader. Does not modify anything. -->
+<script id="vs_rt" type="x-shader/x-vertex">
+    uniform sampler2D texture;
+    varying vec2 vUv2;
+
+    void main() {
+        vUv2 = uv;
+
+        gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+    }
+</script>
+<!-- Render texture fragment shader. Runs a simulation step. -->
+<script id="fs_rt" type="x-shader/x-fragment">
+    uniform sampler2D texture;
+    uniform vec2 delta;
+    varying vec2 vUv2;
+
+    void main() {
+        vec4 info = texture2D(texture, vUv2);
+
+        vec2 dx = vec2(delta.x, 0.0);
+        vec2 dy = vec2(0.0, delta.y);
+
+        // gather info from adjacent pixels
+        float newHeight = ((texture2D(texture, vUv2 - dx).r +
+                            texture2D(texture, vUv2 - dy).r +
+                            texture2D(texture, vUv2 + dx).r +
+                            texture2D(texture, vUv2 + dy).r) * 0.5) - info.r;
+
+        // damp the value so ripples don't last forever
+        newHeight *= 0.99;
+        info.r = newHeight;
+
+        // set the new vertex height (vs_setHeight uses color to determine height)
+        gl_FragColor = info;
+    }
+</script>
+<!-- Main scene vertex shader. Updates mesh vertex height based on render texture color. -->
+<script id="vs_setHeight" type="x-shader/x-vertex">
+    uniform sampler2D texture;
+    varying vec2 vUv;
+
+    void main() {
+        vUv = uv;
+        vec4 info = texture2D(texture, vUv);
+
+        vec3 newpos = position;
+
+        // Multiply new height so we can actually see the difference.
+        newpos.z = info.r * 100.0;
+
+        gl_Position = projectionMatrix * modelViewMatrix * vec4(newpos, 1.0);
+    }
+</script>
+<!-- Main scene fragment shader. Writes the render texture colors to the main scene mesh. Mainly used for debugging. -->
+<script id="fs_setColor" type="x-shader/x-fragment">
+    uniform sampler2D texture;
+    varying vec2 vUv;
+
+    void main() {
+        gl_FragColor = texture2D(texture, vUv);
+    }
+</script>
+
+  </head>
+  <body>
+
+
+<script type="text/javascript">
+if (!Detector.webgl) {
+  Detector.addGetWebGLMessage();
+}
+
+//------------------------------------------
+// Globals
+//------------------------------------------
+var stats, rendererStats, cameraRTT, camera, sceneRTT, scene, renderer;
+var rtTexture, material, quad;
+var simRes = 64;
+var cUniforms, cUniforms2;
+var buf1;
+
+
+//------------------------------------------
+// Main init and loop
+//------------------------------------------
+init();
+animate();
+
+
+//------------------------------------------
+// Initialization
+//------------------------------------------
+function init() {
+  setupRTTScene();
+
+  setupMainScene();
+
+  renderer = new THREE.WebGLRenderer({
+      antialias: true
+  });
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.setClearColor(0x808080);
+  renderer.autoClear = false;
+
+  document.body.appendChild(renderer.domElement);
+
+  stats = new Stats();
+  stats.domElement.style.position = 'absolute';
+  stats.domElement.style.bottom = '0px';
+  stats.domElement.style.left = '0px';
+  document.body.appendChild(stats.domElement);
+
+  controls = new THREE.OrbitControls(camera);
+  controls.addEventListener('change', render);
+}
+
+
+//------------------------------------------
+// Setup the render-to-texture scene
+//------------------------------------------
+function setupRTTScene() {
+  cameraRTT = new THREE.OrthographicCamera(simRes / -2, simRes / 2, simRes / 2, simRes / -2, -10000, 10000);
+
+  sceneRTT = new THREE.Scene();
+
+  buf1 = generateDataTexture(simRes, simRes, new THREE.Color(0x000000));
+
+  var delta = 1.0 / simRes;
+  cUniforms = {
+      texture: {
+          type: "t",
+          value: buf1
+      },
+      delta: {
+          type: "v2",
+          value: new THREE.Vector2(delta, delta)
+      }
+  };
+  material = new THREE.ShaderMaterial({
+      uniforms: cUniforms,
+      vertexShader: document.getElementById('vs_rt').textContent,
+      fragmentShader: document.getElementById('fs_rt').textContent
+  });
+  var plane = new THREE.PlaneGeometry(simRes, simRes);
+  quad = new THREE.Mesh(plane, material);
+  quad.position.z = -100;
+  sceneRTT.add(quad);
+}
+
+
+//------------------------------------------
+// Setup the main scene
+//------------------------------------------
+function setupMainScene() {
+  camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 1, 10000);
+  camera.position.z = 500;
+
+  scene = new THREE.Scene();
+
+  var renderTargetLinearFloatParams = {
+      minFilter: THREE.LinearFilter,
+      magFilter: THREE.LinearFilter,
+      wrapS: THREE.RenderTargetWrapping,
+      wrapT: THREE.RenderTargetWrapping,
+      format: THREE.RGBFormat,
+      stencilBuffer: !1,
+      depthBuffer: !1,
+      type: THREE.FloatType
+  };
+  rtTexture = new THREE.WebGLRenderTarget(simRes, simRes, renderTargetLinearFloatParams);
+
+  cUniforms2 = {
+      texture: {
+          type: "t",
+          value: rtTexture
+      }
+  };
+  var tmat = new THREE.ShaderMaterial({
+      uniforms: cUniforms2,
+      vertexShader: document.getElementById('vs_setHeight').textContent,
+      fragmentShader: document.getElementById('fs_setColor').textContent,
+      wireframe: true
+  });
+  var plane2 = new THREE.PlaneGeometry(512, 512, simRes - 1, simRes - 1);
+  mesh = new THREE.Mesh(plane2, tmat);
+  mesh.rotation.x = THREE.Math.degToRad(-45);
+  scene.add(mesh);
+
+
+  // lower-right plane, debugging rtTexture
+  var rtDbgGeo = new THREE.PlaneGeometry(150, 150, 1, 1);
+  var rtDbgMat = new THREE.MeshBasicMaterial({
+      color: 0xffffff,
+      map: rtTexture
+  });
+  var rtDbgPlane = new THREE.Mesh(rtDbgGeo, rtDbgMat);
+  rtDbgPlane.position.set(256, -256, 0);
+  scene.add(rtDbgPlane);
+
+  // lower-left plane, debugging buf1
+  var bufDbgGeo = new THREE.PlaneGeometry(150, 150, 1, 1);
+  var bufDbgMat = new THREE.MeshBasicMaterial({
+      color: 0xffffff,
+      map: buf1
+  });
+  var bufDbgPlane = new THREE.Mesh(bufDbgGeo, bufDbgMat);
+  bufDbgPlane.position.set(-256, -256, 0);
+  scene.add(bufDbgPlane);
+}
+
+
+//------------------------------------------
+// Custom RGBA data texture. Debugging by setting
+// center point to red to start the simulation.
+//------------------------------------------
+function generateDataTexture(width, height, color) {
+  var size = width * height;
+  var data = new Uint8Array(4 * size);
+
+  var r = Math.floor(color.r * 255);
+  var g = Math.floor(color.g * 255);
+  var b = Math.floor(color.b * 255);
+  //var a = Math.floor( color.a * 255 );
+
+  for (var i = 0; i < size; i++) {
+      if (i == size / 2 + width / 2) {
+          data[i * 4] = 255;
+          data[i * 4 + 1] = g;
+          data[i * 4 + 2] = b;
+          data[i * 4 + 3] = 255;
+      } else {
+          data[i * 4] = r;
+          data[i * 4 + 1] = g;
+          data[i * 4 + 2] = b;
+          data[i * 4 + 3] = 255;
+      }
+  }
+
+  var texture = new THREE.DataTexture(data, width, height, THREE.RGBAFormat);
+  texture.needsUpdate = true;
+
+  return texture;
+}
+
+
+//------------------------------------------
+// Main loop
+//------------------------------------------
+function animate() {
+  requestAnimationFrame(animate);
+
+  render();
+
+  stats.update();
+  controls.update();
+}
+
+
+//------------------------------------------
+// Main rendering
+//------------------------------------------
+function render() {
+  renderer.clear();
+
+  // Render first scene into texture
+  renderer.render(sceneRTT, cameraRTT, rtTexture, true);
+
+  // read render texture into buffer
+  var gl = renderer.getContext();
+  gl.readPixels(0, 0, simRes, simRes, gl.RGBA, gl.UNSIGNED_BYTE, buf1.image.data);
+  buf1.needsUpdate = true;
+
+
+  // Render second scene to screen
+  // (using first scene as regular texture)
+  renderer.render(scene, camera);
+}
+</script>
+  </body>
+</html>

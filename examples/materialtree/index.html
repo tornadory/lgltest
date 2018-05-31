@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8" />
+    <title>MaterialTree</title>
+</head>
+
+<script src="bins/inflate.min.js"></script>
+<script src="bins/react.min.js"></script>
+<script src="bins/react-dom.min.js"></script>
+
+<script type="text/javascript">
+    // function init() {
+    //     App.init();
+    // }
+    var appversion = 0;
+    function loadVersion() {
+        var xhr = new XMLHttpRequest();
+
+        xhr.open("GET", "version.txt?v=" + (Math.random() * 1000), true);
+        xhr.responseType = "text";
+
+        showLoadInfo("read version")
+
+        xhr.onreadystatechange = function () {
+            if (xhr.status == 200 && xhr.readyState == 4) {
+                gameLoad(xhr.response)
+            }
+        }
+
+        xhr.send();
+    }
+
+    function gameLoad(version) {
+        var xhr = new XMLHttpRequest();
+        appversion = version;
+        xhr.open("GET", "bins/h5web.min.js?v=" + version, true);
+        xhr.responseType = "arraybuffer";
+
+        showLoadInfo("loading app ...")
+
+        xhr.onreadystatechange = function () {
+            if (xhr.status == 200 && xhr.readyState == 4) {
+                showLoadInfo("app loaded");
+                unzipJs(201,xhr.response);
+            }
+        }
+
+        xhr.onprogress = function (e) {
+            var num = (e.loaded / e.total) * 100 | 0
+            showLoadInfo("loading app" + num + "%");
+        }
+        xhr.send();
+    }
+
+    function unzipJs(id,data) {
+        var compressed = new Uint8Array(data);
+        var inflate = new Zlib.Inflate(compressed);
+        var plain = inflate.decompress();
+        var js = readUTFBytes(plain, plain.byteLength);
+        includeJS(id, js);
+        
+        var child=document.getElementById("info");
+        child.parentNode.removeChild(child);
+        init();
+    }
+    function readUTFBytes(_data_, len) {
+        var value = "";
+        var max = len;
+        var c = 0, c2 = 0, c3 = 0;
+        var _position_ = 0;
+        while (_position_ < max) {
+            c = _data_[_position_++];
+            if (c < 0x80) {
+                if (c != 0) {
+                    value += String.fromCharCode(c);
+                }
+            } else if (c < 0xE0) {
+                value += String.fromCharCode(((c & 0x3F) << 6) | (_data_[_position_++] & 0x7F));
+            } else if (c < 0xF0) {
+                c2 = _data_[_position_++];
+                value += String.fromCharCode(((c & 0x1F) << 12) | ((c2 & 0x7F) << 6) | (_data_[_position_++] & 0x7F));
+            } else {
+                c2 = _data_[_position_++];
+                c3 = _data_[_position_++];
+                value += String.fromCharCode(((c & 0x0F) << 18) | ((c2 & 0x7F) << 12) | ((c3 << 6) & 0x7F) | (_data_[_position_++] & 0x7F));
+            }
+        }
+        return value;
+    }
+
+    function showLoadInfo(str) {
+        var loadCav = document.getElementById('info');
+        loadCav.innerHTML = str;
+    }
+
+    function includeJS(sId, source) {
+        if ((source != null) && (!document.getElementById(sId))) {
+            var myHead = document.getElementsByTagName("HEAD").item(0);
+            var myScript = document.createElement("script");
+            myScript.language = "javascript";
+            myScript.type = "text/javascript";
+            myScript.id = sId;
+            try {
+                myScript.appendChild(document.createTextNode(source));
+            }
+            catch (ex) {
+                myScript.text = source;
+            }
+            myHead.appendChild(myScript);
+        }
+    }
+
+    function bgdown() {
+        GameCtrlManager.getInstance().setDrag(document.getElementById("bgdiv"));
+        App.hideProp();
+    }
+
+    var game;
+    var hasInit = false;
+    function init() {
+
+        hasInit = true;
+        Engine.init(document.getElementById('ArpgStageCanvas'));
+        Scene_data.user = 0;
+        Engine.app = true;
+
+        game = new GameStart();
+        game.isTool = true;
+        game.start();
+
+        App.init();
+
+        resetSize();
+        window.requestAnimationFrame = window.requestAnimationFrame || window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame || window.msRequestAnimationFrame;
+        if (requestAnimationFrame) {
+            requestAnimationFrame(step);
+        }
+
+
+    }
+    function step(timestamp) {
+        update()
+        requestAnimationFrame(step);
+        //window.setTimeout(nextFun, 1000 / 60)
+    }
+
+
+    function resetSize() {
+        if (hasInit) {
+            Engine.resetSize();
+            FpsStage.getInstance().resetSize();
+        }
+    }
+    function update() {
+        Engine.update();
+    }
+
+</script>
+
+<style type="text/css">
+    html,
+    body {
+        height: 100%;
+        width: 100%;
+        padding: 0;
+        margin: 0;
+        background-color: #2a2a2a;
+        background: url("assets/ui/bg.jpg")
+    }
+
+    .root {
+        height: 100%;
+        width: 100%;
+        /* background: url("assets/ui/bg.jpg"); */
+        position: absolute;
+        left: 0px;
+        top: 0px;
+        z-index: 0;
+        user-select: none;
+    }
+
+    .svgstyle {
+        position: absolute;
+        left: 0px;
+        top: 0px;
+        z-index: 0;
+    }
+
+    .head {
+        position: absolute;
+        left: 0px;
+        top: 0px;
+        height: 40px;
+        width: 100%;
+        background: rgba(60, 60, 60, 0.8);
+        box-shadow: 0px 0px 5px #000;
+        z-index: 0;
+    }
+
+    .info {
+        position: absolute;
+        left: 0px;
+        top: 0px;
+        z-index: 0;
+        color: #FFFFFF;
+    }
+
+    .webglstyle {
+        position: absolute;
+        right: 0px;
+        top: 41px;
+        height: 100%;
+        width: 25%;
+        background: #000;
+        z-index: 0;
+    }
+
+    .menustyle {
+        border-collapse: collapse;
+        margin: 10px 20px;
+        user-select: none;
+        width: 100%;
+    }
+
+    a:link {
+        color:#999999;
+        text-decoration:underline;
+    }
+    a:visited {
+        color:#999999;
+        text-decoration:none;
+    }
+    a:hover {
+        color:#666666;
+        text-decoration:none;
+    }
+    a:active {
+        color:#FFFFFF;
+        text-decoration:none;
+    }
+</style>
+
+<body onload='loadVersion()' style="overflow-x: hidden; overflow-y: hidden;background-color:#000000">
+    <div>
+        <div id="bgdiv" class="root"></div>
+        <div id="svg" class="svgstyle" onmousedown="bgdown()"></div>
+        <div id="base"></div>
+    </div>
+    <div id="menuContainer" style="background-color:#aeaeae">
+        <div id="menu1"></div>
+        <div id="menu2"></div>
+    </div>
+    <div id="prop">
+
+    </div>
+    <div class="head">
+        <table class="menustyle" id="toolmenu">
+
+        </table>
+    </div>
+
+    <canvas class="webglstyle" id="ArpgStageCanvas"></canvas>
+
+    <div id="view3dmenu"> </div>
+    <div id="info" class="info">loading</div>
+</body>
+
+</html>
