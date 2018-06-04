@@ -1,0 +1,94 @@
+Script Related
+
+TYPES:
+//this.createProperty("audioresource", null, RS.TYPES.RESOURCE);
+//RS.TYPES.SCENENODE
+//RS.TYPES.ARRAY
+//RS.TYPES.COMPONENT
+//RS.TYPES.RESOURCE
+//RS.TYPES.TEXTURE
+//RS.TYPES.MESH
+//RS.TYPES.ANIMATION
+//RS.TYPES.NUMBER
+//RS.TYPES.BOOLEAN
+//RS.TYPES.STRING
+//RS.TYPES.VEC2
+//RS.TYPES.VEC3
+//RS.TYPES.VEC4
+//RS.TYPES.MAT3
+//RS.TYPES.MAT4
+//RS.TYPES.COLOR
+//RS.TYPES.COLOR4
+
+//
+RS.GlobalScene  -- scene
+
+
+//Retrieving nodes
+node.findNode( name_or_uid )
+node.findNodeByName( name )
+node.findNodeByUid( name )
+
+//
+node.getComponent( "MeshRenderer" )
+node.getComponent( RS.Components.MeshRenderer )
+node.getComponentByUId( uid )
+RS.GlobalScene.findComponent( uid )
+
+node.removeComponent( component );
+
+RS.ResourcesManager.unregisterResource( filename );
+
+
+//
+RS.ResourcesManager.getResource( url );
+
+
+//
+a list of the automatically binded events, all of them are optional:
+
+onDestroy: called when the script is removed from the node (and no longer belongs to the scene).
+
+onConfigure: triggered after the object has been configured. In case we want to do something else.
+
+onSerialize: triggered if the user wants to store something, must return object with all properties that must be serialized, if this method ins not specified the system stores all the properties attached to the context.
+
+onAwake: triggered after the whole scene has been configured (use it to access other components)
+
+onStart: triggered by scene "start" event, remember that if your script is created after the scene starting you wont receive this.
+
+onFinish: triggered by scene "finish" event, used in the editor when the user stops the play mode.
+
+onPrefabReady: triggered by the node "prefabReady", used to access components or node that come from the prefab
+
+onBeforeUpdate: triggered by scene "beforeUpdate" event. executed before triggering the onUpdate.
+
+onUpdate: triggered by scene "update" event. it receives the delta time in seconds.
+
+onFixedUpdate: triggered by scene "fixedUpdate" event (between update and afterUpdate). Like update but the time step is fixed (defined in scene._fixed_update_timestep) so it can be called multiple times per frame or none.
+
+onAfterUpdate: triggered by scene "afterUpdate" event. executed after triggering the onUpdate.
+
+onClicked: triggered by the node "clicked" event. Remember that you need an InteractiveController in the scene to dispatch this events.
+
+onCollectRenderInstances: triggered by node "collectRenderInstances" event. To pass RenderInstasnces
+
+onSceneRender: triggered by scene "beforeRender" event. Used to prepare stuff before any rendering is done.
+
+onRender: triggered by the node "beforeRenderInstances" event. Used to direct render stuff before the RenderInstances are rendered.
+
+onAfterRender: triggered by the node "afterRenderInstances" event. Used to direct render stuff after the RenderInstances are rendered.
+
+onRenderHelpers: triggered by scene "renderHelpers" event. To direct render stuff related to the editor.
+
+onRenderGUI: triggered by scene "renderGUI", to render stuff in 2D (using the canvas2D or the LS.GUI ).
+
+onEnableFrameContext: triggered by the scene "enableFrameContext" event. Before rendering the final frame, used to setup a special RenderFrameContext and apply FX to the final image.
+
+onShowFrameContext: triggered by the scene "showFrameContext" event. After the final frame, to show the frame into the viewport.
+
+onRemovedFromScene: called when the node where the script belongs is detached from the scene.
+
+onGetResources: called when the script needs to collect resources. This function receives an object that needs to be filled with the fullpath : type of the resources it uses so they can be automatically loaded when the scene is loaded.
+
+onFileDrop: called if the user drags and drop a file over the scene. Receives and object that contains the file.
