@@ -69,8 +69,12 @@ Released under the MIT license: http://jsbin.mit-license.org
             selection = document.getElementById("selection");
             selectionLayer = document.getElementById("selection-layer");
 
-            camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 1, 10000);
-            camera.position.z = 1000;
+            //camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 1, 10000);
+            var width = window.innerWidth;
+            var height = window.innerHeight;
+            console.log(width, height);
+            camera = new THREE.OrthographicCamera(width / - 2, width / 2, height / 2, height / - 2, 1, 1000);
+            // camera.position.z = 1000;
 
             scene = new THREE.Scene();
 

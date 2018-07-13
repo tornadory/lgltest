@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Camera FAR NEAR PLANE</title>
+    <script src="http://threejs.org/build/three.min.js"></script>
+    <style>
+        body {
+            background-color: #000;
+            margin: 0px;
+            overflow: hidden;
+        }
+    </style>
+</head>
+
+<body>
+    <script>
+        var cameraFov = 75;
+
+        init();
+        animate();
+
+        function init() {
+            container = document.createElement('div');
+            document.body.appendChild(container);
+
+            cameraFar = 1200;
+            camera = new THREE.PerspectiveCamera(cameraFov, window.innerWidth / window.innerHeight, 1, cameraFar);
+            camera.position.z = cameraFar;
+
+            scene = new THREE.Scene();
+
+            hNear = 2 * Math.tan(camera.fov * Math.PI / 180 / 2) * camera.near; // CHANGED - deg to radians
+            wNear = hNear * camera.aspect; // width
+
+            // Far Plane dimensions
+            hFar = 2 * Math.tan(camera.fov * Math.PI / 180 / 2) * camera.far; // CHANGED - deg to radians
+            wFar = hFar * camera.aspect; // width
+
+            var farTopLeft = new THREE.Vector3(-wFar / 2, hFar / 2, -camera.far); // CHANGED - sign flips
+            var farBottomRight = new THREE.Vector3(wFar / 2, -hFar / 2, -camera.far);
+            var farTopRight = new THREE.Vector3(wFar / 2, hFar / 2, -camera.far);
+            var farBottomLeft = new THREE.Vector3(-wFar / 2, -hFar / 2, -camera.far);
+
+            var nearTopLeft = new THREE.Vector3(-wNear / 2, hNear / 2, -camera.near); // CHANGED - sign flips
+            var nearBottomRight = new THREE.Vector3(wNear / 2, -hNear / 2, -camera.near);
+            var nearTopRight = new THREE.Vector3(wNear / 2, hNear / 2, -camera.near);
+            var nearBottomLeft = new THREE.Vector3(-wNear / 2, -hNear / 2, -camera.near);
+
+            // adjust the vectors to the camera location and direction
+            camera.updateMatrixWorld();
+            farTopLeft.applyMatrix4(camera.matrixWorld);
+            farBottomRight.applyMatrix4(camera.matrixWorld);
+            farTopRight.applyMatrix4(camera.matrixWorld);
+            farBottomLeft.applyMatrix4(camera.matrixWorld);
+
+            nearTopLeft.applyMatrix4(camera.matrixWorld);
+            nearBottomRight.applyMatrix4(camera.matrixWorld);
+            nearTopRight.applyMatrix4(camera.matrixWorld);
+            nearBottomLeft.applyMatrix4(camera.matrixWorld);
+
+            var farParticles = new THREE.Geometry();
+            farParticles.vertices.push(farTopLeft);
+            farParticles.vertices.push(farBottomRight);
+            farParticles.vertices.push(farTopRight);
+            farParticles.vertices.push(farBottomLeft);
+
+            var nearParticles = new THREE.Geometry();
+            nearParticles.vertices.push(nearTopLeft);
+            nearParticles.vertices.push(nearBottomRight);
+            nearParticles.vertices.push(nearTopRight);
+            nearParticles.vertices.push(nearBottomLeft);
+
+            pFarMaterial = new THREE.ParticleBasicMaterial({
+                color: 0xffffff,
+                size: 200
+            });
+
+            pNearMaterial = new THREE.ParticleBasicMaterial({
+                color: 0x00ff00,
+                size: 1,
+                transparent: true,
+                opacity: 0.5
+            });
+
+            // create the particle system
+            farParticleSystem = new THREE.ParticleSystem(
+                farParticles,
+                pFarMaterial);
+
+            // add it to the scene
+            scene.add(farParticleSystem);
+
+            // create the particle system
+            nearParticleSystem = new THREE.ParticleSystem(
+                nearParticles,
+                pNearMaterial);
+
+            scene.add(nearParticleSystem);
+
+            renderer = new THREE.WebGLRenderer();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            container.appendChild(renderer.domElement);
+
+        }
+
+        function animate() {
+            // note: three.js includes requestAnimationFrame shim
+            requestAnimationFrame(animate);
+
+            renderer.render(scene, camera);
+        }
+    </script>
+</body>
+
+</html>
