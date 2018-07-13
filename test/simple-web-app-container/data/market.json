@@ -1,0 +1,31 @@
+[
+    {
+        "name": "亲情关爱",
+        "appId": "abcdefg",
+        "src": "/public/platform/appList/app1/js/app1.js",
+        "scripts": [
+            "/public/platform/appList/app1/js/regist.js",
+            "/public/platform/appList/app1/js/a1.js"
+        ],
+        "styles": [
+            "/public/platform/appList/app1/css/index.css"
+        ],
+        "icon": "/public/platform/appList/app1/img/1.jpg",
+        "details": "这是一个测试"
+    },
+    {
+        "name": "智慧关爱",
+        "appId": "bbcdefg",
+        "src": "/public/platform/appList/app2/js/app2.js",
+        "scripts": [
+            "/public/platform/appList/app2/js/b.js",
+            "/public/platform/appList/app2/js/b1.js"
+        ],
+        "styles": [
+            "/public/platform/appList/app2/css/b.css",
+            "/public/platform/appList/app2/css/b1.css"
+        ],
+        "icon": "/public/platform/appList/app2/img/2.jpg",
+        "details": "这是一个测试"
+    }
+]

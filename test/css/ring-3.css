@@ -1,0 +1,140 @@
+* {
+    position: relative;
+    margin: 0;
+    padding: 0;
+}
+
+.container{
+    position: absolute;
+    left:50%;
+    margin-top:5%;
+    width:208px;
+    height: 208px;
+    border-radius: 50%;
+    background: radial-gradient(transparent 60%, white 8%); 
+    z-index: 1;
+    
+}
+
+.bottom{
+    width: 208px;
+    height: 208px;
+    position: absolute;
+    z-index: 10;
+    top: 0px;
+    pointer-events: none;
+    border-radius: 50%;
+    overflow: hidden;
+}
+
+.top{
+    width: 208px;
+    height: 208px;
+    position: absolute;
+    z-index: 11;
+    top: 0px;
+    pointer-events: none;
+    transition: all .3s ease;
+    border-radius: 50%;
+    overflow: hidden;
+}
+
+.bottom li,
+.top li{
+    position: absolute;
+    width: 208px;
+    height: 208px;
+    overflow: hidden;
+    transform-origin: 100% 100%;
+    background-color: transparent;
+    color:transparent;
+
+    left:-50%;
+    top:-50%;
+    margin-top: -50%;
+    margin-left: 0px;
+}
+
+.top li:nth-child(1),
+.bottom li:nth-child(1){
+    transform: rotate(2deg) skew(46deg);
+}
+
+.top li:nth-child(2),
+.bottom li:nth-child(2){
+    transform: rotate(47deg) skew(46deg);
+}
+
+.bottom li:nth-child(3){
+    transform: rotate(92deg) skew(46deg);
+}
+
+.bottom li:nth-child(4){
+    transform: rotate(137deg) skew(46deg);
+}
+
+.bottom li:nth-child(5){
+    transform: rotate(182deg) skew(46deg);
+}
+
+.bottom li:nth-child(6){
+    transform: rotate(227deg) skew(46deg);
+}
+
+.bottom li:nth-child(7){
+    transform: rotate(272deg) skew(46deg);
+}
+
+.bottom li:nth-child(8){
+    transform: rotate(317deg) skew(46deg);
+}
+
+.bottom li a{
+    display: block;
+    /* font-size: 19.2px; */
+    height: 208px;
+    width: 208px;
+    position: absolute;
+    bottom: -104px;
+    right: -104px;
+    /* text-decoration: none; */
+    color: white;
+    /* transition: background-color .3s ease; */
+    /* 纯色就是原始的三角扇形 */
+    /* background-color: #7c5089; */
+    
+    /* 渐变之后显出的就是 圆环 */
+    /* background: radial-gradient(transparent 60%, #1f97ce 10%);  */
+    background: radial-gradient(transparent 60%, rgba(162, 228, 238, 0.6) 10%); 
+
+    transform: skew(-46deg) rotate(-68deg) scale(1);
+    border-radius: 50%;
+
+    /* backface-visibility: hidden; */
+
+    pointer-events: none;
+}
+
+.top li a{
+    display: block;
+    height: 208px;
+    width: 208px;
+    position: absolute;
+    bottom: -104px;
+    right: -104px;
+    color: white;
+    /* transition: background-color .3s ease; */
+    /* 纯色就是原始的三角扇形 */
+    /* background-color: #7c5089; */
+    
+    /* 渐变之后显出的就是 圆环 */
+    /* background: radial-gradient(transparent 60%, #1f97ce 10%);  */
+    background: radial-gradient(transparent 60%, rgba(0, 194, 228, 0.8) 10%); 
+
+    transform: skew(-46deg) rotate(-68deg) scale(1);
+    border-radius: 50%;
+
+    /* backface-visibility: hidden; */
+
+    z-index: 20;
+}

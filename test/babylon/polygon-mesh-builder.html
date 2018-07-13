@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+
+        <title>Babylon.js sample code</title>
+
+        <!-- Babylon.js -->
+        <script src="https://code.jquery.com/pep/0.4.2/pep.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.6.2/dat.gui.min.js"></script>
+        <script src="https://preview.babylonjs.com/cannon.js"></script>
+        <script src="https://preview.babylonjs.com/Oimo.js"></script>
+        <script src="https://preview.babylonjs.com/earcut.min.js"></script>
+        <script src="https://preview.babylonjs.com/babylon.js"></script>
+        <script src="https://preview.babylonjs.com/inspector/babylon.inspector.bundle.js"></script>
+        <script src="https://preview.babylonjs.com/materialsLibrary/babylonjs.materials.min.js"></script>
+        <script src="https://preview.babylonjs.com/proceduralTexturesLibrary/babylonjs.proceduralTextures.min.js"></script>
+        <script src="https://preview.babylonjs.com/postProcessesLibrary/babylonjs.postProcess.min.js"></script>
+        <script src="https://preview.babylonjs.com/loaders/babylonjs.loaders.js"></script>
+        <script src="https://preview.babylonjs.com/serializers/babylonjs.serializers.min.js"></script>
+        <script src="https://preview.babylonjs.com/gui/babylon.gui.min.js"></script>
+
+        <style>
+            html, body {
+                overflow: hidden;
+                width: 100%;
+                height: 100%;
+                margin: 0;
+                padding: 0;
+            }
+
+            #renderCanvas {
+                width: 100%;
+                height: 100%;
+                touch-action: none;
+            }
+        </style>
+    </head>
+<body>
+    <canvas id="renderCanvas"></canvas>
+    <script>
+        var canvas = document.getElementById("renderCanvas");
+        var engine = new BABYLON.Engine(canvas, true);
+
+        // You have to create a function called createScene. This function must return a BABYLON.Scene object
+        
+        
+        var createScene = function() {
+        	var scene = new BABYLON.Scene(engine);
+        	var camera = new BABYLON.ArcRotateCamera("Camera", -Math.PI/2, Math.PI/4, 25, BABYLON.Vector3.Zero(), scene);
+        	camera.attachControl(canvas, true);
+        
+            var light = new BABYLON.HemisphericLight("light1", new BABYLON.Vector3(0, 10, 0), scene);
+            light.intensity = 0.5;
+        
+            var corners = [ new BABYLON.Vector2(4, -4),
+                            new BABYLON.Vector2(2, 0),
+                            new BABYLON.Vector2(5, 2),
+                            new BABYLON.Vector2(1, 2),
+                            new BABYLON.Vector2(-5, 5),
+                            new BABYLON.Vector2(-3, 1),
+                            new BABYLON.Vector2(-4, -4),
+                            new BABYLON.Vector2(-2, -3),
+                            new BABYLON.Vector2(2, -3),
+                      ];
+                  
+            var poly_tri = new BABYLON.PolygonMeshBuilder("polytri", corners, scene);
+            var polygon = poly_tri.build(null, 0.5);
+            polygon.position.y = + 4;
+        
+            var poly_path = new BABYLON.Path2(2, 0);
+            poly_path.addLineTo(5, 2);
+            poly_path.addLineTo(1, 2);
+            poly_path.addLineTo(-5, 5);
+            poly_path.addLineTo(-3, 1);
+            poly_path.addLineTo(-4, -4);
+            poly_path.addArcTo(0, -2, 4, -4, 100);
+        
+            var poly_tri2 = new BABYLON.PolygonMeshBuilder("polytri2", poly_path, scene);
+            var polygon2 = poly_tri2.build(false, 0.5); //updatable, extrusion depth - both optional
+            polygon2.position.y = -4;
+        
+        	return scene;
+        };
+        
+        var scene = createScene()
+
+        engine.runRenderLoop(function () {
+            if (scene) {
+                scene.render();
+            }
+        });
+
+        // Resize
+        window.addEventListener("resize", function () {
+            engine.resize();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+
+        <title>Babylon.js sample code</title>
+
+        <!-- Babylon.js -->
+        <script src="https://code.jquery.com/pep/0.4.2/pep.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.6.2/dat.gui.min.js"></script>
+        <script src="https://preview.babylonjs.com/cannon.js"></script>
+        <script src="https://preview.babylonjs.com/Oimo.js"></script>
+        <script src="https://preview.babylonjs.com/earcut.min.js"></script>
+        <script src="https://preview.babylonjs.com/babylon.js"></script>
+        <script src="https://preview.babylonjs.com/inspector/babylon.inspector.bundle.js"></script>
+        <script src="https://preview.babylonjs.com/materialsLibrary/babylonjs.materials.min.js"></script>
+        <script src="https://preview.babylonjs.com/proceduralTexturesLibrary/babylonjs.proceduralTextures.min.js"></script>
+        <script src="https://preview.babylonjs.com/postProcessesLibrary/babylonjs.postProcess.min.js"></script>
+        <script src="https://preview.babylonjs.com/loaders/babylonjs.loaders.js"></script>
+        <script src="https://preview.babylonjs.com/serializers/babylonjs.serializers.min.js"></script>
+        <script src="https://preview.babylonjs.com/gui/babylon.gui.min.js"></script>
+
+        <style>
+            html, body {
+                overflow: hidden;
+                width: 100%;
+                height: 100%;
+                margin: 0;
+                padding: 0;
+            }
+
+            #renderCanvas {
+                width: 100%;
+                height: 100%;
+                touch-action: none;
+            }
+        </style>
+    </head>
+<body>
+    <canvas id="renderCanvas"></canvas>
+    <script>
+        var canvas = document.getElementById("renderCanvas");
+        var engine = new BABYLON.Engine(canvas, true);
+
+        var createScene = function () {
+            var scene = new BABYLON.Scene(engine);
+        	var camera = new BABYLON.ArcRotateCamera("camera", 0, 0, 0, new BABYLON.Vector3(0, 2, -0), scene);
+        	
+        	camera.setPosition( new BABYLON.Vector3(0, 0, -20) );
+        	camera.attachControl(canvas, true);
+        	
+        	/*
+        		Light
+        	*/
+        	
+        	var light = new BABYLON.HemisphericLight("light", new BABYLON.Vector3(0, 1, 0), scene);
+        	
+        	light.intensity = 1;
+        	
+        	var pl = new BABYLON.PointLight("pl", BABYLON.Vector3.Zero(), scene);
+        	
+        	pl.diffuse = new BABYLON.Color3(1, 1, 1);
+        	pl.specular = new BABYLON.Color3(1, 1, 1);
+        	pl.intensity = 0.4;
+        	
+        	scene.registerBeforeRender(function() { 
+        		pl.position = camera.position;
+        	});
+        	
+        	/*
+        		Boxes
+        	*/
+        	
+        	var container = BABYLON.Mesh.CreateBox(name, 1.0, scene, false, BABYLON.Mesh.DEFAULTSIDE);
+        	
+        	container.isVisible = false;
+        	
+        	var boxData = createBoxData(scene);
+        	
+        	for (var i = 0; i < 4; i++) {
+        		var box = createBox(scene, "box" + i, boxData);
+        		
+        		box.position.y = boxData.options.height * 1.1 * i;
+        		box.parent = container;
+        		
+        	}
+        	
+        	//alert("box: " +  getSize(box)); //correct size
+        	//alert("container: " + getSize(container)); //I need it to return the size of the 4 boxes combined
+        	
+        	//workaround
+        	//var boxSize = getSize(box);
+        	
+        	//boxSize.y *= 4 * 1.1;
+        	
+        	//alert("container workaround: " + boxSize); //not what I'm looking for
+        	
+        	var min = new BABYLON.Vector3(Number.MAX_VALUE, Number.MAX_VALUE, Number.MAX_VALUE);
+        	var max = new BABYLON.Vector3(Number.MIN_VALUE, Number.MIN_VALUE, Number.MIN_VALUE);
+        	
+        	box.position.y = 10;
+        	box.position.x = 4;
+        	box.rotation.z = Math.PI * .25;
+        	
+        	
+        	getMinMax(container, min, max, true);
+        	
+        	console.log("min", min);
+        	console.log("max", max);
+        	
+        	var size = max.subtract(min);
+        	
+        	console.log("size", size);
+        	
+        	var testMesh = BABYLON.MeshBuilder.CreateBox('', { width: size.x, height: size.y, depth: size.z }, scene);
+        
+        	testMesh.material = new BABYLON.StandardMaterial('', scene);
+        	testMesh.material.wireframe = true;
+        	
+        	testMesh.position.x = 2;
+        	testMesh.position.y = 5.2;
+        	
+            return scene;
+        };
+        
+        function getMinMax(mesh, min, max, computeWorldMatrix) {
+        	
+        	var bi = mesh.getBoundingInfo();
+        	
+        	if (computeWorldMatrix) {
+        		
+        		mesh.computeWorldMatrix(true);
+        			
+        	}
+        	
+        	var minimum = bi.minimum;
+        	var maximum = bi.maximum;
+        	
+        	var wm = mesh.getWorldMatrix();
+        	
+        	var tm = BABYLON.Matrix.Identity();
+        	
+        	/*
+        	var center = bi.boundingBox.center;
+        	
+        	tm.m[12] = center.x;
+        	tm.m[13] = center.y;
+        	tm.m[14] = center.z;
+        	
+        	tm.multiplyToRef(wm, tm);
+        	
+        	var cx = tm.m[12];
+        	var cy = tm.m[13];
+        	var cz = tm.m[14];
+        	*/
+        	
+        	BABYLON.Matrix.IdentityToRef(tm);
+        	
+        	tm.m[12] = minimum.x;
+        	tm.m[13] = minimum.y;
+        	tm.m[14] = minimum.z;
+        	
+        	tm.multiplyToRef(wm, tm);
+        	
+        	var minx = tm.m[12];
+        	var miny = tm.m[13];
+        	var minz = tm.m[14];
+        	
+        	BABYLON.Matrix.IdentityToRef(tm);
+        	
+        	tm.m[12] = maximum.x;
+        	tm.m[13] = maximum.y;
+        	tm.m[14] = maximum.z;
+        	
+        	tm.multiplyToRef(wm, tm);
+        	
+        	var maxx = tm.m[12];
+        	var maxy = tm.m[13];
+        	var maxz = tm.m[14];
+        	
+        	if (minx < min.x) {
+        		min.x = minx;
+        	}
+        	if (miny< min.y) {
+        		min.y = miny;
+        	}
+        	if (minz< min.z) {
+        		min.z = minz;
+        	}
+        
+        	if (maxx > max.x) {
+        		max.x = maxx;
+        	}
+        	if (maxy > max.y) {
+        		max.y = maxy;
+        	}
+        	if (maxz > max.z) {
+        		max.z = maxz;
+        	}
+        	
+        	var children = mesh.getChildMeshes();
+        	
+        	for (var i = 0; i < children.length; i++){
+        		
+        		getMinMax(children[i], min, max, computeWorldMatrix);
+        		
+        	}
+        	
+        }
+        
+        function createBox(scene, name, data) {
+        	var box = BABYLON.MeshBuilder.CreateBox(name, data.options, scene);
+        	
+        	box.material = data.material;
+        	
+        	return box;
+        }
+        
+        function createBoxData(scene) {
+        	var faceUV = new Array(6);
+        	
+        	for (var i = 0; i < 6; i++) {
+        		if (i != 1) faceUV[i] = new BABYLON.Vector4(0, 0, 0, 0);
+        	}
+        	
+        	var options = {
+        		width: 2,
+        		height: 2,
+        		depth: 1,
+        		faceUV: faceUV
+        	};
+        	
+        	var material = createTextureMaterial(scene, "http://jerome.bousquie.fr/BJS/images/spriteAtlas.png");
+        	
+        	return { options: options, material: material };
+        }
+        
+        
+        
+        function createTextureMaterial(scene, textureName) {
+        	var texture = new BABYLON.Texture(textureName, scene);
+        	var material = new BABYLON.StandardMaterial(textureName, scene);
+        	
+        	material.diffuseTexture = texture;
+        	
+        	return material;
+        }
+        
+        var scene = createScene()
+
+        engine.runRenderLoop(function () {
+            if (scene) {
+                scene.render();
+            }
+        });
+
+        // Resize
+        window.addEventListener("resize", function () {
+            engine.resize();
+        });
+    </script>
+</body>
+</html>

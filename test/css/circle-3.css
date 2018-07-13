@@ -1,0 +1,9 @@
+#canvas-div
+{
+  -webkit-border-radius: 50%;
+ border-radius: 50%;
+ height: 200px;
+ width : 200px;
+ overflow: hidden;
+ cursor: pointer;
+}

@@ -1,0 +1,39 @@
+@import "compass/css3";
+
+//html{background-color: #00aff0;}
+html{background-color: #000; overflow:hidden;}
+
+.dot{
+  height: 20px;
+  width: 20px;
+  border-radius: 100%;
+  position:absolute;
+  opacity:0;
+  transform-origin:0% 0%;
+}
+
+#hold{
+  position: absolute;
+  animation:spin 10s linear infinite;
+  top: 50%;
+  left: 50%;
+}
+
+@keyframes spin{
+  from{transform:rotate(360deg);}
+    to{transform:rotate(0deg);}
+}
+
+@keyframes osc {
+  0%{transform:scale(0.5); opacity:0}
+  50%{transform:scale(1.5); opacity:1}
+  100%{transform:scale(0.5); opacity:0}
+}
+
+@keyframes rainbow{
+  0%{background:hsla(0,75%,50%,1);}
+  25%{background:hsla(90,75%,50%,1);}
+  50%{background:hsla(180,75%,50%,1);}
+  75%{background:hsla(270,75%,50%,1);}
+  100%{background:hsla(360,75%,50%,1);}
+}

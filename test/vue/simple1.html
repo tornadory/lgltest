@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.5.16/dist/vue.js"></script>
+</head>
+
+<body>
+    <div id="container">
+        <input type="search" id="container" ref="input" placeholder="enter text" v-model="value" @input="input" @foucus="focusmethod">
+        <p>{{ value }}</p>
+    </div>
+
+    <script>
+
+        new Vue({
+            el: '#container',
+            data: {
+                value: '',
+            },
+            methods: {
+                input: function () {
+                    console.log("@input method");
+                    console.log(this.$refs.input.value);  //value is the same as 'value'
+                },
+                focusmethod: function () {
+                    console.log("focus");
+                }
+            }
+        });
+
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+
+        <title>Babylon.js sample code</title>
+
+        <!-- Babylon.js -->
+        <script src="https://code.jquery.com/pep/0.4.2/pep.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.6.2/dat.gui.min.js"></script>
+        <script src="https://preview.babylonjs.com/cannon.js"></script>
+        <script src="https://preview.babylonjs.com/Oimo.js"></script>
+        <script src="https://preview.babylonjs.com/earcut.min.js"></script>
+        <script src="https://preview.babylonjs.com/babylon.js"></script>
+        <script src="https://preview.babylonjs.com/inspector/babylon.inspector.bundle.js"></script>
+        <script src="https://preview.babylonjs.com/materialsLibrary/babylonjs.materials.min.js"></script>
+        <script src="https://preview.babylonjs.com/proceduralTexturesLibrary/babylonjs.proceduralTextures.min.js"></script>
+        <script src="https://preview.babylonjs.com/postProcessesLibrary/babylonjs.postProcess.min.js"></script>
+        <script src="https://preview.babylonjs.com/loaders/babylonjs.loaders.js"></script>
+        <script src="https://preview.babylonjs.com/serializers/babylonjs.serializers.min.js"></script>
+        <script src="https://preview.babylonjs.com/gui/babylon.gui.min.js"></script>
+
+        <style>
+            html, body {
+                overflow: hidden;
+                width: 100%;
+                height: 100%;
+                margin: 0;
+                padding: 0;
+            }
+
+            #renderCanvas {
+                width: 100%;
+                height: 100%;
+                touch-action: none;
+            }
+        </style>
+    </head>
+<body>
+    <canvas id="renderCanvas"></canvas>
+    <script>
+        var canvas = document.getElementById("renderCanvas");
+        var engine = new BABYLON.Engine(canvas, true);
+
+        var createScene = function () {
+            var scene = new BABYLON.Scene(engine);
+        
+            // setup environment
+            var light0 = new BABYLON.PointLight("Omni", new BABYLON.Vector3(0, 10, 20), scene);
+            var freeCamera = new BABYLON.FreeCamera("FreeCamera", new BABYLON.Vector3(0, 0, -30), scene);
+        	
+        	freeCamera.attachControl(canvas, true);
+        
+            // Impact impostor
+            var impact = BABYLON.Mesh.CreatePlane("impact", 1, scene);
+            impact.material = new BABYLON.StandardMaterial("impactMat", scene);
+            impact.material.diffuseTexture = new BABYLON.Texture("textures/impact.png", scene);
+            impact.material.diffuseTexture.hasAlpha = true;
+            impact.position = new BABYLON.Vector3(0, 0, -0.1);
+        
+            //Wall
+            var wall = BABYLON.Mesh.CreatePlane("wall", 30.0, scene);
+        	wall.position.z = 20;
+            wall.material = new BABYLON.StandardMaterial("wallMat", scene);
+            wall.material.emissiveColor = new BABYLON.Color3(0.5, 1, 0.5);
+        	
+        	wall.parent = freeCamera;
+        	wall.material.alpha = 0.3;
+        
+            //When pointer down event is raised
+            scene.onPointerDown = function (evt, pickResult) {
+                // if the click hits the ground object, we change the impact position
+                if (pickResult.hit) {
+        			impact.position.copyFrom(pickResult.pickedPoint);
+                }
+            };
+        	
+        	
+        	//just to add some fun
+        	//Creation of a box
+        	//(name of the box, size, scene)
+        	var box = BABYLON.Mesh.CreateBox("box", 6.0, scene);
+        
+        	//Creation of a sphere 
+        	//(name of the sphere, segments, diameter, scene) 
+        	var sphere = BABYLON.Mesh.CreateSphere("sphere", 10.0, 10.0, scene);
+        
+        	//Creation of a plan
+        	//(name of the plane, size, scene)
+        	var plan = BABYLON.Mesh.CreatePlane("plane", 10.0, scene);
+        
+        	//Creation of a cylinder
+        	//(name, height, diameter, tessellation, scene, updatable)
+        	var cylinder = BABYLON.Mesh.CreateCylinder("cylinder", 3, 3, 3, 6, 1, scene, false);
+        
+        	// Creation of a torus
+        	// (name, diameter, thickness, tessellation, scene, updatable)
+        	var torus = BABYLON.Mesh.CreateTorus("torus", 5, 1, 10, scene, false);
+        
+        	// Creation of a knot
+        	// (name, radius, tube, radialSegments, tubularSegments, p, q, scene, updatable)
+        	var knot = BABYLON.Mesh.CreateTorusKnot("knot", 2, 0.5, 128, 64, 2, 3, scene);
+        
+        	// Creation of a lines mesh
+        	var lines = BABYLON.Mesh.CreateLines("lines", [
+                new BABYLON.Vector3(-10, 0, 0),
+                new BABYLON.Vector3(10, 0, 0),
+                new BABYLON.Vector3(0, 0, -10),
+                new BABYLON.Vector3(0, 0, 10)
+        	], scene);
+        
+        	// Creation of a ribbon
+        	// let's first create many paths along a maths exponential function as an example 
+        	var exponentialPath = function (p) {
+        		var path = [];
+        		for (var i = -10; i < 10; i++) {
+        			path.push(new BABYLON.Vector3(p, i, Math.sin(p / 3) * 5 * Math.exp(-(i - p) * (i - p) / 60) + i / 3));
+        		}
+        		return path;
+        	};
+        	// let's populate arrayOfPaths with all these different paths
+        	var arrayOfPaths = [];
+        	for (var p = 0; p < 20; p++) {
+        		arrayOfPaths[p] = exponentialPath(p);
+        	}
+        
+        	// (name, array of paths, closeArray, closePath, offset, scene)
+        	var ribbon = BABYLON.Mesh.CreateRibbon("ribbon", arrayOfPaths, false, false, 0, scene);
+        
+        
+        	// Moving elements
+        	box.position = new BABYLON.Vector3(-10, 0, 0);   // Using a vector
+        	sphere.position = new BABYLON.Vector3(0, 10, 0); // Using a vector
+        	plan.position.z = 10;                            // Using a single coordinate component
+        	cylinder.position.z = -10;
+        	torus.position.x = 10;
+        	knot.position.y = -10;
+        	ribbon.position = new BABYLON.Vector3(-10, -10, 20);
+        
+            return scene;
+        }
+        
+        
+        var scene = createScene()
+
+        engine.runRenderLoop(function () {
+            if (scene) {
+                scene.render();
+            }
+        });
+
+        // Resize
+        window.addEventListener("resize", function () {
+            engine.resize();
+        });
+    </script>
+</body>
+</html>

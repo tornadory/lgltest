@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+
+        <title>Babylon.js sample code</title>
+
+        <!-- Babylon.js -->
+        <script src="https://code.jquery.com/pep/0.4.2/pep.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.6.2/dat.gui.min.js"></script>
+        <script src="https://preview.babylonjs.com/cannon.js"></script>
+        <script src="https://preview.babylonjs.com/Oimo.js"></script>
+        <script src="https://preview.babylonjs.com/earcut.min.js"></script>
+        <script src="https://preview.babylonjs.com/babylon.js"></script>
+        <script src="https://preview.babylonjs.com/inspector/babylon.inspector.bundle.js"></script>
+        <script src="https://preview.babylonjs.com/materialsLibrary/babylonjs.materials.min.js"></script>
+        <script src="https://preview.babylonjs.com/proceduralTexturesLibrary/babylonjs.proceduralTextures.min.js"></script>
+        <script src="https://preview.babylonjs.com/postProcessesLibrary/babylonjs.postProcess.min.js"></script>
+        <script src="https://preview.babylonjs.com/loaders/babylonjs.loaders.js"></script>
+        <script src="https://preview.babylonjs.com/serializers/babylonjs.serializers.min.js"></script>
+        <script src="https://preview.babylonjs.com/gui/babylon.gui.min.js"></script>
+
+        <style>
+            html, body {
+                overflow: hidden;
+                width: 100%;
+                height: 100%;
+                margin: 0;
+                padding: 0;
+            }
+
+            #renderCanvas {
+                width: 100%;
+                height: 100%;
+                touch-action: none;
+            }
+        </style>
+    </head>
+<body>
+    <canvas id="renderCanvas"></canvas>
+    <script>
+        var canvas = document.getElementById("renderCanvas");
+        var engine = new BABYLON.Engine(canvas, true);
+
+        var createScene = function () {
+        
+            // This creates a basic Babylon Scene object (non-mesh)
+            var scene = new BABYLON.Scene(engine);
+        
+            // This targets the camera to scene origin
+            var camera = new BABYLON.ArcRotateCamera("Camera", 3 * Math.PI / 2 + 0.2, 1.3, 20, BABYLON.Vector3.Zero(), scene);
+            camera.attachControl(canvas, true);
+            camera.position = new BABYLON.Vector3(0.7, 4, -8.57);
+        
+            // This creates a light, aiming 0,1,0 - to the sky (non-mesh)
+            var light = new BABYLON.HemisphericLight("light1", new BABYLON.Vector3(0, 1, 0), scene);
+        
+            // Default intensity is 1. Let's dim the light a small amount
+            light.intensity = 0.7;
+        	
+        	var box1 = BABYLON.Mesh.CreateBox("my box", 3, scene);
+        	
+        	// Make a label
+        	var dynamicTexture = new BABYLON.DynamicTexture("DynamicTexture", 512, scene, true);
+            dynamicTexture.hasAlpha = true;
+            var textureContext = dynamicTexture.getContext();
+            textureContext.fillStyle = "white";
+            textureContext.fillRect(0, 0, dynamicTexture.getSize().width, dynamicTexture.getSize().height);
+            dynamicTexture.update(false);
+        	
+        	var numberOfSprites = 3;
+        	var spriteManager = new BABYLON.SpriteManager("sm", "", numberOfSprites, 512, scene);
+        	spriteManager.isPickable = true;
+        	spriteManager._spriteTexture = dynamicTexture;
+        	
+        	
+        	var spriteSize = 3;
+        	var testAreaSize = 10;
+        	
+        	for (var i = 0; i < numberOfSprites; i++) {
+        		var sprite = new BABYLON.Sprite("textSprite" + i, spriteManager);
+        		sprite.width = spriteSize;
+        		sprite.height = 1;
+        		sprite.position.x = -testAreaSize/2 + Math.random() * testAreaSize;
+        		sprite.position.y = -testAreaSize/2 + Math.random() * testAreaSize;
+        		sprite.position.z = -testAreaSize/2 + Math.random() * testAreaSize;
+        		sprite.isPickable = true;
+        	}
+        	
+        	
+        	// Pick it	
+        	var line = null;
+        	scene.onPointerDown = function (evt) {
+                var pickResult = scene.pickSprite(this.pointerX, this.pointerY);
+                if (pickResult.hit) {
+                    console.log(pickResult.pickedSprite.name, pickResult.pickedSprite.position);
+        			line = BABYLON.Mesh.CreateLines('line', [
+        				BABYLON.Vector3.Zero(),
+        				pickResult.pickedSprite.position
+        			], scene);
+                }
+            }; 
+        
+            return scene;
+        };
+        
+        
+        var scene = createScene()
+
+        engine.runRenderLoop(function () {
+            if (scene) {
+                scene.render();
+            }
+        });
+
+        // Resize
+        window.addEventListener("resize", function () {
+            engine.resize();
+        });
+    </script>
+</body>
+</html>

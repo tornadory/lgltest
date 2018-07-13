@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+
+        <title>Babylon.js sample code</title>
+
+        <!-- Babylon.js -->
+        <script src="https://code.jquery.com/pep/0.4.2/pep.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.6.2/dat.gui.min.js"></script>
+        <script src="https://preview.babylonjs.com/cannon.js"></script>
+        <script src="https://preview.babylonjs.com/Oimo.js"></script>
+        <script src="https://preview.babylonjs.com/earcut.min.js"></script>
+        <script src="https://preview.babylonjs.com/babylon.js"></script>
+        <script src="https://preview.babylonjs.com/inspector/babylon.inspector.bundle.js"></script>
+        <script src="https://preview.babylonjs.com/materialsLibrary/babylonjs.materials.min.js"></script>
+        <script src="https://preview.babylonjs.com/proceduralTexturesLibrary/babylonjs.proceduralTextures.min.js"></script>
+        <script src="https://preview.babylonjs.com/postProcessesLibrary/babylonjs.postProcess.min.js"></script>
+        <script src="https://preview.babylonjs.com/loaders/babylonjs.loaders.js"></script>
+        <script src="https://preview.babylonjs.com/serializers/babylonjs.serializers.min.js"></script>
+        <script src="https://preview.babylonjs.com/gui/babylon.gui.min.js"></script>
+
+        <style>
+            html, body {
+                overflow: hidden;
+                width: 100%;
+                height: 100%;
+                margin: 0;
+                padding: 0;
+            }
+
+            #renderCanvas {
+                width: 100%;
+                height: 100%;
+                touch-action: none;
+            }
+        </style>
+    </head>
+<body>
+    <canvas id="renderCanvas"></canvas>
+    <script>
+        var canvas = document.getElementById("renderCanvas");
+        var engine = new BABYLON.Engine(canvas, true);
+
+        var createScene = function ()
+        {
+            // Create Scene
+            var scene = new BABYLON.Scene(engine);
+        
+            // Create Camera
+            var camera = new BABYLON.FreeCamera("camera", new BABYLON.Vector3(0, 10, 0), scene);
+            camera.setTarget(BABYLON.Vector3.Zero());
+            camera.attachControl(canvas, true);
+        
+            // Create Points
+            var x = 0;
+            var z = 0;
+            var points = [
+                new BABYLON.Vector3(x - 1, 0, z + 1.5),
+                new BABYLON.Vector3(x + 1, 0, z + 1.5),
+                new BABYLON.Vector3(x + 1.5, 0, z),
+                new BABYLON.Vector3(x + 1, 0, z - 1.5),
+                new BABYLON.Vector3(x - 1, 0, z - 1.5),
+                new BABYLON.Vector3(x - 1.5, 0, z),
+                new BABYLON.Vector3(x - 1, 0, z + 1.5)
+            ];
+        
+            // Create Hex
+            //var hex = BABYLON.Mesh.CreateLines("hex", points, scene);
+            //hex.color = BABYLON.Color3.Black();
+        
+            /* Question
+                what can I do now to create a custom 2D shape that
+                is a single filled plane within these defined points?
+            */
+            var filled_hex = BABYLON.Mesh.CreateRibbon("hex", [points], true, false, 0, scene);
+            filled_hex.color = BABYLON.Color3.Black();
+        
+            // Done
+            return scene;
+        };
+        
+        var scene = createScene()
+
+        engine.runRenderLoop(function () {
+            if (scene) {
+                scene.render();
+            }
+        });
+
+        // Resize
+        window.addEventListener("resize", function () {
+            engine.resize();
+        });
+    </script>
+</body>
+</html>

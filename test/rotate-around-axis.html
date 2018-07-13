@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Rotate Around Axis</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+    <script src="js/three.js"></script>
+    <script src="js/libs/inflate.min.js"></script>
+    <script src="js/controls/OrbitControls.js"></script>
+    <script src="js/curves/NURBSCurve.js"></script>
+    <script src="js/curves/NURBSUtils.js"></script>
+    <script src="js/loaders/FBXLoader.js"></script>
+    <script src="js/libs/stats.min.js"></script>
+    <style>
+        body {
+            font-family: Monospace;
+            background-color: #000;
+            color: #fff;
+            margin: 0px;
+            overflow: hidden;
+        }
+    </style>
+</head>
+
+<body>
+
+
+    <script>
+        var camera, scene, renderer, mesh;
+        var axis = new THREE.Vector3(1, 1, 0).normalize();
+
+        init();
+        animate();
+
+        function init() {
+            camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.01, 10);
+            camera.position.z = 1;
+
+            scene = new THREE.Scene();
+
+            var geometry = new THREE.BoxGeometry(0.2, 0.2, 0.2);
+            var material = new THREE.MeshNormalMaterial();
+
+            mesh = new THREE.Mesh(geometry, material);
+            scene.add(mesh);
+
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            document.body.appendChild(renderer.domElement);
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+            mesh.rotateOnAxis(axis, Math.PI * 0.01); // perform a small rotation every frame
+            renderer.render(scene, camera);
+        }
+    </script>
+
+</body>
+
+</html>

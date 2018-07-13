@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>CSS3 Circle</title>
+    <script src="https://code.jquery.com/jquery-2.2.4.min.js"></script>
+    <style>
+        #c {
+            width: 224px;
+            height: 224px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <a id='link'>
+        <canvas id='c' width='224' height='224' onmousemove="update(event);" onmouseout="update(false)"></canvas>
+    </a>
+    <input id='i' />
+
+    <script>
+        ctx = $('#c')[0].getContext('2d');
+
+
+        function update(E) {
+            ctx.clearRect(0, 0, 224, 224);
+            if (E === false) {
+                mx = 112;
+                my = 112;
+            } else {
+                mx = E.clientX;
+                my = E.clientY;
+            }
+
+            mangle = (-Math.atan2(mx - 112, my - 112) + Math.PI * 2.5) % (Math.PI * 2);
+            mradius = Math.sqrt(Math.pow(mx - 112, 2) + Math.pow(my - 112, 2));
+
+            $('#i').val("Not over any region");
+            $('#link').attr('href', '');
+            for (i = 0; i < 8; i++) {
+                angle = -Math.PI / 8 + i * (Math.PI / 4);
+
+                if (((mangle > angle && mangle < (angle + Math.PI / 4)) || (mangle > Math.PI * 15 / 8 && i == 0)) && mradius <= 112 && mradius >= 69) {
+                    ctx.fillStyle = "#5a5a5a";
+                    $('#i').val("In region " + i);
+                    $('#link').attr('href', '#' + i);
+                } else {
+                    ctx.fillStyle = "#4c4c4c";
+                }
+
+                ctx.beginPath();
+                ctx.moveTo(112, 112);
+                //ctx.lineTo(112+Math.cos(angle)*112, 112+Math.sin(angle)*112);
+                ctx.arc(112, 112, 112, angle, angle + Math.PI / 4, false);
+                ctx.lineTo(112, 112);
+                ctx.fill();
+
+
+            }
+
+            ctx.fillStyle = "#f2f2f2";
+            ctx.beginPath();
+            ctx.arc(112, 112, 69, 0, 2 * Math.PI, false);
+            ctx.fill();
+        }
+
+        update(false);
+    </script>
+</body>
+
+</html>

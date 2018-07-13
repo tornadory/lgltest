@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>Progress Ring</title>
+    <link rel="stylesheet" type="text/css" href="style/progress-ring.css">
+    <style>
+    .progress-ring {
+        float: left;
+        margin: 20px;
+    }
+    button {
+        float: left;
+    }
+    #full div {
+        border-width: 65px;
+        color: #000;
+    }
+    </style>
+</head>
+
+<body>
+    <div class="progress-ring"></div>
+    <div class="progress-ring" data-percent="20"></div>
+    <div class="progress-ring" data-duration="2" id="full"></div>
+    <div class="progress-ring" data-percent="65" data-color="#b3cef6,#4b86db" data-duration="4"></div>
+    <div class="progress-ring" data-percent="80" data-color="#f8d5d5,#ff4242" data-duration="6"></div>
+    <script src="js/jquery-2.1.1.min.js"></script>
+    <script src="js/progress-ring.js"></script>
+    <script>
+    $(".progress-ring").loadingRing();
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,26 @@
+{
+    "name": "f-circle",
+    "version": "0.0.1",
+    "description": "css3 circle progress",
+    "main": "fCircle.min.js",
+    "moduleType": [
+        "amd"
+    ],
+    "keywords": [
+        "css3",
+        "html5",
+        "circle"
+    ],
+    "license": "MIT",
+    "homepage": "https://github.com/fancyboynet/fCircle",
+    "authors": [
+        "fancy <fancyboynet@gmail.com>"
+    ],
+    "ignore": [
+        "**/.*",
+        "node_modules",
+        "bower_components",
+        "test",
+        "tests"
+    ]
+}

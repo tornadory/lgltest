@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="css/circle-1.css">
+    <title>CSS3 Circle</title>
+</head>
+
+<body>
+    <div class="main">
+        <div class="quarter quarter1" id="q1" onclick="quarterOne()"></div>
+        <div class="quarter quarter2" id="q2" onclick="quarterTwo()"></div>
+        <div class="quarter quarter3" id="q3" onclick="quarterThree()"></div>
+        <div class="quarter quarter4" id="q4" onclick="quarterFour()"></div>
+        <div class="rating" id="rating"></div>
+    </div>
+    <script>
+        function quarterOne() {
+            document.getElementById("rating").innerHTML = "1";
+        }
+        function quarterTwo() {
+            document.getElementById("rating").innerHTML = "2";
+        }
+        function quarterThree() {
+            document.getElementById("rating").innerHTML = "3";
+        }
+        function quarterFour() {
+            document.getElementById("rating").innerHTML = "4";
+        }
+    </script>
+</body>
+
+</html>

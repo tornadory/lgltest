@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>css画圆</title>
+	<style type="text/css">
+		/*实心圆*/
+		#solid_circle {
+		    width: 200px;
+		    height: 200px;
+		    background-color: #a72525;
+		    border-radius: 100px;
+		}
+		/*空心圆*/
+		#hollow_circle {
+		    width: 200px;
+		    height: 200px;
+		    background-color: transparent;
+		    border: 3px #a72525 solid;
+		    border-radius: 100px;
+		}
+		/*虚线圆*/
+		#dashed_circle {
+		    width: 200px;
+		    height: 200px;
+		    background-color: transparent;
+		    border: 3px #a72525 dashed;
+		    border-radius: 100px 100px 100px 100px;
+		}
+		/*半圆*/
+		#half_circle {
+		    width: 100px;
+		    height: 200px;
+		    background-color: #a72525;
+		    border-radius: 200px 0 0 200px;
+		}
+		/*四分之一圆*/
+		#quarter_circle {
+		    width: 100px;
+		    height: 100px;
+		    background-color: #a72525;
+		    border-radius: 100px 0 0 0;
+		}
+	</style>
+</head>
+<body>
+	<div id="solid_circle"></div>
+	<div id="hollow_circle"></div>
+	<div id="dashed_circle"></div>
+	<div id="half_circle"></div>
+	<div id="quarter_circle"></div>
+</body>
+</html>

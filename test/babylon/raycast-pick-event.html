@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+
+        <title>Babylon.js sample code</title>
+
+        <!-- Babylon.js -->
+        <script src="https://code.jquery.com/pep/0.4.2/pep.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.6.2/dat.gui.min.js"></script>
+        <script src="https://preview.babylonjs.com/cannon.js"></script>
+        <script src="https://preview.babylonjs.com/Oimo.js"></script>
+        <script src="https://preview.babylonjs.com/earcut.min.js"></script>
+        <script src="https://preview.babylonjs.com/babylon.js"></script>
+        <script src="https://preview.babylonjs.com/inspector/babylon.inspector.bundle.js"></script>
+        <script src="https://preview.babylonjs.com/materialsLibrary/babylonjs.materials.min.js"></script>
+        <script src="https://preview.babylonjs.com/proceduralTexturesLibrary/babylonjs.proceduralTextures.min.js"></script>
+        <script src="https://preview.babylonjs.com/postProcessesLibrary/babylonjs.postProcess.min.js"></script>
+        <script src="https://preview.babylonjs.com/loaders/babylonjs.loaders.js"></script>
+        <script src="https://preview.babylonjs.com/serializers/babylonjs.serializers.min.js"></script>
+        <script src="https://preview.babylonjs.com/gui/babylon.gui.min.js"></script>
+
+        <style>
+            html, body {
+                overflow: hidden;
+                width: 100%;
+                height: 100%;
+                margin: 0;
+                padding: 0;
+            }
+
+            #renderCanvas {
+                width: 100%;
+                height: 100%;
+                touch-action: none;
+            }
+        </style>
+    </head>
+<body>
+    <canvas id="renderCanvas"></canvas>
+    <script>
+        var canvas = document.getElementById("renderCanvas");
+        var engine = new BABYLON.Engine(canvas, true);
+
+        
+        var createScene = function () {
+        
+        	auductMoveWithCollisions = function (mesh, velocity) {
+        		var globalPosition = mesh.getAbsolutePosition();
+        		globalPosition.subtractFromFloatsToRef(0, mesh.ellipsoid.y, 0, mesh._oldPositionForCollisions);
+        		mesh._oldPositionForCollisions.addInPlace(mesh.ellipsoidOffset);
+        		mesh._collider.radius = mesh.ellipsoid;
+        
+        		// (position, velocity, collider, maximumRetry, excludedMesh, onNewPosition, collisionIndex)
+        		mesh.getScene().collisionCoordinator.getNewPosition(
+        			mesh._oldPositionForCollisions,
+        			velocity,
+        			mesh._collider,
+        			3,
+        			mesh,
+        			mesh._onCollisionPositionChange,
+        			mesh.uniqueId
+        		);
+        	};
+        
+        	var scene = new BABYLON.Scene(engine);
+        	scene.clearColor = new BABYLON.Color3(0, 0, 0);
+        
+        	var camera = new BABYLON.ArcRotateCamera("Camera", 3 * Math.PI / 2, Math.PI / 8, 50, BABYLON.Vector3.Zero(), scene);
+        	camera.attachControl(canvas, false);
+        
+        	var light = new BABYLON.HemisphericLight("light1", new BABYLON.Vector3(0, 1, 0), scene);
+        	light.specular = BABYLON.Color3.Black();
+        	light.intensity = .5;
+        
+        	var box = BABYLON.Mesh.CreateBox("box", 5.0, scene);
+        
+        	var sphere = BABYLON.Mesh.CreateSphere("Sphere", 10.0, 4.0, scene);
+        	var plane = BABYLON.Mesh.CreatePlane("plane", 10.0, scene);
+        	var cylinder = BABYLON.Mesh.CreateCylinder("cylinder", 5, 5, 5, 12, 1, scene, false);
+        	var wedge = BABYLON.Mesh.CreateCylinder("cylinder", 5, 5, 5, 3, 1, scene, false);
+        	var torus = BABYLON.Mesh.CreateTorus("torus", 4, 2, 16, scene, false);
+        	var knot = BABYLON.Mesh.CreateTorusKnot("knot", 2, 0.5, 128, 64, 2, 3, scene);
+        	var alpha = Math.PI;
+        	var positions = [];
+        	for (var i=0;i<12;i++) {
+        		positions.push(new BABYLON.Vector3(4 * Math.sin(alpha).toFixed(2), 6, 4 * Math.cos(alpha).toFixed(2)));
+            	alpha += .525;
+        	}
+        	var lines = BABYLON.Mesh.CreateLines("lines", [
+        		BABYLON.Vector3.Zero(),
+        		positions[0],
+        		BABYLON.Vector3.Zero(),
+        		positions[1],
+        		BABYLON.Vector3.Zero(),
+        		positions[2],
+        		BABYLON.Vector3.Zero(),
+        		positions[3],
+        		BABYLON.Vector3.Zero(),
+        		positions[4],
+        		BABYLON.Vector3.Zero(),
+        		positions[5],
+        		BABYLON.Vector3.Zero(),
+        		positions[6],
+        		BABYLON.Vector3.Zero(),
+        		positions[7],
+        		BABYLON.Vector3.Zero(),
+        		positions[8],
+        		BABYLON.Vector3.Zero(),
+        		positions[9],
+        		BABYLON.Vector3.Zero(),
+        		positions[10],
+        		BABYLON.Vector3.Zero(),
+        		positions[11],
+        		BABYLON.Vector3.Zero(),
+        	], scene);
+        
+        	box.position = new BABYLON.Vector3(-10, 0, 0);
+        	sphere.position = new BABYLON.Vector3(-15, 1.5, 0);
+        	plane.position = new BABYLON.Vector3(5, 0, 10);
+        	cylinder.position = new BABYLON.Vector3(5, 0, -10);
+        	torus.position = new BABYLON.Vector3(10, 2, 0);;
+        	knot.position = new BABYLON.Vector3(-6, 1, 10);
+        	wedge.position = new BABYLON.Vector3(-7, 1, -10);
+        	lines.position = new BABYLON.Vector3(0, -1, 0);
+        
+        	torus.scaling = new BABYLON.Vector3(1, 2, 1);;
+        
+        	var ground = BABYLON.Mesh.CreateGround("ground1", 35, 35, 2, scene);
+        	ground.material = new BABYLON.StandardMaterial("gmat", scene);
+        	ground.material.diffuseColor = BABYLON.Color3.Purple();
+        	ground.material.backFaceCulling = false;
+        	ground.position.y = -1;
+        
+        	var startingPoint;
+        	var currentMesh;
+        
+        	var getGroundPosition = function () {
+        		// Use a predicate to get position on the ground
+        		var pickinfo = scene.pick(scene.pointerX, scene.pointerY, function (mesh) { return mesh == ground; });
+        		if (pickinfo.hit) {
+        			return pickinfo.pickedPoint;
+        		}
+        		return null;
+        	}
+        
+        	var onPointerDown = function (evt) {
+        		if (evt.button !== 0) {
+        			return;
+        		}
+        
+        		// check if we are under a mesh
+        		var pickInfo = scene.pick(scene.pointerX, scene.pointerY, function (mesh) { return mesh !== ground; });
+        		if (pickInfo.hit) {
+        			currentMesh = pickInfo.pickedMesh;
+        			startingPoint = getGroundPosition(evt);
+        
+        			if (startingPoint) { // we need to disconnect camera from canvas
+        				setTimeout(function () {
+        					camera.detachControl(canvas);
+        				}, 0);
+        			}
+        		}
+        	}
+        
+        	var onPointerUp = function () {
+        		if (startingPoint) {
+        			camera.attachControl(canvas, true);
+        			startingPoint = null;
+        			return;
+        		}
+        	}
+        
+        	var onPointerMove = function (evt) {
+        		if (!startingPoint) {
+        			return;
+        		}
+        
+        		var current = getGroundPosition(evt);
+        		if (!current) {
+        			return;
+        		}
+        
+        
+        		var ray = new BABYLON.Ray(
+        			new BABYLON.Vector3(current.x, currentMesh.getBoundingInfo().boundingBox.maximumWorld.y + 1, current.z),
+        			new BABYLON.Vector3(0, -1, 0)
+        		);
+        
+        
+        		var result = lines.intersects(ray, true);
+        
+        		if (result) {
+        			alert("lines-ray intersect: " + result);
+        		}
+        
+        
+        		// current.y = currentMesh.position.y;
+        		// current.y = ground.position.y;
+        
+        		current.y = 0;
+        		// currentMesh.moveWithCollisions(current);
+        		auductMoveWithCollisions(currentMesh, current);
+        		// currentMesh.position.addInPlace(diff);
+        
+        		startingPoint = current;
+        	}
+        
+        	canvas.addEventListener("pointerdown", onPointerDown, false);
+        	canvas.addEventListener("pointerup", onPointerUp, false);
+        	canvas.addEventListener("pointermove", onPointerMove, false);
+        
+        	scene.onDispose = function () {
+        		canvas.removeEventListener("pointerdown", onPointerDown);
+        		canvas.removeEventListener("pointerup", onPointerUp);
+        		canvas.removeEventListener("pointermove", onPointerMove);
+        	}
+        
+        	scene.collisionsEnabled = true;
+        	scene.gravity = 0;
+        
+        	box.checkCollisions = true;
+        	sphere.checkCollisions = true;
+        	plane.checkCollisions = true;
+        	cylinder.checkCollisions = true;
+        	torus.checkCollisions = true;
+        	knot.checkCollisions = true;
+        	lines.checkCollisions = true;
+        	wedge.checkCollisions = true;
+        
+        	box.showBoundingBox = true;
+        	sphere.showBoundingBox = true;
+        	plane.showBoundingBox = true;
+        	cylinder.showBoundingBox = true;
+        	torus.showBoundingBox = true;
+        	knot.showBoundingBox = true;
+        	lines.showBoundingBox = true;
+        	wedge.showBoundingBox = true;
+        
+        	return scene;
+        
+        };
+        
+        
+        var scene = createScene()
+
+        engine.runRenderLoop(function () {
+            if (scene) {
+                scene.render();
+            }
+        });
+
+        // Resize
+        window.addEventListener("resize", function () {
+            engine.resize();
+        });
+    </script>
+</body>
+</html>

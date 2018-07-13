@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>环形进度条</title>
+</head>
+<body>
+<div id="test"></div>
+<div id="test2"></div>
+<script src="fCircle.min.js"></script>
+<script>
+	var c1 = fCircle({
+        container : document.getElementById('test'),
+        emptyColor : 'blue',
+        fillColor : 'lime',
+        diameter : '200px',
+        width : '10px'
+    });
+	var c2 = fCircle({
+        container : document.getElementById('test2'),
+        emptyColor : '#ccc',
+        fillColor : 'yellow',
+        diameter : '300px',
+        width : '20px'
+    });
+    var percent = 0;
+    var repeatId = setInterval(function(){
+        if(percent > 100){
+            clearInterval(repeatId);
+            return;
+        }
+        c1.update(percent);
+		c2.update(percent);
+        percent = percent + 1;
+    }, 100);
+
+    
+</script>
+</body>
+</html>

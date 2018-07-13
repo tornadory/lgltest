@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+
+    <!--<script src="../three.min.js"></script>-->
+    <!-- <script src='https://threejs.org/build/three.js'></script> -->
+    <script src="https://cdn.bootcss.com/three.js/92/three.min.js"></script>
+    <script src="https://threejs.org/examples/js/libs/stats.min.js"></script>
+    <script src="https://threejs.org/examples/js/controls/TrackballControls.js"></script>
+    <script src="https://threejs.org/examples/js/libs/dat.gui.min.js"></script>
+    <title>使用datgui试验</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="WebGL-output"></div>
+    <script>
+        //初始化函数。在加载three之后调用，初始化所有的东西
+        var guiControl = new function () {
+            this.rotationSpeed = 0.258;
+            this.circleSpeed = 0.02;
+            this.upDownSpeed = 0.02;
+            this.translateX = 0.389;
+        }
+        var scene, camera, renderer, axes;
+        function init() {
+            //创建场景。所有的物体对象都在场景上相当于是一个舞台
+            scene = new THREE.Scene();
+
+            //创建透视相机
+            camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+            //辅助线
+            axes = new THREE.AxesHelper(20);
+            scene.add(axes);
+
+            //渲染器
+            renderer = new THREE.WebGLRenderer();
+            renderer.setClearColor(new THREE.Color(0xEEEEEE));
+
+            renderer.shadowMap.enabled = true;
+            renderer.setSize(window.innerWidth, window.innerHeight);
+
+            /*renderer.shadowMap.enabled = true;*/
+            /*renderer.shadowMap.type = THREE.PCFSoftShadowMap;*/
+            //THREE.PCFSoftShadowMap  THREE.PCFShadowMap  BasicShadowMap
+            //创建平面
+            //材质种类：MeshLambertMaterial  MeshPhongMaterial MeshBasicMaterial
+            var planeGeometry = new THREE.PlaneGeometry(60, 30);//框架
+            var planeMaterial = new THREE.MeshLambertMaterial({ color: 0xeeeeee });//材质
+            var planeMaterial1 = new THREE.MeshPhongMaterial({ color: 0xdddddd, dithering: true });//能对光进行反射的材质
+            var plane = new THREE.Mesh(planeGeometry, planeMaterial1);//填充
+
+
+            //更改平面位置
+            plane.rotation.x = -0.5 * Math.PI;
+            plane.position.x = 15;
+            plane.position.y = 0;
+            plane.position.z = 0;
+
+            scene.add(plane);
+
+            //创建立方体
+            var cubeGeometry = new THREE.BoxGeometry(4, 4, 4);
+            var cubeMaterial = new THREE.MeshLambertMaterial({ color: 0xdd4444 });
+            /*var cubeMaterial2 = new THREE.MeshPhongMaterial({color: 0xdd4444});*/
+            var cube = new THREE.Mesh(cubeGeometry, cubeMaterial);
+            //var cube2 = new THREE.Mesh(cubeGeometry, cubeMaterial2);
+
+            //立方体位置
+            cube.position.x = -4;
+            cube.position.y = 3;
+            cube.position.z = 0;
+            //cube2.position.add({x:-4,y:3,z:-6});
+            //scene.add(cube2);
+            //将立方体添加进入场景
+            scene.add(cube);
+            //添加球体
+            var sphereGeometry = new THREE.SphereGeometry(4, 20, 20);
+            var sphereMaterial = new THREE.MeshLambertMaterial({ color: 0xcc44cc });
+			/*sphereMaterial.transparent = true;
+			sphereMaterial.opacity = 0.5;*/
+            var sphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
+
+
+
+            //球体位置
+            sphere.position.x = 18;
+            sphere.position.y = 4;
+            sphere.position.z = 2;
+            //将球体加入到场景中
+            scene.add(sphere);
+
+            //柱体
+            var cylinderGeometry = new THREE.CylinderGeometry(4, 4, 5, 5);
+            var material = new THREE.MeshLambertMaterial({ color: 0xcccc33 });
+            var cylinder = new THREE.Mesh(cylinderGeometry, material);
+
+            //设定位置
+
+            cylinder.position.x = 2;
+            cylinder.position.y = 2.5;
+            cylinder.position.z = 6;
+            //添加柱体
+            scene.add(cylinder);
+
+            var spotLight = new THREE.SpotLight(0xffffff);
+            spotLight.position.set(-40, 80, -10);
+            spotLight.castShadow = true;
+            scene.add(spotLight);
+
+            spotLight.shadow.mapSize.width = 2000;  // default512
+            spotLight.shadow.mapSize.height = 2000; // default512
+            //变化相机位置以及方向
+            camera.position.x = -30;
+            camera.position.y = 40;
+            camera.position.z = 30;
+            camera.lookAt(scene.position);
+
+            //创建canvas
+            document.getElementById("WebGL-output").appendChild(renderer.domElement);
+            //渲染
+            plane.receiveShadow = true;
+            cube.castShadow = true;
+            sphere.castShadow = true;
+            cylinder.castShadow = true;
+            //renderer.render(scene,camera);
+
+            //帧数统计
+            var stats = new Stats();
+            document.body.appendChild(stats.dom);//简单的直接添加的方法
+
+            //旋转物体的函数
+            function rotate(obj, speed) {
+                obj.rotation.y += speed;
+            }
+            function rotateByLine(Obj, x) {
+                Obj.translateX(x);
+            };
+
+            var step = 0;//在全域内作用的一个数字，代表的其实是在一个三角函数线上的x值 
+            //轨道旋转
+            function goesRound(obj, speed) {
+                step += speed;
+                obj.position.x = 20 + (10 * (Math.cos(step)));
+                obj.position.z = 0 + (10 * (Math.sin(step)));
+            }
+            var step2 = 0;
+            //活塞运动
+            function upAndDown(obj, speed) {
+                step2 += speed;
+                obj.position.y = 10 + (5 * (Math.cos(step2)));
+            }
+            //相机球形轨道控制组件
+            var controls = new THREE.TrackballControls(camera, renderer.domElement);
+            controls.minDistance = 20.0;
+            controls.maxDistance = 400.0;
+            //controls.dymnamicDampingFactor = 0.1;//这个我暂时不知道干嘛的-。-
+
+            //添加gui控制器
+            var gui = new dat.GUI();
+            gui.add(guiControl, 'rotationSpeed', 0, 1);
+            gui.add(guiControl, 'circleSpeed', 0, 1);
+            gui.add(guiControl, 'upDownSpeed', 0, 1);
+            gui.add(guiControl, 'translateX', 0, 0.5);
+            //动画以及绘制
+            function animate() {
+                requestAnimationFrame(animate);
+                rotate(cube, guiControl.rotationSpeed);
+                rotateByLine(cube, guiControl.translateX);
+                goesRound(sphere, guiControl.circleSpeed);
+                upAndDown(cylinder, guiControl.upDownSpeed);
+                renderer.render(scene, camera);
+                controls.update();
+                stats.update();
+            }
+            function onResize() {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                //camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+            }
+            //监听窗口变换大小时间
+            window.addEventListener('resize', onResize, false);
+            animate();
+        }
+        init();
+    </script>
+</body>
+
+</html>

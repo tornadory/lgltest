@@ -1,0 +1,268 @@
+body {
+    width: 100vw;
+    margin: 0;
+    font: 12px "microsoft yahei"; 
+    color: #333;
+}
+.change-container {
+    background: white;
+    width: 100vw;
+    height: 100vh;
+    position: relative;
+    max-width: 480px;
+}
+.change-container.change-state {
+    overflow: hidden;
+}
+.app-change {
+    width: 100vw;
+    height: 100%;
+}
+.app-back {
+    width: 100vw;
+    height: 100%;
+    position: absolute;
+    left: 0;
+    top: 0;
+    z-index: 1;
+    transform: translate(100vw, 0);
+}
+.app-change.rightToCurrent {
+    animation: rightToCurrent 0.25s forwards;
+}
+.app-back.currentToRight {
+    animation: currentToRight 0.25s forwards;
+}
+@keyframes rightToCurrent {
+    from {
+        transform: translate(100vw, 0);
+    }
+    to {
+        transform: translate(0, 0);
+    }
+}
+@keyframes currentToRight {
+    from {
+        transform: translate(0, 0);
+    }
+    to {
+        transform: translate(100vw, 0);
+    }
+}
+
+.app-change.smallToCurrent {
+    animation: smallToCurrent 0.25s forwards;
+}
+.app-back.currentToSmall {
+    animation: currentToSmall 0.25s forwards;
+}
+@keyframes smallToCurrent {
+    from {
+        transform: scale(0, 0);
+        opacity: 0;
+    }
+    to {
+        transform: scale(1, 1);
+        opacity: 1;
+    }
+}
+@keyframes currentToSmall {
+    from {
+        transform: scale(1, 1);
+        opacity: 1;
+    }
+    to {
+        transform: scale(0, 0);
+        opacity: 0;
+    }
+}
+.popup, .loader, .confirm {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 100%;
+    min-height: 100%;
+    height: auto;
+    z-index: 5000;
+}
+
+.popup-mask, .confirm-mask {
+    position: absolute;
+    left: 0;
+    right: 0;
+    width: 100%;
+    height: 100%;
+    animation: colorInBlack 0.1s forwards;
+}
+.roundLoader {
+    width: 30px;
+    height: 30px;
+    animation: roundLoader 3s infinite steps(11);
+    background: url("data:image/svg+xml, %3Csvg%20width%3D%2250%22%20height%3D%2250%22%20viewbox%3D%220%200%2050%2050%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20xmlns%3Axlink%3D%22http%3A%2F%2Fwww.w3.org%2F1999%2Fxlink%22%3E%3Cdefs%3E%3Crect%20id%3D%22rect%22%20x%3D%228%22%20y%3D%22-2%22%20width%3D%2215%22%20height%3D%224%22%20rx%3D%223%22%20ry%3D%223%22%3E%3C%2Frect%3E%3C%2Fdefs%3E%3Cuse%20xlink%3Ahref%3D%22%23rect%22%20fill%3D%22rgba(255%2C%20255%2C%20255%2C%200.65)%22%20transform%3D%22translate(25%2025)%20rotate(30)%22%20stroke%3D%22none%22%3E%3C%2Fuse%3E%3Cuse%20xlink%3Ahref%3D%22%23rect%22%20fill%3D%22rgba(255%2C%20255%2C%20255%2C%200.7)%22%20transform%3D%22translate(25%2025)%20rotate(60)%22%20stroke%3D%22none%22%3E%3C%2Fuse%3E%3Cuse%20xlink%3Ahref%3D%22%23rect%22%20fill%3D%22rgba(255%2C%20255%2C%20255%2C%200.8)%22%20transform%3D%22translate(25%2025)%20rotate(90)%22%20stroke%3D%22none%22%3E%3C%2Fuse%3E%3Cuse%20xlink%3Ahref%3D%22%23rect%22%20fill%3D%22rgba(255%2C%20255%2C%20255%2C%200.88)%22%20transform%3D%22translate(25%2025)%20rotate(120)%22%20stroke%3D%22none%22%3E%3C%2Fuse%3E%3Cuse%20xlink%3Ahref%3D%22%23rect%22%20fill%3D%22rgba(255%2C%20255%2C%20255%2C%200.95)%22%20transform%3D%22translate(25%2025)%20rotate(150)%22%20stroke%3D%22none%22%3E%3C%2Fuse%3E%3Cuse%20xlink%3Ahref%3D%22%23rect%22%20fill%3D%22rgba(255%2C%20255%2C%20255%2C%201)%22%20transform%3D%22translate(25%2025)%20rotate(180)%22%20stroke%3D%22none%22%3E%3C%2Fuse%3E%3Cuse%20xlink%3Ahref%3D%22%23rect%22%20fill%3D%22rgba(255%2C%20255%2C%20255%2C%200.95)%22%20transform%3D%22translate(25%2025)%20rotate(210)%22%20stroke%3D%22none%22%3E%3C%2Fuse%3E%3Cuse%20xlink%3Ahref%3D%22%23rect%22%20fill%3D%22rgba(255%2C%20255%2C%20255%2C%200.88)%22%20transform%3D%22translate(25%2025)%20rotate(240)%22%20stroke%3D%22none%22%3E%3C%2Fuse%3E%3Cuse%20xlink%3Ahref%3D%22%23rect%22%20fill%3D%22rgba(255%2C%20255%2C%20255%2C%200.8)%22%20transform%3D%22translate(25%2025)%20rotate(270)%22%20stroke%3D%22none%22%3E%3C%2Fuse%3E%3Cuse%20xlink%3Ahref%3D%22%23rect%22%20fill%3D%22rgba(255%2C%20255%2C%20255%2C%200.7)%22%20transform%3D%22translate(25%2025)%20rotate(300)%22%20stroke%3D%22none%22%3E%3C%2Fuse%3E%3Cuse%20xlink%3Ahref%3D%22%23rect%22%20fill%3D%22rgba(255%2C%20255%2C%20255%2C%200.65)%22%20transform%3D%22translate(25%2025)%20rotate(330)%22%20stroke%3D%22none%22%3E%3C%2Fuse%3E%3Cuse%20xlink%3Ahref%3D%22%23rect%22%20fill%3D%22rgba(255%2C%20255%2C%20255%2C%200.6)%22%20transform%3D%22translate(25%2025)%20rotate(360)%22%20stroke%3D%22none%22%3E%3C%2Fuse%3E%3C%2Fsvg%3E");
+    background-size: 30px 30px;
+    display: inline-block;
+    vertical-align: middle;
+    margin-right: 6px;
+}
+.loader-container {
+    text-align: center;
+    background: rgba(0, 0, 0, .5);
+    color: white;
+    display: inline-block;
+    padding: 7px 10px;
+    border-radius: 6px;
+    animation: scaleUp 0.25s forwards;
+    line-height: 30px;
+    font-size: 14px;
+}
+
+.confirm-box, .popup-box {
+    position: absolute;
+    width: 250px;
+    background: white;
+    margin: auto;
+    border-radius: 8px;
+    box-shadow: 4px 4px 8px rgba(0, 0, 0, 0.3);
+    transform-origin: center;
+    overflow: hidden;
+    padding: 8px;
+    box-sizing: border-box;
+    animation: scaleUp 0.25s forwards;
+    z-index: 2000;
+}
+
+.confirm-title, .popup-title {
+    line-height: 32px;
+    font-weight: bolder;
+    text-align: center;
+    font-size: 1.2em;
+}
+
+.confirm-content {
+    padding: 4px 10px 12px 10px;
+    text-align: center;
+}
+
+.popup-content  {
+    padding: 4px 10px;
+}
+
+.popup-content > input[type="text"],
+.popup-content > input[type="tel"],
+.popup-content > input[type="url"] {
+    display: block;
+    width: 100%;
+    line-height: 32px;
+    background: white;
+    border-radius: 4px;
+    border: 1px solid lightgray;
+    box-sizing: border-box;
+    padding-left: 10px;
+}
+
+.confirm-btn-group, .popup-btn-group {
+    display: table;
+    margin-left: -8px;
+    margin-right: -8px;
+    width: calc(100% + 16px);
+    border-top: 1px solid lightgray;
+}
+
+.popup-btn-group {
+    border-top: none;
+}
+
+.confirm-btn-group button, .popup-btn-group button {
+    padding: 8px 10px;
+    border-radius: 4px;
+    display: table-cell;
+    border: none;
+    width: 50%;
+    background: white;
+    color: #4285f4;
+    font-size: 1.4em;
+}
+
+.confirm-primary-btn, .popup-primary-btn {
+    font-weight: bold;
+}
+
+.popup + .filterBlur, .confirm + .filterBlur {
+    filter: blur(4px);
+}
+
+.popup-hidden {
+    display: none;
+}
+.popup-img {
+    width: 50px !important;
+    height: 50px !important;
+    display: inline-block;
+    background-image: url('data:image/svg+xml, %3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2050%2050%22%3E%3Cpath%20d%3D%22M%201%201%201%2049%2049%2049%2049%201%20Z%22%20fill%3D%22none%22%20stroke%3D%22lightgray%22%20stroke-width%3D%221%22%20style%3D%22stroke-dasharray%3A%203%2C%201%3B%22%2F%3E%3Cpath%20d%3D%22M%2025%2017%2025%2033%20M%2017%2025%2033%2025%22%20fill%3D%22none%22%20stroke%3D%22lightgray%22%20stroke-width%3D%221%22%2F%3E%3C%2Fsvg%3E');
+}
+.popup label + input[type="file"] {
+    position: absolute;
+    clip: rect(0 0 0 0);
+    width: 10px !important;
+}
+.tip-box {
+    position: fixed;
+    display: inline-block;
+    background-color: rgba(0, 0, 0, 0.7);
+    z-index: 100000000;
+    color: white;
+    padding: 12px 20px;
+    border-radius: 10px;
+    white-space: nowrap;
+    max-width: 300px;
+    text-overflow: ellipsis;
+    top: 100vh;
+    left: 0;
+    animation: colorIn 0.15s, translateUp 0.15s ease-in-out forwards;
+    box-shadow: 0 0 8px rgba(0, 0, 0, 0.3);
+}
+@keyframes translateUp {
+    from {
+        transform: translate(calc(50vw - 50%), 0);
+    }
+    to {
+        transform: translate(calc(50vw - 50%), -120px);
+    }
+}
+@keyframes scaleUp {
+    from {
+        transform: translate3d(calc(50vw - 50%), calc(50vh - 50%), 0) scale3d(0.7, 0.7, 0.7);
+        opacity: 0;
+    }
+    to {
+        transform: translate3d(calc(50vw - 50%), calc(50vh - 50%), 0) scale3d(1, 1, 1);
+        opacity: 1;
+    }
+}
+
+@keyframes roundLoader {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes colorInBlack {
+    from {
+        background: rgba(0, 0, 0, 0);
+    }
+    to {
+        background: rgba(0, 0, 0, 0.3);
+    }
+}
+
+@keyframes colorIn {
+    0% {
+        opacity: 0.3;
+    }
+    100% {
+        opacity: 1;
+    }
+}

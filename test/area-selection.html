@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r76/three.min.js"></script>
+    <script src="http://threejs.org/examples/js/controls/TrackballControls.js"></script>
+    <script src="http://threejs.org/examples/js/libs/stats.min.js"></script>
+    <style>
+        #selection {
+            position: absolute;
+            background: rgba(0, 255, 0, 0.5);
+            border: 1px solid #00FF00;
+            opacity: 50%;
+            width: 50px;
+            height: 50px;
+            z-index: 1;
+        }
+
+        #selection-layer {
+            width: 100%;
+            height: 100%;
+            z-index: 2;
+            position: absolute;
+            top: 0px;
+            left: 0px;
+        }
+    </style>
+    <meta charset="utf-8">
+    <!--
+Created using JS Bin
+http://jsbin.com
+
+Copyright (c) 2018 by emnh (http://jsbin.com/tamoce/3/edit)
+
+Released under the MIT license: http://jsbin.mit-license.org
+-->
+    <meta name="robots" content="noindex">
+    <meta name="viewport" content="width=device-width">
+    <title>JS Bin</title>
+</head>
+<div id="container">
+    <div id="selection"></div>
+    <canvas id="selection-layer">
+        </id>
+</div>
+
+<body>
+
+    <script>
+        // noprotect
+
+        var container, stats, selection, selectionLayer;
+        var camera, controls, scene, renderer;
+        var pickingData = [];
+        var objects = [];
+        var highlightBoxes = [];
+        var selecting = false;
+
+        var mouse = new THREE.Vector2();
+        var startMouse = new THREE.Vector2();
+        var offset = new THREE.Vector3(10, 10, 10);
+
+        init();
+        animate();
+
+        function init() {
+
+            container = document.getElementById("container");
+            selection = document.getElementById("selection");
+            selectionLayer = document.getElementById("selection-layer");
+
+            camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 1, 10000);
+            camera.position.z = 1000;
+
+            scene = new THREE.Scene();
+
+            scene.add(new THREE.AmbientLight(0x555555));
+
+            var light = new THREE.SpotLight(0xffffff, 1.5);
+            light.position.set(0, 500, 2000);
+            scene.add(light);
+
+            var geometry = new THREE.Geometry(),
+                defaultMaterial = new THREE.MeshPhongMaterial({ color: 0xffffff, shading: THREE.FlatShading, vertexColors: THREE.VertexColors, shininess: 0 });
+
+            function applyVertexColors(g, c) {
+
+                g.faces.forEach(function (f) {
+
+                    var n = (f instanceof THREE.Face3) ? 3 : 4;
+
+                    for (var j = 0; j < n; j++) {
+
+                        f.vertexColors[j] = c;
+
+                    }
+
+                });
+
+            }
+
+            var geom = new THREE.BoxGeometry(1, 1, 1);
+            var color = new THREE.Color();
+
+            var matrix = new THREE.Matrix4();
+            var quaternion = new THREE.Quaternion();
+
+            var material = new THREE.MeshLambertMaterial({ color: 0xffff00 });
+
+            for (var i = 0; i < 1000; i++) {
+
+                var position = new THREE.Vector3();
+                position.x = Math.random() * 10000 - 5000;
+                position.y = Math.random() * 6000 - 3000;
+                position.z = Math.random() * 8000 - 4000;
+
+                var rotation = new THREE.Euler();
+                rotation.x = Math.random() * 2 * Math.PI;
+                rotation.y = Math.random() * 2 * Math.PI;
+                rotation.z = Math.random() * 2 * Math.PI;
+
+                var scale = new THREE.Vector3();
+                scale.x = Math.random() * 200 + 100;
+                scale.y = Math.random() * 200 + 100;
+                scale.z = Math.random() * 200 + 100;
+
+                quaternion.setFromEuler(rotation, false);
+                matrix.compose(position, quaternion, scale);
+
+                // give the geom's vertices a random color, to be displayed
+
+                applyVertexColors(geom, color.setHex(Math.random() * 0xffffff));
+
+                geometry.merge(geom, matrix);
+
+                // give the geom's vertices a color corresponding to the "id"
+
+                applyVertexColors(geom, color.setHex(i));
+
+                geom.computeBoundingSphere();
+                var mesh = new THREE.Mesh(geom, material);
+                mesh.applyMatrix(matrix);
+                scene.add(mesh);
+                mesh.visible = false;
+                highlightBoxes[i] = mesh;
+
+                pickingData[i] = {
+
+                    position: position,
+                    rotation: rotation,
+                    scale: scale,
+                    mesh: mesh
+
+                };
+
+            }
+
+            var drawnObject = new THREE.Mesh(geometry, defaultMaterial);
+            scene.add(drawnObject);
+
+            for (var j = 0; j < pickingData.length; j++) {
+                var highlightBox = new THREE.Mesh(
+                    new THREE.BoxGeometry(1, 1, 1),
+                    material
+                );
+                scene.add(highlightBox);
+
+            }
+
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setClearColor(0xffffff);
+            renderer.setPixelRatio(window.devicePixelRatio);
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.sortObjects = false;
+            container.appendChild(renderer.domElement);
+
+            stats = new Stats();
+            container.appendChild(stats.dom);
+
+            selectionLayer.addEventListener('mousedown', onMouseDown);
+            selectionLayer.addEventListener('mousemove', onMouseMove);
+            selectionLayer.addEventListener('mouseup', onMouseUp);
+
+        }
+
+        function unselect() {
+
+            // unselect all
+            for (var i = 0; i < highlightBoxes.length; i++) {
+
+                highlightBoxes[i].visible = false;
+
+            }
+
+        }
+
+        function select(x1, x2, y1, y2) {
+
+            var rx1 = (x1 / window.innerWidth) * 2 - 1;
+            var rx2 = (x2 / window.innerWidth) * 2 - 1;
+            var ry1 = -(y1 / window.innerHeight) * 2 + 1;
+            var ry2 = -(y2 / window.innerHeight) * 2 + 1;
+
+            var projectionMatrix = new THREE.Matrix4();
+            projectionMatrix.makeFrustum(rx1, rx2, ry1, ry2, camera.near, camera.far);
+
+            camera.updateMatrixWorld();
+            camera.matrixWorldInverse.getInverse(camera.matrixWorld);
+
+            var viewProjectionMatrix = new THREE.Matrix4();
+            viewProjectionMatrix.multiplyMatrices(projectionMatrix, camera.matrixWorldInverse);
+
+            var frustum = new THREE.Frustum();
+            frustum.setFromMatrix(viewProjectionMatrix);
+
+            unselect();
+
+            // select intersections with constructed frustum
+            for (i = 0; i < pickingData.length; i++) {
+
+                var data = pickingData[i];
+                var mesh = data.mesh;
+
+                if (frustum.intersectsObject(mesh)) {
+                    highlightBoxes[i].position.copy(data.position);
+                    highlightBoxes[i].rotation.copy(data.rotation);
+                    highlightBoxes[i].scale.copy(data.scale).add(offset);
+                    highlightBoxes[i].visible = true;
+                }
+
+            }
+
+
+        }
+
+        function onMouseDown(e) {
+
+            startMouse.x = e.clientX;
+            startMouse.y = e.clientY;
+
+            selecting = true;
+
+            var x1 = startMouse.x;
+            var x2 = x1 + 1;
+            var y1 = startMouse.y;
+            var y2 = y1 + 1;
+
+            selection.style.left = x1 + "px";
+            selection.style.top = y1 + "px";
+            selection.style.width = (x2 - x1) + "px";
+            selection.style.height = (y2 - y1) + "px";
+            selection.style.visibility = "visible";
+
+        }
+
+        function onMouseMove(e) {
+
+            mouse.x = e.clientX;
+            mouse.y = e.clientY;
+
+            var x1 = startMouse.x;
+            var x2 = mouse.x;
+            var y1 = startMouse.y;
+            var y2 = mouse.y;
+
+            if (x1 > x2) {
+
+                var tmp1 = x1;
+                x1 = x2;
+                x2 = tmp1;
+
+            }
+
+            if (y1 > y2) {
+
+                var tmp2 = y1;
+                y1 = y2;
+                y2 = tmp2;
+
+            }
+
+            if (selecting) {
+
+                selection.style.left = x1 + "px";
+                selection.style.top = y1 + "px";
+                selection.style.width = (x2 - x1) + "px";
+                selection.style.height = (y2 - y1) + "px";
+
+                select(x1, x2, y1, y2);
+
+            } else {
+
+                unselect();
+
+            }
+
+        }
+
+        function onMouseUp(e) {
+
+            selecting = false;
+            selection.style.visibility = "hidden";
+
+
+        }
+
+        function animate() {
+
+            requestAnimationFrame(animate);
+
+            render();
+            stats.update();
+
+        }
+
+
+        function render() {
+
+            renderer.render(scene, camera);
+
+        }
+    </script>
+    <script src="http://static.jsbin.com/js/render/edit.js?4.1.4"></script>
+    <script>jsbinShowEdit && jsbinShowEdit({ "static": "http://static.jsbin.com", "root": "http://jsbin.com" });</script>
+    <script>
+        (function (i, s, o, g, r, a, m) {
+            i['GoogleAnalyticsObject'] = r; i[r] = i[r] || function () {
+                (i[r].q = i[r].q || []).push(arguments)
+            }, i[r].l = 1 * new Date(); a = s.createElement(o),
+                m = s.getElementsByTagName(o)[0]; a.async = 1; a.src = g; m.parentNode.insertBefore(a, m)
+        })(window, document, 'script', 'https://www.google-analytics.com/analytics.js', 'ga');
+
+        ga('create', 'UA-1656750-34', 'auto');
+        ga('require', 'linkid', 'linkid.js');
+        ga('require', 'displayfeatures');
+        ga('send', 'pageview');
+
+    </script>
+
+</body>
+
+</html>

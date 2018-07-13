@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+
+        <title>Babylon.js sample code</title>
+
+        <!-- Babylon.js -->
+        <script src="https://code.jquery.com/pep/0.4.2/pep.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.6.2/dat.gui.min.js"></script>
+        <script src="https://preview.babylonjs.com/cannon.js"></script>
+        <script src="https://preview.babylonjs.com/Oimo.js"></script>
+        <script src="https://preview.babylonjs.com/earcut.min.js"></script>
+        <script src="https://preview.babylonjs.com/babylon.js"></script>
+        <script src="https://preview.babylonjs.com/inspector/babylon.inspector.bundle.js"></script>
+        <script src="https://preview.babylonjs.com/materialsLibrary/babylonjs.materials.min.js"></script>
+        <script src="https://preview.babylonjs.com/proceduralTexturesLibrary/babylonjs.proceduralTextures.min.js"></script>
+        <script src="https://preview.babylonjs.com/postProcessesLibrary/babylonjs.postProcess.min.js"></script>
+        <script src="https://preview.babylonjs.com/loaders/babylonjs.loaders.js"></script>
+        <script src="https://preview.babylonjs.com/serializers/babylonjs.serializers.min.js"></script>
+        <script src="https://preview.babylonjs.com/gui/babylon.gui.min.js"></script>
+
+        <style>
+            html, body {
+                overflow: hidden;
+                width: 100%;
+                height: 100%;
+                margin: 0;
+                padding: 0;
+            }
+
+            #renderCanvas {
+                width: 100%;
+                height: 100%;
+                touch-action: none;
+            }
+        </style>
+    </head>
+<body>
+    <canvas id="renderCanvas"></canvas>
+    <script>
+        var canvas = document.getElementById("renderCanvas");
+        var engine = new BABYLON.Engine(canvas, true);
+
+        var createScene = function () {
+            var scene = new BABYLON.Scene(engine);
+        
+            var light = new BABYLON.PointLight("Omni", new BABYLON.Vector3(0, 100, 100), scene);
+            var camera = new BABYLON.ArcRotateCamera("Camera", 0, 0.8, 100, new BABYLON.Vector3.Zero(), scene);
+            camera.attachControl(canvas, true);
+        
+            var ground = BABYLON.Mesh.CreateGround("ground", 500, 500, 10, scene);
+        
+            var box = BABYLON.Mesh.CreateBox("box", 4.0, scene);
+            box.position.y = 2;
+            box.scaling.z = 2;
+            var matBox = new BABYLON.StandardMaterial("matBox", scene);
+            matBox.diffuseColor = new BABYLON.Color3(1.0, 0.1, 0.1);
+            box.material = matBox;
+            box.isPickable = false; 
+        
+            var box2 = BABYLON.Mesh.CreateBox("box2", 8.0, scene);
+            box2.position = new BABYLON.Vector3(-20, 4, 0); 
+            var matBox2 = new BABYLON.StandardMaterial("matBox2", scene);
+            matBox2.diffuseColor = new BABYLON.Color3(0.1, 0.1, 1);
+            box2.material = matBox2;
+        
+            var box3 = box2.clone();
+            box3.position.x -= 20;
+        
+            var box4 = BABYLON.Mesh.CreateBox("box4", 8.0, scene);
+            box4.position = new BABYLON.Vector3(0, 4, 30); 
+            var matBox4 = new BABYLON.StandardMaterial("matBox4", scene);
+            matBox4.diffuseColor = new BABYLON.Color3(0.1, 1, 0.1);
+            box4.material = matBox4;
+        
+           
+            function mousemovef(){
+        	    var pickResult = scene.pick(scene.pointerX, scene.pointerY);
+        
+        	    if (pickResult.hit) {
+        		    var diffX = pickResult.pickedPoint.x - box.position.x;
+        		    var diffY = pickResult.pickedPoint.z - box.position.z;
+        		    box.rotation.y = Math.atan2(diffX,diffY);			          
+            	}	
+            }
+        
+            scene.onPointerMove = function () {
+                mousemovef();
+            };
+        
+            function vecToLocal(vector, mesh){
+                var m = mesh.getWorldMatrix();
+                var v = BABYLON.Vector3.TransformCoordinates(vector, m);
+        		return v;		 
+            }
+        
+            function predicate(mesh){
+                if (mesh == box2 || mesh == box){
+                    return false;
+                }
+                return true;
+            }
+        
+            function castRay(){       
+                var origin = box.position;
+        	
+        	    var forward = new BABYLON.Vector3(0,0,1);		
+        	    forward = vecToLocal(forward, box);
+        	
+        	    var direction = forward.subtract(origin);
+        	    direction = BABYLON.Vector3.Normalize(direction);
+        	
+        	    var length = 100;
+        	
+        	    var ray = new BABYLON.Ray(origin, direction, length);
+        
+                var hit = scene.pickWithRay(ray, predicate);
+        
+                if (hit.pickedMesh){
+        		   hit.pickedMesh.scaling.y += 0.01;
+        	    }
+            }
+         
+            scene.registerBeforeRender(function () {
+                castRay();
+            });
+        
+            return scene;
+        }
+        
+        var scene = createScene()
+
+        engine.runRenderLoop(function () {
+            if (scene) {
+                scene.render();
+            }
+        });
+
+        // Resize
+        window.addEventListener("resize", function () {
+            engine.resize();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,64 @@
+@charset "UTF-8";
+@-webkit-keyframes toggle {
+  0% {
+    opacity: 0;
+  }
+
+  100% {
+    opacity: 1;
+  }
+}
+@keyframes toggle {
+  0% {
+    opacity: 0;
+  }
+
+  100% {
+    opacity: 1;
+  }
+}
+.progress-ring {
+  position: relative;
+  top: 0;
+  left: 0;
+  height: 130px;
+  width: 130px;
+}
+.progress-ring div {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 130px;
+  width: 130px;
+  /* 圆环宽高，可自定义 */
+  border: 16.25px solid transparent;
+  border-radius: 50%;
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+}
+.progress-ring .progress-left, .progress-ring .progress-right, .progress-ring .progress-cover {
+  clip: rect(0 65px 130px 0);
+  /* rect( [0 | <width/2> | <height> | 0] ) */
+}
+.progress-ring .progress-right {
+  opacity: 0;
+  -webkit-transform: rotate(180deg);
+  -ms-transform: rotate(180deg);
+  transform: rotate(180deg);
+}
+
+.progress-ring .progress-text {
+  border: none;
+  font-family: "Arial", sans-serif;
+  text-align: center;
+  font-size: 32.5px;
+  color: #949494;
+  /* 进度文字颜色 */
+  line-height: 130px;
+}
+.progress-ring .progress-percent {
+  font-size: .55em;
+  font-style: italic;
+  font-family: "Microsoft Yahei", sans-serif;
+}

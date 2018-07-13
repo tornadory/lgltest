@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>模型测试小程序</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+    <script src="js/three.js"></script>
+    <script src="js/libs/inflate.min.js"></script>
+    <script src="js/controls/OrbitControls.js"></script>
+    <script src="js/curves/NURBSCurve.js"></script>
+    <script src="js/curves/NURBSUtils.js"></script>
+    <script src="js/loaders/FBXLoader.js"></script>
+    <script src="js/libs/stats.min.js"></script>
+    <style>
+        body {
+            font-family: Monospace;
+            background-color: #000;
+            color: #fff;
+            margin: 0px;
+            overflow: hidden;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="title">
+        模型加载测试
+    </div>
+
+
+    <script>
+        var camera, scene, renderer, geometry, material;
+
+        function init() {
+
+            scene = new THREE.Scene();
+            camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 1, 10000);
+            camera.position.z = 500;
+            scene.add(camera);
+
+            renderer = new THREE.WebGLRenderer({ clearAlpha: 1.0 });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setClearColor(0x000000, 1);
+            document.body.appendChild(renderer.domElement);
+        }
+
+        function render() {
+
+            var pos = new THREE.Vector3(-150, -20, 0);
+            var dir = new THREE.Vector3(1, 0, 0);
+
+            var arrow1 = new THREE.ArrowHelper(dir, pos, 150, 0x00ff00);
+            scene.add(arrow1);
+
+            var alteredDir = dir.clone();
+            var axis = new THREE.Vector3(0, 0, 1);
+            var deg = 43;
+            var angle = deg * (Math.PI / 180);
+            alteredDir.applyAxisAngle(axis, angle);
+
+            var arrow2 = new THREE.ArrowHelper(alteredDir, pos, 150, 0xff0000);
+            scene.add(arrow2);
+
+            renderer.render(scene, camera);
+            requestAnimationFrame(render);
+        }
+
+        init();
+        render();
+    </script>
+
+</body>
+
+</html>

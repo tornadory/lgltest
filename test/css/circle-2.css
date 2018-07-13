@@ -1,0 +1,77 @@
+/**
+* Quarter Circles
+*/
+
+.main {
+	position:relative;
+	width:200px;
+	height:200px;
+	margin:0 auto;
+}
+
+.quarter {
+	position:absolute;
+	width:50%;
+	height:50%;
+	transition:background-color 0.2s ease-in-out;
+}
+.quarter:hover {
+	background-color:pink;
+}
+.quarter1 {
+	top:0;
+	left:0;
+	background-color:red;
+	border-radius:100% 0 0 0;
+}
+.quarter2 {
+	top:0;
+	right:0;
+	background-color:blue;
+	border-radius:0 100% 0 0 ;
+}
+.quarter3 {
+	bottom:0;
+	left:0;
+	background-color:orange;
+	border-radius:0 0 0 100%;
+}
+.quarter4 {
+	bottom:0;
+	right:0;
+	background-color:green;
+	border-radius:0 0 100% 0 ;
+}
+.cutout {
+	width:50%;
+	height:50%;
+	background-color:white;
+	position:absolute;
+	top:25%;
+	left:25%;
+	border-radius:50%;
+	pointer-events:none;
+	}
+.rating {
+    width: 100px;
+    height: 100px;
+    background-image: linear-gradient(bottom, rgb(217,217,217) 10%, rgb(245,245,245) 90%, rgb(253,253,253) 100%);
+    background-image: -o-linear-gradient(bottom, rgb(217,217,217) 10%, rgb(245,245,245) 90%, rgb(253,253,253) 100%);
+    background-image: -moz-linear-gradient(bottom, rgb(217,217,217) 10%, rgb(245,245,245) 90%, rgb(253,253,253) 100%);
+    background-image: -webkit-linear-gradient(bottom, rgb(217,217,217) 10%, rgb(245,245,245) 90%, rgb(253,253,253) 100%);
+    
+    padding-left: 32px;
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    line-height: 100px;
+    font-family: sans-serif;
+    font-weight: 400;
+    text-shadow: 0 1px 0 #fff;
+    font-size: 28px;
+    border-radius: 100px;
+    position: absolute;
+    z-index: 5;
+    top: 50px;
+    left: 50px;
+    box-shadow:0px 0px 20px rgba(0,0,0,0.7);
+}

@@ -1,0 +1,216 @@
+body{
+    display: block;
+    border: 1px solid transparent;
+    font: 300 16px "Source Sans Pro", sans-serif;
+    /* background-color: #449e6a; */
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    position: relative;
+}
+
+.container{
+    width:416px;
+    height: 416px;
+    border-radius: 50%;
+    background: radial-gradient(transparent 50%, rgba(224, 25, 11, 0.6) 30%); 
+    z-index: 1;
+}
+
+.bottom{
+    width: 416px;
+    height: 416px;
+    position: absolute;
+    z-index: 10;
+    top: 0px;
+    left: 208px;
+    margin-left: -200px;
+    pointer-events: none;
+    transition: all .3s ease;
+    /* border: 1px solid #7c5089; */
+
+    border-radius: 50%;
+    overflow: hidden;
+
+    /* bottom: -208px; */
+}
+
+.top{
+    width: 416px;
+    height: 416px;
+    position: absolute;
+    z-index: 11;
+    top: 0px;
+    left: 208px;
+    margin-left: -200px;
+    pointer-events: none;
+    transition: all .3s ease;
+    /* border: 1px solid #7c5089; */
+
+    border-radius: 50%;
+    overflow: hidden;
+}
+.top:after,
+.bottom:after{
+    content:".";
+    display:block;
+    font-size:32px;
+    width:99.2px;
+    height:99.2px;
+    position: absolute;
+    left: 50%;
+    margin-left: -49.6px;
+    top:50%;
+    margin-top: -49.6px;
+    border-radius: 50%;
+    z-index:10;
+    color: transparent;
+  }
+
+
+
+.bottom li,
+.top li{
+    position: absolute;
+    font-size: 24px;
+    width: 160px;
+    height: 160px;
+    overflow: hidden;
+    transform-origin: 100% 100%;
+    background-color: transparent;
+    /* border: 1px solid rgb(236, 231, 231); */
+    transition: all 1s ease;
+    color:transparent;
+
+    left:50%;
+    top:50%;
+    margin-top: -20.8px;
+    margin-left: -160px;
+}
+
+.top li:nth-child(1),
+.bottom li:nth-child(1){
+    transform: rotate(2deg) skew(46deg);
+}
+
+.top li:nth-child(2),
+.bottom li:nth-child(2){
+    transform: rotate(47deg) skew(46deg);
+}
+
+.bottom li:nth-child(3){
+    transform: rotate(92deg) skew(46deg);
+}
+
+.bottom li:nth-child(4){
+    transform: rotate(137deg) skew(46deg);
+}
+
+.bottom li:nth-child(5){
+    transform: rotate(182deg) skew(46deg);
+}
+
+.bottom li:nth-child(6){
+    transform: rotate(227deg) skew(46deg);
+}
+
+.bottom li:nth-child(7){
+    transform: rotate(272deg) skew(46deg);
+}
+
+.bottom li:nth-child(8){
+    transform: rotate(317deg) skew(46deg);
+}
+
+.bottom li a{
+    display: block;
+    font-size: 19.2px;
+    height: 216px;
+    width: 216px;
+    position: absolute;
+    bottom: -108px;
+    right: -108px;
+    text-decoration: none;
+    color: white;
+    transition: background-color .3s ease;
+    /* 纯色就是原始的三角扇形 */
+    /* background-color: #7c5089; */
+    
+    /* 渐变之后显出的就是 圆环 */
+    /* background: radial-gradient(transparent 60%, #1f97ce 10%);  */
+    background: radial-gradient(transparent 60%, rgba(162, 228, 238, 0.6) 10%); 
+
+    transform: skew(-46deg) rotate(-68deg) scale(1);
+    border-radius: 50%;
+
+    backface-visibility: hidden;
+
+    line-height: 2;
+    pointer-events: none;
+}
+
+.top li a{
+    display: block;
+    font-size: 19.2px;
+    height: 216px;
+    width: 216px;
+    position: absolute;
+    bottom: -108px;
+    right: -108px;
+    text-decoration: none;
+    color: white;
+    transition: background-color .3s ease;
+    /* 纯色就是原始的三角扇形 */
+    /* background-color: #7c5089; */
+    
+    /* 渐变之后显出的就是 圆环 */
+    /* background: radial-gradient(transparent 60%, #1f97ce 10%);  */
+    background: radial-gradient(transparent 60%, rgba(0, 194, 228, 0.8) 10%); 
+
+    transform: skew(-46deg) rotate(-68deg) scale(1);
+    border-radius: 50%;
+
+    backface-visibility: hidden;
+
+    line-height: 2;
+    pointer-events: none;
+
+    z-index: 20;
+}
+
+/* .cn-wrapper li a:hover,
+.cn-wrapper li a:active{
+    background: -webkit-radial-gradient(transparent 35%, #449e6a 35%);
+} */
+
+.bottom li a span {
+	position: relative;
+	top: 28.8px;
+	display: block;
+	font-size: 8px;
+	font-weight: 700;
+	text-transform: uppercase;
+}
+
+.top li a span {
+	position: relative;
+	top: 28.8px;
+	display: block;
+	font-size: 8px;
+	font-weight: 700;
+	text-transform: uppercase;
+}
+
+ul{
+    display: block;
+    -webkit-margin-start: 0px;
+    -webkit-padding-start: 40px;
+}
+
+span{
+    font-size: 20.8px;
+}

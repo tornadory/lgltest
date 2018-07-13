@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="css/circle-2.css">
+    <title>CSS3 Circle</title>
+</head>
+
+<body>
+    <div id="canvas-div">
+        <canvas height="200" width="200" id="canvas" onclick="alert(item_selected+1)"> your browser not support</canvas>
+    </div>
+
+    <script>
+        var context;
+        var canvas_width;
+        var canvas_height;
+        var canvas_offset_left;
+        var canvas_offset_top;
+        var center_location_x = 100;
+        var center_location_y = 100;
+        var item_selected;
+
+        colors = ["#FFF212", "#A8CF45", "#F58634", "#FFF212", "#A8CF45", "#F58634"];
+
+        var third = 1 / 3;
+        var width = 70;
+
+        window.onload = function () {
+            var canvas = document.getElementById("canvas");
+            context = canvas.getContext("2d");
+
+            canvas_width = canvas.width;
+            canvas_height = canvas.width;
+            canvas_offset_left = canvas.offsetLeft;
+            canvas_offset_top = canvas.offsetTop;
+            drawAll();
+        };
+
+        function drawAll() {
+            context.beginPath();
+            context.fillStyle = '#FFFFFF';
+            context.fillRect(0, 0, canvas_width, canvas_height);
+            context.closePath();
+
+            for (var i = 0; i < 6; i++)
+                draw_item(i, false);
+        }
+
+        //handle mouse event ---------------
+        var cursor_x = 0;
+        var cursor_y = 0;
+
+        function move(e) {
+            e = e || event;
+            cursor_x = e.pageX;
+            cursor_y = e.pageY;
+            if (e.target.id != 'canvas')
+                drawAll();
+        }
+        document.onmousemove = move;
+        //---------------------------------
+
+
+        document.getElementById('canvas-div').onmousemove = hoverAction;
+        function hoverAction() {
+            var offset_x = (center_location_x) + canvas_offset_left;
+            var offset_y = (center_location_y) + canvas_offset_top;
+
+            move_degree = Math.atan2(cursor_x - offset_x, -(cursor_y - offset_y));
+
+            drawAll();
+            switch (true) {
+                case (move_degree > 0 && move_degree < (Math.PI / 3)):
+                    draw_item(0, true);
+                    break;
+                case (move_degree > (Math.PI / 3) && move_degree < (Math.PI / 3) * 2):
+                    draw_item(1, true);
+                    break;
+                case (move_degree > (Math.PI / 3) * 2 && move_degree < Math.PI):
+                    draw_item(2, true);
+                    break;
+                case (move_degree > -Math.PI && move_degree < -Math.PI + (Math.PI / 3)):
+                    draw_item(3, true);
+                    break;
+                case (move_degree > -Math.PI + (Math.PI / 3) && move_degree < -Math.PI + (Math.PI / 3) * 2):
+                    draw_item(4, true);
+                    break;
+                case (move_degree > -Math.PI + (Math.PI / 3) * 2 && move_degree < 0):
+                    draw_item(5, true);
+                    break;
+            }
+
+
+        }
+
+        function draw_item(item, isHover) {
+            item_selected = item;
+            var color = isHover ? "#0C10CC" : colors[item];
+            context.beginPath();
+            switch (item) {
+                case 0:
+                    context.arc(100, 100, 60, 1.5 * Math.PI, (Math.PI * 1.5) + (third * Math.PI));
+                    break;
+                case 1:
+                    context.arc(100, 100, 60, (Math.PI * 1.5) + (third * Math.PI), (Math.PI * 1.5) + (third * Math.PI * 2));
+                    break;
+                case 2:
+                    context.arc(100, 100, 60, (Math.PI * 1.5) + (third * Math.PI * 2), (Math.PI * 0.5));
+                    break;
+                case 3:
+                    context.arc(100, 100, 60, Math.PI * 0.5, (Math.PI * 0.5) + (third * Math.PI));
+                    break;
+                case 4:
+                    context.arc(100, 100, 60, (Math.PI * 0.5) + (third * Math.PI), (Math.PI * 0.5) + (third * Math.PI * 2));
+                    break;
+                case 5:
+                    context.arc(100, 100, 60, (Math.PI * 0.5) + (third * Math.PI * 2), (Math.PI * 1.5));
+                    break;
+            }
+            context.strokeStyle = color;
+            context.lineWidth = width;
+            context.stroke();
+            context.closePath();
+        }
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>模型测试小程序</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+    <script src="js/three.js"></script>
+    <script src="js/libs/inflate.min.js"></script>
+    <script src="js/controls/OrbitControls.js"></script>
+    <script src="js/curves/NURBSCurve.js"></script>
+    <script src="js/curves/NURBSUtils.js"></script>
+    <script src="js/loaders/FBXLoader.js"></script>
+    <script src="js/libs/stats.min.js"></script>
+    <style>
+        body {
+            font-family: Monospace;
+            background-color: #000;
+            color: #fff;
+            margin: 0px;
+            overflow: hidden;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="title">
+        模型加载测试
+    </div>
+
+
+    <script>
+        var camera, scene, renderer, controls;
+        var one, two, three;
+
+        init();
+        animate();
+        var mat1, mat2, axis;
+
+        function debugaxis(axisLength) {
+            //Shorten the vertex function
+            function v(x, y, z) {
+                return new THREE.Vector3(x, y, z);
+            }
+
+            //Create axis (point1, point2, colour)
+            function createAxis(p1, p2, color) {
+                var line, lineGeometry = new THREE.Geometry(),
+                    lineMat = new THREE.LineBasicMaterial({ color: color, lineWidth: 1 });
+                lineGeometry.vertices.push(p1, p2);
+                line = new THREE.Line(lineGeometry, lineMat);
+                scene.add(line);
+            }
+
+            createAxis(v(-axisLength, 0, 0), v(axisLength, 0, 0), 0xFF0000);
+            createAxis(v(0, -axisLength, 0), v(0, axisLength, 0), 0x00FF00);
+            createAxis(v(0, 0, -axisLength), v(0, 0, axisLength), 0x0000FF);
+        };
+
+        function init() {
+
+            scene = new THREE.Scene();
+
+            camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 1, 5000);
+            camera.position.z = 1000;
+            scene.add(camera);
+
+            var geometry = new THREE.CubeGeometry(50, 50, 50);
+            var material = new THREE.MeshBasicMaterial({ color: 0xff0000, wireframe: true });
+
+            one = new THREE.Mesh(geometry, material);
+            one.position.set(50, 0, 0);
+            one.matrixAutoUpdate = false;
+            one.updateMatrix();
+            scene.add(one);
+
+            material = new THREE.MeshBasicMaterial({ color: 0x0000ff, wireframe: true });
+
+            two = new THREE.Mesh(geometry, material);
+            two.position.set(0, 200, 0);
+            two.matrixAutoUpdate = false;
+            two.updateMatrix();
+            scene.add(two);
+
+            mat1 = new THREE.Matrix4();
+            axis = new THREE.Vector3();
+            axis.sub(two.position, one.position);
+            axis.crossSelf(new THREE.Vector3(1, 0, 0));
+            axis.normalize();
+            mat1.makeRotationAxis(axis, 0.005);
+
+            material = new THREE.MeshBasicMaterial({ color: 0xff00ff, wireframe: true });
+
+            three = new THREE.Mesh(geometry, material);
+            three.position.set(0, 100, 0);
+            three.matrixAutoUpdate = false;
+            three.updateMatrix();
+            scene.add(three);
+
+            mat2 = new THREE.Matrix4();
+            axis.sub(three.position, two.position);
+            axis.crossSelf(new THREE.Vector3(1, 0, 0));
+            axis.normalize();
+            mat2.makeRotationAxis(axis, 0.0123);
+
+            debugaxis(1000);
+
+            renderer = new THREE.WebGLRenderer();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            document.body.appendChild(renderer.domElement);
+
+            controls = new THREE.TrackballControls(camera, renderer.domElement);
+            controls.rotateSpeed = 1.0;
+            controls.zoomSpeed = 1.2;
+            controls.panSpeed = 0.2;
+            controls.staticMoving = false;
+            controls.dynamicDampingFactor = 0.1;
+        }
+
+        function animate() {
+
+            requestAnimationFrame(animate);
+
+            controls.update();
+
+            // var time = Date.now() * 0.0005;
+
+            // one.position.x = 100*Math.sin(time);
+            // one.position.z = 100*Math.cos(time); 
+            // one.updateMatrix();
+
+            two.applyMatrix(mat1);
+            two.position.addSelf(one.position);
+            two.updateMatrix();
+
+            three.applyMatrix(mat2);
+            three.position.addSelf(two.position);
+            three.updateMatrix();
+
+            renderer.render(scene, camera);
+
+
+            three.position.subSelf(two.position);
+            three.updateMatrix();
+
+            two.position.subSelf(one.position);
+            two.updateMatrix();
+        }
+    </script>
+
+</body>
+
+</html>

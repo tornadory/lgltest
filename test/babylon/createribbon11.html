@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+
+        <title>Babylon.js sample code</title>
+
+        <!-- Babylon.js -->
+        <script src="https://code.jquery.com/pep/0.4.2/pep.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.6.2/dat.gui.min.js"></script>
+        <script src="https://preview.babylonjs.com/cannon.js"></script>
+        <script src="https://preview.babylonjs.com/Oimo.js"></script>
+        <script src="https://preview.babylonjs.com/earcut.min.js"></script>
+        <script src="https://preview.babylonjs.com/babylon.js"></script>
+        <script src="https://preview.babylonjs.com/inspector/babylon.inspector.bundle.js"></script>
+        <script src="https://preview.babylonjs.com/materialsLibrary/babylonjs.materials.min.js"></script>
+        <script src="https://preview.babylonjs.com/proceduralTexturesLibrary/babylonjs.proceduralTextures.min.js"></script>
+        <script src="https://preview.babylonjs.com/postProcessesLibrary/babylonjs.postProcess.min.js"></script>
+        <script src="https://preview.babylonjs.com/loaders/babylonjs.loaders.js"></script>
+        <script src="https://preview.babylonjs.com/serializers/babylonjs.serializers.min.js"></script>
+        <script src="https://preview.babylonjs.com/gui/babylon.gui.min.js"></script>
+
+        <style>
+            html, body {
+                overflow: hidden;
+                width: 100%;
+                height: 100%;
+                margin: 0;
+                padding: 0;
+            }
+
+            #renderCanvas {
+                width: 100%;
+                height: 100%;
+                touch-action: none;
+            }
+        </style>
+    </head>
+<body>
+    <canvas id="renderCanvas"></canvas>
+    <script>
+        var canvas = document.getElementById("renderCanvas");
+        var engine = new BABYLON.Engine(canvas, true);
+
+        // function Ribbon
+        // mesh : a BABYLON.Mesh object
+        // pathArray : array populated with paths; path = arrays of Vector3
+        // close : boolean, true if paths are circular => last point joins first point, default false
+        // offset : default  path length / 2, only for a single path
+        // scene : the current scene
+        var createRibbon = function(mesh, pathArray, close, offset, scene) {
+          var positions = [];
+          var indices = [];
+          var normals = [];
+          var lg = [];        // array of path lengths : nb of vertex per path
+          var idx = [];       // array of path indexes : index of each path (first vertex) in positions array
+        
+          // traiter ici le cas un seul path avec le offset
+        
+          // positions
+          var idc = 0;
+          for(var p = 0; p < pathArray.length; p++) {
+            var path = pathArray[p];
+            var l = path.length;
+            lg[p] = l;
+            idx[p] = idc;
+            var j = 0;
+            while (j < l) {
+              positions.push(path[j].x, path[j].y, path[j].z);
+              j++;
+            }
+            idc += l;
+          }
+        
+          // indices
+          var p = 0;                    // path index
+          var i = 0;                    // positions array index
+          var l1 = lg[p] - 1;           // path1 length
+          var l2 = lg[p+1] - 1;         // path2 length
+          var min = ( l1 < l2 ) ? l1 : l2 ;   // index d'arrêt de i dans le path en cours
+          while ( i <= min && p < lg.length -1 ) { // on reste sur le min des deux paths et on ne va pas au delà de l'avant-dernier
+            var shft = idx[p+1] - idx[p];          // shift 
+              // draw two triangles between path1 (p1) and path2 (p2) : (p1.i, p2.i, p1.i+1) and (p2.i+1, p1.i+1, p2.i) clockwise
+              indices.push(i, i+shft, i+1);
+              indices.push(i+shft+1, i+1, i+shft);  
+            i += 1;
+            if ( i == min  ) {                      // dès qu'on atteint la fin d'un des deux paths consécutifs, on passe au suivant s'il existe
+              if (close) {                          // if close, add last triangles between start and end of the paths
+                indices.push(i, i+shft, idx[p]);
+                indices.push(idx[p]+shft, idx[p], i+shft);
+              }
+              p++;
+              l1 = lg[p] - 1;
+              l2 = lg[p+1] - 1;
+              i = idx[p];
+              min = ( l1 < l2 ) ? l1 + i : l2 + i;
+            }
+          }  
+        
+          BABYLON.VertexData.ComputeNormals(positions, indices, normals);
+        
+          mesh.setVerticesData(BABYLON.VertexBuffer.PositionKind, positions, false);
+          mesh.setVerticesData(BABYLON.VertexBuffer.NormalKind, normals, false);
+          mesh.setIndices(indices);
+        };
+        // END Ribbon
+        
+        
+        var curvePoints = function(l, t) {
+          var path = [];
+          var step = l / t;
+          for (var i = -20; i <= l; i += step ) {
+            path.push(new BABYLON.Vector3(i, Math.sin(i) * i / 2, Math.cos(i) * i / 2 ));
+          }
+          return path;
+        };
+        
+        
+        // path ==  vector3 array, at least 2 vector3
+        var tangentVectors = function(path) {
+          var tgVcts = []
+          var l = path.length;
+          tgVcts[0] = path[1].subtract(path[0]);
+          tgVcts[0].normalize();
+          tgVcts[l-1] = path[l-1].subtract(path[l-2]);
+          tgVcts[l-1].normalize();
+          if ( l > 2 ) {
+            for(var i = 1; i < l-1; i++) {
+              var prev = path[i].subtract(path[i-1]);
+              var cur = path[i+1].subtract(path[i]);
+              tgVcts[i] = prev.add(cur);
+              tgVcts[i].normalize();
+            }
+          } 
+          return tgVcts;
+        };
+        
+        // path == vector3 array, at least 2 vector3
+        var orthogonalVectors = function(path) {
+          var otVcts = [];
+          var l = path.length;
+          if ( l > 2 ) {
+            for(var i = 1; i < l-1; i++) {
+              var prev = path[i].subtract(path[i-1]);
+              var cur = path[i+1].subtract(path[i]);
+              otVcts[i] = BABYLON.Vector3.Cross(prev, cur);
+              otVcts[i].normalize();
+            }
+            otVcts[0] = otVcts[1];
+            otVcts[l-1] = otVcts[l-2];
+          }
+          else {
+            pp0 = planePoint(path[0], path[1].subtract(path[0], 1));
+            otVcts[0] = pp.subtract(path[0]);
+            otVcts[1] = otVcts[0];
+          }
+          return otVcts;
+        };
+        
+        
+        var showTangents = function(curve, scene) {
+          var tangents = tangentVectors(curve);
+          var  color = new BABYLON.Color3(1,0,0);
+          for (var i = 0; i < curve.length; i++) {
+            var line = [ curve[i], curve[i].add(tangents[i]) ];
+            var tangentMesh = BABYLON.Mesh.CreateLines("tm"+i, line, scene);
+            tangentMesh.color = color;
+          }
+        };
+        
+        var showOrthogonalVectors = function(curve, scene) {
+          var orthogonals = orthogonalVectors(curve);
+          var color = new BABYLON.Color3(1, 0.5, 0);
+          for (var i = 0; i < curve.length; i++) {
+            var line = [ curve[i], curve[i].add(orthogonals[i]) ];
+            var orthogonalMesh = BABYLON.Mesh.CreateLines("om"+i, line, scene);
+            orthogonalMesh.color = color;
+          }
+        };
+        
+        // returns a point in the plane defined by the point v0 and the orthogonal vector vt to this plane
+        // this point is at radius distance from v0 on the plane
+        var planePoint = function(v0, vt, radius) {
+          var x0 = v0.x;
+          var y0 = v0.y;
+          var z0 = v0.z;
+          var a = vt.x;
+          var b = vt.y;
+          var c = vt.z;
+        
+          var unknown = function(c1, c2, c3, p1, p2, p3) {
+            var res = (c2 * p2 + c3 * p3) / c1 + p1;
+            return res;
+          }
+        
+          // search for a point in the plane
+          var point;
+          if (a != 0) {
+            point = new BABYLON.Vector3(unknown(a, b, c, x0, y0, z0), 0, 0);   // X(x, 0, 0)
+          }
+          else if (b != 0) {
+            point = new BABYLON.Vector3(0, unknown(b, a, c, y0, x0, z0), 0);  // Y(0, y, 0)
+          }
+          else if ( c!= 0) {
+            point = new BABYLON.Vector3(0, 0, unknown(c, a, b, z0, x0, y0));  // Z(0, 0, z)
+          }
+        
+          var v0p = point.subtract(v0);                       // vector v0-point
+          var radiusPoint = v0.add(v0p.normalize().scale(radius));
+          return radiusPoint;
+        };
+        
+        // show vectors in the radial plane
+        var showPlaneVectors = function(curve, scene) {
+          var tangents = tangentVectors(curve);
+          var color = new BABYLON.Color3(0, 1, 0);
+          for(var i = 0; i < curve.length; i++) {
+            var pp = planePoint(curve[i], tangents[i], 1);
+            var line = [ curve[i], pp ];
+            var planeVectorMesh = new BABYLON.Mesh.CreateLines("pvm"+i, line, scene);
+            planeVectorMesh.color = color;
+          }
+        };
+        
+        // show circles
+        var showPlaneCircle = function(circlePath, scene) {
+          var circleLine = BABYLON.Mesh.CreateLines("circle", circlePath, scene);
+          circleLine.color = new BABYLON.Color3(0,0,1);
+        };
+        
+        
+        
+        // createTube function
+        var createTube = function(curve, radius, radialSegments, scene) {
+          var pi2 = Math.PI * 2;
+          var step = pi2 / radialSegments;
+          var circlePaths = [];                                                   // array of circle paths
+          var tangents = tangentVectors(curve);
+          var orthogonals = orthogonalVectors(curve);
+          for (var i = 0; i < curve.length; i++) {
+            var circlePath = [];    // current circle array
+            var ov = orthogonals[i]; // current orthogonal vector        
+            for( var ang = 0; ang <= pi2; ang += step) {
+              var rotationMatrix = BABYLON.Matrix.RotationAxis(tangents[i], ang);
+              var rotated = BABYLON.Vector3.TransformCoordinates(ov, rotationMatrix).scaleInPlace(radius).add(curve[i]);
+              circlePath.push(rotated);
+            }
+            circlePaths.push(circlePath);
+            //showPlaneCircle(circlePath, scene);
+          }
+        
+            // material
+          var mat = new BABYLON.StandardMaterial("mat1", scene);
+          mat.alpha = 1;
+          mat.diffuseColor = new BABYLON.Color3(0.5, 0.5, 1.0);
+          mat.emissiveColor = new BABYLON.Color3.Black();
+          mat.backFaceCulling = false;
+          mat.wireframe = false;
+        
+          var mesh = new BABYLON.Mesh("mesh", scene);
+          mesh.material = mat;
+          createRibbon(mesh, circlePaths, scene);
+        
+        
+        };
+        
+        // ======================================================
+        // SCENE
+        
+        var createScene = function() {
+          var scene = new BABYLON.Scene(engine);
+          scene.clearColor = new BABYLON.Color3( .5, .5, .5);
+        
+          // camera
+          var camera = new BABYLON.ArcRotateCamera("camera1",  0, 0, 0, new BABYLON.Vector3(0, 0, -0), scene);
+          camera.setPosition(new BABYLON.Vector3(0, 0, -70));
+          camera.attachControl(canvas, true);
+        
+          var light = new BABYLON.HemisphericLight("light1", new BABYLON.Vector3(1, 0.5, 0), scene);
+          light.intensity = 0.7;
+        
+          var spot = new BABYLON.SpotLight("spot", new BABYLON.Vector3(0, 30, 10), new BABYLON.Vector3(0, -1, 0), 17, 1, scene);
+          spot.diffuse = new BABYLON.Color3(1, 1, 1);
+          spot.specular = new BABYLON.Color3(0, 0, 0);
+          spot.intensity = 0.3;
+        
+          var curve = curvePoints(20, 150);
+        
+          // visualizer helpers
+          //  var curveMesh = BABYLON.Mesh.CreateLines("curve", curve, scene);
+          //  showTangents(curve, scene);
+          //  showPlaneVectors(curve, scene);
+          //  showOrthogonalVectors(curve, scene);
+        
+          createTube(curve, 1, 4, scene);
+        
+          return scene;
+        };
+        
+        var scene = createScene()
+
+        engine.runRenderLoop(function () {
+            if (scene) {
+                scene.render();
+            }
+        });
+
+        // Resize
+        window.addEventListener("resize", function () {
+            engine.resize();
+        });
+    </script>
+</body>
+</html>

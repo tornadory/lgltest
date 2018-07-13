@@ -1,0 +1,134 @@
+div#platform-btn {
+    position: fixed;
+    width: 40px;
+    height: 40px;
+    line-height: 40px;
+    text-align: center;
+    color: white;
+    background: #4285f4;
+    border-radius: 50%;
+    box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.3);
+    right: 10px;
+    top: 10px;
+}
+
+.app-item {
+    width: 25%;
+    text-align: center;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    user-select: none;
+    cursor: pointer;
+}
+
+.app-item[data-state="move"] {
+    perspective: 200px;
+    perspective-origin: center;
+}
+
+.app-item>img {
+    pointer-events: none;
+    width: 50px;
+    border-radius: 6px;
+    height: 50px;
+    transition: transform 0.2s;
+    transform: translate3d(0, 0, 0);
+}
+
+.app-item[data-state="move"]>img {
+    transform: translate3d(0, 0, -50px);
+}
+
+.app-item>span::before {
+    content: "";
+    display: block;
+}
+
+#appList {
+    padding: 10px 0px;
+    display: flex;
+}
+
+#systemList {
+    position: fixed;
+    bottom: 10px;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
+.system-item {
+    width: 25%;
+    text-align: center;
+}
+
+.system-item>img {
+    width: 50px;
+    border-radius: 6px;
+    height: 50px;
+}
+
+.markert-item {
+    height: 80px;
+    overflow: hidden;
+    position: relative;
+}
+
+.markert-item>img {
+    pointer-events: none;
+    width: 50px;
+    height: 50px;
+    vertical-align: middle;
+    border-radius: 6px;
+}
+
+.markert-item {
+    height: 80px;
+    overflow: hidden;
+    position: relative;
+    padding-left: 60px;
+    margin: 0 10px;
+}
+
+.markert-item>img {
+    width: 50px;
+    height: 50px;
+    vertical-align: middle;
+    border-radius: 6px;
+    position: absolute;
+    left: 0;
+    top: 15px;
+}
+
+.markert-content {
+    margin-top: 15px;
+    line-height: 25px;
+    width: calc(100% - 50px);
+}
+
+.markert-content-title {
+    font-weight: bolder;
+}
+
+.markert-content-detail {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 12px;
+}
+
+.markert-item>button {
+    position: absolute;
+    right: 0;
+    top: 15px;
+    border: none;
+    line-height: 50px;
+    color: white;
+    background: #4285f4;
+    width: 50px;
+    height: 50px;
+}
+.system-item > span::before {
+    display: block;
+    content: "";
+}

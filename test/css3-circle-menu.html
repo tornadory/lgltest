@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <title>纯CSS扇形菜单</title>
+    <style type="text/css">
+        /*导航外层div设为圆形*/
+
+        .css-transforms .menu-wrapper {
+            overflow: hidden;
+            zoom: 1;
+            position: relative;
+            width: 460px;
+            height: 460px;
+            margin: 40px auto 0;
+            -webkit-border-radius: 50%;
+            -moz-border-radius: 50%;
+            border-radius: 50%;
+            background: transparent;
+            pointer-events: auto;
+            border: 1px solid #000;
+        }
+
+        /*覆盖a标签的内侧靠近圆心的部分, 避免鼠标点击事件*/
+
+        .css-transforms .menu-wrapper:after {
+            color: transparent;
+            content: ".";
+            display: block;
+            position: absolute;
+            z-index: 10;
+            left: 50%;
+            top: 50%;
+            margin-left: -150px;
+            margin-top: -150px;
+            width: 300px;
+            height: 300px;
+            -webkit-border-radius: 50%;
+            -moz-border-radius: 50%;
+            border-radius: 50%;
+            border: 1px solid blue;
+        }
+
+        .css-transforms .menu-wrapper li {
+            position: absolute;
+            top: -70px;
+            left: -70px;
+            overflow: hidden;
+            width: 300px;
+            height: 300px;
+            transform-origin: 100% 100%;
+            pointer-events: none;
+            border: 1px solid green;
+        }
+
+        /*a标签反倾斜角度为-(90-x),旋转角度为-x,x为我们想要的圆心角,在这个demo里,有3个列表项,半圆,得出圆心角为60*/
+
+        .css-transforms .menu-wrapper li a {
+            position: absolute;
+            right: -200px;
+            bottom: -200px;
+            display: block;
+            width: 420px;
+            height: 420px;
+            border-radius: 50%;
+            color: #fff;
+            text-align: center;
+            text-decoration: none;
+            /*先斜切后旋转,不可颠倒*/
+            -webkit-transform: skew(-30deg) rotate(-60deg) scale(1);
+            -moz-transform: skew(-30deg) rotate(-60deg) scale(1);
+            -ms-transform: skew(-30deg) rotate(-60deg) scale(1);
+            -o-transform: skew(-30deg) rotate(-60deg) scale(1);
+            transform: skew(-30deg) rotate(-60deg) scale(1);
+            pointer-events: auto;
+        }
+
+        .css-transforms .menu-wrapper li a span {
+            display: none;
+        }
+
+        /*列表项倾斜角度为90-x,每个列表项的旋转角度依次间隔 >60 */
+
+        .css-transforms .menu-wrapper li:first-child {
+            -webkit-transform: rotate(-10deg) skew(30deg);
+            -moz-transform: rotate(-10deg) skew(30deg);
+            -ms-transform: rotate(-10deg) skew(30deg);
+            -o-transform: rotate(-10deg) skew(30deg);
+            transform: rotate(-10deg) skew(30deg);
+        }
+
+        .css-transforms .menu-wrapper li:nth-child(2) {
+            -webkit-transform: rotate(60deg) skew(30deg);
+            -moz-transform: rotate(60deg) skew(30deg);
+            -ms-transform: rotate(60deg) skew(30deg);
+            -o-transform: rotate(60deg) skew(30deg);
+            transform: rotate(60deg) skew(30deg);
+        }
+
+        .css-transforms .menu-wrapper li:nth-child(3) {
+            -webkit-transform: rotate(-130deg) skew(30deg);
+            -moz-transform: rotate(-130deg) skew(30deg);
+            -ms-transform: rotate(-130deg) skew(30deg);
+            -o-transform: rotate(-130deg) skew(30deg);
+            transform: rotate(130deg) skew(30deg);
+        }
+
+        .css-transforms .menu-wrapper li a span {
+            display: none;
+        }
+
+        .css-transforms .menu-wrapper li:first-child a {
+            background: radial-gradient(transparent 45%, #dc7d01 35%);
+        }
+
+        .css-transforms .menu-wrapper li:nth-child(2) a {
+            background: radial-gradient(transparent 45%, #a70101 35%);
+        }
+
+        .css-transforms .menu-wrapper li:nth-child(3) a {
+            background: radial-gradient(transparent 45%, #017d07 35%);
+        }
+
+        .css-transforms .menu-wrapper li:first-child a:hover,
+        .css-transforms .menu-wrapper li:first-child a:active,
+        .css-transforms .menu-wrapper li:first-child a:focus {
+            background: radial-gradient(transparent 45%, #e88503 35%);
+        }
+
+        .css-transforms .menu-wrapper li:nth-child(2) a:hover,
+        .css-transforms .menu-wrapper li:nth-child(2) a:active,
+        .css-transforms .menu-wrapper li:nth-child(2) a:focus {
+            background: radial-gradient(transparent 45%, #b40303 35%);
+        }
+
+        .css-transforms .menu-wrapper li:nth-child(3) a:hover,
+        .css-transforms .menu-wrapper li:nth-child(3) a:active,
+        .css-transforms .menu-wrapper li:nth-child(3) a:focus {
+            background: radial-gradient(transparent 45%, #028b09 35%);
+        }
+
+        .css-transforms .menu-wrapper li:first-child a img {
+            margin-top: 8px;
+            -webkit-transform: rotate(-25deg);
+            -moz-transform: rotate(-25deg);
+            -ms-transform: rotate(-25deg);
+            -o-transform: rotate(-25deg);
+            transform: rotate(-25deg);
+        }
+
+        .css-transforms .menu-wrapper li:nth-child(2) a img {
+            margin-top: 21px;
+        }
+
+        .css-transforms .menu-wrapper li:nth-child(3) a img {
+            margin-top: -2px;
+            -webkit-transform: rotate(-60deg);
+            -moz-transform: rotate(-60deg);
+            -ms-transform: rotate(-60deg);
+            -o-transform: rotate(-60deg);
+            transform: rotate(-60deg);
+        }
+
+        /*不支持css3*/
+
+        .no-transforms .menu-wrapper {
+            margin: 10em auto;
+            overflow: hidden;
+            text-align: center;
+            padding: 1em;
+            border: 1px solid #000;
+        }
+
+        .no-transforms .menu-wrapper ul {
+            display: inline-block;
+        }
+
+        .no-transforms li {
+            width: 120px;
+            height: 50px;
+            float: left;
+            line-height: 50px;
+            text-align: center;
+            margin-right: 20px;
+            background-color: #fff;
+            /*border: 1px solid red;*/
+        }
+
+        .no-transforms li a {
+            display: block;
+            height: 100%;
+            width: 100%;
+            line-height: 50px;
+            text-decoration: none;
+            color: #fff;
+        }
+
+        .no-transforms .menu-wrapper li a span {
+            display: block;
+        }
+
+        .no-transforms .menu-wrapper li a img {
+            display: none;
+        }
+
+        .no-transforms li a.first {
+            background-color: #e88503;
+        }
+
+        .no-transforms li a.second {
+            background-color: #b40303;
+        }
+
+        .no-transforms li a.last {
+            background-color: #028b09;
+        }
+
+        .no-transforms .menu-wrapper li a:hover,
+        .no-transforms .menu-wrapper li a:active,
+        .no-transforms .menu-wrapper li a:focus {
+            -ms-filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=80);
+            filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=80);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="css-transforms" id="box">
+        <div class="menu-wrapper">
+            <ul>
+                <li>
+                    <a href="#" class="first">
+                        <img src="./font-1.png" alt="">
+                        <span>彝族音乐图片</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#" class="second">
+                        <img src="./font-2.png" alt="">
+                        <span>彝族音乐理论</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#" class="last">
+                        <img src="./font-3.png" alt="">
+                        <span>彝族音乐</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <script>
+        //为不支持css3的浏览器更换样式
+        var wrapper = document.getElementById('box');
+        var supports = (function () {
+            var div = document.createElement('div'),
+                vendors = 'Khtml Ms O Moz Webkit'.split(' '),
+                len = vendors.length;
+
+            return function (prop) {
+                if (prop in div.style) return true;
+
+                prop = prop.replace(/^[a-z]/, function (val) {
+                    return val.toUpperCase();
+                });
+
+                while (len--) {
+                    if (vendors[len] + prop in div.style) {
+                        return true;
+                    }
+                }
+                return false;
+            };
+        })();
+
+        if (!supports('transform')) {
+            removeClass(wrapper, 'css-transforms');
+            addClass(wrapper, 'no-transforms');
+        }
+
+        function hasClass(obj, cls) {
+            return obj.className.match(new RegExp('(\\s|^)' + cls + '(\\s|$)'));
+        }
+
+        function addClass(obj, cls) {
+            if (!this.hasClass(obj, cls)) obj.className += " " + cls;
+        }
+
+        function removeClass(obj, cls) {
+            if (hasClass(obj, cls)) {
+                var reg = new RegExp('(\\s|^)' + cls + '(\\s|$)');
+                obj.className = obj.className.replace(reg, ' ');
+            }
+        }
+
+    </script>
+</body>
+
+</html>

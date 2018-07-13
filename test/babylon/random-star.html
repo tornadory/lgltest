@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+
+        <title>Babylon.js sample code</title>
+
+        <!-- Babylon.js -->
+        <script src="https://code.jquery.com/pep/0.4.2/pep.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.6.2/dat.gui.min.js"></script>
+        <script src="https://preview.babylonjs.com/cannon.js"></script>
+        <script src="https://preview.babylonjs.com/Oimo.js"></script>
+        <script src="https://preview.babylonjs.com/earcut.min.js"></script>
+        <script src="https://preview.babylonjs.com/babylon.js"></script>
+        <script src="https://preview.babylonjs.com/inspector/babylon.inspector.bundle.js"></script>
+        <script src="https://preview.babylonjs.com/materialsLibrary/babylonjs.materials.min.js"></script>
+        <script src="https://preview.babylonjs.com/proceduralTexturesLibrary/babylonjs.proceduralTextures.min.js"></script>
+        <script src="https://preview.babylonjs.com/postProcessesLibrary/babylonjs.postProcess.min.js"></script>
+        <script src="https://preview.babylonjs.com/loaders/babylonjs.loaders.js"></script>
+        <script src="https://preview.babylonjs.com/serializers/babylonjs.serializers.min.js"></script>
+        <script src="https://preview.babylonjs.com/gui/babylon.gui.min.js"></script>
+
+        <style>
+            html, body {
+                overflow: hidden;
+                width: 100%;
+                height: 100%;
+                margin: 0;
+                padding: 0;
+            }
+
+            #renderCanvas {
+                width: 100%;
+                height: 100%;
+                touch-action: none;
+            }
+        </style>
+    </head>
+<body>
+    <canvas id="renderCanvas"></canvas>
+    <script>
+        var canvas = document.getElementById("renderCanvas");
+        var engine = new BABYLON.Engine(canvas, true);
+
+        
+        
+        var domeRadius = 300;
+        var randomNumber = function (min, max) {
+        	if (min === max) {
+            	return (min);
+        	}
+        	var random = Math.random();
+        	return ((random * (max - min)) + min);
+        };
+        
+        // Wingy's default positions
+        var myStartPositionFunction = function (worldMatrix, positionToUpdate) {
+        	var v3 = getCart(domeRadius);
+        	BABYLON.Vector3.TransformCoordinatesFromFloatsToRef(v3.x, v3.y, v3.z, worldMatrix, positionToUpdate);
+        };
+        
+        // -------------------------------------------------------------------------------------------------
+        var myUpdateFunction = function (particles) {
+        	for (var index = 0; index < particles.length; index++) {
+            	var particle = particles[index];
+            	particle.age += this._scaledUpdateSpeed;
+            	if (particle.age >= particle.lifeTime) {
+                	this.recycleParticle(particle);
+                	index--;
+                	continue;
+            	}
+            	else {
+        
+        			particle.color = doubleColor4();
+        			particle.size = randomNumber(this.minSize,this.maxSize);
+        
+                	if (particle.color.a < 0)
+                    	particle.color.a = 0;
+            	}
+        	}
+        };
+        
+        // -----------------------------------------------------------------------
+        // a gruesome stolen func - thx to...
+        // https://rbrundritt.wordpress.com/2008/10/14/conversion-between-spherical-and-cartesian-coordinates-systems/
+        function getCart(radius) {
+        	// var lat = DegtoRad (latlong.Latitude);
+        	// var lon = DegtoRad (latlong.Longitude);
+        	var xy = plot1();  // just below
+        	var lat = xy[0];
+        	var lon = xy[1];
+        	var x = radius * Math.cos(lat)*Math.cos(lon);
+        	var y = radius * Math.cos(lat)*Math.sin(lon);
+        	var z = radius * Math.sin(lat);
+        	return new BABYLON.Vector3(x,y,z);
+        }
+        
+        // -----------------------------------------------------------------------
+        // a stolen formula - claims to eliminate polar bias (clustering near poles)
+        // in use - thx to http://rectangleworld.com/blog/archives/298
+        var plot1 = function() {
+        	var theta = Math.random()*2*Math.PI;
+        	var phi = Math.acos(Math.random()*2-1);
+        	return [theta, phi];
+        	// return [theta/4-theta/6, phi/2-phi/6];
+        };
+        
+        // -----------------------------------------------------------------------
+        var doubleColor4 = function (min, max) {
+            return new BABYLON.Color4(Math.random()*2, Math.random()*2, Math.random()*2, Math.random());
+        }
+        // -----------------------------------------------------------------------
+        
+        var createScene = function () {
+        
+            var scene = new BABYLON.Scene(engine);
+        	scene.clearColor = new BABYLON.Color3(0, 0, 0);
+        
+        	var camera = new BABYLON.ArcRotateCamera("Camera", -1.05, 1.4, 880, new BABYLON.Vector3(0, 15, 0), scene);
+        	camera.attachControl(canvas, false);
+        
+        	var ps = new BABYLON.ParticleSystem("particles", 20000, scene);
+        
+        	ps.startPositionFunction = myStartPositionFunction;
+        	ps.updateFunction = myUpdateFunction;
+        
+        	// Texture of each particle - set far below
+        	// ps.particleTexture = new BABYLON.Texture("textures/star.jpg", scene);
+        	ps.particleTexture = new BABYLON.Texture("https://cdn.rawgit.com/wingnutt/misc/master/star.jpg", scene);
+        
+        	// Where the particles come from
+        	ps.emitter = new BABYLON.Vector3(0, 15, 0);
+        
+        	ps.minEmitBox = new BABYLON.Vector3(0, 0, 0); // Starting all from
+        	ps.maxEmitBox = new BABYLON.Vector3(0, 0, 0); // To...
+        
+        	// the localized _update does the coloring.
+        	ps.color1 = ps.color2 = ps.colorDead = new BABYLON.Color4(1,1,1,1);
+        
+        	// the sizing.
+        	ps.minSize = 2;
+        	ps.maxSize = 5;
+        
+        	// Life time of each particle (random between...
+        	ps.minLifeTime = 100.0;
+        	ps.maxLifeTime = 100.0;
+        
+        	// Emission rate
+        	ps.emitRate = 5000;
+        
+        	// Blend mode : BLENDMODE_ONEONE, or BLENDMODE_STANDARD
+        	ps.blendMode = BABYLON.ParticleSystem.BLENDMODE_ONEONE;
+        
+        	// Angular speed, in radians
+        	ps.minAngularSpeed = 0;
+        	// ps.maxAngularSpeed = Math.PI*2;
+        	ps.maxAngularSpeed = 0;
+        
+        	// Speed
+        	ps.minEmitPower = 0;
+        	ps.maxEmitPower = 0;
+        	ps.updateSpeed = 0.005;
+        
+        	// Start the particle system
+        	ps.start();
+        
+            var box1 = BABYLON.Mesh.CreateBox("box1", 25, scene);
+            box1.material = new BABYLON.StandardMaterial("b1mat", scene);
+            box1.material.emissiveColor = BABYLON.Color3.Random();
+        
+            box1.rotation.x = .707;
+            box1.rotation.y = .707;
+            scene.beforeRender=()=>{
+                box1.rotation.z += .01;
+            }
+        
+            return scene;
+        };
+        
+        
+        var scene = createScene()
+
+        engine.runRenderLoop(function () {
+            if (scene) {
+                scene.render();
+            }
+        });
+
+        // Resize
+        window.addEventListener("resize", function () {
+            engine.resize();
+        });
+    </script>
+</body>
+</html>
