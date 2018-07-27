@@ -1,0 +1,136 @@
+<!doctype html>
+<html>
+  <head>
+    <meta name="author" content="Guilherme Polo">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Computer Graphics - Line clipping</title>
+    <script type="text/javascript" src="linha.js"
+	    charset="utf-8"></script>
+    <script type="text/javascript" src="recorte.js"
+	    charset="utf-8"></script>
+    <script type="text/javascript" src="../fill/raster.js"
+    charset="utf-8"></script>
+    <style type="text/css">
+      #menu-container
+      {padding:8px 16px 0 16px;
+      margin:0 0 16px 0;
+      background:#535c9c;}
+
+      ul#menu
+      {list-style-type:none;
+      width:100%;
+      position:relative;
+      height:27px;
+      font-family:"Trebuchet MS",Arial,sans-serif;
+      font-size:13px;
+      font-weight:bold;
+      margin:0;
+      padding:11px 0 0 0;}
+
+      ul#menu li{display:block;float:left;margin:0 0 0 4px;height:27px;}
+      ul#menu li.left{margin:0;}
+      ul#menu li a{
+      display:block;
+      float:left;
+      color:#fff;
+      background:#32366c;
+      line-height:27px;
+      text-decoration:none;
+      padding:0 17px 0 18px;height:27px;}
+      ul#menu li a:hover{background:#1a18540;}
+      ul#menu li a.current{color:#1a1854;background:#fff;}
+      ul#menu li a.current:hover{color:#1a1854;background:#fff;}
+    </style>
+    <script type="text/javascript">
+      var _gaq = _gaq || [];
+      _gaq.push(['_setAccount', 'UA-17105156-1']);
+      _gaq.push(['_trackPageview']);
+      (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+      })();
+    </script>
+  </head>
+  <body onload="raster.init(); linha.init('retas'); recorte.init()">
+
+    <div id="menu-container">
+      <ul id="menu">
+	<li><a href="../index.html">Rasterização de linhas</a></li>
+	<li><a href="../fill/main.html">Preenchimento de
+	polígonos</a></li>
+	<li><a href="#" class="current">Recorte de linhas</a></li>
+      </ul>
+    </div>
+
+    <p><text id="top-text">Desenhe as retas</text>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+      <font size="+2">&#x25A6;</font>
+      <button onclick="recorte.definir_area()">
+	Definir área de recorte</button>
+
+      &nbsp;&nbsp; <font size="+2">&#x2702;</font>
+      <button onclick="recorte.cohen_sutherland()">Recortar</button>
+
+      &nbsp;&nbsp; <font size="+2">&#x2395;</font>
+      <button onclick="raster.outros.deselecionar()">Apagar
+      seleção</button>
+    </p>
+    <div id="raster" style="display: inline; position: relative; float: left;
+			    margin-bottom: 12px;">
+    </div>
+    <div id="controles" style="float: left; margin-left: 12px;">
+      <p>Resolução:</p>
+      <ul style="list-style-type: none">
+	<li>
+	  <table>
+	    <tr>
+	      <td>Largura da janela</td>
+	      <td><input type=text size=5 id="r_width"></td>
+	      <td>px</td>
+	      </tr>
+	    <tr>
+	      <td>Altura da janela</td>
+	      <td><input type=text size=5 id="r_height"></td>
+	      <td>px</td>
+	    </tr>
+	    <tr>
+	      <td>Número de colunas</td>
+	      <td><input type=text size=5 id="r_cols"></td>
+	    </tr>
+	    <tr>
+	      <td>Número de linhas</td>
+	      <td><input type=text size=5 id="r_rows"></td>
+	    </tr>
+	    <tr>
+	      <td>Tamanho do pixel</td>
+	      <td><input type=text size=5 id="r_psize"></td>
+	      <td>px</td>
+	      <td><input type=checkbox id="r_spixel"></td>
+	      <td>Exibir</td>
+	    </tr>
+	    </table>
+	</li>
+      </ul>
+      <button onclick="raster.outros.atualizar_resolucao()">Atualizar</button>
+    </div>
+
+    <div style="clear: left;">
+      <p><b>Ajuda:</b></p>
+      <ul>
+	<li>Para desenhar uma reta clique em dois pontos.</li>
+	<li>Para definir área de recorte clique no botão indicado e
+	  depois em dois pontos.</li>
+	<li>Para cancelar definição da área de recorte, pressione
+	ESC.</li>
+	<li>Durante o recorte utilize a seta &#x2192;</li>
+      </ul>
+    </div>
+
+    <div id="foot" style="border-top: 2px dashed black;">
+    <center><p>Guilherme Polo &#x21e2;
+	<a href="#" title="first">
+	  &gamma;&gamma;&pi;&omicron;&lambda;&omicron;</a>@gmail.com</center>
+    </div>
+  </body>
+</html>

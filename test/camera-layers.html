@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>模型测试小程序</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+    <script src="js/three.js"></script>
+    <script src="js/libs/inflate.min.js"></script>
+    <script src="js/controls/OrbitControls.js"></script>
+    <script src="js/curves/NURBSCurve.js"></script>
+    <script src="js/curves/NURBSUtils.js"></script>
+    <script src="js/loaders/FBXLoader.js"></script>
+    <script src="js/libs/stats.min.js"></script>
+    <style>
+        body {
+            font-family: Monospace;
+            background-color: #000;
+            color: #fff;
+            margin: 0px;
+            overflow: hidden;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="title">
+        模型加载测试
+    </div>
+
+
+    <script>
+        var container, stats, controls;
+        var camera, scene, renderer, light;
+
+        var i = 0;
+        var modelsPath = new Array(2);
+        modelsPath[0] = "models/dolphin.fbx";
+        modelsPath[1] = "models/test.fbx";
+        var modelsPosition = new Array(2);
+        modelsPosition[0] = 0;
+        modelsPosition[1] = -4.5;
+
+        var interval;
+
+        init();
+        function init() {
+            container = document.createElement('div');
+            document.body.appendChild(container);
+            camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 1, 5000);
+            camera.layers.enable(1);
+            camera.layers.set(1);
+            scene = new THREE.Scene();
+
+            // grid helper
+            var gridHelper = new THREE.GridHelper(28, 28, 0x303030, 0x303030);
+            gridHelper.position.set(0, - 0.04, 0);
+            scene.add(gridHelper);
+
+            // stats
+            stats = new Stats();
+            container.appendChild(stats.dom);
+            renderer = new THREE.WebGLRenderer();
+            renderer.setPixelRatio(window.devicePixelRatio);
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setClearColor(0xAAAAAA);
+            container.appendChild(renderer.domElement);
+            controls, camera
+            controls = new THREE.OrbitControls(camera, renderer.domElement);
+            controls.target.set(0, 0, 0);
+            camera.position.set(2, 8, 8);
+            controls.update();
+            window.addEventListener('resize', onWindowResize, false);
+            light = new THREE.HemisphereLight(0xffffff, 0x444444, 1.0);
+            light.position.set(1, 2, 1);
+            scene.add(light);
+
+            light = new THREE.DirectionalLight(0xffffff, 1.0);
+            light.position.set(-1, -2, -1);
+            scene.add(light);
+
+            animate();
+
+            interval = window.setInterval(function () {
+                LoadModel(modelsPath);
+            }, 5000);
+        }
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            // controls.handleResize();
+        }
+        //
+        function animate() {
+            requestAnimationFrame(animate);
+            stats.update();
+            controls.update();
+            render();
+        }
+
+        function LoadModel(models) {
+            console.log('index is ', i);
+            if (i < modelsPath.length) {
+                var loader = new THREE.FBXLoader();
+                loader.load(modelsPath[i], function (object) {
+                    object.layers.set(1);
+                    scene.add(object);
+                });
+
+                console.log("added object to scene", scene);
+                i++;
+            }
+
+        }
+
+        function render() {
+            renderer.render(scene, camera);
+            stats.update();
+        }
+    </script>
+
+</body>
+
+</html>

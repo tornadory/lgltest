@@ -53,6 +53,14 @@
         var geometry = new THREE.BoxGeometry(1, 1, 1);
         var material = new THREE.MeshBasicMaterial({ color: "#433F81" });
         var cube = new THREE.Mesh(geometry, material);
+        cube.position.x = 1;
+        cube.position.y = 1;
+
+        // cube.updateMatrixWorld();
+        // var vector = cube.geometry.vertices[0].clone();
+        // var v1 = vector.applyMatrix4(cube.matrixWorld);
+        // console.log("matrix world", v1);
+        // console.log("To Scree ", transToScreenCoord(cube.position));
 
         // Add cube to Scene
         scene.add(cube);
@@ -61,17 +69,27 @@
         var render = function () {
             requestAnimationFrame(render);
 
-            cube.rotation.x += 0.01;
-            cube.rotation.y += 0.01;
+            // cube.rotation.x += 0.01;
+            // cube.rotation.y += 0.01;
 
             // Render the scene
             renderer.render(scene, camera);
 
-            cube.updateMatrixWorld();
-            var vector = cube.geometry.vertices[0].clone();
-            var v1 = vector.applyMatrix4(cube.matrixWorld);
-            console.log("matrix world", v1);
+            // cube.updateMatrixWorld();
+            // var vector2 = cube.geometry.vertices[0].clone();
+            // var v2 = vector2.applyMatrix4(cube.matrixWorld);
+            // console.log("render matrix world", v2);
         };
+
+        function transToScreenCoord(vector) {
+            console.log("trans", vector);
+            var screenCoord = {};
+            vector.project(camera);
+            console.log("trans", vector);
+            screenCoord.x = (0.5 + vector.x / 2) * window.innerWidth;
+            screenCoord.y = (0.5 - vector.y / 2) * window.innerHeight;
+            return screenCoord;
+        }
 
         render();
     </script>

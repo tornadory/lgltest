@@ -1,0 +1,27 @@
+<html>
+
+<head>
+    <title>IFrame Child Example</title>
+</head>
+
+<body>
+    <form name="frm2">
+        <h1>
+            <font color="#000099">Input Form</font>
+        </h1>
+        <p>Name : </p>
+        <input type="text" name="resp" id="input" value="" />
+        <input type="button" onclick="test(this.form.resp.value);" value="Submit" />
+    </form>
+
+    <script>
+        function test(value) {
+            // parent.hello(value);
+            var a = new parent.String();
+            console.log(a.something());
+
+        }
+    </script>
+</body>
+
+</html>
