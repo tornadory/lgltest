@@ -1,0 +1,363 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+	<title>Particles morph</title>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+	<link rel="stylesheet" type="text/css" href="css/style_no_stats.css">
+	<style type="text/css">
+		body {
+			background: #000000;
+		}
+	</style>
+</head>
+
+<body>
+	<div id="infobutton">
+		<a href="javascript:toggleInfo()">
+			<img src="general/i.png" border="0">
+		</a>
+	</div>
+	<div id="info">
+		<B>Particles morph - WebGL(html5)</B>
+		<P>
+			Played around with the data from the
+			<a href="http://oos.moxiecode.com/blog/2012/01/pixel-particles/" target="_blank">pixel particles</a>
+			with WebGL.
+			<br>Should be 85000 of them here.
+		</P>
+		Done using
+		<a href="https://github.com/mrdoob/three.js" target="_blank">three.js</a>
+		.
+
+		<P>
+			<B>Note.</B>
+			You need a modern browser that supports WebGL for this to run the way it is intended.
+			<BR> For example.
+			<a href="http://www.google.com/landing/chrome/beta/" target="_blank">Google Chrome 9+</a>
+			or
+			<a href="http://www.mozilla.com/firefox/beta/" target="_blank">Firefox 4+</a>
+			.
+			<BR>
+			<BR> (If you are already using one of those browsers and it's still not running, it's possible that you
+			<BR> have old blacklisted GPU drivers. Try updating the drivers for your graphic card.
+			<BR>Or try to set a '--ignore-gpu-blacklist' switch for the browser.)
+		</P>
+		<font color="#777777">(C) OutsideOfSociety 2012.
+
+	</div>
+	<script src="build_r49/Three.js"></script>
+	<script type="text/javascript" src="data1.js"></script>
+	<script type="text/javascript" src="data2.js"></script>
+	<script type="text/javascript" src="Tween.js"></script>
+	<script type="text/javascript" src="general/RequestAnimationFrame.js"></script>
+	<script type="text/javascript" src="general/THREEx.WindowResize.js"></script>
+	<script type="text/javascript" src="general/info.js"></script>
+	<script type="x-shader/x-vertex" id="vertexshader">
+
+
+		uniform float amplitude; uniform float direction; attribute float size; attribute vec3 customColor; attribute vec3 custompositiona;
+		attribute vec3 custompositionb; uniform float time; varying vec3 vColor; varying float fAlpha; void main() { vColor = customColor;
+		vec3 pos = position; // small noise movement pos.x += cos(time + (position.y/8.0))*50.0; pos.z += sin(time + (position.x/8.0))*50.0;
+		pos.y += sin(time + (position.z/4.0))*40.0; // morph vec3 morphed = vec3( 0.0, 0.0, 0.0 ); if (direction == 0.0) { morphed
+		+= ( custompositionb - position ) * amplitude; } else { morphed += ( custompositiona - position ) * amplitude; } morphed
+		+= pos; vec4 mvPosition = modelViewMatrix * vec4( morphed, 1.0 ); fAlpha = (mvPosition.z+6000.0)/6000.0; gl_PointSize =
+		min(150.0, size * ( 150.0 / length( mvPosition.xyz ) ) ); gl_Position = projectionMatrix * mvPosition; }
+
+
+	</script>
+	<script type="x-shader/x-fragment" id="fragmentshader">
+
+
+		uniform vec3 color; uniform sampler2D texture; varying vec3 vColor; varying float fAlpha; void main() { vec4 outColor = texture2D(
+		texture, gl_PointCoord ); if ( outColor.a
+		< 0.5 ) discard; // alpha be gone gl_FragColor=o utColor * vec4( color * vColor.xyz, fAlpha ); } </script>
+
+
+
+			<script>
+				var container;
+
+				var camera, scene, renderer;
+
+				var has_gl = false;
+
+				var delta
+				var time;
+				var oldTime;
+
+				var mouseX = 0,
+					mouseY = 0;
+				var tomouseX = 0,
+					tomouseY = 0;
+
+				var particles;
+				var switchCount = 0;
+				var extraRotation = {
+					value: 0
+				};
+				var geometrya, geometryb;
+
+				document.addEventListener('mousemove', onDocumentMouseMove, false);
+
+				init();
+				animate();
+
+				function init() {
+
+					container = document.createElement('div');
+					document.body.appendChild(container);
+
+					scene = new THREE.Scene();
+
+					camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 1, 10000);
+					camera.position.z = 4000;
+					scene.add(camera);
+
+					var map = THREE.ImageUtils.loadTexture("p_trans6.png");
+
+					// particles
+					attributes = {
+
+						size: {
+							type: 'f',
+							value: []
+						},
+						custompositiona: {
+							type: 'v3',
+							value: []
+						},
+						custompositionb: {
+							type: 'v3',
+							value: []
+						},
+						customColor: {
+							type: 'c',
+							value: []
+						},
+
+					};
+
+					uniforms = {
+
+						amplitude: {
+							type: "f",
+							value: 0.0
+						},
+						color: {
+							type: "c",
+							value: new THREE.Color(0xffffff)
+						},
+						texture: {
+							type: "t",
+							value: 0,
+							texture: map
+						},
+						time: {
+							type: "f",
+							value: 1.0
+						},
+						direction: {
+							type: "f",
+							value: 1.0
+						},
+
+					};
+
+					var shaderMaterial = new THREE.ShaderMaterial({
+
+						uniforms: uniforms,
+						attributes: attributes,
+						vertexShader: document.getElementById('vertexshader').textContent,
+						fragmentShader: document.getElementById('fragmentshader').textContent,
+
+						blending: THREE.NormalBlending,
+						depthTest: true,
+						transparent: false,
+
+					});
+
+					var radius = 1400;
+					var extraParticles = 20000;
+					var geometry = new THREE.Geometry();
+
+					for (var i = 0; i < Math.floor(data1.length / 3); ++i) {
+						var vector = getRandomPointOnparticles(400 + Math.random() * radius * 1.5);
+						geometry.vertices.push(vector);
+					}
+
+					for (var i = 0; i < extraParticles; i++) {
+						var vector = getRandomPointOnparticles(radius + Math.random() * radius);
+						geometry.vertices.push(vector);
+					}
+
+					particles = new THREE.ParticleSystem(geometry, shaderMaterial);
+
+					var vertices = particles.geometry.vertices;
+					var values_size = attributes.size.value;
+					var values_color = attributes.customColor.value;
+
+					baseSize = [];
+
+					for (var v = 0; v < vertices.length; v++) {
+
+						baseSize[v] = 10 + Math.random() * 90;
+
+						values_size[v] = baseSize[v];
+						values_color[v] = new THREE.Color(0xffffff);
+
+						//values_color[ v ].setHSV( 0.99, 0.75*( v / vertices.length ), 1.0 );
+						values_color[v].setHSV(0.55, 0.75 * (v / vertices.length), 1.0);
+
+					}
+
+					var values_positiona = attributes.custompositiona.value;
+					var values_positionb = attributes.custompositionb.value;
+
+					for (var v = 0; v < vertices.length; v++) {
+
+						var index = v * 3;
+
+						if (index > data1.length) {
+							values_positiona[v] = getRandomPointOnparticles(400 + Math.random() * radius * 1.5);
+							values_positionb[v] = getRandomPointOnparticles(400 + Math.random() * radius * 1.5);
+						} else {
+							var vector = new THREE.Vector3(data1[index], data1[index + 2] - 7, -data1[index + 1]);
+							vector.multiplyScalar(120);
+							values_positiona[v] = vector;
+
+							var vector = new THREE.Vector3(data2[index], data2[index + 2] - 2, -data2[index + 1]);
+							vector.multiplyScalar(170);
+							values_positionb[v] = vector;
+						}
+
+					}
+
+					scene.add(particles);
+
+					particles.position.z = -7500;
+					var tween = new TWEEN.Tween(particles.position).to({
+						z: 0
+					}, 3000).delay(500).easing(TWEEN.Easing.Back.EaseOut);
+					tween.start();
+
+					tweenUp();
+
+					try {
+						// renderer
+						renderer = new THREE.WebGLRenderer({
+							antialias: true
+						});
+						renderer.setClearColorHex(0x000000, 1);
+						renderer.setSize(window.innerWidth, window.innerHeight);
+						renderer.autoClear = true;
+						THREEx.WindowResize(renderer, camera);
+
+						container.appendChild(renderer.domElement);
+						has_gl = true;
+					} catch (e) {
+						// need webgl
+						document.getElementById('info').innerHTML =
+							"<P><BR><B>Note.</B> You need a modern browser that supports WebGL for this to run the way it is intended.<BR>For example. <a href='http://www.google.com/landing/chrome/beta/' target='_blank'>Google Chrome 9+</a> or <a href='http://www.mozilla.com/firefox/beta/' target='_blank'>Firefox 4+</a>.<BR><BR>If you are already using one of those browsers and still see this message, it's possible that you<BR>have old blacklisted GPU drivers. Try updating the drivers for your graphic card.<BR>Or try to set a '--ignore-gpu-blacklist' switch for the browser.</P><CENTER><BR><img src='../general/WebGL_logo.png' border='0'></CENTER>";
+						document.getElementById('info').style.display = "block";
+						return;
+					}
+
+				}
+
+				function onDocumentMouseMove(event) {
+
+					event.preventDefault();
+
+					var windowHalfX = window.innerWidth >> 1;
+					var windowHalfY = window.innerHeight >> 1;
+
+					mouseX = (event.clientX - windowHalfX);
+					mouseY = (event.clientY - windowHalfY);
+
+				}
+
+				function getRandomPointOnparticles(r) {
+					var angle = Math.random() * Math.PI * 2;
+					var u = Math.random() * 2 - 1;
+
+					var v = new THREE.Vector3(Math.cos(angle) * Math.sqrt(1 - Math.pow(u, 2)) * r, Math.sin(angle) * Math.sqrt(1 -
+						Math.pow(u, 2)) * r, u * r);
+					return v;
+				}
+
+				function tweenUp() {
+
+					if (switchCount % 2 == 1) {
+						uniforms.direction.value = 0.0;
+					} else {
+						uniforms.direction.value = 1.0;
+					}
+
+					++switchCount;
+
+					var tween = new TWEEN.Tween(uniforms.amplitude).to({
+						value: 1
+					}, 8000).easing(TWEEN.Easing.Back.EaseInOut).delay(200).onComplete(tweenDown);
+					tween.start();
+
+				}
+
+				function tweenDown() {
+
+					var tween = new TWEEN.Tween(uniforms.amplitude).to({
+						value: 0
+					}, 4000).easing(TWEEN.Easing.Back.EaseInOut).delay(4500).onComplete(tweenUp);
+					tween.start();
+
+					var rottween = new TWEEN.Tween(extraRotation).to({
+						value: extraRotation.value + Math.PI * 2
+					}, 12000).easing(TWEEN.Easing.Quintic.EaseInOut).delay(4000);
+					rottween.start();
+				}
+
+				function animate() {
+
+					requestAnimationFrame(animate);
+
+					render();
+
+				}
+
+				function render() {
+
+					time = new Date().getTime();
+					delta = time - oldTime;
+					oldTime = time;
+
+					if (isNaN(delta) || delta > 1000 || delta == 0) {
+						delta = 1000 / 60;
+					}
+
+					// particles
+					var extra;
+					for (var i = 0; i < attributes.size.value.length; i++) {
+						attributes.size.value[i] = baseSize[i] + baseSize[i] * Math.abs(Math.sin(0.1 * i + time * 0.001));
+					}
+
+					attributes.size.needsUpdate = true;
+					uniforms.time.value += 0.03;
+
+					tomouseX += (mouseX - tomouseX) / 30;
+					tomouseY += (mouseY - tomouseY) / 30;
+
+					particles.rotation.x = tomouseY / 1000;
+					particles.rotation.y = extraRotation.value + (tomouseX / 800);
+
+					TWEEN.update();
+
+					if (has_gl) {
+						renderer.render(scene, camera);
+					}
+
+				}
+			</script>
+</body>
+
+</html>

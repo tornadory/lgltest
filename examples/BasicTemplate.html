@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>3D测试模版</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+
+		<style>
+			body {
+				font-family: Monospace;
+				background-color: #000;
+				color: #fff;
+				margin: 0px;
+				overflow: hidden;
+			}
+		</style>
+
+	</head>
+
+	<body>
+
+		<!-- 引用文件加载器 -->
+		<script src="js/utils/lazyload.js"></script>
+
+		<!-- 主模版 -->
+		<script src="js/BasicTemplate.js"></script>
+		<script type="text/javascript">
+
+			// 加载必要的three.js的文件，并开始启动3D渲染
+			LazyLoad.js([
+
+			    		 "../build/three.js",
+						 "js/libs/tween.min.js",
+				         "js/Detector.js",
+				         "js/libs/inflate.min.js",
+				         "js/loaders/FBXLoader.js",
+				         "js/controls/OrbitControls.js",
+				         "js/libs/stats.min.js",
+						 "js/shaders/CopyShader.js",
+						 "js/postprocessing/EffectComposer.js",
+						 "js/postprocessing/ClearPass.js",
+						 "js/postprocessing/RenderPass.js",
+						 "js/postprocessing/CubeTexturePass.js",
+						 "js/postprocessing/ShaderPass.js"
+
+            ],startThree);
+
+            //动画循环
+            animate();
+
+		</script>
+
+	</body>
+</html>

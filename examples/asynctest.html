@@ -17,21 +17,271 @@
 </head>
 
 <body>
-
+  <div id="log"></div>
   <script>
+    setTimeout(((x) => {
+      console.log(x)
+    })(1), 10000);
 
-    function add() {
-      return function ()
+    function a() {
+      console.log("this in a", this);
+    }
+    a();
+    var b = {};
+    a.call(null);
+    a.call(b);
+
+    // (){
+    //   console.log("this in a", this);
+    // }(null);
+
+    var logPanel = document.getElementById('log');
+
+    function log(txt) {
+      logPanel.innerHTML += txt + ', ';
+      console.log(txt);
+    }
+
+    // for (var i = 0; i < 100; ++i) {
+    //   doHeavyJob();
+    //   log(i); // update UI in each loop
+
+    // }
+
+    function doHeavyJob() {
+      for (var j = 0; j < 10000000; ++j) {
+        Math.random();
       }
+    }
+
+    // for (var i = 0; i < 100; ++i) {
+    //   doHeavyJob();
+
+    //   (function (i) {
+    //     setTimeout(function () {
+    //       log(i);
+    //     }, 0);
+    //   })(i);
+    // }
+
+    for (var i = 0; i < 100; ++i) {
+      setTimeout(function () {
+        doHeavyJob();
+      }, 0);
+
+      (function (i) {
+        setTimeout(function () {
+          log(i);
+        }, 0);
+      })(i);
+    }
+
+    function getURL(URL) {
+      return new Promise(function (resolve, reject) {
+        var req = new XMLHttpRequest();
+        req.open('GET', URL, true);
+        req.responseType = "json";
+        req.setRequestHeader("Accept", "application/json");
+        req.onload = function () {
+          if (req.status === 200) {
+            resolve(req);
+          } else {
+            reject(new Error(req.statusText));
+          }
+        };
+        req.onerror = function () {
+          reject(new Error(req.statusText));
+        };
+        req.send();
+      });
+    }
+    var github = getURL('https://api.github.com');
+    var nodejs = getURL('https://nodejs.org/api/index.json');
+
+    Promise.all([github, nodejs]).then(function (results) {
+      results.forEach(function (result) {
+        console.log(result.status);
+      });
+    }).catch(function (err) {
+      console.log(err);
+    });
+
+    /**异步循环 */
+    doLoop();
+
+    function doLoop() {
+      try {
+        var result = Promise.resolve();
+
+        //forEach写法
+        // loopArr.forEach(
+        //   function (factory) {
+        //     result = result.then(factory);
+        //   }
+        // );
+
+        // Promise.all写法
+        Promise.all(loopArr.map(
+          function (factory) {
+            result = result.then(factory);
+          }
+        ));
+
+        result.then(logLoopResult);
+      } catch (err) {
+        console.log("loop failed");
+      }
+    }
+
+    /**循环结束后才会执行此方法 */
+    function logLoopResult() {
+      console.log("do Loop end");
+    }
+
+    var loopCount = 0;
+    var maxCount = 3;
+    var loopArr = [promiseFactry1, promiseFactry2, promiseFactry3];
+
+    function calllLoopPromise(reslove) {
+      setTimeout(
+        function () {
+          //此处loopCount++只是为了看下效果，实际不需要计数
+          loopCount++;
+          console.log(loopCount, maxCount);
+          return reslove("loopCount");
+        }, 1000
+      );
+    }
+
+    function promiseFactry1() {
+      return new Promise(calllLoopPromise);
+    }
+
+    function promiseFactry2() {
+      return new Promise(calllLoopPromise);
+    }
+
+    function promiseFactry3() {
+      return new Promise(calllLoopPromise);
+    }
+
+    console.log('a');
+
+    new Promise(function () {
+      console.log('b');
+      setTimeout(function () {
+        console.log('D');
+      }, 0);
+    });
+
+    // Other synchronous stuff, that possibly takes a very long time to process
+
+    console.log('c');
+
+    // function add() {
+    //   return function ()
+    //   }
+    // wait ms milliseconds
+    function wait(ms) {
+      return new Promise(r => setTimeout(r, ms));
+    }
+
+    //看似同步的代码，不要错失并行执行的机会
+    async function series() {
+      await wait(3000);
+      await wait(3000);
+      return "done!";
+    }
+
+    async function parallel() {
+      const wait1 = wait(3000);
+      const wait2 = wait(3000);
+      await wait1;
+      await wait2;
+      return "done!";
+    }
+
+    console.log("series ", series());
+    console.log("paralle", parallel());
+
+    async function hello() {
+      await wait(500);
+      return 'world';
+    }
+
+    async function foo() {
+      await wait(500);
+      throw Error('bar');
+    }
+
+    //在 processResult 内调用其自身来建立异步循环
+    function getResponseSize(url) {
+      return fetch(url).then(response => {
+        const reader = response.body.getReader();
+        let total = 0;
+
+        return reader.read().then(function processResult(result) {
+          if (result.done) return total;
+
+          const value = result.value;
+          total += value.length;
+          console.log('Received chunk', value);
+
+          return reader.read().then(processResult);
+        })
+      });
+    }
+
+    //简明性得到大幅提高  异步循环被替换成可靠却单调乏味的 while 循环
+    async function getResponseSize(url) {
+      const response = await fetch(url);
+      const reader = response.body.getReader();
+      let result = await reader.read();
+      let total = 0;
+
+      while (!result.done) {
+        const value = result.value;
+        total += value.length;
+        console.log('Received chunk', value);
+        // get the next result
+        result = await reader.read();
+      }
+
+      return total;
+    }
+
+    // map some URLs to json-promises
+    // const jsonPromises = urls.map(async url => {
+    //   const response = await fetch(url);
+    //   return response.json();
+    // });
+
+    // class Storage {
+    //   constructor() {
+    //     this.cachePromise = caches.open('avatars');
+    //   }
+
+    //   async getAvatar(name) {
+    //     const cache = await this.cachePromise;
+    //     return cache.match(`/avatars/${name}.jpg`);
+    //   }
+    // }
+
+    // const storage = new Storage();
+    // storage.getAvatar('jaffathecake').then(function () { });
 
     var funcs = [];
 
     for (let i = 0; i < 10; i++) {
-      funcs.push(function () { console.log(i); });
+      funcs.push(function () {
+        console.log(i);
+      });
     }
 
     for (var j = 0; j < 10; j++) {
-      funcs.push(function () { console.log(j); });
+      funcs.push(function () {
+        console.log(j);
+      });
     }
 
     funcs.forEach(function (func) {
@@ -55,6 +305,7 @@
     Foo.prototype.getName = function () {
       console.log("3");
     };
+
     function getName() {
       console.log("5");
     }
@@ -64,8 +315,8 @@
 
     //test
     Foo.getName(); //2
-    getName();     //4
-    getName();     //4
+    getName(); //4
+    getName(); //4
     new Foo.getName(); //2
     new Foo().getName(); //3
     new new Foo().getName(); //3
