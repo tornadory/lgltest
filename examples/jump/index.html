@@ -17,6 +17,7 @@
         height: 100%;
         padding: 0;
         margin: 0;
+	pointer-events: none;
     }
     #jump{
         width: 100%;
@@ -285,9 +286,14 @@
         originSpeed(pushTime, randomFlag)
     }
     window.addEventListener('mousedown', mouseDown, false)
-    window.addEventListener('touchstart', mouseDown, false)
+    //window.addEventListener('touchstart', mouseDown, false)
+    document.body.addEventListener('touchstart', mouseDown, false)
     window.addEventListener('mouseup', mouseUp, false)
-    window.addEventListener('touchend', mouseUp, false)
+    //window.addEventListener('touchend', mouseUp, false)
+    document.body.addEventListener('touchend', mouseUp, false)
+    document.body.addEventListener('touchmove', function(e){
+    e.preventDefault();
+    })
     window.addEventListener('contextmenu', function(e){
     e.preventDefault();
     })
