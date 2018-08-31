@@ -1,0 +1,808 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="content-type" content="text/html; charset=gb2312">
+    <title>裁剪 - 根据视锥体裁剪掉不可见的物体</title>
+    <script src="glMatrix-0.9.6.min.js"></script>
+    <script id="shader-vs" type="x-shader/x-fragment">
+        attribute vec3 v3Position; attribute vec4 inColor; attribute vec2 inUV; attribute vec3 inNormal; uniform mat4 proj; uniform
+        mat3 normalMat; uniform mat4 mvMat; uniform vec3 lightPos; uniform vec3 ambientColor; uniform vec3 lightColor; varying
+        vec4 outColor; varying vec2 outUV; void main(){ vec4 mvPosition = mvMat * vec4(v3Position,1.0); vec3 lightDir = normalize(lightPos
+        - mvPosition.xyz); vec3 transformedNormal = normalMat * inNormal; float lightWeight = max(dot(transformedNormal,lightDir),0.0);
+        gl_Position = proj * vec4(v3Position,1.0); outColor = inColor * vec4(ambientColor + lightColor * lightWeight,1.0);
+        outUV = inUV; }
+    </script>
+    <script id="shader-fs" type="x-shader/x-fragment">
+        precision mediump float; varying vec4 outColor; varying vec2 outUV; uniform sampler2D texture; void main(void) { gl_FragColor
+        = outColor * texture2D(texture,outUV); }
+    </script>
+    <script>
+        var webgl = null;
+        var vertexShaderObject = null;
+        var fragmentShaderObject = null;
+        var programObject = null;
+        var triangleBuffer = null;
+        var indexBuffer = null;
+        var indexSize = 0;
+
+        var v3PositionIndex;
+        var attrColor;
+        var attrUV;
+        var attrNormal;
+
+        var uniformProj;
+        var uniformTexture;
+        var uniformNor;
+        var uniformMV;
+        var uniformAmbient;
+        var uniformLightPos;
+        var uniformLightColor;
+        var textureHandle;
+
+        var projectMat = mat4.create();
+        var viewMat = mat4.create();
+
+        var cameraEye = new Float32Array(3);
+        var cameraCenter = new Float32Array(3); //看向的位置
+        var cameraUp = new Float32Array(3); //
+        var cameraLookAt = new Float32Array(3); //看向物体的单位向量
+        var cameraRight = new Float32Array(3);
+        var radius = 40;
+        var viewPortW = 0;
+        var viewPortH = 0;
+
+        var texWidth = 0;
+        var texHeigh = 0;
+        var times = (new Date()).valueOf();
+
+        var role = {}; //物体
+        role._position = new Float32Array(3);
+        role._target = new Float32Array(3);
+        role._speed = 5;
+        var nodeArray = new Array();
+
+        function webGLStart() {
+            //初始化
+            var canvas = init();
+
+            canvas.onmousedown = handleMouseDown;
+            canvas.onmouseup = handleMouseUp;
+            canvas.onmousemove = handleMouseMove;
+            canvas.onmousewheel = handleMouseWheel;
+            document.onkeydown = handleKeyDown;
+            document.onkeyup = handleKeyUp;
+
+            tick();
+        }
+
+        function init() {
+            var canvas = document.getElementById('myCanvas');
+
+            webgl = canvas.getContext("webgl");
+
+            webgl.viewport(0, 0, canvas.clientWidth, canvas.clientHeight);
+
+            viewPortW = canvas.clientWidth;
+            viewPortH = canvas.clientHeight;
+            texWidth = canvas.clientWidth;
+            texHeigh = canvas.clientHeight;
+
+            cameraEye[0] = 28.017817;
+            cameraEye[1] = 29.867514;
+            cameraEye[2] = 29.429590;
+
+            cameraCenter[0] = -0.84969789;
+            cameraCenter[1] = 1;
+            cameraCenter[2] = 0.56207591;
+
+            cameraUp[0] = 0;
+            cameraUp[1] = 1;
+            cameraUp[2] = 0;
+
+            role._position[0] = 0;
+            role._position[1] = 0;
+            role._position[2] = 0;
+
+            role._target[0] = 0;
+            role._target[1] = 0;
+            role._target[2] = 0;
+
+            calcDir();
+
+            mat4.perspective(45, canvas.clientWidth / canvas.clientHeight, 0.1, 1000.0, projectMat);
+
+            mat4.lookAt(cameraEye, cameraCenter, cameraUp, viewMat);
+
+            vertexShaderObject = webgl.createShader(webgl.VERTEX_SHADER);
+            fragmentShaderObject = webgl.createShader(webgl.FRAGMENT_SHADER);
+
+            webgl.shaderSource(vertexShaderObject, getShaderSource("shader-vs"));
+            webgl.shaderSource(fragmentShaderObject, getShaderSource("shader-fs"));
+
+            webgl.compileShader(vertexShaderObject);
+            webgl.compileShader(fragmentShaderObject);
+
+            if (!webgl.getShaderParameter(vertexShaderObject, webgl.COMPILE_STATUS)) {
+                var err = webgl.getShaderInfoLog(vertexShaderObject);
+                alert(err + "111");
+                return;
+            }
+            if (!webgl.getShaderParameter(fragmentShaderObject, webgl.COMPILE_STATUS)) {
+                var err = webgl.getShaderInfoLog(fragmentShaderObject);
+                alert(err + "22");
+                return;
+            }
+            programObject = webgl.createProgram();
+
+            webgl.attachShader(programObject, vertexShaderObject);
+            webgl.attachShader(programObject, fragmentShaderObject);
+            webgl.linkProgram(programObject);
+            if (!webgl.getProgramParameter(programObject, webgl.LINK_STATUS)) {
+                alert("error:programObject");
+                return;
+            }
+
+            webgl.useProgram(programObject);
+
+            uniformProj = webgl.getUniformLocation(programObject, "proj");
+            uniformTexture = webgl.getUniformLocation(programObject, "texture");
+            uniformAmbient = webgl.getUniformLocation(programObject, "ambientColor");
+            uniformLightPos = webgl.getUniformLocation(programObject, "lightPos");
+            uniformLightColor = webgl.getUniformLocation(programObject, "lightColor");
+            uniformNor = webgl.getUniformLocation(programObject, "normalMat");
+            uniformMV = webgl.getUniformLocation(programObject, "mvMat");
+
+
+            v3PositionIndex = webgl.getAttribLocation(programObject, "v3Position");
+            attrColor = webgl.getAttribLocation(programObject, "inColor");
+            attrUV = webgl.getAttribLocation(programObject, "inUV");
+            attrNormal = webgl.getAttribLocation(programObject, "inNormal");
+
+
+            webgl.uniform3f(uniformAmbient, 0.2, 0.2, 0.2);
+            webgl.uniform3f(uniformLightColor, 0.8, 0.8, 0.8);
+            webgl.uniform3f(uniformLightPos, 0, 0, -30.0);
+
+            //绘制地面数据
+            var gSize = 100;
+            var gPos = -10;
+            var rept = 20;
+
+            var boxVertex = [-1.0, -1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0, 0.0, 0.0, 1,
+                1.0, -1.0, 1.0, 1.0, 0.0, 1.0, 1.0, 1.0, 1.0, 0.0, 0.0, 1,
+                1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.0, 0.0, 1,
+
+                -1.0, -1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0, 0.0, 0.0, 1,
+                1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.0, 0.0, 1, -1.0, 1.0, 1.0, 0.0, 1.0, 1.0, 1.0, 1.0,
+                1.0, 0.0, 0.0, 1,
+
+                -1.0, -1.0, -1.0, 1.0, 0.0, 1.0, 1.0, 1.0, 1.0, 0.0, 0.0, -1, -1.0, 1.0, -1.0, 1.0, 1.0, 1.0, 1.0,
+                1.0, 1.0, 0.0, 0.0, -1,
+                1.0, 1.0, -1.0, 0.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.0, 0.0, -1,
+
+                -1.0, -1.0, -1.0, 1.0, 0.0, 1.0, 1.0, 1.0, 1.0, 0.0, 0.0, -1,
+                1.0, 1.0, -1.0, 0.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.0, 0.0, -1,
+                1.0, -1.0, -1.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0, 0.0, 0.0, -1,
+
+                -1.0, 1.0, -1.0, 0.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.0, 1.0, 0, -1.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 1.0,
+                1.0, 0.0, 1.0, 0,
+                1.0, 1.0, 1.0, 1.0, 0.0, 1.0, 1.0, 1.0, 1.0, 0.0, 1.0, 0,
+
+                -1.0, 1.0, -1.0, 0.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.0, 1.0, 0,
+                1.0, 1.0, 1.0, 1.0, 0.0, 1.0, 1.0, 1.0, 1.0, 0.0, 1.0, 0,
+                1.0, 1.0, -1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.0, 1.0, 0,
+
+                -1.0, -1.0, -1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.0, -1.0, 0,
+                1.0, -1.0, -1.0, 0.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.0, -1.0, 0,
+                1.0, -1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0, 0.0, -1.0, 0,
+
+                -1.0, -1.0, -1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.0, -1.0, 0,
+                1.0, -1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0, 0.0, -1.0, 0, -1.0, -1.0, 1.0, 1.0, 0.0, 1.0, 1.0,
+                1.0, 1.0, 0.0, -1.0, 0,
+
+                1.0, -1.0, -1.0, 1.0, 0.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.0, 0,
+                1.0, 1.0, -1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.0, 0,
+                1.0, 1.0, 1.0, 0.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.0, 0,
+
+                1.0, -1.0, -1.0, 1.0, 0.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.0, 0,
+                1.0, 1.0, 1.0, 0.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.0, 0,
+                1.0, -1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.0, 0,
+
+                -1.0, -1.0, -1.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0, -1.0, 0.0, 0, -1.0, -1.0, 1.0, 1.0, 0.0, 1.0, 1.0,
+                1.0, 1.0, -1.0, 0.0, 0, -1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, -1.0, 0.0, 0,
+
+                -1.0, -1.0, -1.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0, -1.0, 0.0, 0, -1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0,
+                1.0, 1.0, -1.0, 0.0, 0, -1.0, 1.0, -1.0, 0.0, 1.0, 1.0, 1.0, 1.0, 1.0, -1.0, 0.0, 0,
+
+                -gSize, gPos, -gSize, 0.0, 0.0, 0.5, 0.5, 0.5, 0.5, 0.0, 1.0, 0,
+                gSize, gPos, -gSize, rept, 0.0, 0.5, 0.5, 0.5, 0.5, 0.0, 1.0, 0,
+                gSize, gPos, gSize, rept, rept, 0.5, 0.5, 0.5, 0.5, 0.0, 1.0, 0,
+
+                -gSize, gPos, -gSize, 0.0, 0.0, 0.5, 0.5, 0.5, 0.5, 0.0, 1.0, 0,
+                gSize, gPos, gSize, rept, rept, 0.5, 0.5, 0.5, 0.5, 0.0, 1.0, 0, -gSize, gPos, gSize, 0.0, rept,
+                0.5, 0.5, 0.5, 0.5, 0.0, 1.0, 0,
+            ];
+            //随机位置，
+            for (var i = 0; i < 100; ++i) {
+                var pos = vec3.create();
+
+                pos[0] = rangeRandom(-50, 50);
+                pos[1] = 0;
+                pos[2] = rangeRandom(-50, 50);
+                var node = new Node(pos, 0.70); //0.70 是根号1/2；用0.5作为它的半径（大概设的数据）
+                nodeArray.push(node);
+            }
+
+            triangleBuffer = webgl.createBuffer();
+            webgl.bindBuffer(webgl.ARRAY_BUFFER, triangleBuffer);
+            webgl.bufferData(webgl.ARRAY_BUFFER, new Float32Array(boxVertex), webgl.STATIC_DRAW);
+
+            textureHandle = initTexture("test.gif");
+
+            return canvas;
+        }
+
+        function initTexture(imageFile) {
+            var texture;
+            texture = webgl.createTexture();
+            texture.image = new Image();
+            texture.image.src = imageFile;
+            texture.image.onload = function () {
+                handleLoadedTexture(texture);
+            }
+            return texture;
+        }
+
+        function handleLoadedTexture(texture) {
+            webgl.bindTexture(webgl.TEXTURE_2D, texture);
+            webgl.texImage2D(webgl.TEXTURE_2D, 0, webgl.RGBA, webgl.RGBA, webgl.UNSIGNED_BYTE, texture.image);
+            webgl.texParameteri(webgl.TEXTURE_2D, webgl.TEXTURE_MAG_FILTER, webgl.LINEAR);
+            webgl.texParameteri(webgl.TEXTURE_2D, webgl.TEXTURE_MIN_FILTER, webgl.LINEAR);
+            webgl.texParameteri(webgl.TEXTURE_2D, webgl.TEXTURE_WRAP_S, webgl.REPEAT);
+            webgl.texParameteri(webgl.TEXTURE_2D, webgl.TEXTURE_WRAP_T, webgl.REPEAT);
+
+            webgl.bindTexture(webgl.TEXTURE_2D, null);
+        }
+
+        function Node(pos, radius) {
+            this._pos = pos;
+            this._radius = radius;
+        }
+
+        function rangeRandom(fLow, fHeight) {
+            return (fHeight - fLow) * Math.random() + fLow;
+        }
+
+        function getShaderSource(scriptID) {
+            var shaderScript = document.getElementById(scriptID);
+            if (shaderScript == null) return "";
+
+            //读取里面的字符串
+            var sourceCode = "";
+            var child = shaderScript.firstChild;
+            while (child) {
+                if (child.nodeType == child.TEXT_NODE) sourceCode += child.textContent;
+                child = child.nextSibling;
+            }
+            return sourceCode;
+        }
+        //计算相机看向物体的单位向量
+        function calcDir() {
+            vec3.subtract(cameraCenter, cameraEye, cameraLookAt);
+            vec3.normalize(cameraLookAt, cameraLookAt);
+        }
+        var varRotFBOX = 0;
+        var varRotFBOY = 0;
+        var rButtonDown = false;
+        var lastMouseX = 0;
+
+        function renderScene() {
+            var elspsed = (new Date()).valueOf() - times;
+            times = (new Date()).valueOf();
+
+            updateTarget(elspsed);
+            cameraCenter = role._position;
+            updateCamera();
+            varRotFBOX += 1;
+            //! 这里使用 fbo
+            webgl.bindFramebuffer(webgl.FRAMEBUFFER, null);
+            webgl.viewport(0, 0, texWidth, texHeigh);
+
+            //! 设置重绘背景的颜色
+            webgl.clearColor(0.0, 0.0, 0.0, 1.0);
+            //! 执行绘制，即将背景清空成制定的颜色(clearColor)
+            webgl.clear(webgl.COLOR_BUFFER_BIT | webgl.DEPTH_BUFFER_BIT);
+            webgl.enable(webgl.DEPTH_TEST);
+            //! 指定绘制所使用的顶点数据 从 该缓冲区中获取
+            webgl.bindBuffer(webgl.ARRAY_BUFFER, triangleBuffer);
+
+            var mvp = mat4.create();
+            var matTrans = mat4.create();
+            var matModel = mat4.create();
+            var matRotX = mat4.create();
+            var matROtY = mat4.create();
+            var matRot = mat4.create();
+            var matTemp = mat4.create();
+            var matMV = mat4.create();
+
+            mat4.identity(matRot);
+            mat4.identity(matRotX);
+            mat4.identity(matROtY);
+            mat4.identity(matTrans);
+            mat4.identity(matModel);
+            mat4.identity(mvp);
+            mat4.identity(matTemp);
+            mat4.identity(matMV);
+
+            webgl.activeTexture(webgl.TEXTURE0);
+            webgl.bindTexture(webgl.TEXTURE_2D, textureHandle);
+            webgl.uniform1i(uniformTexture, 0);
+
+            mat4.translate(matTrans, [role._position[0], 0.0, role._position[2]]);
+
+            //varRot += 1;
+
+            mat4.rotate(matROtY, degToRad(varRotFBOY), [0.0, 1.0, 0.0]);
+
+            mat4.rotate(matRotX, degToRad(varRotFBOX), [1.0, 0.0, 0.0]);
+
+            mat4.multiply(matROtY, matRotX, matRot);
+
+            mat4.multiply(matTrans, matRot, matModel);
+
+            mat4.multiply(projectMat, viewMat, matTemp);
+
+            mat4.multiply(matTemp, matModel, mvp);
+
+            //! 计算观察与模型矩阵
+            mat4.multiply(viewMat, matTrans, matMV);
+
+
+
+
+            var normalMatrix = mat3.create();
+            mat4.toInverseMat3(matMV, normalMatrix);
+            mat3.transpose(normalMatrix);
+            webgl.uniformMatrix3fv(uniformNor, false, normalMatrix);
+            webgl.uniformMatrix4fv(uniformMV, false, matMV);
+
+
+            webgl.uniformMatrix4fv(uniformProj, false, mvp);
+
+            webgl.enableVertexAttribArray(v3PositionIndex);
+            webgl.enableVertexAttribArray(attrColor);
+            webgl.enableVertexAttribArray(attrUV);
+            webgl.enableVertexAttribArray(attrNormal);
+
+            webgl.vertexAttribPointer(v3PositionIndex, 3, webgl.FLOAT, false, 4 * 12, 0);
+            webgl.vertexAttribPointer(attrUV, 2, webgl.FLOAT, false, 4 * 12, 4 * 3);
+            webgl.vertexAttribPointer(attrColor, 4, webgl.FLOAT, false, 4 * 12, 4 * 5);
+            webgl.vertexAttribPointer(attrNormal, 3, webgl.FLOAT, false, 4 * 12, 4 * 9);
+
+            webgl.drawArrays(webgl.TRIANGLES, 0, 36);
+
+            mat4.multiply(projectMat, viewMat, mvp);
+
+            webgl.uniformMatrix4fv(uniformProj, false, mvp);
+            webgl.drawArrays(webgl.TRIANGLES, 36, 6);
+
+            var frust = new Frustum();
+            var mvpIv = mat4.create();
+            mat4.transpose(mvp, frust);
+            frust.load(frust);
+
+            for (var i = 0; i < nodeArray.length; ++i) {
+                var node = nodeArray[i];
+                if (isDown) {
+                    //源位置到点的向量
+                    var v0 = vec3.create();
+
+                    var y = vec3.create([origin[0], origin[1], origin[2]]);
+
+                    vec3.subtract(node._pos, y, v0);
+                    //射线向量
+                    var v1 = vec3.create();
+                    var f = vec3.create([endRay[0], endRay[1], endRay[2]]);
+                    vec3.subtract(f, origin, v1);
+
+                    var ll = vec3.cross(v0, v1);
+                    ll[0] = ll[0] / Math.abs(vec3.length(v1));
+                    ll[1] = ll[1] / Math.abs(vec3.length(v1));
+                    ll[2] = ll[2] / Math.abs(vec3.length(v1));
+                    var d = vec3.length(ll);
+                    console.log(d)
+                    if (d < 0.7) {
+                        alert(1111111111);
+                    }
+                }
+
+                if (frust.sphereInFrustum(node._pos, node._radius)) {
+                    mat4.identity(matTrans);
+                    mat4.translate(matTrans, [node._pos[0], 3.0, node._pos[2]]);
+                    mat4.multiply(mvp, matTrans, matTemp);
+
+                    webgl.uniformMatrix4fv(uniformProj, false, matTemp);
+                    webgl.drawArrays(webgl.TRIANGLES, 0, 36);
+                } else {
+                    var xx = 0;
+                }
+            }
+        }
+        //锥视体
+        function Frustum() {
+            this._planes = new Array();
+
+            this.load = function (dataPtr) {
+                this._planes[0] = new Plane(dataPtr[12] - dataPtr[0], dataPtr[13] - dataPtr[1], dataPtr[14] -
+                    dataPtr[2], dataPtr[15] - dataPtr[3]);
+                this._planes[1] = new Plane(dataPtr[12] + dataPtr[0], dataPtr[13] + dataPtr[1], dataPtr[14] +
+                    dataPtr[2], dataPtr[15] + dataPtr[3]);
+
+                this._planes[2] = new Plane(dataPtr[12] - dataPtr[4], dataPtr[13] - dataPtr[5], dataPtr[14] -
+                    dataPtr[6], dataPtr[15] - dataPtr[7]);
+                this._planes[3] = new Plane(dataPtr[12] + dataPtr[4], dataPtr[13] + dataPtr[5], dataPtr[14] +
+                    dataPtr[6], dataPtr[15] + dataPtr[7]);
+
+                this._planes[4] = new Plane(dataPtr[12] - dataPtr[8], dataPtr[13] - dataPtr[9], dataPtr[14] -
+                    dataPtr[10], dataPtr[15] - dataPtr[11]);
+                this._planes[5] = new Plane(dataPtr[12] + dataPtr[8], dataPtr[13] + dataPtr[9], dataPtr[14] +
+                    dataPtr[10], dataPtr[15] + dataPtr[11]);
+
+            }
+            //计算包围球是否在椎体里
+            this.sphereInFrustum = function (pos, radius) {
+                for (var i = 0; i < 6; i++) {
+                    if (this._planes[i].distance(pos) <= -radius)
+                        return false;
+                }
+                return true;
+            }
+        }
+
+        function degToRad(degrees) {
+            return degrees * Math.PI / 180;
+        }
+
+        /**
+         * 更新相机
+         */
+        function updateCamera() {
+            cameraEye[0] = cameraCenter[0] - cameraLookAt[0] * radius;
+            cameraEye[1] = cameraCenter[1] - cameraLookAt[1] * radius;
+            cameraEye[2] = cameraCenter[2] - cameraLookAt[2] * radius;
+            //规格化up坐标
+            var upDir = vec3.normalize(cameraUp);
+
+            mat4.lookAt(cameraEye, cameraCenter, upDir, viewMat);
+        }
+
+        function updateTarget(elapsed) {
+            //如果目标点等于 现在的位置 直接返回
+            if (role._target[0] == role._position[0] &&
+                role._target[1] == role._position[1] &&
+                role._target[2] == role._position[2]) {
+                return;
+            }
+            //就算需要偏移的距离
+            var offset = new Float32Array(3); //偏移距离
+            var dir = new Float32Array(3); //偏移方向的单位向量
+            offset[0] = role._target[0] - role._position[0]; //目标位置减去当前物体位置，等于需要移动位置
+            offset[1] = role._target[1] - role._position[1];
+            offset[2] = role._target[2] - role._position[2];
+
+            vec3.normalize(offset, dir);
+            var dist = vec3.length(offset); //长度
+            //如果当前距离大于 两秒所走的距离，则移动它;否则把目标位置给物体
+            if (dist > role._speed * elapsed / 1000.0 * 2) {
+                var dist = role._speed * elapsed / 1000.0; //需要移动的距离
+                //y轴固定
+                role._position[0] += dir[0] * dist;
+                role._position[2] += dir[2] * dist;
+            } else {
+                role._position[0] = role._target[0];
+                role._position[1] = role._target[1];
+                role._position[2] = role._target[2];
+            }
+        }
+
+        function Plane(x, y, z, o) {
+            this._normal = vec3.create();
+            this._distance = 0.0;
+            this._normal[0] = x;
+            this._normal[1] = y;
+            this._normal[2] = z;
+            this._distance = o;
+
+            //求任意一个点到这个点的距离
+            this.distance = function (pos) {
+                return vec3.dot(this._normal, pos) + this._distance;
+            }
+        }
+
+        function tick() {
+            requestAnimFrame(tick);
+            renderScene();
+        }
+        window.requestAnimFrame = (function () {
+            return window.requestAnimationFrame ||
+                window.webkitRequestAnimationFrame ||
+                window.mozRequestAnimationFrame ||
+                window.oRequestAnimationFrame ||
+                window.msRequestAnimationFrame ||
+                function (callback, element) {
+                    window.setTimeout(callback, 10);
+                };
+        })();
+        var minWorld;
+        var maxWorld;
+        var isDown = false;
+        var origin = vec3.create();
+        var endRay = vec3.create();
+
+        function handleMouseDown(event) {
+            isDown = true;
+            if (event.button == 0) {
+                //! 计算射线
+                var minWorld = new Float32Array(3);
+                var maxWorld = new Float32Array(3);
+
+                var screen = new Float32Array(3);
+                screen[0] = event.offsetX;
+                screen[1] = event.offsetY;
+                screen[2] = 0.0;
+
+                var screen1 = new Float32Array(3);
+
+                screen1[0] = event.offsetX;
+                screen1[1] = event.offsetY;
+                screen1[2] = 1.0;
+
+                minWorld = screenToWorld(screen);
+                maxWorld = screenToWorld(screen1);
+                vec3.set(minWorld, origin);
+                vec3.set(maxWorld, endRay);
+                console.log(minWorld);
+                /*               var dir         =   new Float32Array(3);
+                               dir[0]  =   maxWorld[0] - minWorld[0];
+                               dir[1]  =   maxWorld[1] - minWorld[1];
+                               dir[2]  =   maxWorld[2] - minWorld[2];
+                               vec3.normalize(dir);
+
+                               //! 计算时间
+                               var tm      =   Math.abs(minWorld[1] / dir[1]);
+                               var target  =   new Float32Array(3);
+                               target[0] = minWorld[0] + tm * dir[0];
+                               target[1] = minWorld[1] + tm * dir[1];
+                               target[2] = minWorld[2] + tm * dir[2];*/
+
+                //moveTo(target);
+            } else {
+                rButtonDown = true;
+                lastMouseX = event.offsetX;
+                console.log("rButtonDown = true;");
+            }
+        }
+
+        function handleMouseUp() {
+            rButtonDown = false;
+            isDown = false;
+        }
+
+        function handleMouseMove(event) {
+            if (rButtonDown) {
+                //console.log("handleMouseMove;");
+                var offsetX = event.offsetX - lastMouseX;
+                lastMouseX = event.offsetX;
+                cameraLookAt = rotateY(cameraLookAt, offsetX);
+            }
+        }
+
+        function handleMouseWheel(event) {
+            if (event.wheelDelta > 0)
+                radius *= 1.1;
+            else
+                radius *= 0.9;
+        }
+
+        function handleKeyDown(event) {
+            if (String.fromCharCode(event.keyCode) == 'W') {
+
+                cameraEye[0] += cameraLookAt[0] * 1;
+                cameraEye[1] += 0;
+                cameraEye[2] += cameraLookAt[2] * 1;
+
+                cameraCenter[0] = cameraEye[0] + cameraLookAt[0] * 1;
+                cameraCenter[1] = cameraEye[1] + 0;
+                cameraCenter[2] = cameraEye[2] + cameraLookAt[2] * 1;
+
+                mat4.lookAt(cameraEye, cameraCenter, cameraUp, viewMat);
+
+            }
+            if (String.fromCharCode(event.keyCode) == 'S') {
+                cameraEye[0] -= cameraLookAt[0] * 1;
+                cameraEye[1] -= 0;
+                cameraEye[2] -= cameraLookAt[2] * 1;
+
+                cameraCenter[0] = cameraEye[0] + cameraLookAt[0] * 1;
+                cameraCenter[1] = cameraEye[1] + 0;
+                cameraCenter[2] = cameraEye[2] + cameraLookAt[2] * 1;
+
+                mat4.lookAt(cameraEye, cameraCenter, cameraUp, viewMat);
+            }
+            if (String.fromCharCode(event.keyCode) == 'A') {
+                var right = vec3.create();
+                vec3.cross(cameraUp, cameraLookAt, right);
+                vec3.normalize(right, right);
+
+                right[0] *= 1;
+                right[1] *= 1;
+                right[2] *= 1;
+
+                cameraEye[0] += right[0];
+                cameraEye[1] += right[1];
+                cameraEye[2] += right[2];
+
+                cameraCenter[0] += right[0];
+                cameraCenter[1] += right[1];
+                cameraCenter[2] += right[2];
+
+                mat4.lookAt(cameraEye, cameraCenter, cameraUp, viewMat);
+
+            }
+            if (String.fromCharCode(event.keyCode) == 'D') {
+                var right = vec3.create();
+                vec3.cross(cameraUp, cameraLookAt, right);
+                vec3.normalize(right, right);
+                right[0] *= -1;
+                right[1] *= -1;
+                right[2] *= -1;
+
+                cameraEye[0] += right[0];
+                cameraEye[1] += right[1];
+                cameraEye[2] += right[2];
+
+                cameraCenter[0] += right[0];
+                cameraCenter[1] += right[1];
+                cameraCenter[2] += right[2];
+
+                mat4.lookAt(cameraEye, cameraCenter, cameraUp, viewMat);
+            }
+        }
+
+        function handleKeyUp(event) {
+
+        }
+
+        function rotateY(v, angle) {
+            var res = new Float32Array(3)
+            res[0] = v[0];
+            res[1] = v[1];
+            res[2] = v[2];
+
+            var c = Math.cos(degToRad(angle));
+            var s = Math.sin(degToRad(angle));
+
+            res[0] = v[0] * c + v[2] * s;
+            res[2] = -v[0] * s + v[2] * c;
+            return res;
+        }
+
+        function moveTo(targetPos) {
+            role._target = targetPos;
+            role._target[1] = 0; //没有高度
+        }
+        /**
+         *   将屏幕坐标转化为世界坐标
+         */
+        function screenToWorld(screen) {
+            var v = new Float32Array(4);
+            var world = new Float32Array(4);
+            v[0] = screen[0];
+            v[1] = screen[1];
+            v[2] = screen[2];
+            v[3] = 1.0;
+
+            // map from viewport to 0 - 1
+            v[0] = (v[0]) / viewPortW;
+            v[1] = (viewPortH - v[1]) / viewPortH;
+            //v[1] = (v[1] - _viewPort.Y) / _viewPort.Height;
+
+            // map to range -1 to 1
+            v[0] = v[0] * 2.0 - 1.0;
+            v[1] = v[1] * 2.0 - 1.0;
+            v[2] = v[2] * 2.0 - 1.0;
+
+
+            var mvp = mat4.create();
+            var mvpInvert = mat4.create();
+            //! 计算mvp矩阵
+            mat4.multiply(projectMat, viewMat, mvp);
+
+            inverseEx(mvp, mvpInvert);
+
+            world[0] = v[0];
+            world[1] = v[1];
+            world[2] = v[2];
+            world[3] = v[3];
+            multiply(mvpInvert, v, world);
+
+            if (world[3] == 0.0) {
+                return world;
+            }
+            world[0] /= world[3];
+            world[1] /= world[3];
+            world[2] /= world[3];
+
+            return world;
+        }
+
+        function inverseEx(pData, resData) {
+            var subFactor00 = pData[10] * pData[15] - pData[14] * pData[11];
+            var subFactor01 = pData[9] * pData[15] - pData[13] * pData[11];
+            var subFactor02 = pData[9] * pData[14] - pData[13] * pData[10];
+            var subFactor03 = pData[8] * pData[15] - pData[12] * pData[11];
+            var subFactor04 = pData[8] * pData[14] - pData[12] * pData[10];
+            var subFactor05 = pData[8] * pData[13] - pData[12] * pData[9];
+            var subFactor06 = pData[6] * pData[15] - pData[14] * pData[7];
+            var subFactor07 = pData[5] * pData[15] - pData[13] * pData[7];
+            var subFactor08 = pData[5] * pData[14] - pData[13] * pData[6];
+            var subFactor09 = pData[4] * pData[15] - pData[12] * pData[7];
+            var subFactor10 = pData[4] * pData[14] - pData[12] * pData[6];
+            var subFactor11 = pData[5] * pData[15] - pData[13] * pData[7];
+            var SubFactor12 = pData[4] * pData[13] - pData[12] * pData[5];
+            var subFactor13 = pData[6] * pData[11] - pData[10] * pData[7];
+            var subFactor14 = pData[5] * pData[11] - pData[9] * pData[7];
+            var subFactor15 = pData[5] * pData[10] - pData[9] * pData[6];
+            var subFactor16 = pData[4] * pData[11] - pData[8] * pData[7];
+            var subFactor17 = pData[4] * pData[10] - pData[8] * pData[6];
+            var subFactor18 = pData[4] * pData[9] - pData[8] * pData[5];
+
+            resData[0] = +pData[5] * subFactor00 - pData[6] * subFactor01 + pData[7] * subFactor02;
+            resData[1] = -pData[4] * subFactor00 + pData[6] * subFactor03 - pData[7] * subFactor04;
+            resData[2] = +pData[4] * subFactor01 - pData[5] * subFactor03 + pData[7] * subFactor05;
+            resData[3] = -pData[4] * subFactor02 + pData[5] * subFactor04 - pData[6] * subFactor05;
+
+            resData[4] = -pData[1] * subFactor00 + pData[2] * subFactor01 - pData[3] * subFactor02;
+            resData[5] = +pData[0] * subFactor00 - pData[2] * subFactor03 + pData[3] * subFactor04;
+            resData[6] = -pData[0] * subFactor01 + pData[1] * subFactor03 - pData[3] * subFactor05;
+            resData[7] = +pData[0] * subFactor02 - pData[1] * subFactor04 + pData[2] * subFactor05;
+
+            resData[8] = +pData[1] * subFactor06 - pData[2] * subFactor07 + pData[3] * subFactor08;
+            resData[9] = -pData[0] * subFactor06 + pData[2] * subFactor09 - pData[3] * subFactor10;
+            resData[10] = +pData[0] * subFactor11 - pData[1] * subFactor09 + pData[3] * SubFactor12;
+            resData[11] = -pData[0] * subFactor08 + pData[1] * subFactor10 - pData[2] * SubFactor12;
+
+            resData[12] = -pData[1] * subFactor13 + pData[2] * subFactor14 - pData[3] * subFactor15;
+            resData[13] = +pData[0] * subFactor13 - pData[2] * subFactor16 + pData[3] * subFactor17;
+            resData[14] = -pData[0] * subFactor14 + pData[1] * subFactor16 - pData[3] * subFactor18;
+            resData[15] = +pData[0] * subFactor15 - pData[1] * subFactor17 + pData[2] * subFactor18;
+
+            var determinant = +pData[0] * resData[0] +
+                pData[1] * resData[4] +
+                pData[2] * resData[8] +
+                pData[3] * resData[12];
+
+            for (var i = 0; i < 16; ++i)
+                resData[i] /= determinant;
+        }
+
+
+        function multiply(mat, v, outv) {
+            outv[0] = mat[0] * v[0] + mat[1] * v[1] + mat[2] * v[2] + mat[3] * v[3];
+            outv[1] = mat[4] * v[0] + mat[5] * v[1] + mat[6] * v[2] + mat[7] * v[3];
+            outv[2] = mat[8] * v[0] + mat[9] * v[1] + mat[10] * v[2] + mat[11] * v[3];
+            outv[3] = mat[12] * v[0] + mat[13] * v[1] + mat[14] * v[2] + mat[15] * v[3];
+        }
+    </script>
+</head>
+
+<body onload="webGLStart()">
+    <!--
+使用包围盒和包围球 把不可见的物体进行剔除不绘制
+-->
+    <canvas id="myCanvas" style="border: 1px solid red;" width='600' height='600'></canvas>
+</body>
+
+</html>

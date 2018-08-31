@@ -29,6 +29,7 @@
         position: absolute;
         top: 0;
         left: 0;
+	pointer-events: none;
     }
     .gameOver{
         display: none;
@@ -39,6 +40,7 @@
         position: absolute;
         top: 0;
         left: 0;
+	pointer-events: none;
     }
 </style>
 <body>
@@ -286,6 +288,9 @@
     window.addEventListener('touchstart', mouseDown, false)
     window.addEventListener('mouseup', mouseUp, false)
     window.addEventListener('touchend', mouseUp, false)
+    window.addEventListener('contextmenu', function(e){
+    e.preventDefault();
+    })
 
     const render = () => {
         renderer.render(scene,camera)
