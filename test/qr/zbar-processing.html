@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>JS in-browser barcode reader</title>
+    <style type="text/css">
+        body>div {
+            position: relative;
+            width: 320px;
+            height: 240px;
+        }
+
+        video {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 320px;
+            height: 240px;
+        }
+
+        div#inner {
+            position: absolute;
+            margin: 0 auto;
+            top: 0;
+            left: 0;
+            width: 260px;
+            height: 180px;
+            border: 30px solid rgba(64, 64, 64, 0.5);
+            zindex: 1000;
+        }
+
+        div#redline {
+            position: absolute;
+            top: 120px;
+            width: 320px;
+            height: 2px;
+            background-color: rgba(255, 0, 0, 0.3);
+            zindex: 1001;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Barcode scanner</h1>
+    <p>Based on <a href="https://github.com/yurydelendik/zbarjs">zbarjs</a> - Code: <a href="https://gist.github.com/jazzido/9435670">https://gist.github.com/jazzido/9435670</a></p>
+    <div>
+        <video autoplay></video>
+        <div id="inner"></div>
+        <div id="redline">
+        </div>
+    </div>
+    <ul id="decoded">
+    </ul>
+    <canvas style="display:none;"></canvas>
+
+    <script type="text/javascript">
+        var video = document.querySelector('video');
+        var canvas = document.querySelector('canvas');
+        var ctx = canvas.getContext('2d');
+        var localMediaStream = null;
+        var list = document.querySelector('ul#decoded');
+        var worker = new Worker('zbar-processor.js');
+        worker.onmessage = function (event) {
+            if (event.data.length == 0) return;
+            var d = event.data[0];
+            var entry = document.createElement('li');
+            entry.appendChild(document.createTextNode(d[2] + ' (' + d[0] + ')'));
+            list.appendChild(entry);
+        };
+
+        function snapshot() {
+            if (localMediaStream === null) return;
+            var k = (320 + 240) / (video.videoWidth + video.videoHeight);
+            canvas.width = Math.ceil(video.videoWidth * k);
+            canvas.height = Math.ceil(video.videoHeight * k);
+            var ctx = canvas.getContext('2d');
+            ctx.drawImage(video, 0, 0, video.videoWidth, video.videoHeight,
+                0, 0, canvas.width, canvas.height);
+            var data = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            worker.postMessage(data);
+        }
+        setInterval(snapshot, 500);
+        navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia ||
+            navigator.msGetUserMedia;
+        window.URL = window.URL || window.webkitURL || window.mozURL || window.msURL;
+        if (navigator.getUserMedia) {
+            navigator.getUserMedia({
+                    video: true
+                },
+                function (stream) { // success callback
+                    if (video.mozSrcObject !== undefined) {
+                        video.mozSrcObject = stream;
+                    } else {
+                        video.src = (window.URL && window.URL.createObjectURL(stream)) || stream;
+                    }
+                    localMediaStream = true;
+                },
+                function (error) {
+                    console.error(error);
+                });
+        } else {}
+    </script>
+</body>
+
+</html>

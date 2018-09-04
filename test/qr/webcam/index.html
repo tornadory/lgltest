@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <title>getUserMedia</title>
+  <style>
+    video {
+      object-fit: cover;
+    }
+
+    @media (min-width: 1000px) {
+      video {
+        height: 480px;
+      }
+    }
+  </style>
+
+</head>
+
+<body>
+
+  <div id="container">
+    <video autoplay playsinline></video>
+    <button onclick="toggleStream()">Toggle Stream</button>
+  </div>
+
+  <script>
+    'use strict';
+
+    var streaming = false;
+    var constraints = {
+      video: true
+    };
+
+    var video = document.querySelector('video');
+
+    function handleSuccess(stream) {
+      window.stream = stream; // only to make stream available to console
+      video.srcObject = stream;
+      streaming = true;
+    }
+
+    function handleError(error) {
+      console.log('getUserMedia error: ', error);
+    }
+
+    function toggleStream() {
+      if (streaming) {
+        stopStream();
+      } else {
+        restartStream();
+      }
+    }
+
+    function stopStream() {
+      if (window.stream && window.stream.active) {
+        window.stream.getTracks()[0].stop();
+        window.stream = undefined;
+        streaming = false;
+      }
+    }
+
+    function restartStream() {
+      navigator.mediaDevices.getUserMedia(constraints).
+      then(handleSuccess).catch(handleError);
+    }
+
+    navigator.mediaDevices.getUserMedia(constraints).
+    then(handleSuccess).catch(handleError);
+  </script>
+
+</body>
+
+</html>
