@@ -1,0 +1,611 @@
+
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7 oldie"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8 oldie"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9 oldie"> <![endif]-->
+<!--[if IE 9]>         <html class="no-js ie9 oldie"> <![endif]-->
+<!--[if gt IE 9]><!--> 
+<html class="no-js"> <!--<![endif]-->
+
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <meta name="google-site-verification" content="AZOmBkSh9Pz6C6kFQcYmYCCghuzdWAu1G2VAIP1tUB8" />
+
+        
+        <title>Cartelle - Death Paint</title>
+        <meta name="keywords" content="cartelle interactive digital amsterdam studio creative animation website design development technology 3d webgl gaming" />
+        <meta name="author" content="Cartelle Interactive" />
+        <meta name="description" content="'Death Paint' is WebGL 3D texture painting with a human skull as a blank canvas. ">
+        <meta property="og:site_name" content=""/>
+        <meta property="og:title" content="Cartelle - Death Paint"/>
+        <meta property="og:image" content="http://cdn.cartelle.nl/cartelle2015/img/ogshare_generic.jpg"/>
+        <meta property="og:description" content="'Death Paint' is WebGL 3D texture painting with a human skull as a blank canvas. " />
+        <link rel="shortcut x-icon" type="image/x-icon" href="favicon.ico">
+
+        <link rel="stylesheet" href="http://www.cartelle.nl/css/normalize.min.css">
+        <link rel="stylesheet" href="http://www.cartelle.nl/css/site.css">
+                
+        <script>
+            (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o), m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m) })(window,document,'script','//www.google-analytics.com/analytics.js','gtrack');
+            gtrack('create', 'UA-25024961-5');
+            //gtrack('send', 'pageview');
+        </script>
+
+        <style>
+
+            
+        </style>
+
+    </head>
+
+    <body>
+
+        <script type="text/template" id="project-template">
+
+            <div class="scrollable">
+                <div class="project">
+                    
+                    <div class="details-mask">
+                        <div class="contents">
+
+                            <div class="title-container black">
+                                <h1><%=htmlTitle%></h1>
+                            </div>
+                        
+                            <div class="details">
+                                <div class="left"><%=detailColLeft%></div>
+                                <div class="right">
+                                    <%=detailColRight%>
+                                    <a href="#" class="back-to-top">back to top</a>
+                                </div>
+                            </div>
+
+                            <footer>
+                                <div class="left-column">
+                                    <span class="description">We are a digital creative studio from Amsterdam</span>
+                                    <a class="learn-more" href="#">learn more</a>
+                                </div>
+
+                                <div class="right-column">
+                                    <ul>
+                                        <li>follow us</li>
+                                        <li><a href="https://www.facebook.com/CartelleStudio/" target="_blank">Facebook</a></li>
+                                        <li><a href="http://www.twitter.com/cartelle/" target="_blank">Twitter</a></li>
+                                    </ul>
+                                </div>
+
+                                <div class="right-column">
+                                    <ul>
+                                        <li>contact us</li>
+                                        <li><a class="noajax email" href="mailto:hello@cartelle.nl">hello@cartelle.nl</a></li>
+                                    </ul>
+                                </div>
+                            </footer>
+                                
+                        </div>
+                    </div>
+
+                    <div class="title-mask">
+                        <div class="contents">
+
+                            <div class="title-container">
+                                <h1><%=htmlTitle%></h1>
+                                <a class="new-tab" href="<%=site%>" target="_blank">
+                                <div class="play-container float-container">
+                                    <div class="play-button">
+                                        <span></span>
+                                    </div>
+                                    <ul class="description">
+                                        <li><span class="bold title"><%=title%></span></li>
+                                        <li><span class="bold">Type: </span><span class="type"><%=type%></span></li>
+                                        <li><span class="bold">Client: </span><span class="client"><%=client%></span></li>
+                                        <li><span class="bold">Date: </span><span class="date"><%=date%></span></li>
+                                    </ul>
+                                </div>
+                                </a>
+                            </div>
+                            
+                            <ul class="options">
+                                <li><a class="more-info" href="#">read more</a></li>
+                                <li><a class="overview" href="#">show all</a></li>
+                                
+                                 
+                                    
+                            </ul>
+
+                            <div class="video-background-container">
+
+                                 
+                                    <video id="video-background-<%=id%>" width="100%" loop>
+                                        <source type="video/mp4" src="<%=video%>.mp4" />
+                                        <source type="video/webm" src="<%=video%>.webm" />
+                                    </video>
+                                 
+                                
+                            </div>
+                            
+                        </div>
+                    </div>
+                    
+                </div>
+
+            </div>
+
+        </script>
+
+        <div id="cartelle-container">
+
+            <header>
+                <div class="navigation">
+                    <ul>
+                        <li class="logo">
+                            <a href="/">
+                                                                    <video id="logo-rollover" loop>
+                                        <source type="video/mp4" src="http://cdn.cartelle.nl/cartelle2015/img/toplogo2.mp4" />
+                                        <source type="video/webm" src="http://cdn.cartelle.nl/cartelle2015/img/toplogo2.webm" />
+                                    </video>
+                                                            </a>
+                        </li>
+                        <li class="close trans">
+                             <a href="#"></a>
+                        </li>
+                    </ul>
+                </div>
+            </header>
+
+            <div id="rotate-screen">
+                <img src="http://cdn.cartelle.nl/cartelle2015/img/rotate.gif">
+            </div>
+
+            <div id="scrollbar">
+                <div class="scroll-handle">
+                    <span></span>
+                </div>
+                <div class="scroll-bg-hitter">
+
+                </div>
+            </div>
+
+            <div id="loader-overlay">
+                <div class="v-centered">
+                    <div>
+                                                    
+                            <video id="loader-player" width="100%" height="auto" muted>
+                                <source type="video/mp4" src="http://cdn.cartelle.nl/cartelle2015/img/intro.mp4" />
+                                <source type="video/webm" src="http://cdn.cartelle.nl/cartelle2015/img/intro.webm" />
+                            
+                            </video>
+                                            </div>
+                </div>
+            </div>
+
+            <div id="overview-overlay">
+
+                <div class="navigation">
+                    <ul>
+                        <li class="logo b-w">
+                            <a href="/">
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="scrollable">
+                    <table border="0" cellpadding="0">
+
+                        <tr>
+                            <td>
+                                <div class="overview-item" data-id="wepresent">
+                                    <a href="/wepresent"><img data-src="http://cdn.cartelle.nl/cartelle2015/media/overview/overview_wepresent.jpg" data-mobile-src="http://cdn.cartelle.nl/cartelle2015/media/overview/mobile/overview_wepresent.jpg"></a>
+                                    <div class="title-overlay"><h5 class="title">Title</h5><h5 class="subtitle">Subtitle</h5></div>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="overview-item" data-id="fornasetti2">
+                                    <a href="/fornasetti2"><img data-src="http://cdn.cartelle.nl/cartelle2015/media/overview/overview_fornasetti2.jpg" data-mobile-src="http://cdn.cartelle.nl/cartelle2015/media/overview/mobile/overview_fornasetti2.jpg"></a>
+                                    <div class="title-overlay"><h5 class="title">Title</h5><h5 class="subtitle">Subtitle</h5></div>
+                                </div>
+                            </td>
+                        </tr>
+
+
+                        <tr>
+                            <td>
+                                <div class="overview-item" data-id="gstar-raw-family">
+                                    <a href="/gstar-raw-family"><img data-src="http://cdn.cartelle.nl/cartelle2015/media/overview/overview_gstar_raw.jpg" data-mobile-src="http://cdn.cartelle.nl/cartelle2015/media/overview/mobile/overview_gstar_raw.jpg"></a>
+                                    <div class="title-overlay"><h5 class="title">Title</h5><h5 class="subtitle">Subtitle</h5></div>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="overview-item" data-id="fornasetti">
+                                    <a href="/fornasetti"><img data-src="http://cdn.cartelle.nl/cartelle2015/media/overview/overview_fornasetti1.jpg" data-mobile-src="http://cdn.cartelle.nl/cartelle2015/media/overview/mobile/overview_fornasetti.jpg"></a>
+                                    <div class="title-overlay"><h5 class="title">Title</h5><h5 class="subtitle">Subtitle</h5></div>
+                                </div>
+                            </td>
+                        </tr>
+
+                        <tr>
+                           <td>
+                                <div class="overview-item" data-id="giraffaconda">
+                                    <a href="/giraffaconda"><img data-src="http://cdn.cartelle.nl/cartelle2015/media/overview/overview_giraffaconda.jpg" data-mobile-src="http://cdn.cartelle.nl/cartelle2015/media/overview/mobile/overview_giraffaconda.jpg"></a>
+                                    <div class="title-overlay"><h5 class="title">Title</h5><h5 class="subtitle">Subtitle</h5></div>
+                                </div>
+                            </td>
+                           <td>
+                                <div class="overview-item" data-id="meatharvest">
+                                    <a href="/meatharvest"><img data-src="http://cdn.cartelle.nl/cartelle2015/media/overview/overview_meatharvest.jpg" data-mobile-src="http://cdn.cartelle.nl/cartelle2015/media/overview/mobile/overview_meatharvest.jpg"></a>
+                                    <div class="title-overlay"><h5 class="title">Title</h5><h5 class="subtitle">Subtitle</h5></div>
+                                </div>
+                            </td>
+                        </tr>
+
+                        <tr>
+                           <td>
+                                <div class="overview-item" data-id="dilladimension">
+                                    <a href="/dilladimension"><img data-src="http://cdn.cartelle.nl/cartelle2015/media/overview/overview_dilladimension.jpg" data-mobile-src="http://cdn.cartelle.nl/cartelle2015/media/overview/mobile/overview_dilladimension.jpg"></a>
+                                    <div class="title-overlay"><h5 class="title">Title</h5><h5 class="subtitle">Subtitle</h5></div>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="overview-item" data-id="loveletters">
+                                    <a href="/loveletters"><img data-src="http://cdn.cartelle.nl/cartelle2015/media/overview/overview_loveletters.jpg" data-mobile-src="http://cdn.cartelle.nl/cartelle2015/media/overview/mobile/overview_loveletters.jpg"></a>
+                                    <div class="title-overlay"><h5 class="title">Title</h5><h5 class="subtitle">Subtitle</h5></div>
+                                </div>
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td>
+                                <div class="overview-item" data-id="grenade">
+                                    <a href="/grenade"><img data-src="http://cdn.cartelle.nl/cartelle2015/media/overview/overview_grenade.jpg" data-mobile-src="http://cdn.cartelle.nl/cartelle2015/media/overview/mobile/overview_grenade.jpg"></a>
+                                    <div class="title-overlay"><h5 class="title">Title</h5><h5 class="subtitle">Subtitle</h5></div>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="overview-item" data-id="denimcloud">
+                                    <a href="/denimcloud"><img data-src="http://cdn.cartelle.nl/cartelle2015/media/overview/overview_denimcloud.jpg" data-mobile-src="http://cdn.cartelle.nl/cartelle2015/media/overview/mobile/overview_denimcloud.jpg"></a>
+                                    <div class="title-overlay"><h5 class="title">Title</h5><h5 class="subtitle">Subtitle</h5></div>
+                                </div>
+                            </td>                        
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="overview-item" data-id="t8t">
+                                    <a href="/t8t"><img data-src="http://cdn.cartelle.nl/cartelle2015/media/overview/overview_t8t.jpg" data-mobile-src="http://cdn.cartelle.nl/cartelle2015/media/overview/mobile/overview_t8t.jpg"></a>
+                                    <div class="title-overlay"><h5 class="title">Title</h5><h5 class="subtitle">Subtitle</h5></div>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="overview-item" data-id="bradva">
+                                    <a href="/bradva"><img data-src="http://cdn.cartelle.nl/cartelle2015/media/overview/overview_bradva.jpg" data-mobile-src="http://cdn.cartelle.nl/cartelle2015/media/overview/mobile/overview_bradva.jpg"></a>
+                                    <div class="title-overlay"><h5 class="title">Title</h5><h5 class="subtitle">Subtitle</h5></div>
+                                </div>
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td>
+                                <div class="overview-item" data-id="balloons">
+                                    <a href="/balloons"><img data-src="http://cdn.cartelle.nl/cartelle2015/media/overview/overview_balloons.jpg" data-mobile-src="http://cdn.cartelle.nl/cartelle2015/media/overview/mobile/overview_balloons.jpg"></a>
+                                    <div class="title-overlay"><h5 class="title">Title</h5><h5 class="subtitle">Subtitle</h5></div>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="overview-item" data-id="skullpaint">
+                                    <a href="/skullpaint"><img data-src="http://cdn.cartelle.nl/cartelle2015/media/overview/overview_skullpaint.jpg" data-mobile-src="http://cdn.cartelle.nl/cartelle2015/media/overview/mobile/overview_skullpaint.jpg"></a>
+                                    <div class="title-overlay"><h5 class="title">Title</h5><h5 class="subtitle">Subtitle</h5></div>
+                                </div>
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td>
+                                <div class="overview-item" data-id="rawepisodes">
+                                    <a href="/rawepisodes"><img data-src="http://cdn.cartelle.nl/cartelle2015/media/overview/overview_rawepisodes.jpg" data-mobile-src="http://cdn.cartelle.nl/cartelle2015/media/overview/mobile/overview_rawepisodes.jpg"></a>
+                                    <div class="title-overlay"><h5 class="title">Title</h5><h5 class="subtitle">Subtitle</h5></div>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="overview-item" data-id="gstarraw">
+                                    <a href="/gstarraw"><img data-src="http://cdn.cartelle.nl/cartelle2015/media/overview/overview_gstarraw.jpg" data-mobile-src="http://cdn.cartelle.nl/cartelle2015/media/overview/mobile/overview_gstarraw.jpg"></a>
+                                    <div class="title-overlay"><h5 class="title">Title</h5><h5 class="subtitle">Subtitle</h5></div>
+                                </div>
+                                <div class="overview-item" data-id="birdsandbees">
+                                    <a href="/birdsandbees"><img data-src="http://cdn.cartelle.nl/cartelle2015/media/overview/overview_birdsandbees.jpg" data-mobile-src="http://cdn.cartelle.nl/cartelle2015/media/overview/mobile/overview_birdsandbees.jpg"></a>
+                                    <div class="title-overlay"><h5 class="title">Title</h5><h5 class="subtitle">Subtitle</h5></div>
+                                </div>
+                            </td>
+                        </tr>  
+
+                        <tr>
+                            <td>
+                                <div class="overview-item" data-id="toaster">
+                                    <a href="/toaster"><img data-src="http://cdn.cartelle.nl/cartelle2015/media/overview/overview_toaster.jpg" data-mobile-src="http://cdn.cartelle.nl/cartelle2015/media/overview/mobile/overview_toaster.jpg"></a>
+                                    <div class="title-overlay"><h5 class="title">Title</h5><h5 class="subtitle">Subtitle</h5></div>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="overview-item" data-id="omgwtf">
+                                    <a href="/omgwtf"><img data-src="http://cdn.cartelle.nl/cartelle2015/media/overview/overview_omgwtfbbq.jpg" data-mobile-src="http://cdn.cartelle.nl/cartelle2015/media/overview/mobile/overview_omgwtfbbq.jpg"></a>
+                                    <div class="title-overlay"><h5 class="title">Title</h5><h5 class="subtitle">Subtitle</h5></div>
+                                </div>
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td>
+                                <div class="overview-item" data-id="eightball">
+                                    <a href="/eightball"><img data-src="http://cdn.cartelle.nl/cartelle2015/media/overview/overview_eightball.jpg" data-mobile-src="http://cdn.cartelle.nl/cartelle2015/media/overview/mobile/overview_eightball.jpg"></a>
+                                    <div class="title-overlay"><h5 class="title">Title</h5><h5 class="subtitle">Subtitle</h5></div>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="overview-item" data-id="rainydays">
+                                    <a href="/rainydays"><img data-src="http://cdn.cartelle.nl/cartelle2015/media/overview/overview_rainydays.jpg" data-mobile-src="http://cdn.cartelle.nl/cartelle2015/media/overview/mobile/overview_rainydays.jpg"></a>
+                                    <div class="title-overlay"><h5 class="title">Title</h5><h5 class="subtitle">Subtitle</h5></div>
+                                </div>
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td>
+                                <div class="overview-item" data-id="skulldraw">
+                                    <a href="/skulldraw"><img data-src="http://cdn.cartelle.nl/cartelle2015/media/overview/overview_skulldraw.jpg" data-mobile-src="http://cdn.cartelle.nl/cartelle2015/media/overview/mobile/overview_skulldraw.jpg"></a>
+                                    <div class="title-overlay"><h5 class="title">Title</h5><h5 class="subtitle">Subtitle</h5></div>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="overview-item" data-id="hombre">
+                                    <a href="/hombre"><img data-src="http://cdn.cartelle.nl/cartelle2015/media/overview/overview_hombre.jpg" data-mobile-src="http://cdn.cartelle.nl/cartelle2015/media/overview/mobile/overview_hombre.jpg"></a>
+                                    <div class="title-overlay"><h5 class="title">Title</h5><h5 class="subtitle">Subtitle</h5></div>
+                                </div>
+                            </td>
+                        </tr>
+                        
+                        <tr>
+                            <td>
+                                <div class="overview-item" data-id="firecrackers">
+                                    <a href="/firecrackers"><img data-src="http://cdn.cartelle.nl/cartelle2015/media/overview/overview_firecrackers.jpg" data-mobile-src="http://cdn.cartelle.nl/cartelle2015/media/overview/mobile/overview_firecrackers.jpg"></a>
+                                    <div class="title-overlay"><h5 class="title">Title</h5><h5 class="subtitle">Subtitle</h5></div>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="overview-item" data-id="redlightradio">
+                                    <a href="/redlightradio"><img data-src="http://cdn.cartelle.nl/cartelle2015/media/overview/overview_redlightradio.jpg" data-mobile-src="http://cdn.cartelle.nl/cartelle2015/media/overview/mobile/overview_redlightradio.jpg"></a>
+                                    <div class="title-overlay"><h5 class="title">Title</h5><h5 class="subtitle">Subtitle</h5></div>
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+
+            </div>
+
+            <div id="menu-overlay">
+
+                <div class="navigation">
+                    <ul>
+                        <li class="logo b-w">
+                            <a href="/">
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="scrollable">
+                    <div class="v-centered">
+                        <div>
+
+                            <div class="about col">
+                                <h2>About</h2>
+                                                                <p>Cartelle is Stevijn van Olst, Johnny Slack and friends. We are a digital creative studio from Amsterdam. We focus on interactive concepting, design, art direction, development, animation, 3D and creative programming.</p>
+                                                                <h2>Contact</h2>
+                                <p>We’d love to hear from you. For any enquiries, please contact us at <a href="mailto:hello@cartelle.nl" class="noajax email">hello@cartelle.nl</a>.</p>
+                                <p>Sorry, we love you, but we are not hiring.</p>
+
+                                <h2>Follow Us</h2>
+
+                                <ul>
+                                    <li><a href="https://www.facebook.com/CartelleStudio/" target="_blank">Facebook</a></li>
+                                    <li><a href="http://www.twitter.com/cartelle/" target="_blank">Twitter</a></li>
+                                    <li><a href="http://www.awwwards.com/search-websites/?text=cartelle" target="_blank">Awwwards</a></li>
+                                    <li><a href="http://www.thefwa.com/profile/cartelle" target="_blank">The FWA</a></li>
+                                </ul>
+
+                            </div>
+
+                            <div class="work-listing col">
+                                <h2>Selected Work</h2>
+                                <ul>
+                                    <li><a id="wepresent" href="wepresent">WePresent</a></li>
+                                    <li><a id="fornasetti2" href="fornasetti2">Fornasetti Cilindro</a></li>
+                                    <li><a id="gstar-raw-family" href="gstar-raw-family">G-Star RAW</a></li>
+                                    <li><a id="fornasetti" href="fornasetti">Fornasetti</a></li>
+                                    <li><a id="giraffaconda" href="giraffaconda">Giraffaconda</a></li>
+                                    <li><a id="meatharvest" href="meatharvest">Meat Harvest Miami</a></li>
+                                    <li><a id="loveletters" href="loveletters">Love Letters from Craig</a></li>
+                                    <li><a id="dilladimension" href="dilladimension">The Dilla Dimension</a></li>
+                                    <li><a id="denimcloud" href="denimcloud">G-Star New Denim Arrivals</a></li>
+                                    <li><a id="rawepisodes" href="rawepisodes">G-Star Episodes</a></li>
+                                    <li><a id="toaster" href="toaster">Make My Bread</a></li>
+                                    <li><a id="gstarraw" href="gstarraw">G-Star RAW</a></li>
+                                    <li><a id="skullpaint" href="skullpaint">Death Paint</a></li>
+                                    <li><a id="grenade" href="grenade">Grenade</a></li>
+                                    <li><a id="bradva" href="bradva">Bradva</a></li>
+                                    <li><a id="redlightradio" href="redlightradio">Red Light Radio</a></li>
+                                    <li><a id="t8t" href="t8t">Twenty8Twelve</a></li>
+                                    <li><a id="omgwtf" href="omgwtf">OMGWTFBBQ</a></li>
+                                    <li><a id="rainydays" href="rainydays">Rainy Days</a></li>
+                                    <li><a id="scotchsoda" href="scotchsoda">Scotch & Soda</a></li>
+                                    <li><a id="hombre" href="hombre">Hombre Esqueletico</a></li>
+                                    <li><a id="skulldraw" href="skulldraw">Skulldraw</a></li>
+                                    <li><a id="eightball" href="eightball">8 Ball</a></li>
+                                    <li><a id="balloons" href="balloons">Balloons</a></li>
+                                    <li><a id="firecrackers" href="firecrackers">Firecrackers</a></li>
+                                    <li><a id="birdsandbees" href="birdsandbees">Bun In The Oven</a></li>
+                                </ul>
+
+
+                                <h2>Archived</h2>
+                                <ul>   
+                                    <li><a href="http://www.thefwa.com/site/my-burger" target="_blank">McDonalds MyBurger</a> </li>
+                                    <li><a href="http://m.adidas.com/originalsuperstar" target="_blank">adidas Originals Superstar (Mobile)</a></li>
+                                    <li><a href="http://www.thefwa.com/site/adidas-originals-then-now-and-forever?p=cartelle" target="_blank">adidas Originals TNF</a> </li>
+                                    <li><a href="http://www.firestarters.nl/" target="_blank">Vodafone Firestarters</a></li>
+                                    <li><a href="https://www.thinkwithgoogle.com/campaigns/foot-locker-converse-converse-street-ready.html" target="_blank">Converse Street Ready</a> </li>
+                                    <li><a href="http://www.redbullsoundclash.nl/" target="_blank">Redbull Soundclash</a></li>
+                                    <li><a href="http://www.thefwa.com/site/adidas-style-essentials?p=cartelle" target="_blank">adidas Style Essentials</a> </li>
+                                    <li><a href="http://baked.freshcotton.com/" target="_blank">Baked with Stussy and Freshcotton</a></li>
+                                    <li>Marie-Stella-Maris</li>
+                                    <li><a href="http://www.thefwa.com/site/imagining-mozambique?p=cartelle" target="_blank">Imagining Mozambique</a></li>
+                                </ul>
+                            </div>
+
+                           <div class="awards col">
+                                <h2>Awards</h2>
+                                <h6>FWA</h6>
+                                <ul>
+                                     <li><span>02 2016</span> <a href="http://www.thefwa.com/site/love-letters-from-craig?p=cartelle" target="_blank">Meat Hrarvest Miami</a></li>
+                                     <li><span>12 2015</span> <a href="http://www.thefwa.com/site/love-letters-from-craig?p=cartelle" target="_blank">Giraffaconda</a></li>
+                                     <li><span>03 2015</span> <a href="http://www.thefwa.com/site/the-dilla-dimension?p=cartelle" target="_blank">The Dilla Dimension</a></li>
+                                     <li><span>08 2014</span> <a href="http://www.thefwa.com/mobile/g-star-raw-new-denim-arrivals?p=cartelle" target="_blank">G-Star New Denim Arrivals Mobile</a></li>
+                                     <li><span>08 2014</span> <a href="http://www.thefwa.com/site/g-star-raw-new-denim-arrivals?p=cartelle" target="_blank">G-Star New Denim Arrivals</a></li>
+                                     <li><span>06 2014</span> <a href="http://www.thefwa.com/mobile/my-burger?p=cartelle" target="_blank">McDonalds MyBurger Mobile</a></li>
+                                     <li><span>05 2014</span> <a href="http://www.thefwa.com/site/my-burger?p=cartelle" target="_blank">McDonalds MyBurger</a></li>
+                                     <li><span>03 2014</span> <a href="http://www.thefwa.com/mobile/g-star-raw-episodes?p=cartelle" target="_blank">G-Star RAW Episodes</a></li>
+                                     <li><span>11 2013</span> <a href="http://www.thefwa.com/mobile/g-star-raw?p=cartelle" target="_blank">G-Star RAW Mobile</a></li>
+                                     <li><span>10 2013</span> <a href="http://www.thefwa.com/site/g-star-raw?p=cartelle" target="_blank">G-Star RAW</a></li>
+                                     <li><span>05 2013</span> <a href="http://www.thefwa.com/site/g-star-the-art-of-raw?p=cartelle" target="_blank">G-Star The Art of Raw</a></li>
+                                     <li><span>01 2013</span> <a href="http://www.thefwa.com/site/converse-street-ready?p=cartelle" target="_blank">Converse Street Ready</a></li>
+                                     <li><span>10 2012</span> <a href="http://www.thefwa.com/mobile/cartelle-interactive-studio?p=cartelle" target="_blank">Cartelle 2012 Mobile</a></li>
+                                     <li><span>10 2012</span> <a href="http://www.thefwa.com/site/cartelle-interactive-studio?p=cartelle" target="_blank">Cartelle 2012</a></li>
+                                     <li><span>07 2012</span> <a href="http://www.thefwa.com/site/twenty8twelve?p=cartelle" target="_blank">Twenty8Twelve</a></li>
+                                     <li><span>09 2011</span> <a href="http://www.thefwa.com/site/scotch-soda?p=cartelle" target="_blank">Scotch & Soda 2011</a></li>
+                                     <li><span>06 2011</span> <a href="http://www.thefwa.com/site/adidas-originals-then-now-and-forever?p=cartelle" target="_blank">adidas Originals TNF</a></li>
+                                     <li><span>10 2010</span> <a href="http://www.thefwa.com/site/omgwtfbbq?p=cartelle" target="_blank">OMGWTFBBQ</a></li>
+                                     <li><span>08 2010</span> <a href="http://www.thefwa.com/site/http-scotch-soda?p=cartelle" target="_blank">Scotch & Soda 2010</a></li>
+                                     <li><span>03 2010</span> <a href="http://www.thefwa.com/site/adidas-style-essentials?p=cartelle" target="_blank">adidas Style Essentials</a></li>
+                                     <li><span>09 2009</span> <a href="http://www.thefwa.com/site/imagining-mozambique?p=cartelle" target="_blank">Imagining Mozambique</a></li>
+                                     <li><span>03 2009</span> <a href="http://www.thefwa.com/site/cartelle?p=cartelle" target="_blank">Cartelle 2009</a></li>
+                                 </ul>
+                                <h6>AWWWARDS</h6>
+                                <ul>
+                                    <li><span>04 2015</span> <a href="http://www.awwwards.com/web-design-awards/cartelle-amsterdam" target="_blank">Cartelle 2015</a></li>
+                                    <li><span>07 2014</span> <a href="http://www.awwwards.com/web-design-awards/g-star-new-denim-arrivals" target="_blank">G-Star RAW New Denim Arrivals</a></li>
+                                    <li><span>06 2014</span> <a href="http://www.awwwards.com/web-design-awards/my-burger" target="_blank">McDonald's MyBurger</a></li>
+                                    <li><span>09 2013</span> <a href="http://www.awwwards.com/web-design-awards/g-star-raw" target="_blank">G-Star RAW</a></li>
+                                    <li><span>04 2013</span> <a href="http://www.awwwards.com/web-design-awards/scotch-soda-portraits" target="_blank">Scotch & Soda Portraits</a></li>
+                                    <li><span>01 2012</span> <a href="http://www.awwwards.com/web-design-awards/g-star-the-art-of-raw" target="_blank">G-Star The Art of Raw</a></li>
+                                    <li><span>10 2012</span> <a href="http://www.awwwards.com/web-design-awards/cartelle-interactive-studio" target="_blank">Cartelle 2012</a></li>
+                                    <li><span>05 2012</span> <a href="http://www.awwwards.com/web-design-awards/twenty8twelve" target="_blank">Twenty8Twelve</a></li>
+                                    <li><span>07 2011</span> <a href="http://www.awwwards.com/web-design-awards/scotch-soda-2" target="_blank">Scotch & Soda 2011</a></li>
+                                </ul>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="loaderBar">
+                <div class="background"></div>
+            </div>
+
+            <div class="sections">
+
+                <div id="loading-view" class="view">
+                
+                    <h1>Loading View</h1>
+                </div>
+                     
+                <div id="home-view" class="view">
+
+                    <div class="carousel">
+
+                    </div>
+
+                    <div id="image-zoom">
+
+                    </div>
+
+                    <div class="cursors">
+                        <div class="cursor left-white"></div>
+                        <div class="cursor right-white"></div>
+                        <div class="cursor left-black"></div>
+                        <div class="cursor right-black"></div>
+                        <div class="cursor plus-black"></div>
+                        <div class="cursor plus-white"></div>
+                        <div class="cursor minus-black"></div>
+                        <div class="cursor minus-white"></div>
+                    </div>
+                    
+                </div>
+
+            </div>
+
+                            <audio id="over-tick-med">
+                  <source src="http://cdn.cartelle.nl/cartelle2015/audio/tick2.ogg" type="audio/ogg">
+                  <source src="http://cdn.cartelle.nl/cartelle2015/audio/tick2.mp3" type="audio/mpeg">
+                </audio>
+
+                <audio id="over-tick-light">
+                  <source src="http://cdn.cartelle.nl/cartelle2015/audio/tick4.ogg" type="audio/ogg">
+                  <source src="http://cdn.cartelle.nl/cartelle2015/audio/tick4.mp3" type="audio/mpeg">
+                </audio>
+
+                <audio id="over-tick-lo">
+                  <source src="http://cdn.cartelle.nl/cartelle2015/audio/tick1.ogg" type="audio/ogg">
+                  <source src="http://cdn.cartelle.nl/cartelle2015/audio/tick1.mp3" type="audio/mpeg">
+                </audio>
+
+                <audio id="over-tick-hi">
+                  <source src="http://cdn.cartelle.nl/cartelle2015/audio/tick3.ogg" type="audio/ogg">
+                  <source src="http://cdn.cartelle.nl/cartelle2015/audio/tick3.mp3" type="audio/mpeg">
+                </audio>
+                        
+            <video id="mobile-player" loop controls>
+                <source type="video/mp4" src="" />
+                <source type="video/webm" src="" />
+            </video>
+
+            <div id="ieOldie-warning">
+                <div class="centered">
+                    <div>
+                        <span class="logo-myburger"></span>
+                        <h1>Please update your browser.</h1>
+                        <p>This website requires Chrome, Firefox, Safari or Internet Explorer 9+</p>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+
+            <script> 
+                var domain = 'http://www.cartelle.nl'; 
+                var rootFragment = '/'; 
+                var rootPath = 'http://www.cartelle.nl/';
+                var servicePath = 'http://www.cartelle.nl/services/'; 
+                var staticsPath = 'http://cdn.cartelle.nl/cartelle2015/'; 
+                var isAndroid = '';
+            </script>
+
+                            <script>window.jQuery || document.write('<script src="http://www.cartelle.nl/js/vendor/jquery-1.10.2.min.js"><\/script>')</script>
+                <script src="http://www.cartelle.nl/js/libs.min.js"></script>
+                <script src="http://www.cartelle.nl/js/app.min.js"></script>
+            
+            
+            <script> 
+            window._gaq = [['_setAccount','UA-1588495-2'],['_trackPageview'],['_trackPageLoadTime']];
+            Modernizr.load({
+              load: ('https:' == location.protocol ? '//ssl' : '//www') + '.google-analytics.com/ga.js'
+            });
+            </script>
+
+            <img src="http://cdn.cartelle.nl/cartelle2015/img/mobile_c_static1.jpg" style="display:none">
+            <div id="export"></div>
+    </body>
+</html>
+
+

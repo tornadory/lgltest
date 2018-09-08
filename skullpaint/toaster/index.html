@@ -1,0 +1,752 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<title>Toaster</title>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+	<style>
+	body {
+		
+		background-color: #000;
+		color: #fff;
+		margin: 0px;
+		overflow: hidden;
+	}
+	#info {
+		position: absolute;
+		top: 10px;
+		width: 100%;
+		text-align: center;
+		z-index: 100;
+		display:block;
+	}
+	#info a { color: #f00; font-weight: bold; text-decoration: underline; cursor: pointer }
+	</style>
+</head>
+
+<body>
+	<audio id="handleSound" preload="auto">
+            <source src="audio/handledown4.mp3" type="audio/mp3" />
+            <source src="audio/handledown4.ogg" type="audio/ogg" />
+        </audio>
+    
+        <audio id="releaseSound" preload="auto">
+            <source src="audio/toastjump7.mp3" type="audio/mp3" />
+            <source src="audio/toastjump7.ogg" type="audio/ogg" />
+        </audio> 
+            
+          
+	<audio id="toastSound1" preload="auto">
+            <source src="audio/toastbounce4.mp3" type="audio/mp3" />
+            <source src="audio/toastbounce4.ogg" type="audio/ogg" />
+        </audio>
+    
+	<audio id="toastSound2" preload="auto">
+            <source src="audio/toastbounce6.mp3" type="audio/mp3" />
+            <source src="audio/toastbounce6.ogg" type="audio/ogg" />
+        </audio>
+    
+	<audio id="toastdrop1" preload="auto">
+            <source src="audio/toastdrop1.mp3" type="audio/mp3" />
+            <source src="audio/toastdrop1.ogg" type="audio/ogg" />
+        </audio>
+
+        <audio id="toastdrop2" preload="auto">
+            <source src="audio/toastdrop4.mp3" type="audio/mp3" />
+            <source src="audio/toastdrop4.ogg" type="audio/ogg" />
+        </audio>
+    
+	<audio id="buzzKick" preload="auto">
+            <source src="audio/buzz_kick.mp3" type="audio/mp3" />
+            <source src="audio/buzz_kick.ogg"  type="audio/ogg" />
+        </audio>
+    
+	<audio id="buzzLoop" preload="auto">
+            <source src="audio/buzz_loop.mp3" type="audio/mp3" />
+            <source src="audio/buzz_loop.ogg"  type="audio/ogg" />
+        </audio>
+    
+	<div id="info">
+
+	</div>
+
+	<script src="js/libs/three63/three.js"></script>
+	<script src="js/libs/RequestAnimationFrame.js"></script>
+	<!--<script src="js/libs/ShaderExtras.js"></script>-->
+    <script src="js/libs/BrowserDetect.js"></script>
+	<script src="js/libs/Detector.js"></script>
+	<script src="js/libs/Stats.js"></script>
+	<script src="js/libs/gs/TweenMax.min.js"></script>
+	
+	<script type="text/javascript" src="js/libs/jiglibjs2/geom/glMatrix.js"></script>							
+	<script type="text/javascript" src="js/libs/jiglibjs2/jiglib.js"></script>
+	<script type="text/javascript" src="js/libs/jiglibjs2/geom/Vector3D.js"></script>							
+	<script type="text/javascript" src="js/libs/jiglibjs2/geom/Matrix3D.js"></script>							
+	<script type="text/javascript" src="js/libs/jiglibjs2/math/JMatrix3D.js"></script>
+	<script type="text/javascript" src="js/libs/jiglibjs2/math/JMath3D.js"></script>
+	<script type="text/javascript" src="js/libs/jiglibjs2/math/JNumber3D.js"></script>		
+	<script type="text/javascript" src="js/libs/jiglibjs2/cof/JConfig.js"></script>
+	<script type="text/javascript" src="js/libs/jiglibjs2/data/CollOutData.js"></script>
+	<script type="text/javascript" src="js/libs/jiglibjs2/data/ContactData.js"></script>
+	<script type="text/javascript" src="js/libs/jiglibjs2/data/PlaneData.js"></script>
+	<script type="text/javascript" src="js/libs/jiglibjs2/data/EdgeData.js"></script>
+	<script type="text/javascript" src="js/libs/jiglibjs2/data/TerrainData.js"></script>
+	<script type="text/javascript" src="js/libs/jiglibjs2/data/OctreeCell.js"></script>
+	<script type="text/javascript" src="js/libs/jiglibjs2/data/CollOutBodyData.js"></script>
+	<script type="text/javascript" src="js/libs/jiglibjs2/data/TriangleVertexIndices.js"></script>
+	<script type="text/javascript" src="js/libs/jiglibjs2/data/SpanData.js"></script>
+	<script type="text/javascript" src="js/libs/jiglibjs2/physics/constraint/JConstraint.js"></script>
+	<script type="text/javascript" src="js/libs/jiglibjs2/physics/constraint/JConstraintMaxDistance.js"></script>
+	<script type="text/javascript" src="js/libs/jiglibjs2/physics/constraint/JConstraintWorldPoint.js"></script>
+	<script type="text/javascript" src="js/libs/jiglibjs2/physics/constraint/JConstraintPoint.js"></script>
+	<script type="text/javascript" src="js/libs/jiglibjs2/physics/MaterialProperties.js"></script>
+	<script type="text/javascript" src="js/libs/jiglibjs2/collision/CollPointInfo.js"></script>
+	<script type="text/javascript" src="js/libs/jiglibjs2/collision/CollisionInfo.js"></script>
+	<script type="text/javascript" src="js/libs/jiglibjs2/collision/CollDetectInfo.js"></script>
+	<script type="text/javascript" src="js/libs/jiglibjs2/collision/CollDetectFunctor.js"></script>
+	<script type="text/javascript" src="js/libs/jiglibjs2/collision/CollDetectBoxTerrain.js"></script>
+	<script type="text/javascript" src="js/libs/jiglibjs2/collision/CollDetectSphereMesh.js"></script>
+	<script type="text/javascript" src="js/libs/jiglibjs2/collision/CollDetectCapsuleBox.js"></script>
+	<script type="text/javascript" src="js/libs/jiglibjs2/collision/CollDetectSphereCapsule.js"></script>
+	<script type="text/javascript" src="js/libs/jiglibjs2/collision/CollDetectCapsuleTerrain.js"></script>
+	<script type="text/javascript" src="js/libs/jiglibjs2/collision/CollDetectSphereBox.js"></script>
+	<script type="text/javascript" src="js/libs/jiglibjs2/collision/CollDetectSphereTerrain.js"></script>
+	<script type="text/javascript" src="js/libs/jiglibjs2/collision/CollDetectBoxBox.js"></script>
+	<script type="text/javascript" src="js/libs/jiglibjs2/collision/CollDetectBoxMesh.js"></script>
+	<script type="text/javascript" src="js/libs/jiglibjs2/collision/CollDetectBoxPlane.js"></script>
+	<script type="text/javascript" src="js/libs/jiglibjs2/collision/CollDetectCapsuleCapsule.js"></script>
+	<script type="text/javascript" src="js/libs/jiglibjs2/collision/CollDetectSphereSphere.js"></script>
+	<script type="text/javascript" src="js/libs/jiglibjs2/collision/CollDetectSpherePlane.js"></script>
+	<script type="text/javascript" src="js/libs/jiglibjs2/collision/CollDetectCapsulePlane.js"></script>
+	<script type="text/javascript" src="js/libs/jiglibjs2/collision/CollisionSystemAbstract.js"></script>
+	<script type="text/javascript" src="js/libs/jiglibjs2/collision/CollisionSystemGridEntry.js"></script>
+	<script type="text/javascript" src="js/libs/jiglibjs2/collision/CollisionSystemGrid.js"></script>
+	<script type="text/javascript" src="js/libs/jiglibjs2/collision/CollisionSystemBrute.js"></script>
+	<script type="text/javascript" src="js/libs/jiglibjs2/geometry/JIndexedTriangle.js"></script>
+	<script type="text/javascript" src="js/libs/jiglibjs2/geometry/JOctree.js"></script>
+	<script type="text/javascript" src="js/libs/jiglibjs2/geometry/JRay.js"></script>
+	<script type="text/javascript" src="js/libs/jiglibjs2/geometry/JAABox.js"></script>
+	<script type="text/javascript" src="js/libs/jiglibjs2/geometry/JTriangle.js"></script>
+	<script type="text/javascript" src="js/libs/jiglibjs2/geometry/JSegment.js"></script>
+	<script type="text/javascript" src="js/libs/jiglibjs2/events/JCollisionEvent.js"></script>
+	<script type="text/javascript" src="js/libs/jiglibjs2/physics/constraint/JConstraint.js"></script>
+	<script type="text/javascript" src="js/libs/jiglibjs2/physics/constraint/JConstraintMaxDistance.js"></script>
+	<script type="text/javascript" src="js/libs/jiglibjs2/physics/constraint/JConstraintWorldPoint.js"></script>
+	<script type="text/javascript" src="js/libs/jiglibjs2/physics/constraint/JConstraintPoint.js"></script>
+	<script type="text/javascript" src="js/libs/jiglibjs2/physics/PhysicsController.js"></script>
+	<script type="text/javascript" src="js/libs/jiglibjs2/physics/CachedImpulse.js"></script>
+	<script type="text/javascript" src="js/libs/jiglibjs2/physics/HingeJoint.js"></script>
+	<script type="text/javascript" src="js/libs/jiglibjs2/physics/BodyPair.js"></script>
+	<script type="text/javascript" src="js/libs/jiglibjs2/physics/PhysicsState.js"></script>
+	<script type="text/javascript" src="js/libs/jiglibjs2/physics/PhysicsSystem.js"></script>
+	<script type="text/javascript" src="js/libs/jiglibjs2/physics/RigidBody.js"></script>
+	<script type="text/javascript" src="js/libs/jiglibjs2/geometry/JSphere.js"></script>
+	<script type="text/javascript" src="js/libs/jiglibjs2/geometry/JTriangleMesh.js"></script>
+	<script type="text/javascript" src="js/libs/jiglibjs2/geometry/JPlane.js"></script>
+	<script type="text/javascript" src="js/libs/jiglibjs2/geometry/JTerrain.js"></script>
+	<script type="text/javascript" src="js/libs/jiglibjs2/geometry/JBox.js"></script>
+	<script type="text/javascript" src="js/libs/jiglibjs2/geometry/JCapsule.js"></script>
+	<script type="text/javascript" src="js/libs/jiglibjs2/debug/Stats.js"></script>
+
+	<script type="text/javascript" src="js/libs/jiglibjs2/vehicles/JChassis.js"></script>
+	<script type="text/javascript" src="js/libs/jiglibjs2/vehicles/JWheel.js"></script>
+	<script type="text/javascript" src="js/libs/jiglibjs2/vehicles/JCar.js"></script>
+
+
+	<script>
+
+	if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
+
+	var SHADOW_MAP_WIDTH = 2048, SHADOW_MAP_HEIGHT = 1024;
+
+	var MARGIN = 0;
+	var GREEN = 0X65CB97;
+	var SCREEN_WIDTH = window.innerWidth;
+	var SCREEN_HEIGHT = window.innerHeight - 2 * MARGIN;
+	var FLOOR = 0; //-250
+
+	var camera, scene, renderer;
+	var cameraCube, sceneCube, cubeTarget;
+	var container, stats;
+	var toasterHandle, toasterBase, toasterMaterial, toastGeometry, toastMaterial;
+	var jiglib_toasterBase, jiglib_toasterSideMid, jiglib_toasterSideRight;
+	var toasterBusy = false;
+	var toastInToaster = false;
+	var toastSoundId = "toastSound1";
+	var toastSoundActive = false;
+	//var toastDummy;
+	var activeToast;
+	var introDone = true;
+	var mouseX = 0, mouseY = 0, mouseRatioX = 0, mouseRatioY = 0;
+	var windowHalfX = window.innerWidth / 2;
+	var windowHalfY = window.innerHeight / 2;
+	var circleTrack = {angle:1};
+	var angle = 0;
+	var runTrack = false;
+        var requestId;
+	var lookAtPosition = new Vector3D(0,5,0);
+	var NEAR = .1, FAR = 1000;
+
+	var light;
+
+	var clock = new THREE.Clock();
+
+	//PHYSICS
+	
+	var FORCE  = 500;
+	var t0 = new Date().getTime();
+	var system;
+	var worldSpeed = 450;//450
+
+	document.addEventListener( 'mousemove', onDocumentMouseMove, false );
+	document.addEventListener( 'mousedown', onDocumentMouseDown, false );
+
+	window.addEventListener('resize', layout, false);
+
+	init_jiglib();
+	init();
+
+	function init() {
+
+		container = document.createElement( 'div' );
+		document.body.appendChild( container );
+
+		// SCENE
+
+		scene = new THREE.Scene();
+		//scene.fog = new THREE.Fog( 0xffffff, .1, FAR );//ffaa55  1000, FAR
+		//THREE.ColorUtils.adjustHSV( scene.fog.color, 0.02, 0, -0.3 );
+
+		// SCENE CAMERA
+
+		camera = new THREE.PerspectiveCamera( 55, SCREEN_WIDTH / SCREEN_HEIGHT, NEAR, FAR );
+		camera.position.set( 70, 5, 40 );//70, 5, 20
+		scene.add( camera );
+
+		// SCENE CUBE
+
+		sceneCube = new THREE.Scene();
+		cubeTarget = new THREE.Vector3( 0, 0, 0 );
+
+		// CAMERA CUBE
+
+		cameraCube = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, NEAR, FAR );
+		sceneCube.add( cameraCube );
+
+		// LIGHTS
+
+		var ambient = new THREE.AmbientLight( 0x666666 );
+		scene.add( ambient );
+
+		light = new THREE.SpotLight( 0xcccccc, .8 );
+		light.position.set( 15, 150, 15 ); //0,1500,3000  -- 20,120,0
+		light.target.position.set( 0, 0, 0 );
+
+		light.castShadow = true;
+
+		light.shadowCameraNear = 10;
+		light.shadowCameraFar = camera.far; //camera.far
+		light.shadowCameraFov = 45;
+
+		//light.shadowCameraVisible = true;
+
+		light.shadowBias = 0.0001;
+		light.shadowDarkness = 0.1;
+
+		light.shadowMapWidth = SHADOW_MAP_WIDTH;
+		light.shadowMapHeight = SHADOW_MAP_HEIGHT;
+
+		scene.add( light );
+
+		createScene();
+
+		// RENDERER
+
+		renderer = new THREE.WebGLRenderer( { clearAlpha: 1, antialias: BrowserDetect.browser == "Safari" ? false : true } ); //0x000000
+		renderer.setClearColor( GREEN );
+		renderer.setSize( SCREEN_WIDTH, SCREEN_HEIGHT );
+		renderer.domElement.style.position = "relative";
+		renderer.domElement.style.top = MARGIN + 'px';
+		container.appendChild( renderer.domElement );
+
+		//renderer.setClearColor( scene.fog.color, 1 );
+		renderer.autoClear = false;
+		renderer.shadowMapEnabled = BrowserDetect.browser == "Safari" ? false : true;
+		renderer.shadowMapSoft = false;
+
+		// STATS
+
+		stats = new Stats();
+		stats.domElement.style.position = 'absolute';
+		stats.domElement.style.top = '0px';
+		stats.domElement.style.zIndex = 100;
+	  //container.appendChild( stats.domElement );
+
+	}
+
+	//INIT PHYSICS
+
+	function init_jiglib() {
+
+		system = jiglib.PhysicsSystem.getInstance();
+		system.setCollisionSystem(true); // CollisionSystemGrid
+		system.setSolverType("ACCUMULATED");
+		system.setGravity( new Vector3D( 0, -9.8, 0, 0 ) );
+
+		var ground = new jiglib.JPlane();
+		ground.set_y(0);//-250
+		ground.set_rotationX(90);//90
+		ground.set_movable(false);				
+		system.addBody( ground );
+	}
+
+	function createScene( ) {
+
+		// GROUND
+
+		var geometry = new THREE.PlaneGeometry( 1000, 1000 );
+		var planeMaterial = new THREE.MeshBasicMaterial( { color: GREEN} );//0xffffff
+		//THREE.ColorUtils.adjustHSV( planeMaterial.color, 0, 0, 0.9 );
+		planeMaterial.ambient = planeMaterial.color;
+
+		var ground = new THREE.Mesh( geometry, planeMaterial );
+		ground.position.set( 0, FLOOR, 0 );
+		ground.rotation.x = -Math.PI/2;
+		ground.scale.set( 1, 1, 1 ); //100,100,100
+		//ground.castShadow = false;
+		ground.receiveShadow = true;
+		scene.add( ground );
+				
+		geometry = new THREE.SphereGeometry(1, 8, 8);
+
+		// TOAST MATERIAL TEXTURE CUBE
+		var path = "textures/cube/white/";
+		var format = '.png';
+		var urls = [
+		path + 'p' + format, path + 'p' + format,
+		path + 'py' + format, path + 'p' + format,
+		path + 'p' + format, path + 'p' + format
+		];
+		var textureCube = THREE.ImageUtils.loadTextureCube( urls );
+		toasterMaterial = new THREE.MeshPhongMaterial( { color: 0xffffff, envMap: textureCube } );
+	
+		// LOAD TOASTER
+		loadToasterBase();
+	}
+
+	function loadToasterBase()
+	{
+		var loader = new THREE.JSONLoader();
+		loader.load( "3d/toaster_base.js", function( geometry ) 
+		{
+			toasterBase = new THREE.Mesh( geometry, toasterMaterial);
+			toasterBase.scale.set(1, 1, 1); //50,50,50
+			toasterBase.position.x = 0; //500
+			toasterBase.position.y = 5; //FLOOR + 250
+			toasterBase.position.z = 0; //800
+			toasterBase.rotation.y = degToRad(-90);
+			light.lookAt(toasterBase);
+			toasterBase.castShadow = true;
+			//toasterBase.receiveShadow = true;
+					
+			var _w = 5.7;
+			var _h = 8.5;
+			var _d = 11;
+
+			jiglib_toasterBase = new jiglib.JBox( null, _w, _d, _h );
+			jiglib_toasterBase._id = "toasterBase";
+			jiglib_toasterBase.set_mass( 50 );
+			jiglib_toasterBase.set_movable(false);	
+			jiglib_toasterBase.moveTo( new Vector3D( 0, 4, 0, 0 ) );
+			system.addBody( jiglib_toasterBase );
+			
+			var mat = new THREE.MeshLambertMaterial( {color: 0xFFAA55, opacity:0, transparent:true} );
+			var geo = new THREE.CubeGeometry(_w, _h, _d);
+			var mesh = new THREE.Mesh(geo, mat);
+			mesh.position.y = 4;
+			//mesh.position.x = 0;
+			mesh.rigidBody = jiglib_toasterBase;
+			mesh.matrixAutoUpdate = false;	
+			scene.add(mesh);
+			//toasterBase.rigidBody = jiglib_toasterBase;
+
+			scene.add(toasterBase);
+			loadToasterHandle();
+		} );
+	}
+
+	function loadToasterHandle()
+	{
+		var loader = new THREE.JSONLoader();
+		loader.load( "3d/toaster_handle.js", function( geometry ) 
+		{
+			toasterHandle = new THREE.Mesh( geometry, toasterMaterial);
+			toasterHandle.scale.set(1, 1, 1);//50,50,50
+			toasterHandle.position.x = toasterBase.position.x;
+			toasterHandle.position.y = toasterBase.position.y;
+			toasterHandle.position.z = toasterBase.position.z;
+			toasterHandle.rotation.y = toasterBase.rotation.y;
+			//light1.lookAt(toaster);
+			toasterHandle.castShadow = true;
+			//toasterHandle.receiveShadow = true;
+			scene.add(toasterHandle);
+			loadToast();
+		} );
+	}
+	
+	function loadToast()
+	{
+		var loader = new THREE.JSONLoader();
+		loader.load( "3d/toast.js", function( geometry ) 
+		{
+			toastGeometry = geometry;
+			loadToastTexture();
+		} );
+	}
+	
+	function loadToastTexture() 
+	{
+		
+			var textureImg = new Image();
+			textureImg.onload = function()
+			{		
+				var toastMap = new THREE.Texture( this );
+				toastMap.flipY = false;
+				toastMap.needsUpdate = true;
+				toastMaterial = new THREE.MeshPhongMaterial( { map:toastMap } );
+				loadComplete();
+			};
+			textureImg.src = "textures/toast_texture.png";
+	}
+	
+	function loadComplete() {
+		if (parent.toys)
+		{
+			parent.toys.loadCompleted("webgl","toaster");
+		}
+		else
+		{
+			start();
+		}
+	}
+
+	function start(){
+		console.log("started "+camera.position.z);
+		animate();
+	}
+
+	function animate() {
+		requestId = requestAnimationFrame( animate );
+		updateDynamicsWorld()
+		render();
+		stats.update();
+	}
+	
+	function layout() {
+		windowHalfX = window.innerWidth / 2;
+		windowHalfY = window.innerHeight / 2;
+		SCREEN_WIDTH = window.innerWidth;
+		SCREEN_HEIGHT = window.innerHeight - 2 * MARGIN;
+		camera.aspect = SCREEN_WIDTH / SCREEN_HEIGHT;
+		camera.left = window.innerWidth / - 2;
+		camera.right = window.innerWidth / 2;
+		camera.top = window.innerHeight / 2;
+		camera.bottom = window.innerHeight / - 2;
+		camera.updateProjectionMatrix();
+		renderer.setSize( SCREEN_WIDTH, SCREEN_HEIGHT );
+	}
+
+	function render() {
+
+		renderer.clear();
+		
+		if (runTrack)
+		{
+			camera.position = getCameraPositionOnTrack();
+		}
+
+		camera.lookAt(lookAtPosition);
+
+		if (activeToast && !toastInToaster)
+		{
+			camera.position.x += ( mouseX - camera.position.x ) * .1;
+		}
+		else if (toasterBase && introDone && !toasterBusy)
+		{
+			camera.position.x += ( mouseX - camera.position.x ) * .1;
+			if (!toasterBusy)
+				camera.position.y -= ( ( -40 * ( 1 - mouseRatioY)) + camera.position.y ) * .1;  //70 range  //0 offset
+			
+			camera.position.z -= ( ( -20 * ( 1 - mouseRatioY ) - 20 ) + camera.position.z ) * .1; //20 range  //20 offset
+		}
+		
+		renderer.render( scene, camera );
+		camera.updateMatrix();
+	}
+
+	function updateDynamicsWorld() {
+
+		var t1 = new Date().getTime();
+		var ms = t1 - t0;
+		t0 = t1;
+		system.integrate( ms / worldSpeed );
+
+		for ( var i = 0, l = scene.children.length; i < l; i ++ ) {
+
+			var mesh = scene.children[i];
+			if (mesh.rigidBody) {
+				var pos = mesh.rigidBody.get_currentState().position;
+				var dir = mesh.rigidBody.get_currentState().orientation.get_rawData();
+				var cols = mesh.rigidBody.collisions[0];
+
+				if (cols && (cols.objInfo.body1._type == "PLANE" || (mesh.active == false && cols.objInfo.body1._type == "BOX") || cols.objInfo.body1._id == "toasterBase") && mesh.hitGround != true && toastSoundActive == true)
+				{
+					toastSoundId = toastSoundId == "toastSound1" ? "toastSound2" : "toastSound1";
+					document.getElementById(toastSoundId).play();
+					mesh.hitGround = true;
+					mesh.active = false;
+				}
+				
+				var matrix = new THREE.Matrix4();
+				matrix.makeTranslation( pos.x, pos.y, pos.z );
+				var rotate = new THREE.Matrix4(dir[0], dir[1], dir[2], dir[3], dir[4], dir[5], dir[6], dir[7], dir[8], dir[9], dir[10], dir[11], dir[12], dir[13], dir[14], dir[15]);
+				matrix.multiply(rotate); //multiplySelf
+				mesh.matrix = matrix;
+				//mesh.update(false, true, camera)
+				mesh.updateMatrixWorld(true);
+			}
+		}
+	}
+	
+	function JL2THREE(target, pos, dir) 
+	{
+		var position = new THREE.Matrix4();
+		position.setTranslation( pos[0], pos[1], pos[2]);
+		var rotate = new THREE.Matrix4(dir[0], dir[1], dir[2], dir[3], dir[4], dir[5], dir[6], dir[7], dir[8], dir[9], dir[10], dir[11], dir[12], dir[13], dir[14], dir[15]);
+		position.multiply(rotate);//multiplySelf
+		target.matrix = position;
+		target.update(false, true, camera);
+	}
+	
+	function degToRad(deg) {
+		return (deg*3.14159)/180;
+	}
+	
+	function radToDeg(rad) {
+		return rad*(180/3.14159);
+	}
+	
+	function addToast(){
+		TweenMax.killTweensOf(camera.position);
+		TweenMax.killTweensOf(lookAtPosition);
+		
+		TweenMax.to(camera.position, 1.5, {y: 5, z:50, ease:Cubic.easeInOut });
+		TweenMax.to(lookAtPosition, 1.5, {y: 5, z:0, ease:Cubic.easeInOut });
+		
+		lookAtPosition = new Vector3D(0,5,0);
+		activeToast = null;
+		toastInToaster = true;
+		toasterBusy = true;
+		toastSoundActive = false;
+
+		//new TWEEN.Tween(lookAtPosition).to( {x: 0, y: 5, z:0 }, 1000 ).easing( TWEEN.Easing.Cubic.EaseOut).start();
+		
+		jiglib_toasterBase.set_y(-8);
+		var toasts = [];
+		document.getElementById("handleSound").play();
+		setTimeout(playToasterBuzz, 400);
+		for ( var i = 0; i < 2; i ++ ) {
+		
+			var cube = new jiglib.JBox( null, 6, .5, 6 );
+			cube.set_mass( 15 );
+			cube.moveTo( new Vector3D( toasterBase.position.x - i == 0 ? 1.5 : -1.5, toasterBase.position.y + Math.random()*3+1, toasterBase.position.z, 0 ) );
+			cube.set_rotationY(90);
+			cube.setActive(false);
+			cube._movable = false;
+			system.addBody( cube );	
+
+			setTimeout(playDropSound, 500);
+
+			//var geometry = new THREE.CubeGeometry( width, height, depth );
+			var mesh = new THREE.Mesh( toastGeometry, toastMaterial );
+			mesh.position = cube.get_currentState().position;
+			mesh.rotation.y = degToRad(90);
+			mesh.overdraw = true;		
+			mesh.receiveShadow = true;
+			mesh.castShadow = true;
+			mesh.matrixAutoUpdate = true;			
+			mesh.rigidBody = cube;
+			mesh.active = true;
+			
+			TweenMax.to(mesh.position, 1, { y:4 });
+			
+			//*new TWEEN.Tween(mesh.position).to( {y: 4 }, 300 ).start();
+			
+			scene.add( mesh );
+			toasts.push(mesh);
+
+		}
+		updateDynamicsWorld();
+		
+		TweenMax.to(toasterHandle.position, .2, {y: 2 });
+		startTrack();
+		
+		return toasts;
+	}
+	
+	function playToasterBuzz()
+	{
+		document.getElementById("buzzKick").volume = document.getElementById("buzzLoop").volume = .01;
+		document.getElementById("buzzKick").play();
+		document.getElementById("buzzLoop").play();
+	}
+	
+	function playDropSound()
+	{
+		//document.getElementById("toastdrop1").play();
+		document.getElementById("toastdrop2").play();
+	}
+	
+	function fireToast(toasts)
+	{
+		trackDisabled();
+		toastInToaster = false;
+		document.getElementById("releaseSound").play();
+		document.getElementById("buzzKick").pause();
+		document.getElementById("buzzLoop").pause();
+		document.getElementById("buzzKick").currentTime = 0;
+		document.getElementById("buzzLoop").currentTime = 0;
+		
+		//jiglib_toasterBase.setActive(true);
+		setTimeout(enableToaster, 700);
+		for ( var i = 0; i < 2; i ++ ) {
+			activeToast = toasts[i];
+			var rigid = activeToast.rigidBody;
+			rigid.setActive(true);
+			activeToast.matrixAutoUpdate = false;
+			rigid._movable = true;
+			updateDynamicsWorld();	
+			var dirx = Math.random() < .5 ? 1 : -1;
+			var dirz = Math.random() < .5 ? 1 : -1;
+			var v = new jiglib.Vector3D(20*dirx,FORCE,20*dirx);
+			var v2 = new jiglib.Vector3D(rigid.get_currentState().position.x+Math.random(), rigid.get_currentState().position.y, rigid.get_currentState().position.z-Math.random());
+			//*new TWEEN.Tween(toasterHandle.position).to( {y: toasterBase.position.y }, 100 ).start();
+			rigid.applyWorldImpulse(v, v2, true);
+		}
+
+		TweenMax.to(toasterHandle.position, .1, {y: toasterBase.position.y });
+		
+		TweenMax.to(camera.position, 2, {y: 60, z:55, ease:Cubic.easeOut });
+		TweenMax.to(camera.position, 1.5, {y: 5, z:50, delay:2, ease:Cubic.easeInOut, onComplete:cameraToastViewComplete });
+		
+		TweenMax.to(lookAtPosition, 2, {y: 45, z:15, ease:Cubic.easeOut });
+		TweenMax.to(lookAtPosition, 1.5, {y: 5, z:0, delay:2, ease:Cubic.easeInOut, onComplete:cameraToastViewComplete });
+		
+	}
+	function startTrack()
+	{
+		circleTrack.angle = mouseRatioX < .5 ? 165 : 25;
+		var camPos = getCameraPositionOnTrack();
+		TweenMax.to(camera.position, .5, {x:camPos.x, y:camPos.y, z:camPos.z, onComplete:trackEnabled, onCompleteParams:[mouseRatioX < .5 ? 359 : -359], ease:Linear.easeNone});
+		//trackEnabled();
+	}
+	
+	function trackEnabled(a)
+	{
+		runTrack = true;
+		TweenMax.to(circleTrack, 5, {angle:a, repeat:-1, ease:Linear.easeNone});
+	}
+	
+	function trackDisabled()
+	{
+		runTrack = false;
+		TweenLite.killTweensOf(circleTrack);
+	}
+	
+	function getCameraPositionOnTrack()
+	{
+		var rad = circleTrack.angle * (Math.PI / 180);
+		var radius = 30;
+		return new THREE.Vector3(radius * Math.cos(rad), 15, radius * Math.sin(rad));
+	}
+	
+	function enableToaster()
+	{
+		jiglib_toasterBase.set_y(4);
+		toastSoundActive = true;
+		toasterBusy = false;
+	}
+	
+	function cameraToastViewComplete()
+	{
+		activeToast = null;
+	}
+
+	function onDocumentMouseMove(event) {
+		mouseX = ( event.clientX - windowHalfX ) * .1; //2
+		mouseY = ( event.clientY - window.innerHeight) * .1; //2
+		
+		mouseRatioX = event.clientX / window.innerWidth;
+		mouseRatioY = event.clientY / window.innerHeight;
+		
+		//eventMouseX = event.clientX;
+		//eventMouseY = event.clientY;
+	}
+
+	function onDocumentMouseDown(event) 
+	{
+		if (!toasterBusy)
+		{
+			event.preventDefault();
+			TweenMax.to(toasterHandle.position, .2, {y: 2 });
+			//*new TWEEN.Tween(toasterHandle.position).to( {y: 2 }, 500 ).easing( TWEEN.Easing.Exponential.EaseOut).start();
+			toasterBusy = true;
+			
+			var toasts = addToast();
+			setTimeout(fireToast, Math.random()*1000 + 3000, toasts);
+			
+			//fireToasts(toasts);
+		}
+	}
+        
+        function destroy()
+        {
+            camera, scene, renderer, cameraCube, sceneCube, cubeTarget,
+            toasterHandle, toasterBase, toasterMaterial, toastGeometry, toastMaterial,
+            jiglib_toasterBase, jiglib_toasterSideMid, jiglib_toasterSideRight = null;
+            
+            activeToast = null;
+            light = null;
+            clock = null;
+            
+            TweenMax.killAll();
+
+            window.cancelAnimationFrame( requestId );
+            
+            system = null;
+
+            document.removeEventListener( 'mousemove', onDocumentMouseMove);
+            document.removeEventListener( 'mousedown', onDocumentMouseDown);
+
+            window.removeEventListener('resize', layout);
+
+        }
+
+	</script>
+
+	<script type="text/javascript">
+
+	  var _gaq = _gaq || [];
+	  _gaq.push(['_setAccount', 'UA-1588495-2']);
+	  _gaq.push(['_trackPageview']);
+
+	  (function() {
+	    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+	    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+	    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+	  })();
+
+	</script>
+
+</body>
+</html>

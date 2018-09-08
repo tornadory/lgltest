@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+
+<body>
+    <canvas id="webgl" width="512" height="512">
+        Please use a browser that supports canvas.
+    </canvas>
+
+
+    <script type="text/javascript" src="./webgl-utils.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/gl-matrix/2.3.2/gl-matrix-min.js"></script>
+
+    <script>
+        let canvas = document.getElementById('webgl');
+        let gl = getWebGLContext(canvas);
+        let VSHADER_SOURCE = null;
+        let FSHADER_SOURCE = null;
+        loadShaderFromFile(gl, 'vshader.glsl', gl.VERTEX_SHADER, onLoadShader);
+        loadShaderFromFile(gl, 'fshader.glsl', gl.FRAGMENT_SHADER, onLoadShader);
+
+        function onLoadShader(gl, fileString, type) {
+            if (type === gl.VERTEX_SHADER) {
+                VSHADER_SOURCE = fileString;
+            } else if (type === gl.FRAGMENT_SHADER) {
+                FSHADER_SOURCE = fileString;
+            }
+            if (VSHADER_SOURCE && FSHADER_SOURCE) {
+                start();
+            }
+        }
+
+        function initVertexBuffers(gl) {
+            let latitudeBands = 50;
+            let longitudeBands = 50;
+            let radius = 2;
+            let vertexPositionData = [];
+            let normalData = [];
+            let textureCoordData = [];
+            let indexData = [];
+            // Calculate sphere vertex positions, normals, and texture coordinates.
+            for (let latNumber = 0; latNumber <= latitudeBands; ++latNumber) {
+                let theta = latNumber * Math.PI / latitudeBands;
+                let sinTheta = Math.sin(theta);
+                let cosTheta = Math.cos(theta);
+                for (let longNumber = 0; longNumber <= longitudeBands; ++longNumber) {
+                    let phi = longNumber * 2 * Math.PI / longitudeBands;
+                    let sinPhi = Math.sin(phi);
+                    let cosPhi = Math.cos(phi);
+                    let x = cosPhi * sinTheta;
+                    let y = cosTheta;
+                    let z = sinPhi * sinTheta;
+                    let u = 1 - (longNumber / longitudeBands);
+                    let v = 1 - (latNumber / latitudeBands);
+                    vertexPositionData.push(radius * x);
+                    vertexPositionData.push(radius * y);
+                    vertexPositionData.push(radius * z);
+                    normalData.push(x);
+                    normalData.push(y);
+                    normalData.push(z);
+                    textureCoordData.push(u);
+                    textureCoordData.push(v);
+                }
+            }
+            // Calculate sphere indices.
+            for (let latNumber = 0; latNumber < latitudeBands; ++latNumber) {
+                for (let longNumber = 0; longNumber < longitudeBands; ++longNumber) {
+                    let first = (latNumber * (longitudeBands + 1)) + longNumber;
+                    let second = first + longitudeBands + 1;
+                    indexData.push(first);
+                    indexData.push(second);
+                    indexData.push(first + 1);
+                    indexData.push(second);
+                    indexData.push(second + 1);
+                    indexData.push(first + 1);
+                }
+            }
+            vertexPositionData = new Float32Array(vertexPositionData);
+            normalData = new Float32Array(normalData);
+            textureCoordData = new Float32Array(textureCoordData);
+            indexData = new Uint16Array(indexData);
+            // Create buffer objects.
+            let vertexPositionBuffer = gl.createBuffer();
+            let vertexNormalBuffer = gl.createBuffer();
+            let indexBuffer = gl.createBuffer();
+            // Write the vertex positions to their buffer object.
+            gl.bindBuffer(gl.ARRAY_BUFFER, vertexPositionBuffer);
+            gl.bufferData(gl.ARRAY_BUFFER, vertexPositionData, gl.STATIC_DRAW);
+            // Assign position coords to attrib and enable it.
+            let VertexPosition = gl.getAttribLocation(gl.program, 'VertexPosition');
+            gl.vertexAttribPointer(VertexPosition, 3, gl.FLOAT, false, 0, 0);
+            gl.enableVertexAttribArray(VertexPosition);
+            // Write the normals to their buffer object.
+            gl.bindBuffer(gl.ARRAY_BUFFER, vertexNormalBuffer);
+            gl.bufferData(gl.ARRAY_BUFFER, normalData, gl.STATIC_DRAW);
+            // Assign normal to attrib and enable it.
+            let VertexNormal = gl.getAttribLocation(gl.program, 'VertexNormal');
+            gl.vertexAttribPointer(VertexNormal, 3, gl.FLOAT, false, 0, 0);
+            gl.enableVertexAttribArray(VertexNormal);
+            // Pass index buffer data to element array buffer.
+            gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
+            gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, indexData, gl.STATIC_DRAW);
+            return indexData.length
+        }
+
+        function start() {
+            // Init vertex and fragment shaders.
+            initShaders(gl, VSHADER_SOURCE, FSHADER_SOURCE);
+            // Init vertex buffers (position, color, and index data).
+            let n = initVertexBuffers(gl);
+            // Set up clear color and enable depth testing.
+            gl.clearColor(0.0, 0.0, 0.0, 1.0);
+            gl.enable(gl.DEPTH_TEST);
+            // Create projection matrix.
+            let projection = mat4.create();
+            mat4.perspective(projection, Math.PI / 6, 1.0, 0.1, 100.0);
+            // Create model-view matrix.
+            let modelView = mat4.create();
+            mat4.lookAt(modelView, [0.0, 0.0, 10.0], [0.0, 0.0, 0.0], [0.0, 1.0, 0.0]);
+            // Multiply the projection matrix by the model-view matrix to create the mvpMatrix.
+            let mvpMatrix = mat4.create();
+            mat4.multiply(mvpMatrix, projection, modelView);
+            // Pass the modelView matrix into the shader.
+            let ModelViewMatrix = gl.getUniformLocation(gl.program, 'ModelViewMatrix');
+            gl.uniformMatrix4fv(ModelViewMatrix, false, modelView);
+            // Pass the mvp matrix into the shader.
+            let MVP = gl.getUniformLocation(gl.program, 'MVP');
+            gl.uniformMatrix4fv(MVP, false, mvpMatrix);
+            // Pass the light position into the shader.
+            let LightPosition = gl.getUniformLocation(gl.program, 'LightPosition');
+            gl.uniform4fv(LightPosition, [10.0, 10.0, 10.0, 1.0]);
+            // Pass the material diffuse color into the shader.
+            let Kd = gl.getUniformLocation(gl.program, 'Kd');
+            gl.uniform3fv(Kd, [0.9, 0.5, 0.3]);
+            // Pass the light diffuse color into the shader.
+            let Ld = gl.getUniformLocation(gl.program, 'Ld');
+            gl.uniform3fv(Ld, [1.0, 1.0, 1.0]);
+            // Clear & draw.
+            gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+            gl.drawElements(gl.TRIANGLES, n, gl.UNSIGNED_SHORT, 0);
+        }
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,995 @@
+<!doctype html>
+<html lang="en">
+	<head>
+	
+		<script type="text/javascript" src="js/utils.js"></script>
+		<script type="text/javascript" src="js/tools.js"></script>
+		<script type="text/javascript" src="js/lib/jquery-1.7.1.min.js"></script>
+		<script type="text/javascript" src="js/lib/jquery-ui-1.8.17.custom.min.js"></script>
+		
+		<script src="js/lib/jquery-1.7.1.min.js"></script>
+		<script src="js/lib/ui/jquery.ui.core.js"></script>
+		<script src="js/lib/ui/jquery.ui.widget.js"></script>
+		<script src="js/lib/ui/jquery.ui.mouse.js"></script>
+		<script src="js/lib/ui/jquery.ui.slider.js"></script>
+                
+        <script src="js/libs/gs/TweenMax.min.js"></script>
+		<script src="js/libs/three63/three.js"></script>
+		<!--<script type="text/javascript" src="js/Three.js"></script>-->
+		<script type="text/javascript" src="js/RequestAnimationFrame.js"></script>
+		<script type="text/javascript" src="js/Stats.js"></script>
+		<script type="text/javascript" src="js/Detector.js"></script>
+                
+		<!-- Include the heartcode canvasloader js file  -->
+		<script type="text/javascript" src="assets/fancybox/jquery.fancybox-1.3.4.pack.js"></script>
+		<script src="js/heartcode-canvasloader-min-0.9.1.js"></script>
+		
+		
+		<title>DeathPaint™ beta</title>
+		
+		<meta charset="utf-8">
+		<meta name="author" content="Cartelle">
+				<meta name="description" content="Cartelle presents DeathPaint™: a 3D texture painter built with Three.js and WebGL.">
+				<meta name="keywords" content="deathpaint, webgl, 3d, painting, cartelle, interactive, amsterdam, experiments, toys, digital, paint">
+		<meta property="og:image" content="http://www.cartelle.nl/deathpaint/assets/img/deahtpaint_fb.jpg" />
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+		<link rel="stylesheet" href="assets/fancybox/jquery.fancybox-1.3.4.css" type="text/css" media="screen" />
+		
+		<link rel="stylesheet" href="css/jquery.ui.all.css">
+		<link rel="stylesheet" href="css/demos.css">
+		<link rel="stylesheet" href="css/styles.css">
+	</head>
+
+	<body>
+		<div id="logo"><a href="http://www.cartelle.nl" target="_blank"><img src="assets/logo.png"></a></div>
+				<div class="wrapper">
+					<div id="introWrapper">
+						<div id="introScreen">
+							<div id="deathpaintLogo">
+
+								<img src="assets/img/deathpaint-grey-logo.jpg">
+								<img src="assets/img/deathpaint-logo.jpg" class="overlay">
+
+								<p id="webgl-message">
+									Cartelle presents DeathPaint™ <br/>
+									a 3D texture painter built with Three.js and WebGL.<br/>
+									Don't forget to share your skull with your friends!	
+								</p>
+
+								<p id="no-webgl-message">
+									DeathPaint™ requires a modern browser to run successfully.<br/>
+									Your browser or video card do not seem to support WebGL. <br/>
+									Find out how to get it <a target="_blank" style="text-decoration:underline" href="http://get.webgl.org/">here</a>.
+								</p>
+								<div id="startButton" class="button button-right button-left">start</div>
+								<div id="canvasloader-container" class="canvasloader-wrapper"></div>
+							</div>
+						</div>
+					</div>
+
+		<div id="webgl"></div>
+		
+		<div id="controls">
+
+			<div id="control-category-brush">
+						
+				<div id="control-wrapper-hardness">
+					<h3>hardness</h3>
+					<div id="slider-hardness">
+			
+					</div>
+				</div>
+				
+				<div id="control-wrapper-diameter">
+					<h3>diameter</h3>
+					<div id="slider-diameter">
+			
+					</div>
+				</div>
+		
+			</div>
+			
+			<div id="control-category-zoom">
+						
+				<div id="control-wrapper-zoom">
+					<h3>zoom</h3>
+					<div id="slider-zoom">
+			
+					</div>
+				</div>
+			</div>
+		
+			<div id="controlButtons">
+				<div id="undoButton" class="button button-left" style="width:90px">undo</div>
+				<div id="resetButton" class="button button-right" style="width:90px">clear</div>
+			</div>
+		</div>
+		
+		<div id="share">
+			<!--
+			<div id="shareOptions">
+				<ul>
+					<li>
+						<a id="hiddenCopyLink" style="display:none;"></a>
+						<a id="copyLink">copy link</a>
+					</li>
+					<li><a id="fbLink">share on facebook</a></li>
+					<li><a id="twitterLink" href="">share on twitter</a></li>
+				</ul>
+			</div>
+			-->
+			<a id="saveButtonHidden" style="display:none;"></a>
+			<a id="saveButton"><div class="button button-right button-left" style="width:137px">publish</div></a>
+		</div>
+		
+                <!--
+		<div id="instructions">
+			<h3>rotate</h3>
+			<p>press and hold spacebar</p>
+			
+			<h3>zoom in/out</h3>
+			<p>press "+" key to zoom in</p>
+			<p>press "-" key to zoom out</p>
+			<br/><br/><br/>
+			<h3>
+				
+				<a target="_blank" href="http://www.cartelle.nl/deathpaint/study" target="_blank">developer notes</a>
+			</h3>
+		</div>
+                -->
+		
+		<!--
+		<iframe src="//www.facebook.com/plugins/like.php?href=http://www.cartelle.nl/deathpaint&amp;send=false&amp;layout=button_count&amp;width=150&amp;show_faces=false&amp;action=like&amp;colorscheme=dark&amp;font&amp;height=27&amp;appId=193441067390774" 
+				 	scrolling="no" 
+				 	frameborder="0" 
+				 	style="border:none;overflow:hidden;width:112px;height:27px;"
+					allowTransparency="true" 
+				 	class="fb-like"></iframe>
+		-->
+		<canvas id="brushTip" width="600" height="600"></canvas>
+
+		<script>
+		
+		if ( ! Detector.webgl )
+		{
+			showNoWebglMessage();
+		}
+		else
+		{
+			init();
+		}
+		
+		var container, stats;
+		var scene, sceneDebug;
+		var projector, renderer;
+		var camera, cameraRTT;
+		var pointLight1, pointLight2;
+		var mousePoint = {};
+		var mousePoint2D = {};
+		var oldMousePoint = {};
+		var targetRotationX = 0 
+		var targetRotationY = -.2;
+		var targetRotationOnMouseDownX = 0;
+		var targetRotationOnMouseDownY = 0;
+		var mouseXOnMouseDown = 0;
+		var mouseYOnMouseDown = 0;
+		var lastFoundTexturePoint;
+		var targetScale = 10;
+		var particleMaterial, colorMaterial, faceMaterial, lastPaintableMaterial, paintableMaterial;
+		var colorData;
+		var mesh, geometry, meshContainer;
+		var mouseDown = false;
+		var spacebarDown = false;
+		var windowHalfX = window.innerWidth / 2;
+		var windowHalfY = window.innerHeight / 2;
+		var renderTargetParameters, renderTarget;
+		var brushColor, brushSize;
+		var brushHardness = 0;
+		var textureHeight = 1024;
+		var textureWidth = 1024;
+		var canvasLoader;
+		var foregroundColorSelector, isForegroundColorSelectorMouseDown;
+		var mouseDownColorId;
+		var currentCursor;
+		var controlsShowing = false;
+		var firstPointOfStroke = false;
+		var introDone = false;
+                var requestId;
+		
+		function showNoWebglMessage()
+		{
+			$("#startButton").hide();
+			$("#canvasloader-container").hide();
+			$("#webgl-message").hide();
+			
+			$("#no-webgl-message").show();
+		}
+		
+		function init() 
+		{
+			var palette;
+			palette = new Palette();
+			foregroundColorSelector = new ColorSelector(palette);
+			foregroundColorSelector.container.onmousedown = onForegroundColorSelectorMouseDown;
+			foregroundColorSelector.container.onmouseup = onForegroundColorSelectorMouseUp;
+			foregroundColorSelector.container.onmousemove = onForegroundColorSelectorMouseMove;
+			
+			foregroundColorSelector.show();
+			foregroundColorSelector.container.style.position = 'absolute';
+			document.body.appendChild(foregroundColorSelector.container);
+			//$("#controls").prepend(foregroundColorSelector.container);
+			
+			container = document.createElement( 'div' );
+			container.style.position = 'absolute';
+			$("#webgl").append(container);
+			
+			renderer = new THREE.WebGLRenderer();
+			container.appendChild(renderer.domElement);
+			
+			scene = new THREE.Scene();
+			//camera = new THREE.OrthographicCamera( window.innerWidth / - 2, window.innerWidth / 2, window.innerHeight / 2, window.innerHeight / - 2, -1000, 1000 );
+			camera = new THREE.PerspectiveCamera( 35, window.innerWidth / window.innerHeight, .1, 2000 );
+			camera.position.set( 0, 0, 1000 );
+			renderTarget = new THREE.WebGLRenderTarget( window.innerWidth, window.innerHeight );//, { minFilter: THREE.LinearFilter, magFilter: THREE.NearestFilter, format: THREE.RGBFormat }
+			projector = new THREE.Projector();
+
+			var PI2 = Math.PI * 2;
+			
+			// Lights
+			pointLight1 = new THREE.PointLight( 0xffffff );
+			pointLight1.position.x = -1900;
+			pointLight1.position.y = -130;
+			pointLight1.position.z = -460;
+			pointLight1.intensity = 0;
+                        scene.add( pointLight1 );
+		
+			pointLight2 = new THREE.PointLight( 0xffffff );
+                        scene.add( pointLight2 );
+                        
+                        if (parent.toys)
+                            $("#logo").hide();
+			$("#introScreen").hide();
+			$("#startButton").hide();
+
+			disableUndo();
+			disableSelection(document.body);
+			loadModel();
+			$(window).resize(function() { layout(); });
+			setCursor("move-cursor");
+		}
+
+		function loadModel() 
+		{
+			var loader = new THREE.JSONLoader( true );
+			loader.load( "assets/skull_new_model_1.js", function( geometry )
+			{						
+				mesh = new THREE.Mesh( geometry);
+				loadColorTexture();
+			} );
+		}
+
+		function loadColorTexture()
+		{
+			var textureImg = new Image();
+			textureImg.onload = function()
+			{		
+				var el = document.createElement('canvas');
+				el.width = this.width;
+				el.height = this.height;
+				var ctx = el.getContext('2d');
+				ctx.drawImage(this,0,0);
+				var colorMap = new THREE.Texture( el );
+				colorMap.flipY = false;
+				colorMap.needsUpdate = true;
+				colorMaterial = new THREE.MeshBasicMaterial( { map:colorMap } );
+				loadPaintableTexture();
+			};
+			textureImg.src = "assets/skull_new_model_color_texture.png";
+		}
+		
+		function loadPaintableTexture()
+		{
+			var textureImg = new Image();
+			textureImg.onload = function()
+			{		
+				var el = document.createElement('canvas');
+				el.width = this.width;
+				el.height = this.height;
+				var ctx = el.getContext('2d');
+				ctx.drawImage(this,0,0);
+				var paintableMap = new THREE.Texture( el );
+				paintableMap.flipY = false;
+				paintableMap.needsUpdate = true;
+				paintableMaterial = new THREE.MeshLambertMaterial( { map:paintableMap } );
+				mesh.material = paintableMaterial;
+				meshContainer = new THREE.Object3D();
+				scene.add( meshContainer );
+		    	meshContainer.add( mesh );
+				if (!colorData)
+				{
+					colorData = {};
+					var imageData = getImageData(colorMaterial.map.image);
+					var data = imageData.data;
+					var c = 0;
+				    for (var i = 0; i < data.length; i += 4) {
+				        var red = data[i]; // red
+				        var green = data[i + 1]; // green
+				        var blue = data[i + 2]; // blue
+						var id = red+":"+green+":"+blue;
+						colorData[id] = c;
+						c++;
+				    }
+				}
+
+				//$("#canvasloader-container").hide();
+				//$("#startButton").show();
+				//$(".overlay").fadeIn(500);
+				loadComplete();
+				//start();
+			};
+			//textureImg.src = "services/uploads/"+ (getParameterByName("id") ? getParameterByName("id")+".png" : "Mat_Color_white_large.png");	
+			textureImg.src = "services/uploads/"+ (getParameterByName("id") ? getParameterByName("id")+".png" : "skull_new_model_paintable_texture.png");			
+		}
+		
+		function loadComplete()
+		{
+			if (parent.toys)
+			{
+				parent.toys.loadCompleted("webgl","grenade");
+			}
+			else
+			{
+				start();
+			}
+		}
+		
+		function start() 
+		{
+			
+			$("#introWrapper").fadeOut(1000);
+			
+			stats = new Stats();
+			stats.domElement.style.position = 'absolute';
+			stats.domElement.style.top = '0px';
+			
+			animate();
+			render();
+			layout();
+			
+			mesh.rotation.x = .6;
+			mesh.position.z = -1000;
+			mesh.scale.set(1,.9,1);
+			
+			pointLight2.position.x = -10000;
+			pointLight2.position.y = 500000;
+			pointLight2.position.z = 50000;
+			pointLight2.intensity = 0;
+			
+			var delay = 1;
+			
+                        TweenMax.to(mesh.position, 1.3, {z:0, ease:Expo.easeOut, delay:delay});
+                        TweenMax.to(mesh.rotation, 1.3, {x: targetRotationY, ease:Expo.easeOut, delay:delay});
+                        TweenMax.to(pointLight2.position, 1.3, {y:7750, ease:Expo.easeOut, delay:delay});
+                        TweenMax.to(pointLight2, 1.3, {intensity: .9, ease:Expo.easeOut, delay:delay});
+                        
+			setTimeout(onIntroDone,2000)
+		}
+		
+		function onIntroDone()
+		{
+                        showControls();
+			layout();
+			introDone = true;
+			onForegroundColorSelectorMouseUp({clientX:200, clientY:$("#color-picker-container").position().top + 88});  //simluate click - default to color
+                        
+                        setTimeout(enableControls, 500);
+            }
+		
+		function layout()
+		{
+			$("#color-picker-container").css('top', 40);//
+			$("#color-picker-container").css('left', 40);
+			$("#controls").css('top', ($("#color-picker-container").position().top + 200));
+			$("#controls").css('left', 40);
+	
+			camera.aspect = window.innerWidth / window.innerHeight;
+			camera.left = window.innerWidth / - 2;
+			camera.right = window.innerWidth / 2;
+			camera.top = window.innerHeight / 2;
+			camera.bottom = window.innerHeight / - 2;
+			camera.updateProjectionMatrix();
+			renderer.setSize( window.innerWidth, window.innerHeight );
+			renderTarget.width = window.innerWidth
+			renderTarget.height = window.innerHeight;
+			windowHalfX = window.innerWidth / 2;
+			windowHalfY = window.innerHeight / 2;
+		}
+
+		function animate() 
+		{
+			requestId = requestAnimationFrame( animate );
+			render();
+			stats.update();
+		}
+
+		function render() 
+		{
+			camera.lookAt( scene.position );
+			$("#brushTip").css('top', window.innerHeight - mousePoint.y - (brushSize*(targetScale/10)*1.5));
+			$("#brushTip").css('left', mousePoint.x - (brushSize*(targetScale/10)*1.5));
+			if (mesh && introDone)
+			{
+				mesh.material.map.needsUpdate = true;
+				mesh.rotation.x  += ( targetRotationY - mesh.rotation.x ) * 0.5; 
+				meshContainer.rotation.y  += ( targetRotationX - meshContainer.rotation.y ) * 0.5; 
+				var s = mesh.scale.x += ((targetScale/10) - mesh.scale.x) * 0.5;
+				mesh.scale.set(s,s*.9,s);
+				
+				if (mouseDown)
+				{	
+					var ctx = renderer.getContext("experimental-webgl", {preserveDrawingBuffer: false});
+					
+					if (spacebarDown)
+					{
+						mouseDownColorId = "0:0:0";	
+					}
+					else if (firstPointOfStroke)
+					{
+						mesh.material = colorMaterial;
+						renderer.render( scene, camera, renderTarget );
+						mouseDownColorId = getColor(mousePoint.x, mousePoint.y, ctx);
+						mesh.material = paintableMaterial;
+					}		
+						
+					if (spacebarDown || mouseDownColorId == "0:0:0")
+					{
+						targetRotationX = -targetRotationOnMouseDownX + ( mousePoint.x - windowHalfX - mouseXOnMouseDown ) * 0.02;
+						targetRotationY = -Math.min(Math.max((targetRotationOnMouseDownY + ( mousePoint.y - windowHalfY - mouseYOnMouseDown ) * 0.005), 0),.5);
+						setCursor("move-cursor-down");
+					}
+					else
+					{
+						if (!firstPointOfStroke)
+						{
+							mesh.material = colorMaterial;
+							renderer.render( scene, camera, renderTarget );
+						}
+					
+						var paintPoints = [];
+						var startTexturePoint = getTexturePosition(oldMousePoint.x, oldMousePoint.y, ctx);
+						var endTexturePoint = getTexturePosition(mousePoint.x, mousePoint.y, ctx);
+						
+						//ignore missed colors
+						if (isNaN(startTexturePoint.x)){startTexturePoint = lastFoundTexturePoint;}else{lastFoundTexturePoint = startTexturePoint;}
+						
+						//catch so projected points over different skull parts aren't interpolated
+						if(Math.abs(startTexturePoint.x - endTexturePoint.x) > 100 || Math.abs(startTexturePoint.y - endTexturePoint.y) > 100 ) {startTexturePoint = endTexturePoint;}
+							
+						var paintPoints = lineInterpolate( startTexturePoint, endTexturePoint, brushSize/2);
+						paintPoints.unshift(startTexturePoint);
+						paintPoints.push(endTexturePoint);
+						
+						//wrapping
+						var brushEndPosition = startTexturePoint.x + 30 + brushSize/2;
+						var brushStartPosition = startTexturePoint.x - 20 - brushSize/2;
+						var startTexturePointWrap;
+						if (brushEndPosition > textureWidth)
+						{	
+							startTexturePointWrap = {x:-(textureWidth - brushEndPosition + 10), y:endTexturePoint.y};
+							paintPoints.push(startTexturePointWrap);
+						}
+						else if (brushStartPosition <= 0)
+						{
+							startTexturePointWrap = {x:(textureWidth + brushStartPosition + 10), y:endTexturePoint.y};
+							paintPoints.push(startTexturePointWrap);
+						}
+						
+						mesh.material = paintableMaterial;
+					
+						if (firstPointOfStroke)
+							storeUndo();
+					
+						for (var i = 0; i < paintPoints.length; i++)
+							doPaintPoint(paintPoints[i].x, paintPoints[i].y);
+					}
+					firstPointOfStroke = false;
+				}
+				else
+				{
+					var ray = new THREE.Raycaster();
+					var vecOrigin = new THREE.Vector3( mousePoint2D.x, mousePoint2D.y, - 1 );
+					var vecTarget = new THREE.Vector3( mousePoint2D.x, mousePoint2D.y, 1 );
+
+					projector.unprojectVector( vecOrigin, camera );
+					projector.unprojectVector( vecTarget, camera );
+					vecTarget.sub( vecOrigin ).normalize();
+
+					//ray.origin = vecOrigin;
+					//ray.direction = vecTarget;
+
+					ray.set(vecOrigin, vecTarget);
+
+					var intersects = ray.intersectObjects( [mesh] );
+
+					intersects.length > 0 ? setCursor("brushTip") : setCursor("move-cursor");			
+				}
+			}
+			
+			renderer.render( scene, camera);
+		}
+		
+		/*
+		SKULL MOUSE EVENTS
+		*/
+		function onDocumentMouseDown( event ) 
+		{
+			event.preventDefault();
+			
+			//document.addEventListener( 'mousemove', onDocumentMouseMove, false );
+			document.addEventListener( 'mouseup', onDocumentMouseUp, false );
+			document.addEventListener( 'mouseout', onDocumentMouseOut, false );
+
+			oldMousePoint.x = mousePoint.x = event.clientX;
+			oldMousePoint.y = mousePoint.y = window.innerHeight - event.clientY;
+
+			mouseXOnMouseDown = mousePoint.x - windowHalfX;
+			mouseYOnMouseDown = mousePoint.y - windowHalfY;
+			targetRotationOnMouseDownX = -targetRotationX;
+			targetRotationOnMouseDownY = -targetRotationY;
+			
+			$("#color-picker-container").css("pointer-events", "none");
+			$("#controls").css("pointer-events", "none");
+			
+			firstPointOfStroke = true;
+			mouseDown = true;
+		}
+
+		function onDocumentMouseMove( event ) 
+		{
+			oldMousePoint.x = mousePoint.x;
+			oldMousePoint.y = mousePoint.y;
+			mousePoint.x = event.clientX;
+			mousePoint.y = window.innerHeight - event.clientY;
+			mousePoint2D.x = (event.clientX / window.innerWidth ) * 2 - 1;
+			mousePoint2D.y	= -(event.clientY / window.innerHeight) * 2 + 1;
+			
+			if (mousePoint.x < 250 && !controlsShowing)
+			{
+				showControls();
+				
+			}
+			else if (mousePoint.x > 250 && controlsShowing && parent.toys)
+			{
+				hideControls();
+				
+			}
+			
+		}
+
+		function onDocumentMouseUp( event ) 
+		{
+			mouseDown = false;
+			mouseDownColorId = null;
+			//document.removeEventListener( 'mousemove', onDocumentMouseMove, false );
+			document.removeEventListener( 'mouseup', onDocumentMouseUp, false );
+			document.removeEventListener( 'mouseout', onDocumentMouseOut, false );
+			
+			$("#color-picker-container").css("pointer-events", "auto");
+			$("#controls").css("pointer-events", "auto");
+		}
+
+		function onDocumentMouseOut( event )
+		{
+			mouseDown = false;
+			mouseDownColorId = null;
+			//document.removeEventListener( 'mousemove', onDocumentMouseMove, false );
+			document.removeEventListener( 'mouseup', onDocumentMouseUp, false );
+			document.removeEventListener( 'mouseout', onDocumentMouseOut, false );
+
+		}
+
+		function onDocumentTouchStart( event ) 
+		{
+			if ( event.touches.length == 1 ) 
+			{
+				event.preventDefault();
+
+				mouseXOnMouseDown = event.touches[ 0 ].pageX - windowHalfX;
+				targetRotationOnMouseDownX = targetRotationX;
+				
+				mouseYOnMouseDown = event.touches[ 0 ].pageY - windowHalfY;
+				targetRotationOnMouseDownY = targetRotationY;
+			}
+		}
+
+		function onDocumentTouchMove( event ) {
+
+			if ( event.touches.length == 1 ) 
+			{
+				event.preventDefault();
+			}
+		}
+
+		function onKeyPress(e) 
+		{ 
+			e.preventDefault();
+			if(e.which == 32) 
+			{ 
+				spacebarDown = true;
+			} 
+			else if(e.which == 43 || e.which == 187 || e.which == 107) 
+			{ 
+				targetScale += 1;
+				$( "#slider-zoom" ).slider( "value", targetScale );
+			}
+			else if(e.which == 45 || e.which == 189 || e.which == 109) 
+			{ 
+				targetScale -= 1;
+				$( "#slider-zoom" ).slider( "value", targetScale );
+			}
+
+			var checkWebkitandIE=(e.which==26 ? 1 : 0);
+			var checkMoz=((e.which==122 || e.which == 90) && (e.ctrlKey || e.metaKey ? 1 : 0));
+			if (checkWebkitandIE || checkMoz) {undo()};
+		}
+
+		function onKeyUp(e) 
+		{ 
+			if(e.which == 32) 
+			{ 
+				spacebarDown = false;
+			}
+		}
+		
+		/*
+		PAINTING UTILS
+		*/
+		
+		function getTexturePosition(_x, _y, ctx) 
+		{
+			var id = getColor(_x,_y, ctx)
+			newy = Math.floor(colorData[id] / textureHeight);
+			newx = colorData[id] - newy * textureWidth;
+			return {x:newx, y:newy};
+		}
+		
+		function getColor(_x,_y,ctx) 
+		{
+			var arr = new Uint8Array( 4 );
+			ctx.readPixels(_x, _y, 1, 1, ctx.RGBA, ctx.UNSIGNED_BYTE, arr);
+			return arr[0]+":"+arr[1]+":"+arr[2];
+		}
+
+		function doPaintPoint(_x, _y)
+		{
+			var image3 = mesh.material.map.image;
+			var ctx		= image3.getContext('2d');
+			if (_x > 0)
+			{
+				circle(_x,_y,brushSize,brushColor,ctx);
+			}
+		}
+
+		function circle(x, y, r, c, ctx) {
+			var hardness = brushHardness / 10;
+			var opacity = Math.max(hardness, .2);
+		    ctx.beginPath();
+		    var rad = ctx.createRadialGradient(x, y, 1, x, y, r);
+		    rad.addColorStop(0, 'rgba('+c+','+opacity+')');
+			rad.addColorStop(hardness, 'rgba('+c+','+opacity+')');
+		    rad.addColorStop(1, 'rgba('+c+',0)');
+		    ctx.fillStyle = rad;
+		    ctx.arc(x, y, r, 0, Math.PI*2, false);
+		    ctx.fill();
+		    ctx.closePath();
+		}
+		
+		/*
+		LOADER
+		*/
+		canvasLoader = new CanvasLoader('canvasloader-container');
+		canvasLoader.setColor('#877f87'); // default is '#000000'
+		canvasLoader.setShape('roundRect'); // default is 'oval'
+		canvasLoader.setDiameter(26); // default is 40
+		canvasLoader.setDensity(14); // default is 40
+		canvasLoader.setRange(1.4); // default is 1.3
+		canvasLoader.show(); // Hidden by default
+		
+		
+		/*
+		CONTROLS
+		*/
+		
+                
+                function hideControls()
+                {
+                    controlsShowing = false;
+                    
+                    $("#controls").css("opacity", 0);
+                    $("#color-picker-container").css("opacity", 0);
+                    
+                    //TweenMax.to($("#controls"), .3, {css:{opacity:0}});
+                    //TweenMax.to($("#color-picker-container"), .3, {css:{opacity:0}});
+                }
+                
+                function showControls()
+                {
+                     controlsShowing = true;
+                     $("#color-picker-container").show();
+                     $("#controls").show();
+                     
+                     $("#controls").css("opacity", 1);
+                     $("#color-picker-container").css("opacity", 1);
+                     
+                     //TweenMax.to($("#controls"), .5, {css:{opacity:1}});
+                     //TweenMax.to($("#color-picker-container"), .5, {css:{opacity:1}});
+                }
+                
+                function enableControls()
+                {
+                     document.addEventListener( 'mousemove', onDocumentMouseMove, false );
+                     $(window).keydown(function (e){ onKeyPress(e) });
+		     $(window).keyup(function (e){ onKeyUp(e) });
+                     container.addEventListener( 'mousedown', onDocumentMouseDown, false );
+                     container.addEventListener( 'touchstart', onDocumentTouchStart, false );
+                     container.addEventListener( 'touchmove', onDocumentTouchMove, false );
+                }
+                
+		//COLOR PICKER
+		function onForegroundColorSelectorMouseDown(a) { isForegroundColorSelectorMouseDown = true }
+		function onForegroundColorSelectorMouseUp(a) 
+		{
+		    isForegroundColorSelectorMouseDown = false;
+		    foregroundColorSelector.update(a);
+		    brushColor = foregroundColorSelector.getColor();
+			updateBrushTip();
+		}
+		function onForegroundColorSelectorMouseMove(a) 
+		{
+		    if (!isForegroundColorSelectorMouseDown) { return; }
+		    foregroundColorSelector.update(a);
+		    brushColor = foregroundColorSelector.getColor();
+			updateBrushTip();
+		}
+		
+		//BRUSH HARDNESS
+		function hardnessUpdate() {
+			var value = $( "#slider-hardness" ).slider( "value" );
+			brushHardness = value;
+		}
+		
+		$(function() {
+			$( "#slider-hardness" ).slider({
+				orientation: "horizontal",
+				range: "min",
+				max: 10,
+				value: 0,
+				slide: hardnessUpdate,
+				change: hardnessUpdate
+			});
+			$( "#slider-hardness" ).slider( "value", 5 );
+		});
+		
+		//BRUSH DIAMETER
+		function diameterUpdate() {
+			var value = $( "#slider-diameter" ).slider( "value" );
+			brushSize = value*value;
+			updateBrushTip();
+		}
+		
+		function updateBrushTip()
+		{
+			var ctx = $("#brushTip")[0].getContext('2d');
+			var x = 0;
+			var y = 0;
+			var r = brushSize*(targetScale/10)*1.5; //1.3
+			ctx.clearRect ( 0 , 0 , 1000 , 1000 );
+			ctx.beginPath();
+			ctx.arc(x+r, y+r, r, 0, Math.PI*2, false);
+			ctx.lineWidth = 1;
+			ctx.strokeStyle = 'rgba('+brushColor+',1)';
+			ctx.stroke();
+			ctx.closePath();
+		}
+		
+		$(function() {
+			$( "#slider-diameter" ).slider({
+				orientation: "horizontal",
+				range: "min",
+				min: 1.1,
+				max: 10,
+				step: .1,
+				value: 5.5,
+				slide: diameterUpdate,
+				change: diameterUpdate
+			});
+			$( "#slider-diameter" ).slider( "value", 5.5 );
+		});
+		
+		//ZOOM
+		function zoomUpdate() {
+			var value = $( "#slider-zoom" ).slider( "value" );
+			targetScale = value;
+			updateBrushTip();
+		}
+		
+		$(function() {
+			$( "#slider-zoom" ).slider({
+				orientation: "horizontal",
+				range: "min",
+				min: 5,
+				max: 15,
+				value: 10,
+				slide: zoomUpdate,
+				change: zoomUpdate
+			});
+			$( "#slider-zoom" ).slider( "value", 10 );
+		});
+		
+		//UNDO
+		function enableUndo() { $('#undoButton').removeClass("disabled");}
+		function disableUndo() { $('#undoButton').addClass("disabled"); }
+		function storeUndo()
+		{
+			//store undo
+			enableUndo();
+			var srcimg = mesh.material.map.image;
+			var srcctx = srcimg.getContext('2d');
+			var tarcan = document.createElement('canvas');
+			tarcan.width = srcimg.width;
+			tarcan.height = srcimg.height;
+			var tarctx = tarcan.getContext('2d');
+			tarctx.drawImage(srcimg,0,0);
+			var paintableMap = new THREE.Texture( tarcan );
+			paintableMap.flipY = false;
+			paintableMap.needsUpdate = true;
+			lastPaintableMaterial = new THREE.MeshLambertMaterial( { map:paintableMap } );
+		}
+		
+		function undo()
+		{
+			paintableMaterial = lastPaintableMaterial;
+			mesh.material = paintableMaterial;
+			disableUndo();
+		};
+		
+		$('#undoButton').click(function() 
+		{ 
+			if ($(this).hasClass("disabled")) 
+			{ 
+				return false;
+			}	
+			else 
+			{ 
+				undo(); 
+			} 
+			//$(this).toggleClass('disabled');
+		});
+		
+		
+		//RESET
+		function reset()
+		{
+			var image3 = mesh.material.map.image;
+			var sctx   = image3.getContext('2d');
+			sctx.fillStyle="#fcf5dc";
+			sctx.fillRect(0,0,textureWidth,textureHeight);
+			sctx.fill();
+			disableUndo();
+		}
+		$('#resetButton').click(reset);
+		
+		
+		//CURSOR
+		function setCursor(type)
+		{
+			if (type != currentCursor)
+			{
+				$("#brushTip").hide();
+				$("#webgl").removeClass(currentCursor);	
+				if (type == "brushTip")
+				{
+					$("#brushTip").show();
+				}
+				else
+				{
+					$("#webgl").addClass(type);				
+				}
+			}
+			currentCursor = type;
+		}
+
+		
+		/*
+		SAVING
+		*/
+		function saveViaAJAX(method)
+		{
+			$('<div/>').css('opacity','0.7').addClass('overlay-save').html('<span>saving...</span>').appendTo('body');
+			
+			var image3 = mesh.material.map.image;
+			var testCanvas		= image3.getContext('2d').canvas;
+			var canvasData = testCanvas.toDataURL("image/png");
+			var postData = "canvasData="+canvasData;
+			var ajax = new XMLHttpRequest();
+			ajax.open("POST",'services/testSave.php',true);
+			ajax.setRequestHeader('Content-Type', 'canvas/upload');
+			ajax.onreadystatechange=function()
+		  	{
+				if (ajax.readyState == 4)
+				{
+					var url = location.href;
+					var url_parts = url.split('?');
+					var share_url = url_parts[0] + "?id=" + ajax.responseText;
+					$('.overlay-save').remove();
+					$("#saveButtonHidden").attr("href", "share.html?id="+share_url );
+					$("#saveButtonHidden").fancybox({
+						 'padding' : '0',
+						 'margin' : '0',
+						 'showCloseButton'	: false,
+						 'titleShow'		: false,
+						 'autoScale' : false,
+						 'width' : 421,
+						 'height' : 290,
+						 'transitionIn' : 'none',
+						 'transitionOut' : 'none',
+						 'backgroundColor' : '#000',
+						 'overlayColor' : '#000',
+						 'type' : 'iframe',
+						 onStart : function () {
+							 $('#fancybox-content').hide();
+						 },
+						 onComplete : function () {
+							 setTimeout(function() {
+								$('#fancybox-content').show();
+							 },500);
+						 }
+					 }).trigger('click');
+				
+				}
+		  	}
+
+			ajax.send(postData);
+			return false;
+		}
+		
+                function destroy()
+                {
+                    scene, sceneDebug, projector, renderer, camera, cameraRTT,
+                    pointLight1, pointLight2, particleMaterial, colorMaterial, 
+                    faceMaterial, lastPaintableMaterial, paintableMaterial = null;
+                    
+                    mesh, geometry, meshContainer = null;
+                    
+                    renderTargetParameters, renderTarget = null
+                    
+                    document.removeEventListener( 'mousemove', onDocumentMouseMove);
+                    $(window).keydown = null;
+                    $(window).keyup = null;
+                    container.removeEventListener( 'mousedown', onDocumentMouseDown );
+                    container.removeEventListener( 'touchstart', onDocumentTouchStart);
+                    container.removeEventListener( 'touchmove', onDocumentTouchMove);
+                    
+                    window.cancelAnimationFrame( requestId );
+                    
+                }
+                
+                
+		$("#saveButton").click(function() { saveViaAJAX();});
+		$("#startButton").click(function() { start();});
+
+
+		var _gaq = _gaq || [];
+		  _gaq.push(['_setAccount', 'UA-1588495-4']);
+		  _gaq.push(['_trackPageview']);
+
+		  (function() {
+		    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+		    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+		    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+		  })();
+		
+		</script>
+		</div>
+	</body>
+</html>
