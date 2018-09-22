@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>async xml request</title>
+</head>
+
+<body>
+    <script>
+        class AA {
+            constructor() {
+                this.xml = null;
+            }
+
+            initOld(url) {
+                let req = new XMLHttpRequest();
+                let thiz = this;
+                req.open("GET", url, true);
+                console.log("init ", url);
+                req.onreadystatechange = function () {
+                    console.log("on ready state change ", req);
+                    if (req.readyState == 4) {
+                        if (req.status == 200 || req.status == 0) {
+                            let ans = req.responseXML;
+                            thiz.xml = ans;
+                            console.log("req", req.responseXML);
+                            console.log(thiz.xml);
+                        }
+                    }
+                }
+
+                req.send(null);
+            }
+
+            fetch(url) {
+                return new Promise((resolve, reject) => {
+                    let req = new XMLHttpRequest();
+                    let thiz = this;
+                    req.open("GET", url, true);
+                    // console.log("init ", url);
+                    req.onreadystatechange = function () {
+                        console.log("on ready state change ", req);
+                        if (req.readyState == 4) {
+                            if (req.status == 200 || req.status == 0) {
+                                let ans = req.responseXML;
+                                // req.responseText
+                                thiz.xml = ans;
+                                // console.log("req", req.responseXML);
+                                console.log(thiz.xml);
+                                resolve(ans);
+                            }
+                        }
+                    }
+
+                    req.send(null);
+                });
+
+            }
+
+            async init(url) {
+                try {
+                    this.xml = await this.fetch(url);
+                } catch (e) {
+                    console.error(e);
+                }
+            }
+
+        }
+
+
+        let aa = new AA();
+        // aa.init("dae/anim-bone-02.dae").then(
+        //     function () {
+        //         console.log(aa.xml);
+        //     }
+        // );
+        // console.log("xml", aa.xml);
+        aa.fetch("dae/anim-bone-02.dae").then(function () {
+            console.log(aa.xml);
+        });
+    </script>
+</body>
+
+</html>

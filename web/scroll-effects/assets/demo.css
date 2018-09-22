@@ -1,0 +1,142 @@
+@import url(http://fonts.googleapis.com/css?family=Lato);
+@import url(http://fonts.googleapis.com/css?family=Bitter:400,700);
+
+
+*, *:after, *:before { -webkit-box-sizing: border-box; -moz-box-sizing: border-box; box-sizing: border-box; }
+body, html { font-size: 100%; padding: 0; margin: 0;}
+.clearfix:before, .clearfix:after { content: " "; display: table; }
+.clearfix:after { clear: both; }
+
+body {
+	font-family: 'Lato',Arial, sans-serif;
+	color: #777;
+	font-size: 16px;
+	line-height: 1.6;
+}
+
+a {
+	color: #539f10;
+	text-decoration: none;
+}
+
+a:hover,
+a:active {
+	color: #111;
+}
+h1.site-title a{
+	color:#555; 
+}
+
+h2{
+	font-family: 'Bitter',Georgia,serif; 
+	font-size: 40px;
+	font-weight: 900;
+	color: #222;
+	margin:0px;
+	line-height: 1.2;
+	margin-bottom: 20px;
+}
+
+.topbar{
+	height: 40px;
+	width: 100%;
+	position: fixed;
+	line-height: 40px;
+	background: #539f10;
+	top:0px;
+	padding: 0px 10px;
+	z-index: 100;
+}
+
+.topbar a{
+	color: #fff;
+}
+
+.container{
+	width: 760px;
+	margin: 100px auto 50px;
+}
+
+header.top{
+	border-bottom: 1px solid #ddd;
+	margin-bottom: 50px;
+}
+
+header h1{
+	font-size: 46px;
+	text-align: center;
+	text-transform: uppercase;
+	font-weight: normal;
+	margin: 0px 0px;
+}
+
+.top ul{
+	margin: 0px;
+	text-align: center;
+	padding: 0px;
+	margin-bottom: 30px;
+}
+
+.top ul li{
+	display: inline;
+	list-style: none;
+	margin: 0px 20px;
+}
+
+nav.effects{
+	margin: 20px 0px 50px;
+}
+
+nav.effects ul{
+	margin: 0px 0px;
+	padding: 0px 0px;
+	text-align: center;
+}
+
+nav.effects ul li{
+	display: inline;
+	margin: 10px 10px;
+	text-transform: uppercase;
+	font-size: 12px;
+
+}
+
+nav.effects ul li a{
+	border: 2px solid #539f10;
+	padding: 10px 20px;
+	color: #539f10;
+	opacity: 0.8;
+}
+
+nav.effects ul li a:hover{
+	opacity: 1;
+}
+
+.post{
+	margin-bottom: 80px;
+	text-align: center;
+}
+
+span.icon{
+	display: block;
+	font-size: 200px;
+	color: #111;
+	margin: 30px 0px;
+}
+
+footer.footer{
+	text-align: center;
+	padding: 50px 0px 20px;
+	border-top:1px solid #eee;
+}
+
+
+/* Required */
+
+.hidden{
+	opacity: 0;
+}
+
+.visible{
+	opacity: 1;
+}
