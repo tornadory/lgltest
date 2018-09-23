@@ -1,0 +1,297 @@
+<head>
+<style type="text/css">
+body { background: #eeeeee;
+background: -moz-radial-gradient(center, ellipse cover,  #eeeeee 0%, #cccccc 100%);
+background: -webkit-gradient(radial, center center, 0px, center center, 100%, color-stop(0%,#eeeeee), color-stop(100%,#cccccc));
+background: -webkit-radial-gradient(center, ellipse cover,  #eeeeee 0%,#cccccc 100%);
+background: -o-radial-gradient(center, ellipse cover,  #eeeeee 0%,#cccccc 100%);
+background: -ms-radial-gradient(center, ellipse cover,  #eeeeee 0%,#cccccc 100%);
+background: radial-gradient(ellipse at center,  #eeeeee 0%,#cccccc 100%);
+filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#eeeeee', endColorstr='#cccccc',GradientType=1 );
+font-family: Arial;
+font-size: 10px;
+color: #000;
+}	
+
+</style>	
+</head>
+<script src="js/Three.js"></script>
+<script src="js/Detector.js"></script>
+<script src="js/OrbitControls.js"></script>
+<script src="js/KeyboardState.js"></script>
+<script src="js/THREEx.FullScreen.js"></script>
+<script src="js/THREEx.WindowResize.js"></script>
+<script src="js/dat.gui.min.js"></script>
+
+
+<div id="ThreeJS" style="position: absolute; left:0px; top:0px"></div>
+<div style="position: absolute; left:15; top:15px">THREE.JS Cloth Simulation.</div>
+<script>
+// standard global variables
+var container, scene, camera, renderer, controls, light1, light2, particle, damping, timestepsize, Cloth, constraintIterations, time, sphere, sphereSize, windStrength, geom;
+var keyboard = new KeyboardState();
+timestepsize = 0.6 * 0.6;
+damping = 0.01;
+constraintIterations = 15;
+windStrength = new THREE.Vector3(0,0,1);
+
+// Particle 
+function particle(vector) {
+	this.movable = true;
+	this.position = vector;
+	this.positionPrev = vector;
+	this.mass = 1;
+	this.acc = new THREE.Vector3(0,0,0);
+}
+
+particle.prototype.addForce = function(vector){
+		this.acc = this.acc.add(vector.divideScalar(this.mass)); 
+}
+
+
+// Particle verlet integration
+particle.prototype.timeStep = function() {
+	if(this.movable){
+		var temp = this.position.clone();
+		var delta = new THREE.Vector3(0,0,0);
+		delta.subVectors(temp, this.positionPrev);
+		delta.multiplyScalar(1.0-damping).add(this.position);
+		delta.add(this.acc.multiplyScalar(timestepsize));
+		this.positionPrev = temp;
+		this.position = delta;
+		this.acc.set(0,0,0);
+	}
+}
+
+// Calculating Normals for each face
+function calcTriangleNormal(p1, p2, p3) {
+	var v1 = new THREE.Vector3().subVectors(p2.position, p1.position);
+	var v2 = new THREE.Vector3().subVectors(p3.position, p1.position);
+	return v1.cross(v2)
+}
+
+// Cloth 
+function cloth() {
+	this.w = 50;
+	this.h = 50;
+	this.particles = [];
+	this.particles.length = this.w*this.h;
+	this.constraints = [];
+
+	//  Create Particles
+	for(var x=0; x<this.w; x++) {
+		for(var y=0; y<this.h; y++){
+			this.particles[y*this.w+x] = new particle(new THREE.Vector3(x/this.w, y/this.h, 0));
+		}
+	}
+
+	// Create constraints between particles
+	for(var x=0; x<this.w; x++) {
+		for(var y=0; y<this.h; y++) {
+			if (x<this.w-1) this.constraints.push([this.getParticle(x,y),this.getParticle(x+1,y), new THREE.Vector3().subVectors(this.getParticle(x,y).position, this.getParticle(x+1,y).position).length()]);
+			if (y<this.h-1) this.constraints.push([this.getParticle(x,y),this.getParticle(x,y+1), new THREE.Vector3().subVectors(this.getParticle(x,y).position, this.getParticle(x,y+1).position).length()]);
+			if (x<this.w-1 && y<this.h-1) this.constraints.push([this.getParticle(x,y),this.getParticle(x+1,y+1), new THREE.Vector3().subVectors(this.getParticle(x,y).position, this.getParticle(x+1,y+1).position).length()]);
+			if (x<this.w-1 && y<this.h-1) this.constraints.push([this.getParticle(x+1,y),this.getParticle(x,y+1),  new THREE.Vector3().subVectors(this.getParticle(x+1,y).position, this.getParticle(x,y+1).position).length()]);
+		}
+	}
+
+
+	// Connecting constraints between secondary neighbors in the grid
+	for(var x=0; x<this.w; x++) {
+		for(var y=0; y<this.h; y++) {
+			if (x<this.w-2) this.constraints.push([this.getParticle(x,y),this.getParticle(x+2,y), new THREE.Vector3().subVectors(this.getParticle(x,y).position, this.getParticle(x+2,y).position).length()]);
+			if (y<this.h-2) this.constraints.push([this.getParticle(x,y),this.getParticle(x,y+2), new THREE.Vector3().subVectors(this.getParticle(x,y).position, this.getParticle(x,y+2).position).length()]);
+			if (x<this.w-2 && y<this.h-2) this.constraints.push([this.getParticle(x,y),this.getParticle(x+2,y+2), new THREE.Vector3().subVectors(this.getParticle(x,y).position, this.getParticle(x+2,y+2).position).length()]);
+			if (x<this.w-2 && y<this.h-2) this.constraints.push([this.getParticle(x+2,y),this.getParticle(x,y+2), new THREE.Vector3().subVectors(this.getParticle(x+2,y).position, this.getParticle(x,y+2).position).length()]);
+		}
+	}
+
+	// Making top particles unmovable
+	for(var i=0;i<this.w; i++) {
+		this.getParticle(i ,this.h-1).movable = false; 
+	}
+
+}
+
+cloth.prototype.getParticle = function(x,y) {
+	return this.particles[y*this.w + x]
+}
+
+cloth.prototype.addForce = function(v) {
+	for(var i=0; i<this.particles.length; i++) {
+		this.particles[i].addForce(v);
+	}
+}
+
+cloth.prototype.addWindForceTriangle = function (p1, p2, p3, direction) {
+	var normal = calcTriangleNormal(p1,p2,p3);
+	var d = normal.normalize();
+	var force = normal.multiplyScalar(d.dot(direction));
+	p1.addForce(force);
+	p2.addForce(force);
+	p3.addForce(force);
+}
+
+cloth.prototype.windForce = function(direction) {
+	for(var x = 0; x<this.w-1; x++) {
+		for(var y=0; y<this.h-1; y++) {
+			this.addWindForceTriangle(this.getParticle(x+1,y), this.getParticle(x,y), this.getParticle(x,y+1), direction);
+			this.addWindForceTriangle(this.getParticle(x+1,y+1), this.getParticle(x+1,y), this.getParticle(x,y+1), direction);
+		}
+	}
+}
+
+cloth.prototype.satisfyConstraint = function(constraint) {
+	var distance = new THREE.Vector3(0,0,0);
+	distance.subVectors(constraint[1].position, constraint[0].position);
+	if(distance.length() == 0) {
+		return;
+	};
+	var correctionVec = new THREE.Vector3(0,0,0);
+	correctionVec = distance.multiplyScalar(1-(constraint[2]/distance.length()));
+	if(constraint[0].movable) {
+		constraint[0].position = constraint[0].position.add(correctionVec.multiplyScalar(0.5));
+	};
+	if(constraint[1].movable) {
+		constraint[1].position = constraint[1].position.sub(correctionVec.multiplyScalar(0.5));
+	}
+}
+
+function init() {
+	// Standard three.js init
+	// SCENE
+	scene = new THREE.Scene();
+	// CAMERA
+	var SCREEN_WIDTH = window.innerWidth, SCREEN_HEIGHT = window.innerHeight;
+	var VIEW_ANGLE = 45, ASPECT = SCREEN_WIDTH / SCREEN_HEIGHT, NEAR = 0.1, FAR = 20000;
+	camera = new THREE.PerspectiveCamera( VIEW_ANGLE, ASPECT, NEAR, FAR);
+	scene.add(camera);
+	camera.position.set(-3,0,3);
+	camera.lookAt(scene.position);	
+	// RENDERER
+	if ( Detector.webgl )
+		renderer = new THREE.WebGLRenderer( {antialias:true} );
+	else
+		renderer = new THREE.CanvasRenderer(); 
+	renderer.setSize(SCREEN_WIDTH, SCREEN_HEIGHT);
+	container = document.getElementById( 'ThreeJS' );
+	container.appendChild( renderer.domElement );
+	// EVENTS
+	THREEx.WindowResize(renderer, camera);
+	// CONTROLS
+	controls = new THREE.OrbitControls( camera, renderer.domElement );
+
+
+	// Creating geometry for the cloth
+	Cloth = new cloth();
+	geom = new THREE.Geometry(); 
+	geom.dynamic = true
+	for(var i=0; i<Cloth.particles.length; i++) {
+		geom.vertices.push(Cloth.particles[i].position);
+	};
+	for(var x = 0; x<Cloth.w-1; x++){
+		for(var y=0; y<Cloth.h-1; y++) {
+			if (x%2 > 0) {
+				color = new THREE.Color("red"); 
+			} else {
+				color = new THREE.Color("brown");
+			};
+			geom.faces.push( new THREE.Face3(y*Cloth.w+x+1, y*Cloth.w+x, (y+1)*Cloth.w+x));
+			geom.faces[geom.faces.length-1].color = color;
+			geom.faces.push( new THREE.Face3((y+1)*Cloth.w+x+1, y*Cloth.w+x+1, (y+1)*Cloth.w+x));
+			geom.faces[geom.faces.length-1].color = color;
+		}
+	};
+	geom.computeFaceNormals();
+	var clothMaterial = new THREE.MeshLambertMaterial({
+		wireframe: false,
+		vertexColors: true,
+		side: THREE.DoubleSide
+	})
+	var clothObject = new THREE.Mesh(geom, clothMaterial);
+	clothObject.castShadow = true;
+	clothObject.receiveShadow = true;
+	scene.add(clothObject);
+
+	// Create the Sphere
+	sphereSize = 0.2;
+	sphere = new THREE.Mesh(new THREE.SphereGeometry(sphereSize,20,20), new THREE.MeshPhongMaterial({color: 0xffffff}));
+	sphere.position = new THREE.Vector3(0.6,0.6,0);
+	sphere.receiveShadow = true;
+	sphere.castShadow = true;
+	scene.add(sphere);
+	
+	light = new THREE.PointLight(0xffffff);
+	light.position = new THREE.Vector3(0.1,4.0,4.0);
+	scene.add(light);
+
+	light2 = new THREE.PointLight(0xffffff);
+	light2.position = new THREE.Vector3(0.1,4.0,-4.0);
+	scene.add(light2);
+
+	var gui = new dat.GUI();
+	var f1 = gui.addFolder('Cloth Model');
+	f1.add(clothMaterial, 'wireframe');
+	var f2 = gui.addFolder('Wind Strength');
+	f2.add(windStrength, 'x', -10, 10);
+	f2.add(windStrength, 'y', -10, 10);
+	f2.add(windStrength, 'z', -10, 10);
+
+}
+
+
+function animate() {
+    requestAnimationFrame( animate );
+	render();		
+	update();
+}
+
+
+function update() {
+	// Add gravity forces, and wind on everyupdate
+	var forceVector = new THREE.Vector3(0,-0.2,0);
+	Cloth.addForce(forceVector.multiplyScalar(timestepsize));
+	Cloth.windForce(new THREE.Vector3(windStrength.x / 1000, windStrength.y / 1000, windStrength.z / 1000));
+	sphere.position.setZ(Math.sin(Date.now()/1000));
+
+	// Update particle positions
+	for(var i=0; i<Cloth.particles.length; i++) {
+		Cloth.particles[i].timeStep()
+	}
+	for(var j=0; j<constraintIterations; j++) {
+		for(var i=0; i<Cloth.constraints.length; i++) {
+			Cloth.satisfyConstraint(Cloth.constraints[i]);
+		}
+	}
+
+	// Check If sphere is colliding with cloth, and fix particles position if so
+	for (i=0; i<Cloth.particles.length; i++) {
+		var difference = new THREE.Vector3;
+		difference.subVectors(Cloth.particles[i].position, sphere.position);
+		if (difference.length() < sphereSize) {
+			difference.normalize().multiplyScalar(sphereSize);
+			Cloth.particles[i].position.copy(sphere.position).add(difference);
+		}
+	}
+
+	controls.update();
+}
+
+function render() {
+	// Pass particles positions to cloth geometry
+	for(var i=0; i<Cloth.particles.length; i++) {
+		geom.vertices[i] = Cloth.particles[i].position;
+	}
+	geom.computeFaceNormals();
+	geom.verticesNeedUpdate = true;
+	geom.normalsNeedUpdate = true;
+	renderer.render( scene, camera );
+}
+
+init();
+animate();
+
+</script>
+
+</body>
+</html>

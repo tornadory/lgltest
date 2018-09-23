@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="utf-8">
+	<title>Stories</title>
+	<meta name="description" content="Page scroll animation using CSS animate" />
+	<meta name="keywords" content="css animation, loading effect, animate, scroll loading, scroll animation" />
+	<meta name="author" content="Jinson Abraham" />
+	<link rel="stylesheet" type="text/css" href="assets/animate.css" />
+	<link rel="stylesheet" type="text/css" href="assets/demo.1.css" />
+
+</head>
+
+<body>
+
+	<div class="topnav">
+		<div class="topnav-right">
+			<a href="products.html">Products</a>
+			<a href="#">Stories</a>
+			<a href="aboutus.html">关于我们</a>
+		</div>
+	</div>
+
+	<div class="container">
+
+		<header class="top">
+			<h1 class="site-title">Stories</h1>
+		</header>
+
+		<div class="post">
+			<img src="images/001.png">
+			<div class="contents">
+				<h2> 创新地图大会，王煜全扫描全球黑科技，SPRITAR成焦点 </h2>
+				<p>
+					首届穿心地图大会在深圳隆重举行，创新地图大会目标聚焦在帮助中国企业家更有效掌握科技化与国际化武器，更好地用全球科技视野赋能，希望全面整合王煜老师投资实战经验，与全球科技研发及技术转化领域的专家学者建立深度合作关系，挖掘全球大学科研机构中的优质技术专利资源，帮助中国企业第一时间了解科技前沿突破点，获得发展先机。
+				</p>
+			</div>
+		</div>
+
+		<div class="post">
+			<img src="images/002.png">
+			<div class="contents">
+				<h2>SPRITAR荣获“沙利文中国经济卓越创新奖”</h2>
+				<p>
+					全球著名增长咨询公司Frost & Sullivan弗若斯特沙利文（简称“沙利文”）在上海举办中国新经济峰会，上海玄彩美科网络科技有限公司受邀参加与此次中国新经济峰会，并与Face++、腾讯科技一同荣获中国新经济大奖
+				</p>
+			</div>
+
+		</div>
+
+		<div class="post">
+			<img src="images/003.png">
+			<div class="contents">
+				<h2>AR引爆视频新玩法，2018GVRC全球虚拟现实大会</h2>
+				<p>
+					2018年，随着大数据的广泛应用和人工智能技术的高速发展，跨界融合已成为各大产业持续发展的重要突破口，而“虚拟现实”恰恰正是虚拟与现实之间，人与数据之间的最佳互动沟通技术。第三届GVRC以“跨界融合
+					创想新时代，智慧新明天”为主题，于2018年6月27-29日在上海举办。
+				</p>
+			</div>
+		</div>
+
+		<div class="post">
+			<img src="images/003.png">
+			<div class="contents">
+				<h2>SPRITAR助力2018前哨大会对话机器人Sophia</h2>
+				<p>
+					4月22日2018前哨大会成功举办，现场座无虚席，效果十分火爆。深圳卫视现场直播，52城收视统计显示：30岁以上高学历、高收入人群同时段收视率高达0.218，排名第一，通过优酷视频、腾讯科技、爱奇艺科技，有近10万用户在网络平台观看直播。
+				</p>
+			</div>
+		</div>
+
+		<div class="post">
+			<img src="images/003.png">
+			<div class="contents">
+				<h2>SPRITAR助力WESG，开启AR直播新纪元</h2>
+				<p>
+					世界电子竞技运动会（简称WESG）是阿里体育打造的一项世界级赛会制电竞赛事，赛事覆盖全球125个国家和地区，包括了反恐精英：全球攻势、DOTA2、星际争霸2、以及炉石传说4个竞技游戏项目，全球总奖金550万美元。WESG2018全球总决赛3月13日在中国海口拉开序幕，3月18日的闭幕式的AR直播特效引起了业内人士的关注。
+				</p>
+			</div>
+		</div>
+
+	</div>
+
+
+	<script src="assets/jquery.min.js"></script>
+	<script src="assets/viewportchecker.js"></script>
+	<script type="text/javascript">
+		jQuery(document).ready(function () {
+			jQuery('.post').addClass("hidden").viewportChecker({
+				classToAdd: 'visible animated fadeIn', // Class to add to the elements when they are visible
+				offset: 100
+			});
+			console.log("set hidden class to ...");
+		});
+	</script>
+
+</body>
+
+</html>
