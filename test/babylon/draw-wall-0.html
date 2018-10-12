@@ -57,13 +57,17 @@
 				angle *= direction.z / Math.abs(direction.z);
 			}
 			this._points.elements.forEach(function (p) {
+				console.log("points each ", p);
 				positions.push(p.x * Math.cos(angle) + w0.corner.x, p.y, p.x * Math.sin(angle) + w0.corner.z);
 			});
+			console.log("after .. positions ", positions);
 			var indices = [];
+			console.log("epoints ", this._epoints, " eholes ", this._eholes);
 			var res = Earcut.earcut(this._epoints, this._eholes, 2);
 			for (var i = res.length; i > 0; i--) {
 				indices.push(res[i - 1]);
 			};
+			console.log("indeces ", indices);
 			return {
 				positions: positions,
 				indices: indices
@@ -732,9 +736,9 @@
 				var vertexData = new BABYLON.VertexData();
 
 				//Assign positions and indices to vertexData
-				// console.log("positions ", positions);
-				// console.log("indices ", indices.toString());
-				// console.log("normals ", normals);
+				console.log("positions ", positions);
+				console.log("indices ", indices);
+				console.log("normals ", normals);
 				vertexData.positions = positions;
 				vertexData.indices = indices;
 				vertexData.normals = normals;
