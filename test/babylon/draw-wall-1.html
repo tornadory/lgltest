@@ -45,7 +45,6 @@
 		var canvas = document.getElementById("renderCanvas");
 
 		BABYLON.PolygonMeshBuilder.prototype.wallBuilder = function (w0, w1) {
-			console.log("wallbuilder ", w0, w1);
 			var positions = [];
 			var iuvs = [];
 			var euvs = [];
@@ -230,8 +229,6 @@
 					polygonCorners.push(new BABYLON.Vector2(wallLength, height));
 					polygonCorners.push(new BABYLON.Vector2(0, height));
 
-					console.log("polygon corners data ", polygonCorners);
-
 					//Construct triangulation of polygon using its corners
 					polygonTriangulation = new BABYLON.PolygonMeshBuilder("", polygonCorners, scene);
 
@@ -250,7 +247,6 @@
 						holeData.push(new BABYLON.Vector2(walls[w].windowSpaces[ws].left, height - walls[w].windowSpaces[ws].top));
 						holes.push(holeData);
 					}
-					console.log("holes data ", holes);
 
 					for (var h = 0; h < holes.length; h++) {
 						polygonTriangulation.addHole(holes[h]);
@@ -373,14 +369,14 @@
 						//base
 						nbIndices = positions.length / 3; // current number of indices
 
-						positions.push(innerBaseCorners[w].x, innerBaseCorners[w].y, innerBaseCorners[w].z); //top left
-						positions.push(outerBaseCorners[w].x, outerBaseCorners[w].y, outerBaseCorners[w].z); //base left
+						positions.push(innerBaseCorners[w].x, innerBaseCorners[w].y, innerBaseCorners[w].z); //tl
+						positions.push(outerBaseCorners[w].x, outerBaseCorners[w].y, outerBaseCorners[w].z); //bl
 						positions.push(innerDoorCorners[w][doorNb][0].x, innerDoorCorners[w][doorNb][0].y, innerDoorCorners[w][doorNb][
 							0
-						].z); //top right
+						].z); //tr
 						positions.push(outerDoorCorners[w][doorNb][0].x, outerDoorCorners[w][doorNb][0].y, outerDoorCorners[w][doorNb][
 							0
-						].z); //base right
+						].z); //br
 
 						uvs.push(exteriorUV.x, exteriorUV.y + (exteriorUV.w - exteriorUV.y) * ply / maxH); //top Left
 						uvs.push(exteriorUV.x, exteriorUV.y); //base Left				
