@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset='UTF-8'>
+	
+	<title>Progress Bars</title>
+	<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.5.0/jquery.min.js"></script>
+
+	<style>
+		.meter { 
+			height: 20px;  /* Can be anything */
+			width: 400px;
+			/* left: 100px; */
+			position: relative;
+			margin: 0px 0 0px 0; /* Just for demo spacing */
+			background: #555;
+			-moz-border-radius: 20px;
+			-webkit-border-radius: 20px;
+			border-radius: 20px;
+			padding: 0px;
+			-webkit-box-shadow: inset 0 -1px 1px rgba(255,255,255,0.3);
+			-moz-box-shadow   : inset 0 -1px 1px rgba(255,255,255,0.3);
+			box-shadow        : inset 0 -1px 1px rgba(255,255,255,0.3);
+			z-index: 5;
+		}
+		.meter > span {
+			display: block;
+			height: 100%;
+			width: 100%;
+			   -webkit-border-top-right-radius: 8px;
+			-webkit-border-bottom-right-radius: 8px;
+			       -moz-border-radius-topright: 8px;
+			    -moz-border-radius-bottomright: 8px;
+			           border-top-right-radius: 8px;
+			        border-bottom-right-radius: 8px;
+			    -webkit-border-top-left-radius: 20px;
+			 -webkit-border-bottom-left-radius: 20px;
+			        -moz-border-radius-topleft: 20px;
+			     -moz-border-radius-bottomleft: 20px;
+			            border-top-left-radius: 20px;
+			         border-bottom-left-radius: 20px;
+			background-color: rgb(43,194,83);
+			background-image: -webkit-gradient(
+			  linear,
+			  left bottom,
+			  left top,
+			  color-stop(0, rgb(43,194,83)),
+			  color-stop(1, rgb(84,240,84))
+			 );
+			background-image: -moz-linear-gradient(
+			  center bottom,
+			  rgb(43,194,83) 37%,
+			  rgb(84,240,84) 69%
+			 );
+			position: relative;
+			overflow: hidden;
+		}
+		.meter > span:after, .animate > span > span {
+			content: "";
+			position: absolute;
+			top: 0; left: 0; bottom: 0; right: 0;
+			background-image: 
+			   -webkit-gradient(linear, 0 0, 100% 100%, 
+			      color-stop(.25, rgba(255, 255, 255, .2)), 
+			      color-stop(.25, transparent), color-stop(.5, transparent), 
+			      color-stop(.5, rgba(255, 255, 255, .2)), 
+			      color-stop(.75, rgba(255, 255, 255, .2)), 
+			      color-stop(.75, transparent), to(transparent)
+			   );
+			background-image: 
+				-moz-linear-gradient(
+				  -45deg, 
+			      rgba(255, 255, 255, .2) 25%, 
+			      transparent 25%, 
+			      transparent 50%, 
+			      rgba(255, 255, 255, .2) 50%, 
+			      rgba(255, 255, 255, .2) 75%, 
+			      transparent 75%, 
+			      transparent
+			   );
+			-webkit-background-size: 50px 50px;
+			-moz-background-size: 50px 50px;
+			-webkit-animation: move 2s linear infinite;
+			   -webkit-border-top-right-radius: 25%;
+			-webkit-border-bottom-right-radius: 25px;
+			       -moz-border-radius-topright: 25px;
+			    -moz-border-radius-bottomright: 25px;
+			           border-top-right-radius: 25px;
+			        border-bottom-right-radius: 25px;
+			    -webkit-border-top-left-radius: 25px;
+			 -webkit-border-bottom-left-radius: 25px;
+			        -moz-border-radius-topleft: 25px;
+			     -moz-border-radius-bottomleft: 25px;
+			            border-top-left-radius: 25px;
+			         border-bottom-left-radius: 25px;
+			overflow: hidden;
+		}
+		
+		.orange > span {
+			background-color: #f1a165;
+			background-image: -moz-linear-gradient(top, #f1a165, #f36d0a);
+			background-image: -webkit-gradient(linear,left top,left bottom,color-stop(0, #f1a165),color-stop(1, #f36d0a));
+			background-image: -webkit-linear-gradient(#f1a165, #f36d0a); 
+		}
+		
+		
+		.nostripes > span > span, .nostripes > span:after {
+			-webkit-animation: none;
+			background-image: none;
+		}
+
+
+
+		progress{
+			margin: 10 10px;
+			display: inline-block;
+			width: 60%;
+			border-radius: 10px;
+		}
+		progress::-webkit-progress-bar{
+			height: 13px;
+			border: 0px solid #2b2931;
+			border-radius: 10px;
+			background-color: #333039;
+			/* box-shadow: 0 1px 0 #4d4856; */
+		}
+		progress::-webkit-progress-value{
+			height: 13px;
+			background-color: #0077c6;
+			border: 0px solid #30a1e1;
+			border-radius: 10px;
+			/* box-shadow: 0 0 20px -1px #005db9; */
+		}
+	</style>
+</head>
+
+<body>
+
+	<div id="page-wrap">
+		
+	  <h1>Progress Bars</h1>
+	  <h2 id="pb-percent">33.3% </h2>
+
+	  <progress id="progressBar" value="0" max="100"></progress>
+		
+		<!-- <div id="progressBar" class="meter orange nostripes">
+			<span id="progressBarInner" style="width: 33.3%"></span>
+		</div>	 -->
+
+	</div>
+
+	
+
+	<script>
+
+		var progressBar = document.getElementById("progressBar");
+		var pressed = false;
+
+		progressBar.addEventListener("mousedown", function(e){
+			pressed = true;
+		});
+
+		progressBar.addEventListener("touchstart", function(e){
+			console.log("touch start event ", e);
+			pressed = true;
+		});
+
+		document.addEventListener("touchend", function(e){
+			console.log("touch end event ", e);
+			pressed = false;
+		});
+
+		document.addEventListener("mouseup", function(e){
+			pressed = false;
+		});
+
+		function eventHandler(e){
+			var x = e.pageX||e.changedTouches[0].pageX - progressBar.offsetLeft,
+				y = e.pageY||e.changedTouches[0].pageX - progressBar.offsetTop,
+				clickedValue = x * 100 / progressBar.offsetWidth;
+			
+			console.log("v ", clickedValue);
+			
+			var ret = Math.round(clickedValue)>100?100:Math.round(clickedValue);
+			ret = ret < 0 ? 0 : ret;
+			
+			// document.getElementById("progressBarInner").style.width = ret+"%";
+			console.log("progress ... ", ret);
+			document.getElementById("progressBar").value = ret;
+			document.getElementById("pb-percent").innerText = ret+"%";
+		}
+
+		progressBar.addEventListener('click', function (e) {
+			eventHandler(e);
+		});
+
+		progressBar.addEventListener('mousemove', function (e) {
+			if(pressed){
+				eventHandler(e);
+			}
+		});
+
+		progressBar.addEventListener("touchmove", function (e) {
+			console.log("touch event ", e.changedTouches[0].pageX);
+			if(pressed){
+				eventHandler(e);
+			}
+		});
+	</script>
+	
+</body>
+
+</html>

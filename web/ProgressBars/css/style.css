@@ -1,0 +1,79 @@
+body{
+	background-color: #eeeeee;
+}
+
+.container{
+	margin-left: 100px;
+}
+
+progress{
+	margin: 0px 0px;
+	display: inline-block;
+	width: 60%;
+	border-radius: 10px;
+}
+progress::-webkit-progress-bar{
+	height: 13px;
+	border: 0px solid #2b2931;
+	border-radius: 10px;
+	background-color: #333039;
+}
+progress::-webkit-progress-value{
+	height: 13px;
+	background-color: #0077c6;
+	border: 0px solid #30a1e1;
+	border-radius: 10px;
+}
+
+.custom-select {
+	margin-top: 30px;
+	position: relative;
+	font-family:"Microsoft YaHei",微软雅黑,"MicrosoftJhengHei",华文细黑,STHeiti,MingLiu;
+	color:black;
+}
+.custom-select select {
+	display: none;
+}
+.select-selected {
+	background-color: #ffffff;
+	border-radius: 10px;
+}
+.select-selected:after {
+	position: absolute;
+	content: "";
+	top: 0%;
+	right: 10px;
+	width: 30px;
+	height: 30px;
+	border: 6px solid transparent;
+	border-color: #fff transparent transparent transparent;
+	background: url("images/connect-arrow-down-7.png") no-repeat;
+}
+.select-selected.select-arrow-active:after {
+	border-color: transparent transparent #fff transparent;
+	top: 7px;
+}
+.select-items div,.select-selected {
+	color: #000000;
+	padding: 8px 16px;
+	border: 0px solid transparent;
+	border-color: transparent transparent rgba(0, 0, 0, 0.1) transparent;
+	cursor: pointer;
+}
+.select-items {
+	position: absolute;
+	background-color: #ffffff;
+	padding-top: 10px;
+	padding-bottom: 10px;
+	top:-50%;
+	left: 0;
+	right: 0;
+	z-index: 99;
+	border-radius: 10px;
+}
+.select-hide {
+	display: none;
+}
+.select-items div:hover, .same-as-selected {
+	background-color: rgba(0, 0, 0, 0.1);
+}

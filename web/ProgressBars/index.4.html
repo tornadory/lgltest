@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset='UTF-8'>
+
+	<script src="https://code.jquery.com/jquery-2.2.4.min.js"></script>
+	
+	<title>Progress Bars</title>
+
+	<style>
+
+		#page-wrap{
+			margin-left: 100px;
+		}
+
+		progress{
+			margin: 0px 0px;
+			display: inline-block;
+			width: 60%;
+			border-radius: 10px;
+		}
+		progress::-webkit-progress-bar{
+			height: 13px;
+			border: 0px solid #2b2931;
+			border-radius: 10px;
+			background-color: #333039;
+		}
+		progress::-webkit-progress-value{
+			height: 13px;
+			background-color: #0077c6;
+			border: 0px solid #30a1e1;
+			border-radius: 10px;
+		}
+
+
+
+
+
+
+
+.select-box {
+  cursor: pointer;
+  position : relative;
+  max-width:  20em;
+  margin: 5em auto;
+  width: 100%;
+}
+
+.select,
+.label {
+  color: #414141;
+  display: block;
+  font: 400 17px/2em 'Source Sans Pro', sans-serif;
+}
+
+.select {
+  width: 100%;
+  position: absolute;
+  top: 0;
+  padding: 0px 0;
+  height: 40px;
+  opacity: 0;
+  -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=0)";
+  background: none transparent;
+  border: 0 none;
+}
+.select-box1 {
+  background: #ececec;
+}
+
+#select-box1{
+	margin-top: -50px;
+}
+
+.label {
+  position: relative;
+  padding: 5px 10px;
+  cursor: pointer;
+}
+.open .label::after {
+   content: "▲";
+}
+.label::after {
+  content: "▼";
+  font-size: 12px;
+  position: absolute;
+  right: 20px;
+  top: 0;
+  padding: 0px 0px;
+  /* border-left: 5px solid #fff; */
+}
+
+.dropdown-menu{
+	width: 100%;
+	margin-top: -100px;
+}
+
+
+		select {
+			font-family: Cursive;
+			font-size: 32px;
+			width: 500px;
+			border-radius: 10px;
+		}
+
+		/* 下拉按钮样式 */
+		.dropbtn {
+			background-color: #4CAF50;
+			color: white;
+			padding: 16px;
+			font-size: 16px;
+			border: none;
+			cursor: pointer;
+		}
+
+		/* 容器 <div> - 需要定位下拉内容 */
+		.dropdown {
+			width: 500px;
+			position: relative;
+			display: inline-block;
+		}
+
+		/* 下拉内容 (默认隐藏) */
+		.dropdown-content {
+			display: none;
+			position: absolute;
+			background-color: #f9f9f9;
+			/* min-width: 160px;
+			 */
+			 width: 100%;
+			box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+		}
+
+		/* 下拉菜单的链接 */
+		.dropdown-content a {
+			color: black;
+			padding: 12px 16px;
+			text-decoration: none;
+			display: block;
+		}
+
+		/* 鼠标移上去后修改下拉菜单链接颜色 */
+		.dropdown-content a:hover {background-color: #f1f1f1}
+
+		/* 在鼠标移上去后显示下拉菜单 */
+		.dropdown:hover .dropdown-content {
+			display: block;
+		}
+
+		.dropbtn {
+			width: 100%;
+			background-color: #3e8e41;
+			border-radius: 10px;
+		}
+
+		/* 当下拉内容显示后修改下拉按钮的背景颜色 */
+		.dropdown:hover .dropbtn {
+			width: 100%;
+			background-color: #3e8e41;
+		}
+
+
+
+		* {
+		outline: 0;
+		font-family: sans-serif
+		}
+		body {
+		background-color: #fafafa
+		}
+		span.msg,
+		span.choose {
+		color: #555;
+		padding: 5px 0 10px;
+		display: inherit
+		}
+		.container {
+		width: 500px;
+		margin: 50px auto 0;
+		text-align: center
+		}
+
+		/*Styling Selectbox*/
+		.dropdown {
+		width: 300px;
+		display: inline-block;
+		background-color: #fff;
+		border-radius: 5px;
+		box-shadow: 0 0 2px rgb(204, 204, 204);
+		transition: all .5s ease;
+		position: relative;
+		font-size: 14px;
+		color: #474747;
+		height: 100%;
+		text-align: left
+		}
+		.dropdown .select {
+			cursor: pointer;
+			display: block;
+			padding: 10px
+		}
+		.dropdown .select > i {
+			font-size: 13px;
+			color: #888;
+			cursor: pointer;
+			transition: all .3s ease-in-out;
+			float: right;
+			line-height: 20px
+		}
+		.dropdown:hover {
+			box-shadow: 0 0 4px rgb(204, 204, 204)
+		}
+		.dropdown:active {
+			background-color: #f8f8f8
+		}
+		.dropdown.active:hover,
+		.dropdown.active {
+			box-shadow: 0 0 4px rgb(204, 204, 204);
+			border-radius: 5px 5px 0 0;
+			background-color: #f8f8f8
+		}
+		.dropdown.active .select > i {
+			transform: rotate(-90deg)
+		}
+		.dropdown .dropdown-menu {
+			position: absolute;
+			background-color: #fff;
+			width: 100%;
+			left: 0;
+			margin-top: 1px;
+			box-shadow: 0 1px 2px rgb(204, 204, 204);
+			border-radius: 0 1px 5px 5px;
+			overflow: hidden;
+			display: none;
+			max-height: 144px;
+			overflow-y: auto;
+			z-index: 9
+		}
+		.dropdown .dropdown-menu li {
+			padding: 10px;
+			transition: all .2s ease-in-out;
+			cursor: pointer
+		} 
+		.dropdown .dropdown-menu {
+			padding: 0;
+			list-style: none
+		}
+		.dropdown .dropdown-menu li:hover {
+			background-color: #f2f2f2
+		}
+		.dropdown .dropdown-menu li:active {
+			background-color: #e2e2e2
+		}
+
+
+	</style>
+</head>
+
+<body>
+
+	<div id="page-wrap">
+	  <h1>Progress Bars</h1>
+	  <h2 id="pb-percent">0% </h2>
+	  
+	</div>
+
+	<progress id="progressBar" value="0" max="100"></progress>
+
+	<p></p>
+
+	<select>
+		<option>Apples</option>
+		<option>Oranges</option>
+		<option>Banannas</option>
+	</select>
+
+
+	<p></p>
+
+	<div class="dropdown">
+		<button class="dropbtn">下拉菜单</button>
+		<div class="dropdown-content">
+			<a href="#">菜鸟教程 1</a>
+			<a href="#">菜鸟教程 2</a>
+			<a href="#">菜鸟教程 3</a>
+		</div>
+	</div>
+
+
+	<p></p>
+
+
+	<div class="container">
+		<span class="choose">Choose Gender</span>
+		
+			<div class="dropdown">
+				<div class="select">
+					<span>Select Gender</span>
+					<i class="fa fa-chevron-left"></i>
+				</div>
+				<input type="hidden" name="gender">
+				<ul class="dropdown-menu">
+					<li id="male">Male</li>
+					<li id="female">Female</li>
+				</ul>
+			</div>
+		
+		<span class="msg"></span>
+	</div>
+	
+
+	<p></p>
+	<div class="select-box">
+		<label for="select-box1" class="label select-box1"><span class="label-desc">Choose your country</span> </label>
+		<select id="select-box1" class="select">
+			<option value="Choice 1">Falkland Islands</option>
+			<option value="Choice 2">Germany</option>
+			<option value="Choice 3">Neverland</option>
+		</select>
+	</div>
+
+	<script>
+
+		$("select").on("click" , function() {
+  
+  $(this).parent(".select-box").toggleClass("open");
+  
+});
+
+$(document).mouseup(function (e)
+{
+    var container = $(".select-box");
+
+    if (container.has(e.target).length === 0)
+    {
+        container.removeClass("open");
+    }
+});
+
+
+$("select").on("change" , function() {
+  
+  var selection = $(this).find("option:selected").text(),
+      labelFor = $(this).attr("id"),
+      label = $("[for='" + labelFor + "']");
+    
+  label.find(".label-desc").html(selection);
+    
+});
+
+		var progressBar = document.getElementById("progressBar");
+		var pressed = false;
+
+		progressBar.addEventListener("mousedown", function(e){
+			pressed = true;
+		});
+
+		progressBar.addEventListener("touchstart", function(e){
+			console.log("touch start event ", e);
+			pressed = true;
+		});
+
+		document.addEventListener("touchend", function(e){
+			console.log("touch end event ", e);
+			pressed = false;
+		});
+
+		document.addEventListener("mouseup", function(e){
+			pressed = false;
+		});
+
+		function eventHandler(e){
+			var leftOffset = gotLeftOffset(progressBar);
+			// var x = e.pageX||e.changedTouches[0].pageX - progressBar.offsetLeft,
+			var x = e.pageX||e.changedTouches[0].pageX - leftOffset,
+				clickedValue = x * 100 / progressBar.offsetWidth;
+			
+			console.log("v ", clickedValue);
+			
+			var ret = Math.round(clickedValue)>100?100:Math.round(clickedValue);
+			ret = ret < 0 ? 0 : ret;
+			
+			// document.getElementById("progressBarInner").style.width = ret+"%";
+			console.log("progress ... ", ret);
+			document.getElementById("progressBar").value = ret;
+			document.getElementById("pb-percent").innerText = ret+"%";
+		}
+
+		progressBar.addEventListener('click', function (e) {
+			eventHandler(e);
+		});
+
+		progressBar.addEventListener('mousemove', function (e) {
+			if(pressed){
+				eventHandler(e);
+			}
+		});
+
+		progressBar.addEventListener("touchmove", function (e) {
+			console.log("touch event ", e.changedTouches[0].pageX);
+			if(pressed){
+				eventHandler(e);
+			}
+		});
+
+
+		function gotLeftOffset(el) {
+			let toLeft = 0;
+			var obj = el;
+			if (obj.offsetParent) {
+				do {
+					toLeft += obj.offsetLeft;
+				} while (obj = obj.offsetParent);
+			}
+			return toLeft;
+		}
+
+
+
+
+		/*Dropdown Menu*/
+$('.dropdown').click(function () {
+        $(this).attr('tabindex', 1).focus();
+        $(this).toggleClass('active');
+        $(this).find('.dropdown-menu').slideToggle(300);
+    });
+    $('.dropdown').focusout(function () {
+        $(this).removeClass('active');
+        $(this).find('.dropdown-menu').slideUp(300);
+    });
+    $('.dropdown .dropdown-menu li').click(function () {
+        $(this).parents('.dropdown').find('span').text($(this).text());
+        $(this).parents('.dropdown').find('input').attr('value', $(this).attr('id'));
+    });
+/*End Dropdown Menu*/
+
+
+$('.dropdown-menu li').click(function () {
+  var input = '<strong>' + $(this).parents('.dropdown').find('input').val() + '</strong>',
+      msg = '<span class="msg">Hidden input value: ';
+  $('.msg').html(msg + input + '</span>');
+}); 
+	</script>
+	
+</body>
+
+</html>
