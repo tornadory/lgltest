@@ -101,7 +101,9 @@
 			container = document.getElementById('ThreeJS');
 			container.appendChild(renderer.domElement);
 			// CONTROLS
-			controls = new THREE.OrbitControls(camera, renderer.domElement);
+			// controls = new THREE.OrbitControls(camera, renderer.domElement);
+			controls = new THREE.DeviceOrientationControls(camera);
+
 			// EVENTS
 			THREEx.WindowResize(renderer, camera);
 			THREEx.FullScreen.bindKey({
