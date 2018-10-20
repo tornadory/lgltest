@@ -19,6 +19,7 @@
 
 	<div id="infoButton"></div>
 	<div id="infoBox" title="Demo Information">
+		<span id="output">gamma: x / beta: x</span>
 		Demo controls:
 		<ul>
 			<li> P: play video
@@ -34,13 +35,44 @@
 	<div id="ThreeJS" style="position: absolute; left:0px; top:0px"></div>
 
 	<script>
-		/*
-	Three.js "tutorials by example"
-	Author: Lee Stemkoski
-	Date: July 2013 (three.js v59dev)
-*/
+		document.addEventListener("DOMContentLoaded", function (event) {
+			var output = document.getElementById("output");
+			// 	bgImg = $('.wrapper');
 
-		// MAIN
+			var rotX = 0;
+			var rotY = 0;
+
+			// var	wrapperWidth = $('body').width();
+			// var	wrapperHeight = $('body').height();
+
+			// var	bgImgWidth = bgImg.width();
+			// var	bgImgHeight = bgImg.height();
+
+			// var	moveMaxHeight = (bgImgHeight - wrapperHeight) / 2
+			// var	moveMaxWidth = (bgImgWidth - wrapperWidth) / 2;
+
+			if (window.DeviceMotionEvent) {
+				window.ondeviceorientation = function (event) {
+					beta = event.beta;
+					gamma = event.gamma;
+					setTimeout(function () {
+						normalizeData(gamma, beta)
+					}, 50)
+				}
+			}
+
+			function normalizeData(_g, _b) {
+
+				b = Math.round(_b);
+				g = Math.round(_g);
+
+				rotY += (g - rotY) / 5;
+				rotX += (b - rotX) / 5;
+
+				output.innerText('gamma: ' + g + ' / beta: ' + b);
+				// bgImg.css('transform', 'rotateY(' + rotY + 'deg) rotateX(' + rotX + 'deg)');
+			}
+		});
 
 		// standard global variables
 		var container, scene, camera, renderer, controls, stats;
