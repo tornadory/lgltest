@@ -1,17 +1,17 @@
 <?php
 
-//云图库设置
+//cloud setting
 define('CLOUDKEY', '546d8fa09db54073b0b34adee80f9347');
 define('CLOUDSECRET', '5QUyL78CDeOsr47he1rPRmk2OyPYRiL3jlLwIukMRU0o8SBWBEQEmiXOgjrAKoJl2xLwoDwG5oRRSc7W56XwAfT90aeJWz0jf6Pk0hb7w4hooTX7K6G6cW6jLRtByuFB');
 define('CLOUDURL', 'http://731bf0788cf68bce9f0a24539c193c39.cn1.crs.easyar.com:8080/search');
 
 header('Content-Type: application/javascript; charset=UTF-8');
 
-// step 1: 获取浏览器上传的图片数据
+// step 1
 $image = getHttpData();
 if (!$image) showMsg(1, '未发送图片数据');
 
-// step 2: 将图片数据发送云识别服务
+// step 2 set image to cloud to recognize
 $params = array(
 	// GMT/UTC 日期与时间
 	'date' => gmdate('Y-m-d\TH:i:s.123\Z'),
@@ -23,7 +23,7 @@ $params['signature'] = getSign($params, CLOUDSECRET);
 $str = httpPost(CLOUDURL, json_encode($params));
 if (!$str) showMsg(2, '网络错误');
 
-// step 3: 解析识别结果，返回给浏览器使用
+// step 3: get result
 $obj = json_decode($str);
 if (!$obj || (isset($obj->status) && $obj->status == 500)) {
 	showMsg(2, '网络错误');
@@ -34,7 +34,7 @@ if (!$obj || (isset($obj->status) && $obj->status == 500)) {
 }
 
 /**
- * 获取浏览器上传的图上数据
+ * mmm
  * @return string
  */
 function getHttpData() {
@@ -45,7 +45,7 @@ function getHttpData() {
 }
 
 /**
- * WebAR使用
+ * WebAR
  * @return bool|string
  */
 function getPostImage() {
@@ -58,7 +58,7 @@ function getPostImage() {
 }
 
 /**
- * 微信小程序使用(上传文件处理)
+ * wechat
  * @return string
  */
 function getPostFile() {
@@ -76,13 +76,13 @@ function getPostFile() {
 }
 
 /**
- * 生成签名，使用sha1加密
+ * signature
  * @param $params
  * @param $cloudSecret
  * @return string
  */
 function getSign($params, $cloudSecret) {
-	//按字典顺序排序
+	//sort via dictionary
 	ksort($params);
 
 	$tmp = array();
