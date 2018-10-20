@@ -125,6 +125,7 @@
 			// create the video element
 			video = document.createElement('video');
 			video.src = "asset/videos/sintel.ogv";
+			video.muted = true;
 			video.load(); // must call after setting/changing source
 			video.play();
 
