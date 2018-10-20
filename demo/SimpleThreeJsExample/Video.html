@@ -36,19 +36,8 @@
 
 	<script>
 		var output = document.getElementById("output");
-		// 	bgImg = $('.wrapper');
-
 		var rotX = 0;
 		var rotY = 0;
-
-		// var	wrapperWidth = $('body').width();
-		// var	wrapperHeight = $('body').height();
-
-		// var	bgImgWidth = bgImg.width();
-		// var	bgImgHeight = bgImg.height();
-
-		// var	moveMaxHeight = (bgImgHeight - wrapperHeight) / 2
-		// var	moveMaxWidth = (bgImgWidth - wrapperWidth) / 2;
 
 		if (window.DeviceMotionEvent) {
 			window.ondeviceorientation = function (event) {
@@ -71,10 +60,13 @@
 			output.innerText = 'gamma: ' + g + ' / beta: ' + b;
 			console.log('gamma: ' + g + ' / beta: ' + b);
 			// bgImg.css('transform', 'rotateY(' + rotY + 'deg) rotateX(' + rotX + 'deg)');
+			movieScreen.rotation.y = rotY;
+			movieScreen.rotation.x = rotX;
 		}
 
 		// standard global variables
 		var container, scene, camera, renderer, controls, stats;
+		var movieScreen; //movie screen object
 		var keyboard = new THREEx.KeyboardState();
 
 		// custom global variables
@@ -190,7 +182,7 @@
 			// the geometry on which the movie will be displayed;
 			// 		movie image will be scaled to fit these dimensions.
 			var movieGeometry = new THREE.PlaneGeometry(240, 100, 4, 4);
-			var movieScreen = new THREE.Mesh(movieGeometry, movieMaterial);
+			movieScreen = new THREE.Mesh(movieGeometry, movieMaterial);
 			movieScreen.position.set(0, 50, 0);
 			scene.add(movieScreen);
 
