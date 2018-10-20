@@ -9,11 +9,11 @@ header('Content-Type: application/javascript; charset=UTF-8');
 
 // step 1
 $image = getHttpData();
-if (!$image) showMsg(1, '未发送图片数据');
+if (!$image) showMsg(1, 'did not send image');
 
 // step 2 set image to cloud to recognize
 $params = array(
-	// GMT/UTC 日期与时间
+	// GMT/UTC date and time
 	'date' => gmdate('Y-m-d\TH:i:s.123\Z'),
 	'appKey' => CLOUDKEY,
 	'image' => $image,
@@ -21,14 +21,14 @@ $params = array(
 $params['signature'] = getSign($params, CLOUDSECRET);
 
 $str = httpPost(CLOUDURL, json_encode($params));
-if (!$str) showMsg(2, '网络错误');
+if (!$str) showMsg(2, 'network error');
 
 // step 3: get result
 $obj = json_decode($str);
 if (!$obj || (isset($obj->status) && $obj->status == 500)) {
-	showMsg(2, '网络错误');
+	showMsg(2, 'network error');
 } else if ($obj->statusCode != 0) {
-	showMsg(3, '未识别到目标');
+	showMsg(3, 'did not get any target');
 } else {
 	showMsg(0, $obj->result->target);
 }
