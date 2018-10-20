@@ -22,6 +22,9 @@
 	<div id="infoBox" title="Demo Information">
 		<span id="output">gamma: x / beta: x</span>
 	</div>
+	<video id="myVideo" autoplay style="display:none">
+			<source src="videos/intro_loop.mp4" type="video/mp4">
+	</video>
 	<!-- ------------------------------------------------------------ -->
 
 	<div id="ThreeJS" style="position: absolute; left:0px; top:0px"></div>
@@ -140,20 +143,21 @@
 			///////////
 
 			// create the video element
-			video = document.createElement('video');
-			video.src = "asset/videos/intro_loop.mp4";
-			video.muted = true;
-			video.autoplay = true;
-			video.load(); // must call after setting/changing source
-			video.play();
+			// video = document.createElement('video');
+			// // video.src = "asset/videos/intro_loop.mp4";
+			// video.src = "asset/videos/sintel.ogv";
+			// video.muted = true;
+			// video.autoplay = true;
+			// video.load(); // must call after setting/changing source
+			// video.play();
 
 			// alternative method -- 
 			// create DIV in HTML:
 			// <video id="myVideo" autoplay style="display:none">
-			//		<source src="videos/sintel.ogv" type='video/ogg; codecs="theora, vorbis"'>
+			// 		<source src="videos/sintel.ogv" type='video/ogg; codecs="theora, vorbis"'>
 			// </video>
 			// and set JS variable:
-			// video = document.getElementById( 'myVideo' );
+			video = document.getElementById( 'myVideo' );
 
 			videoImage = document.createElement('canvas');
 			videoImage.width = 480;
