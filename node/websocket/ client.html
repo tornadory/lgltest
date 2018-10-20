@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Document</title>
 </head>
+
 <body>
     <script>
         var ws = new WebSocket('ws://120.55.41.83:8080');
@@ -17,6 +19,13 @@
             console.log('ws onmessage');
             console.log('from server: ' + e.data);
         };
+        ws.onerror = function (e) {
+            console.log("error ", e);
+        };
+        ws.onclose = function (e) {
+            console.log("closed");
+        }
     </script>
 </body>
+
 </html>
