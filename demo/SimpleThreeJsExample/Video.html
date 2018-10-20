@@ -35,44 +35,43 @@
 	<div id="ThreeJS" style="position: absolute; left:0px; top:0px"></div>
 
 	<script>
-		document.addEventListener("DOMContentLoaded", function (event) {
-			var output = document.getElementById("output");
-			// 	bgImg = $('.wrapper');
+		var output = document.getElementById("output");
+		// 	bgImg = $('.wrapper');
 
-			var rotX = 0;
-			var rotY = 0;
+		var rotX = 0;
+		var rotY = 0;
 
-			// var	wrapperWidth = $('body').width();
-			// var	wrapperHeight = $('body').height();
+		// var	wrapperWidth = $('body').width();
+		// var	wrapperHeight = $('body').height();
 
-			// var	bgImgWidth = bgImg.width();
-			// var	bgImgHeight = bgImg.height();
+		// var	bgImgWidth = bgImg.width();
+		// var	bgImgHeight = bgImg.height();
 
-			// var	moveMaxHeight = (bgImgHeight - wrapperHeight) / 2
-			// var	moveMaxWidth = (bgImgWidth - wrapperWidth) / 2;
+		// var	moveMaxHeight = (bgImgHeight - wrapperHeight) / 2
+		// var	moveMaxWidth = (bgImgWidth - wrapperWidth) / 2;
 
-			if (window.DeviceMotionEvent) {
-				window.ondeviceorientation = function (event) {
-					beta = event.beta;
-					gamma = event.gamma;
-					setTimeout(function () {
-						normalizeData(gamma, beta)
-					}, 50)
-				}
+		if (window.DeviceMotionEvent) {
+			window.ondeviceorientation = function (event) {
+				beta = event.beta;
+				gamma = event.gamma;
+				setTimeout(function () {
+					normalizeData(gamma, beta)
+				}, 50)
 			}
+		}
 
-			function normalizeData(_g, _b) {
+		function normalizeData(_g, _b) {
 
-				b = Math.round(_b);
-				g = Math.round(_g);
+			b = Math.round(_b);
+			g = Math.round(_g);
 
-				rotY += (g - rotY) / 5;
-				rotX += (b - rotX) / 5;
+			rotY += (g - rotY) / 5;
+			rotX += (b - rotX) / 5;
 
-				output.innerText('gamma: ' + g + ' / beta: ' + b);
-				// bgImg.css('transform', 'rotateY(' + rotY + 'deg) rotateX(' + rotX + 'deg)');
-			}
-		});
+			output.innerText('gamma: ' + g + ' / beta: ' + b);
+			console.log('gamma: ' + g + ' / beta: ' + b);
+			// bgImg.css('transform', 'rotateY(' + rotY + 'deg) rotateX(' + rotX + 'deg)');
+		}
 
 		// standard global variables
 		var container, scene, camera, renderer, controls, stats;
@@ -158,6 +157,7 @@
 			video = document.createElement('video');
 			video.src = "asset/videos/sintel.ogv";
 			video.muted = true;
+			video.autoplay = true;
 			video.load(); // must call after setting/changing source
 			video.play();
 
