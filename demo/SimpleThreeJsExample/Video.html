@@ -14,10 +14,11 @@
 
 <body>
 
-	<script src="asset/js/Three.js"></script>
+	<script src="asset/js/three.min.js"></script>
 	<script src="asset/js/Detector.js"></script>
 	<script src="asset/js/Stats.js"></script>
-	<script src="asset/js/OrbitControls.js"></script>
+	<!-- <script src="asset/js/OrbitControls.js"></script> -->
+	<script src="asset/js/controls/OrbitControls.js"></script>
 	<script src="asset/js/DeviceOrientationControls.js"></script>
 	<script src="asset/js/THREEx.KeyboardState.js"></script>
 	<script src="asset/js/THREEx.FullScreen.js"></script>
@@ -28,8 +29,8 @@
 		<span id="output">gamma: x / beta: x</span>
 	</div>
 	<video id="myVideo" autoplay loop>
-			<source src="asset/videos/sintel.ogv" type='video/ogg; codecs="theora, vorbis"'>
-			<!-- <source src="asset/videos/intro_loop.mp4" type="video/mp4"> -->
+			<!-- <source src="asset/videos/sintel.ogv" type='video/ogg; codecs="theora, vorbis"'> -->
+			<source src="asset/videos/intro_loop.mp4" type="video/mp4">
 	</video>
 	<!-- ------------------------------------------------------------ -->
 
@@ -83,7 +84,7 @@
 			// CAMERA
 			var SCREEN_WIDTH = window.innerWidth,
 				SCREEN_HEIGHT = window.innerHeight;
-			var VIEW_ANGLE = 45,
+			var VIEW_ANGLE = 60,
 				ASPECT = SCREEN_WIDTH / SCREEN_HEIGHT,
 				NEAR = 0.1,
 				FAR = 20000;
@@ -102,8 +103,8 @@
 			container = document.getElementById('ThreeJS');
 			container.appendChild(renderer.domElement);
 			// CONTROLS
-			// controls = new THREE.OrbitControls(camera, renderer.domElement);
-			controls = new THREE.DeviceOrientationControls(camera);
+			controls = new THREE.OrbitControls(camera, renderer.domElement);
+			// controls = new THREE.DeviceOrientationControls(camera);
 
 			// EVENTS
 			THREEx.WindowResize(renderer, camera);
@@ -185,7 +186,8 @@
 			});
 			// the geometry on which the movie will be displayed;
 			// 		movie image will be scaled to fit these dimensions.
-			var movieGeometry = new THREE.PlaneGeometry(240, 100, 4, 4);
+			// var movieGeometry = new THREE.PlaneGeometry(240, 100, 4, 4);
+			var movieGeometry = new THREE.BoxGeometry(200,20, 100);
 			movieScreen = new THREE.Mesh(movieGeometry, movieMaterial);
 			movieScreen.position.set(0, 50, 0);
 			scene.add(movieScreen);
