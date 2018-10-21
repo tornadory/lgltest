@@ -68,12 +68,14 @@ const ThreeHelper = function(){
         // this.movieScreen.material.transparent = false;
         // this.movieScreen.material.opacity = 1;
         // this.movieScreen.position.set(2, 0, 0);
+        // this.videoTexture.wrapS = this.videoTexture.wrapT = THREE.RepeatWrapping;
+        this.videoTexture.minFilter = THREE.LinearFilter;
         this.movieScreen.material.map.needsUpdate = true;
     }
 
     
     this.videoTexture = new THREE.VideoTexture(this.targetVideo);
-    this.videoTexture.wrapS = this.videoTexture.wrapT = THREE.ClampToEdgeWrapping;
+    this.videoTexture.wrapS = this.videoTexture.wrapT = THREE.RepeatWrapping; //RepeatWrapping //ClampToEdgeWrapping
     this.videoTexture.minFilter = THREE.LinearFilter;
     // this.videoTexture.magFilter = THREE.LinearFilter;
 
@@ -89,7 +91,7 @@ const ThreeHelper = function(){
     this.movieScreen.position.set(0, 0, 0);
     this.movieScreen.visible = false;
     if (window.innerWidth < window.innerHeight){
-        this.movieScreen.scale.set(15,8,4);
+        this.movieScreen.scale.set(12,6,3);
     }else{
         this.movieScreen.scale.set(25,15,7);
     }
