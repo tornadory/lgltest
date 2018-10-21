@@ -4,7 +4,7 @@
  */
 const ThreeHelper = function(){
     this.camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
-    this.camera.position.set(-30, 30, 25);
+    this.camera.position.set(0, 0, 25);
     this.camera.lookAt(new THREE.Vector3(0, 0, 0));
 
     this.renderer = new THREE.WebGLRenderer({antialias: true, alpha: true});
@@ -68,7 +68,7 @@ const ThreeHelper = function(){
         side: THREE.DoubleSide
     });
 
-    this.movieGeometry = new THREE.BoxGeometry(100,100, 30);
+    this.movieGeometry = new THREE.BoxGeometry(60,40, 20);
     this.movieScreen = new THREE.Mesh(this.movieGeometry, this.movieMaterial);
     this.movieScreen.position.set(0, 0, 0);
     this.scene.add(this.movieScreen);
