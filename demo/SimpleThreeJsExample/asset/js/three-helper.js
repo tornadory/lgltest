@@ -62,7 +62,7 @@ const ThreeHelper = function(){
         // this.movieScreen.visible = true;
         // this.movieScreen.material.transparent = false;
         // this.movieScreen.material.opacity = 1;
-        this.movieScreen.position.set(2, 0, 0);
+        // this.movieScreen.position.set(2, 0, 0);
     }
 
     
