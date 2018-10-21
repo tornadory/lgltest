@@ -132,7 +132,7 @@ function normalizeData(_g, _b, _a) {
     }else{
         console.log("horizontal mode");
         threeHelper.movieScreen.rotation.x = rotY / 100; //rotY
-        // threeHelper.movieScreen.rotation.x = rotX / 100;
+        threeHelper.movieScreen.rotation.y = rotZ / 100;
         // threeHelper.movieScreen.rotation.z = rotZ / 100;
     }
     
