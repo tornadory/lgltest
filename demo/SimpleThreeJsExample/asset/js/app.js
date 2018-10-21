@@ -60,22 +60,22 @@ var initFunc = function () {
 
 document.querySelector('#openCamera').addEventListener('click', initFunc, false);
 
-document.querySelector('#start').addEventListener('click', () => {
-    webAR.startRecognize((msg) => {
-        alert('识别成功');
-        document.getElementById('targetVideo' ).style.display = 'block';
+// document.querySelector('#start').addEventListener('click', () => {
+//     webAR.startRecognize((msg) => {
+//         alert('识别成功');
+//         document.getElementById('targetVideo' ).style.display = 'block';
 
-        // 识别成功后，从meta中取出model地址
-        // const meta = JSON.parse(window.atob(msg.meta));
-        // threeHelper.loadObject(meta.model);
+//         // 识别成功后，从meta中取出model地址
+//         // const meta = JSON.parse(window.atob(msg.meta));
+//         // threeHelper.loadObject(meta.model);
 
-        // 加载本地模型
-        threeHelper.loadObject('asset/model/trex_v3.fbx');
-        // threeHelper.movieGeometry.visible = true;
+//         // 加载本地模型
+//         threeHelper.loadObject('asset/model/trex_v3.fbx');
+//         // threeHelper.movieGeometry.visible = true;
 
-        webAR.trace('加载模型');
-    });
-}, false);
+//         webAR.trace('加载模型');
+//     });
+// }, false);
 
 document.querySelector('#stop').addEventListener('click', () => {
     webAR.stopRecognize();
