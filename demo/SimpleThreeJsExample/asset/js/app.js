@@ -60,14 +60,15 @@ document.querySelector('#openCamera').addEventListener('click', function () {
 document.querySelector('#start').addEventListener('click', () => {
     webAR.startRecognize((msg) => {
         alert('识别成功');
+        document.getElementById('targetVideo' ).style.display = 'block';
 
         // 识别成功后，从meta中取出model地址
         // const meta = JSON.parse(window.atob(msg.meta));
         // threeHelper.loadObject(meta.model);
 
         // 加载本地模型
-        threeHelper.loadObject('asset/model/trex_v3.fbx');
-        threeHelper.movieGeometry.visible = true;
+        // threeHelper.loadObject('asset/model/trex_v3.fbx');
+        // threeHelper.movieGeometry.visible = true;
 
         webAR.trace('加载模型');
     });

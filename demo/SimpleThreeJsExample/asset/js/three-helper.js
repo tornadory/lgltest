@@ -55,8 +55,9 @@ const ThreeHelper = function(){
     };
 
     this.targetVideo = document.getElementById( 'targetVideo' );
-    this.targetVideo.onplay = function(){
-        document.getElementById('targetVideo' ).style.display = 'none';
+    this.targetVideo.onplay = ()=>{
+        this.targetVideo.style.display = 'none';
+        this.movieScreen.visible = true;
     }
     this.videoTexture = new THREE.VideoTexture(this.targetVideo);
     this.videoTexture.wrapS = this.videoTexture.wrapT = THREE.ClampToEdgeWrapping;
@@ -71,6 +72,7 @@ const ThreeHelper = function(){
     this.movieGeometry = new THREE.BoxGeometry(25, 15, 7);
     this.movieScreen = new THREE.Mesh(this.movieGeometry, this.movieMaterial);
     this.movieScreen.position.set(0, 0, 0);
+    this.movieScreen.visible = false;
     this.scene.add(this.movieScreen);
 
     this.render();
