@@ -123,14 +123,12 @@ function normalizeData(_g, _b, _a) {
     rotX += (b - rotX) / 5;
     rotZ += (a - rotZ) / 5;
 
-    console.log('gamma: ' + g + ' / beta: ' + b + ' / alpha: ' + a);
+    // console.log('gamma: ' + g + ' / beta: ' + b + ' / alpha: ' + a);
     if(window.innerHeight > window.innerWidth){
-        console.log("vertical mode");
         threeHelper.movieScreen.rotation.y = rotY / 150;
         threeHelper.movieScreen.rotation.x = rotX / 150;
         threeHelper.movieScreen.rotation.z = rotZ / 150;
     }else{
-        console.log("horizontal mode");
         threeHelper.movieScreen.rotation.x = rotY / 150; //rotY
         threeHelper.movieScreen.rotation.y = rotZ / 150;
         threeHelper.movieScreen.rotation.z = rotX / 150;
