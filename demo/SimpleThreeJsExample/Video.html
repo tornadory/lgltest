@@ -171,6 +171,9 @@
 			// </video>
 			// and set JS variable:
 			video = document.getElementById( 'myVideo' );
+			video.onplay = function(){
+				video.style.display = 'none';
+			}
 
 			// videoImage = document.createElement('canvas');
 			// videoImage.width = 480;
