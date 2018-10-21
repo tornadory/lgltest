@@ -56,10 +56,10 @@ const ThreeHelper = function(){
 
     this.targetVideo = document.getElementById( 'targetVideo' );
     this.targetVideo.onplay = function(){
-        this.targetVideo.style.display = 'none';
+        document.getElementById('targetVideo' ).style.display = 'none';
     }
     this.videoTexture = new THREE.VideoTexture(this.targetVideo);
-    this.videoTexture.wrapS = videoTexture.wrapT = THREE.ClampToEdgeWrapping;
+    this.videoTexture.wrapS = this.videoTexture.wrapT = THREE.ClampToEdgeWrapping;
     this.videoTexture.minFilter = THREE.LinearFilter;
     this.videoTexture.magFilter = THREE.LinearFilter;
 
