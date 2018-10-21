@@ -2,6 +2,7 @@
 const webAR = new WebAR(1000, 'recognize.php');
 
 const threeHelper = new ThreeHelper();
+threeHelper.movieGeometry.visible = false;
 
 document.querySelector('#openCamera').addEventListener('click', function () {
     const videoSetting = {
@@ -66,6 +67,7 @@ document.querySelector('#start').addEventListener('click', () => {
 
         // 加载本地模型
         threeHelper.loadObject('asset/model/trex_v3.fbx');
+        threeHelper.movieGeometry.visible = true;
 
         webAR.trace('加载模型');
     });

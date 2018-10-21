@@ -54,6 +54,25 @@ const ThreeHelper = function(){
         })
     };
 
+    this.targetVideo = document.getElementById( 'targetVideo' );
+    this.targetVideo.onplay = function(){
+        this.targetVideo.style.display = 'none';
+    }
+    this.videoTexture = new THREE.VideoTexture(this.targetVideo);
+    this.videoTexture.wrapS = videoTexture.wrapT = THREE.ClampToEdgeWrapping;
+    this.videoTexture.minFilter = THREE.LinearFilter;
+    this.videoTexture.magFilter = THREE.LinearFilter;
+
+    this.movieMaterial = new THREE.MeshBasicMaterial({
+        map: this.videoTexture,
+        side: THREE.DoubleSide
+    });
+
+    this.movieGeometry = new THREE.BoxGeometry(200,20, 100);
+    this.movieScreen = new THREE.Mesh(this.movieGeometry, this.movieMaterial);
+    this.movieScreen.position.set(0, 50, 0);
+    this.scene.add(this.movieScreen);
+
     this.render();
 };
 
