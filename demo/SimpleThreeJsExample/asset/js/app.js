@@ -51,7 +51,7 @@ var initFunc = function () {
             };
 
             // document.querySelector('#openCamera').style.display = 'none';
-            document.querySelector('#start').style.display = 'inline-block';
+            // document.querySelector('#start').style.display = 'inline-block';
             document.querySelector('#stop').style.display = 'inline-block';
         })
         .catch((err) => {
@@ -126,14 +126,14 @@ function normalizeData(_g, _b, _a) {
     console.log('gamma: ' + g + ' / beta: ' + b + ' / alpha: ' + a);
     if(window.innerHeight > window.innerWidth){
         console.log("vertical mode");
-        threeHelper.movieScreen.rotation.y = rotY / 200;
-        threeHelper.movieScreen.rotation.x = rotX / 200;
-        threeHelper.movieScreen.rotation.z = rotZ / 200;
+        threeHelper.movieScreen.rotation.y = rotY / 100;
+        threeHelper.movieScreen.rotation.x = rotX / 100;
+        threeHelper.movieScreen.rotation.z = rotZ / 100;
     }else{
         console.log("horizontal mode");
-        threeHelper.movieScreen.rotation.y = rotY / 200;
-        threeHelper.movieScreen.rotation.x = rotX / 200;
-        threeHelper.movieScreen.rotation.z = rotZ / 200;
+        threeHelper.movieScreen.rotation.y = rotY / 100;
+        // threeHelper.movieScreen.rotation.x = rotX / 100;
+        // threeHelper.movieScreen.rotation.z = rotZ / 100;
     }
     
 }
