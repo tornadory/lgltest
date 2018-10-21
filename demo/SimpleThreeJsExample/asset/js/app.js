@@ -124,7 +124,16 @@ function normalizeData(_g, _b, _a) {
     rotZ += (a - rotZ) / 5;
 
     console.log('gamma: ' + g + ' / beta: ' + b + ' / alpha: ' + a);
-    threeHelper.movieScreen.rotation.y = rotY / 200;
-    threeHelper.movieScreen.rotation.x = rotX / 200;
-    threeHelper.movieScreen.rotation.z = rotZ / 200;
+    if(window.innerHeight > window.innerWidth){
+        console.log("vertical mode");
+        threeHelper.movieScreen.rotation.y = rotY / 200;
+        threeHelper.movieScreen.rotation.x = rotX / 200;
+        threeHelper.movieScreen.rotation.z = rotZ / 200;
+    }else{
+        console.log("horizontal mode");
+        threeHelper.movieScreen.rotation.y = rotY / 200;
+        threeHelper.movieScreen.rotation.x = rotX / 200;
+        threeHelper.movieScreen.rotation.z = rotZ / 200;
+    }
+    
 }
