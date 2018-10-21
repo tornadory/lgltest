@@ -7,7 +7,13 @@
 	<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
 	<style>
 	video{
-		z-index: -10;
+		/* z-index: -10; */
+
+		position: fixed;
+		left: 0;
+		bottom: 0;
+		z-index: 10;
+		width: 240px;
 	}
 	</style>
 </head>
@@ -28,7 +34,7 @@
 	<div id="infoBox" title="Demo Information">
 		<span id="output">gamma: x / beta: x</span>
 	</div>
-	<video id="myVideo" autoplay loop>
+	<video id="myVideo" autoplay loop controls>
 			<!-- <source src="asset/videos/sintel.ogv" type='video/ogg; codecs="theora, vorbis"'> -->
 			<source src="asset/videos/intro_loop.mp4" type="video/mp4">
 	</video>
