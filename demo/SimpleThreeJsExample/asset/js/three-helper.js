@@ -68,7 +68,7 @@ const ThreeHelper = function(){
         side: THREE.DoubleSide
     });
 
-    this.movieGeometry = new THREE.BoxGeometry(60,40, 20);
+    this.movieGeometry = new THREE.BoxGeometry(25, 15, 7);
     this.movieScreen = new THREE.Mesh(this.movieGeometry, this.movieMaterial);
     this.movieScreen.position.set(0, 0, 0);
     this.scene.add(this.movieScreen);
