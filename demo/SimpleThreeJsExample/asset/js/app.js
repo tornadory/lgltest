@@ -98,7 +98,7 @@ webAR.startRecognize((msg) => {
     // threeHelper.loadObject('asset/model/trex_v3.fbx');
     // threeHelper.movieGeometry.visible = true;
 
-    webAR.trace('加载模型');
+    // webAR.trace('加载模型');
 });
 
 
@@ -121,6 +121,6 @@ function normalizeData(_g, _b) {
     rotX += (b - rotX) / 5;
 
     console.log('gamma: ' + g + ' / beta: ' + b);
-    threeHelper.movieScreen.rotation.z = rotY / 360;
+    threeHelper.movieScreen.rotation.y = rotY / 360;
     threeHelper.movieScreen.rotation.x = rotX / 360;
 }
