@@ -2,9 +2,9 @@
 const webAR = new WebAR(1000, 'recognize.php');
 
 const threeHelper = new ThreeHelper();
-threeHelper.movieGeometry.visible = false;
+// threeHelper.movieGeometry.visible = false;
 
-document.querySelector('#openCamera').addEventListener('click', function () {
+var initFunc = function () {
     const videoSetting = {
         width: 480,
         height: 360
@@ -55,7 +55,9 @@ document.querySelector('#openCamera').addEventListener('click', function () {
             console.info(err);
             alert('没有可使用的视频设备');
         });
-}, false);
+};
+
+document.querySelector('#openCamera').addEventListener('click', initFunc, false);
 
 document.querySelector('#start').addEventListener('click', () => {
     webAR.startRecognize((msg) => {

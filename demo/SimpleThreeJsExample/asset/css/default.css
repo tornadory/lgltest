@@ -28,7 +28,7 @@ body {
     position: absolute;
     top: 0;
     left: 0;
-    index: 1000;
+    z-index: 1000;
     color: #FF0000;
 }
 
