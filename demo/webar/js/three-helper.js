@@ -26,7 +26,7 @@ const ThreeHelper = function(){
         this.camera.updateProjectionMatrix();
         this.renderer.setSize(window.innerWidth, window.innerHeight);
         if (window.innerWidth < window.innerHeight){
-            this.movieScreen.scale.set(15,8,4);
+            this.movieScreen.scale.set(10,5,2);
         }else{
             this.movieScreen.scale.set(25,15,7);
         }
@@ -50,7 +50,6 @@ const ThreeHelper = function(){
             object.scale.setScalar(0.02);
             object.position.set(0, 0, 0);
             this.scene.add(object);
-            console.log("model loaded");
 
             if (object.animations.length > 0) {
                 object.mixer = new THREE.AnimationMixer(object);
@@ -65,25 +64,19 @@ const ThreeHelper = function(){
         console.log("start to playing ");
         this.targetVideo.style.display = 'none';
         this.movieScreen.visible = true;
-        // this.movieScreen.material.transparent = false;
-        // this.movieScreen.material.opacity = 1;
-        // this.movieScreen.position.set(2, 0, 0);
-        // this.videoTexture.wrapS = this.videoTexture.wrapT = THREE.RepeatWrapping;
-        this.videoTexture.minFilter = THREE.LinearFilter;
+        
         this.movieScreen.material.map.needsUpdate = true;
     }
 
     
     this.videoTexture = new THREE.VideoTexture(this.targetVideo);
-    this.videoTexture.wrapS = this.videoTexture.wrapT = THREE.RepeatWrapping; //RepeatWrapping //ClampToEdgeWrapping
+    this.videoTexture.wrapS = this.videoTexture.wrapT = THREE.ClampToEdgeWrapping; 
     this.videoTexture.minFilter = THREE.LinearFilter;
-    // this.videoTexture.magFilter = THREE.LinearFilter;
+    this.videoTexture.magFilter = THREE.LinearFilter;
 
     this.movieMaterial = new THREE.MeshBasicMaterial({
         map: this.videoTexture,
         side: THREE.DoubleSide,
-        // transparent: true,
-        // opacity: 0.01
     });
 
     this.movieGeometry = new THREE.BoxGeometry(1, 1, 1);
@@ -91,7 +84,7 @@ const ThreeHelper = function(){
     this.movieScreen.position.set(0, 0, 0);
     this.movieScreen.visible = false;
     if (window.innerWidth < window.innerHeight){
-        this.movieScreen.scale.set(12,6,3);
+        this.movieScreen.scale.set(10,5,2);
     }else{
         this.movieScreen.scale.set(25,15,7);
     }
