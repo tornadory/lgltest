@@ -3,6 +3,7 @@ const webAR = new WebAR(1000, 'recognize.php');
 const threeHelper = new ThreeHelper();
 var rotX = 0;
 var rotY = 0;
+var rotZ = 0;
 
 var initFunc = function () {
     const videoSetting = {
@@ -103,23 +104,27 @@ webAR.startRecognize((msg) => {
 
 if (window.DeviceMotionEvent) {
     window.ondeviceorientation = function (event) {
+        alpha = event.alpha;
         beta = event.beta;
         gamma = event.gamma;
         setTimeout(function () {
-            normalizeData(gamma, beta)
+            normalizeData(gamma, beta, alpha)
         }, 50)
     }
 }
 
-function normalizeData(_g, _b) {
+function normalizeData(_g, _b, _a) {
 
     b = Math.round(_b);
     g = Math.round(_g);
+    a = Math.round(_a);
 
     rotY += (g - rotY) / 5;
     rotX += (b - rotX) / 5;
+    rotZ += (a - rotZ) / 5;
 
-    console.log('gamma: ' + g + ' / beta: ' + b);
-    threeHelper.movieScreen.rotation.y = rotY / 36;
-    threeHelper.movieScreen.rotation.x = rotX / 36;
+    console.log('gamma: ' + g + ' / beta: ' + b + ' / alpha: ' + a);
+    threeHelper.movieScreen.rotation.y = rotY / 200;
+    threeHelper.movieScreen.rotation.x = rotX / 200;
+    threeHelper.movieScreen.rotation.z = rotZ / 200;
 }
