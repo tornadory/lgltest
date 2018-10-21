@@ -121,6 +121,6 @@ function normalizeData(_g, _b) {
     rotX += (b - rotX) / 5;
 
     console.log('gamma: ' + g + ' / beta: ' + b);
-    threeHelper.movieGeometry.rotation.y = rotY / 360;
-    threeHelper.movieGeometry.rotation.z = rotX / 360;
+    threeHelper.movieScreen.rotation.y = rotY / 360;
+    threeHelper.movieScreen.rotation.z = rotX / 360;
 }
