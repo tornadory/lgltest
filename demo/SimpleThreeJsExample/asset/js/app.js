@@ -3,6 +3,8 @@ const webAR = new WebAR(1000, 'recognize.php');
 
 const threeHelper = new ThreeHelper();
 // threeHelper.movieGeometry.visible = false;
+var rotX = 0;
+var rotY = 0;
 
 var initFunc = function () {
     const videoSetting = {
