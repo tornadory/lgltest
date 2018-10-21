@@ -22,7 +22,7 @@
 
 	<script src="asset/js/three.min.js"></script>
 	<script src="asset/js/Detector.js"></script>
-	<script src="asset/js/Stats.js"></script>
+	<!-- <script src="asset/js/Stats.js"></script> -->
 	<!-- <script src="asset/js/OrbitControls.js"></script> -->
 	<script src="asset/js/controls/OrbitControls.js"></script>
 	<script src="asset/js/DeviceOrientationControls.js"></script>
@@ -73,7 +73,7 @@
 		}
 
 		// standard global variables
-		var container, scene, camera, renderer, controls, stats;
+		var container, scene, camera, renderer, controls;
 		var movieScreen; //movie screen object
 		var keyboard = new THREEx.KeyboardState();
 
@@ -118,11 +118,11 @@
 				charCode: 'm'.charCodeAt(0)
 			});
 			// STATS
-			stats = new Stats();
-			stats.domElement.style.position = 'absolute';
-			stats.domElement.style.bottom = '0px';
-			stats.domElement.style.zIndex = 100;
-			container.appendChild(stats.domElement);
+			// stats = new Stats();
+			// stats.domElement.style.position = 'absolute';
+			// stats.domElement.style.bottom = '0px';
+			// stats.domElement.style.zIndex = 100;
+			// container.appendChild(stats.domElement);
 			// LIGHT
 			var light = new THREE.PointLight(0xffffff);
 			light.position.set(0, 250, 0);
@@ -229,15 +229,15 @@
 				video.currentTime = 0;
 
 			controls.update();
-			stats.update();
+			// stats.update();
 		}
 
 		function render() {
-			if (video.readyState === video.HAVE_ENOUGH_DATA) {
-				videoImageContext.drawImage(video, 0, 0);
-				if (videoTexture)
-					videoTexture.needsUpdate = true;
-			}
+			// if (video.readyState === video.HAVE_ENOUGH_DATA) {
+			// 	videoImageContext.drawImage(video, 0, 0);
+			// 	if (videoTexture)
+			// 		videoTexture.needsUpdate = true;
+			// }
 
 			renderer.render(scene, camera);
 		}
