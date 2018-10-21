@@ -42,7 +42,7 @@ var initFunc = function () {
     // 列出视频设备
     webAR.listCamera(videoDevice)
         .then(() => {
-            console.log(videoDevice.value);
+            // console.log(videoDevice.value);
             openCamera(video, videoDevice.value, videoSetting);
             videoDevice.onchange = () => {
                 openCamera(video, videoDevice.value, videoSetting);
@@ -70,7 +70,7 @@ document.querySelector('#start').addEventListener('click', () => {
         // threeHelper.loadObject(meta.model);
 
         // 加载本地模型
-        // threeHelper.loadObject('asset/model/trex_v3.fbx');
+        threeHelper.loadObject('asset/model/trex_v3.fbx');
         // threeHelper.movieGeometry.visible = true;
 
         webAR.trace('加载模型');
