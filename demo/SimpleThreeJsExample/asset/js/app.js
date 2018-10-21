@@ -93,7 +93,7 @@ webAR.startRecognize((msg) => {
     // threeHelper.loadObject(meta.model);
 
     // 加载本地模型
-    threeHelper.loadObject('asset/model/trex_v3.fbx');
+    // threeHelper.loadObject('asset/model/trex_v3.fbx');
     // threeHelper.movieGeometry.visible = true;
 
     webAR.trace('加载模型');
