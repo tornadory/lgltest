@@ -98,3 +98,27 @@ webAR.startRecognize((msg) => {
 
     webAR.trace('加载模型');
 });
+
+
+if (window.DeviceMotionEvent) {
+    window.ondeviceorientation = function (event) {
+        beta = event.beta;
+        gamma = event.gamma;
+        setTimeout(function () {
+            normalizeData(gamma, beta)
+        }, 50)
+    }
+}
+
+function normalizeData(_g, _b) {
+
+    b = Math.round(_b);
+    g = Math.round(_g);
+
+    rotY += (g - rotY) / 5;
+    rotX += (b - rotX) / 5;
+
+    console.log('gamma: ' + g + ' / beta: ' + b);
+    threeHelper.movieGeometry.rotation.y = rotY / 360;
+    threeHelper.movieGeometry.rotation.z = rotX / 360;
+}

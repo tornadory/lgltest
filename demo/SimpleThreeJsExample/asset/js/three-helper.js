@@ -59,7 +59,7 @@ const ThreeHelper = function(){
     this.targetVideo.onplay = ()=>{
         console.log("start to playing ");
         this.targetVideo.style.display = 'none';
-        // this.movieScreen.visible = true;
+        this.movieScreen.visible = true;
         // this.movieScreen.material.transparent = false;
         // this.movieScreen.material.opacity = 1;
         // this.movieScreen.position.set(2, 0, 0);
@@ -82,7 +82,7 @@ const ThreeHelper = function(){
     this.movieGeometry = new THREE.BoxGeometry(25, 15, 7);
     this.movieScreen = new THREE.Mesh(this.movieGeometry, this.movieMaterial);
     this.movieScreen.position.set(0, 0, 0);
-    // this.movieScreen.visible = false;
+    this.movieScreen.visible = false;
     this.scene.add(this.movieScreen);
 
     this.render();
