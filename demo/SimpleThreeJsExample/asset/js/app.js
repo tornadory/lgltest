@@ -1,8 +1,6 @@
-// const webAR = new WebAR(1000, '/webar/recognize');
 const webAR = new WebAR(1000, 'recognize.php');
 
 const threeHelper = new ThreeHelper();
-// threeHelper.movieGeometry.visible = false;
 var rotX = 0;
 var rotY = 0;
 
@@ -36,8 +34,9 @@ var initFunc = function () {
                 }
             })
             .catch((err) => {
-                alert(err);
-                alert('打开视频设备失败');
+                // alert(err);
+                // alert('打开视频设备失败');
+                console.error(err);
             });
     };
 
@@ -50,17 +49,17 @@ var initFunc = function () {
                 openCamera(video, videoDevice.value, videoSetting);
             };
 
-            document.querySelector('#openCamera').style.display = 'none';
+            // document.querySelector('#openCamera').style.display = 'none';
             document.querySelector('#start').style.display = 'inline-block';
             document.querySelector('#stop').style.display = 'inline-block';
         })
         .catch((err) => {
             console.info(err);
-            alert('没有可使用的视频设备');
+            // alert('没有可使用的视频设备');
         });
 };
 
-document.querySelector('#openCamera').addEventListener('click', initFunc, false);
+// document.querySelector('#openCamera').addEventListener('click', initFunc, false);
 
 // document.querySelector('#start').addEventListener('click', () => {
 //     webAR.startRecognize((msg) => {
@@ -121,6 +120,6 @@ function normalizeData(_g, _b) {
     rotX += (b - rotX) / 5;
 
     console.log('gamma: ' + g + ' / beta: ' + b);
-    threeHelper.movieScreen.rotation.y = rotY / 360;
-    threeHelper.movieScreen.rotation.x = rotX / 360;
+    threeHelper.movieScreen.rotation.y = rotY / 36;
+    threeHelper.movieScreen.rotation.x = rotX / 36;
 }

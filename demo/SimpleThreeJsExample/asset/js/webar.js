@@ -141,7 +141,7 @@ const WebAR = function(interval, recognizeUrl) {
                 })
                 .catch((err) => {
                     isRecognizing = false;
-                    this.trace(err);
+                    //this.trace(err);
                 });
         }, interval);
     };
