@@ -84,7 +84,8 @@ document.querySelector('#stop').addEventListener('click', () => {
 initFunc();
 
 webAR.startRecognize((msg) => {
-    alert('识别成功');
+    console.log("message is ", msg);
+    // alert('识别成功');
     document.getElementById('targetVideo' ).style.display = 'block';
 
     // 识别成功后，从meta中取出model地址
@@ -92,7 +93,7 @@ webAR.startRecognize((msg) => {
     // threeHelper.loadObject(meta.model);
 
     // 加载本地模型
-    // threeHelper.loadObject('asset/model/trex_v3.fbx');
+    threeHelper.loadObject('asset/model/trex_v3.fbx');
     // threeHelper.movieGeometry.visible = true;
 
     webAR.trace('加载模型');
