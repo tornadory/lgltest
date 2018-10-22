@@ -102,16 +102,16 @@ webAR.startRecognize((msg) => {
 });
 
 
-if (window.DeviceMotionEvent) {
-    window.ondeviceorientation = function (event) {
-        alpha = event.alpha;
-        beta = event.beta;
-        gamma = event.gamma;
-        setTimeout(function () {
-            normalizeData(gamma, beta, alpha)
-        }, 50)
-    }
-}
+//if (window.DeviceMotionEvent) {
+    //window.ondeviceorientation = function (event) {
+        //alpha = event.alpha;
+        //beta = event.beta;
+        //gamma = event.gamma;
+        //setTimeout(function () {
+            //normalizeData(gamma, beta, alpha)
+        //}, 50)
+    //}
+//}
 
 function normalizeData(_g, _b, _a) {
 
