@@ -175,24 +175,24 @@ function Quat2Angle(x, y, z, w) {
     return euler;
 }
 
-// var setObjectQuaternion = function () {
-//     var zee = new THREE.Vector3(0, 0, 1);
-//     var euler = new THREE.Euler();
-//     var q0 = new THREE.Quaternion();
-//     // var q1 = new THREE.Quaternion(-Math.sqrt(0.5), 0, 0, Math.sqrt(0.5));
-//     // var q1 = new THREE.Quaternion(0, 0, 0, Math.sqrt(0.5));
-//     var q1 = new THREE.Quaternion();
+var setObjectQuaternion = function () {
+    var zee = new THREE.Vector3(0, 0, 1);
+    var euler = new THREE.Euler();
+    var q0 = new THREE.Quaternion();
+    // var q1 = new THREE.Quaternion(-Math.sqrt(0.5), 0, 0, Math.sqrt(0.5));
+    // var q1 = new THREE.Quaternion(0, 0, 0, Math.sqrt(0.5));
+    var q1 = new THREE.Quaternion();
 
-//     return function (quaternion, alpha, beta, gamma, orient) {
+    return function (quaternion, alpha, beta, gamma, orient) {
 
-//         euler.set(beta, alpha, -gamma, 'YXZ');
+        euler.set(beta, alpha, -gamma, 'YXZ');
 
-//         quaternion.setFromEuler(euler);
+        quaternion.setFromEuler(euler);
 
-//         quaternion.multiply(q1);
+        quaternion.multiply(q1);
 
-//         quaternion.multiply(q0.setFromAxisAngle(zee, -orient));
+        quaternion.multiply(q0.setFromAxisAngle(zee, -orient));
 
-//     }
+    }
 
-// }();
+}();
