@@ -226,28 +226,28 @@ THREE.OrbitControls = function (object, domElement) {
 
 			// Accelerometer Additions
 			if ('undefined' === typeof scope.deviceOrientation) {
-				console.log(" deviceOrientation undifined, return");
+				console.error(" deviceOrientation undifined, return");
 				return false;
 			}
 
-			var alpha = scope.deviceOrientation.alpha ? THREE.Math.degToRad(scope.deviceOrientation.alpha) : 0;
-			var beta = scope.deviceOrientation.beta ? THREE.Math.degToRad(scope.deviceOrientation.beta) : 0;
-			var gamma = scope.deviceOrientation.gamma ? THREE.Math.degToRad(scope.deviceOrientation.gamma) : 0;
-			var orient = scope.screenOrientation ? THREE.Math.degToRad(scope.screenOrientation) : 0;
+			// var alpha = scope.deviceOrientation.alpha ? THREE.Math.degToRad(scope.deviceOrientation.alpha) : 0;
+			// var beta = scope.deviceOrientation.beta ? THREE.Math.degToRad(scope.deviceOrientation.beta) : 0;
+			// var gamma = scope.deviceOrientation.gamma ? THREE.Math.degToRad(scope.deviceOrientation.gamma) : 0;
+			// var orient = scope.screenOrientation ? THREE.Math.degToRad(scope.screenOrientation) : 0;
 
-			console.log("alpha ", alpha, " beta ", beta, " gamma ", gamma, " orient ", orient);
+			// console.log("alpha ", alpha, " beta ", beta, " gamma ", gamma, " orient ", orient);
 
-			var currentQ = new THREE.Quaternion().copy(scope.object.quaternion);
+			// var currentQ = new THREE.Quaternion().copy(scope.object.quaternion);
 
-			setObjectQuaternion(currentQ, alpha, beta, gamma, orient);
-			var currentAngle = Quat2Angle(currentQ.x, currentQ.y, currentQ.z, currentQ.w);
-			var radDeg = 180 / Math.PI;
+			// setObjectQuaternion(currentQ, alpha, beta, gamma, orient);
+			// var currentAngle = Quat2Angle(currentQ.x, currentQ.y, currentQ.z, currentQ.w);
+			// var radDeg = 180 / Math.PI;
 
-			rotateLeft(lastGamma - currentAngle.z);
-			lastGamma = currentAngle.z;
+			// rotateLeft(lastGamma - currentAngle.z);
+			// lastGamma = currentAngle.z;
 
-			rotateUp(lastBeta - currentAngle.y);
-			lastBeta = currentAngle.y;
+			// rotateUp(lastBeta - currentAngle.y);
+			// lastBeta = currentAngle.y;
 
 			return false;
 
@@ -1008,13 +1008,34 @@ THREE.OrbitControls = function (object, domElement) {
 	}
 
 	function onDeviceOrientationChangeEvent(event) {
-		console.log("onDeviceOrientationChangeEvent", event);
+		// console.log("onDeviceOrientationChangeEvent", event);
 
 		scope.deviceOrientation = event;
+
+		var alpha = event.alpha ? THREE.Math.degToRad(event.alpha) : 0;
+		var beta = event.beta ? THREE.Math.degToRad(event.beta) : 0;
+		var gamma = event.gamma ? THREE.Math.degToRad(event.gamma) : 0;
+		var orient = scope.screenOrientation ? THREE.Math.degToRad(scope.screenOrientation) : 0;
+
+		console.log("alpha ", alpha, " beta ", beta, " gamma ", gamma, " orient ", orient);
+
+		var currentQ = new THREE.Quaternion().copy(scope.object.quaternion);
+
+		setObjectQuaternion(currentQ, alpha, beta, gamma, orient);
+		var currentAngle = Quat2Angle(currentQ.x, currentQ.y, currentQ.z, currentQ.w);
+		var radDeg = 180 / Math.PI;
+
+		rotateLeft(lastGamma - currentAngle.z);
+		lastGamma = currentAngle.z;
+
+		rotateUp(lastBeta - currentAngle.y);
+		lastBeta = currentAngle.y;
 
 	}
 
 	function onScreenOrientationChangeEvent(event) {
+
+		console.log("=============onScreenOrientationChangeEvent================")
 
 		scope.screenOrientation = window.orientation || 0;
 
@@ -1033,7 +1054,7 @@ THREE.OrbitControls = function (object, domElement) {
 
 	window.addEventListener('keydown', onKeyDown, false);
 
-	// window.addEventListener('deviceorientation', onDeviceOrientationChangeEvent, false);
+	window.addEventListener('deviceorientation', onDeviceOrientationChangeEvent, false);
 	// window.addEventListener('orientationchange', onScreenOrientationChangeEvent, false);
 	window.ondeviceorientation = onDeviceOrientationChangeEvent;
 
