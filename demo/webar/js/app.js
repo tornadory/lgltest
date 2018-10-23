@@ -130,7 +130,7 @@ if (window.DeviceMotionEvent) {
         if(window.innerHeight > window.innerWidth){
             threeHelper.movieScreen.rotation.x = currentAngle.y;
             threeHelper.movieScreen.rotation.y = currentAngle.x;
-            threeHelper.movieScreen.rotation.z = currentAngle.z;
+            threeHelper.movieScreen.rotation.z = currentAngle.z - Math.PI/2;
 
         }else{
             threeHelper.movieScreen.rotation.x = currentAngle.x;
