@@ -133,9 +133,11 @@ if (window.DeviceMotionEvent) {
             threeHelper.movieScreen.rotation.z = currentAngle.z;
         }else{
             threeHelper.movieScreen.rotation.x = currentAngle.x;
-            threeHelper.movieScreen.rotation.y = currentAngle.y;
-            threeHelper.movieScreen.rotation.z = currentAngle.z;
+            threeHelper.movieScreen.rotation.z = currentAngle.y;
+            threeHelper.movieScreen.rotation.y = currentAngle.z;
         }
+
+        console.log("screen oritation ", threeHelper.movieScreen.rotation.x, threeHelper.movieScreen.rotation.y, threeHelper.movieScreen.rotation.z);
         
 
 		// console.log("rotLeft ",  currentAngle.z);
