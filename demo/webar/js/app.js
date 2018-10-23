@@ -115,11 +115,11 @@ if (window.DeviceMotionEvent) {
 
         var currentQ = new THREE.Quaternion().copy(threeHelper.movieScreen.quaternion);
         
-        if(window.innerHeight > window.innerWidth){
-            setObjectQuaternion(currentQ, alpha, beta, gamma, 0);
-        }else{
-            setObjectQuaternion(currentQ, alpha, beta, gamma, 1);
-        }
+        // if(window.innerHeight > window.innerWidth){
+        //     setObjectQuaternion(currentQ, alpha, beta, gamma, 0);
+        // }else{
+        //     setObjectQuaternion(currentQ, alpha, beta, gamma, 1);
+        // }
 
 		// setObjectQuaternion(currentQ, alpha, beta, gamma, orient);
         console.log("quat ", currentQ.x, currentQ.y, currentQ.z, currentQ.w);
@@ -137,83 +137,7 @@ if (window.DeviceMotionEvent) {
             threeHelper.movieScreen.rotation.z = currentAngle.y;
             threeHelper.movieScreen.rotation.y = currentAngle.z;
         }
-
-        console.log("screen oritation ", threeHelper.movieScreen.rotation.x, threeHelper.movieScreen.rotation.y, threeHelper.movieScreen.rotation.z);
-        
-
-		// console.log("rotLeft ",  currentAngle.z);
-		// rotateLeft(lastGamma - currentAngle.z);
-		// lastGamma = currentAngle.z;
-
-		// console.log("rotRight ", currentAngle.y);
-		// rotateUp(lastBeta - currentAngle.y);
-        // lastBeta = currentAngle.y;
-        
-
-        // alpha = event.alpha;
-        // beta = event.beta;
-        // gamma = event.gamma;
-        // setTimeout(function () {
-        //     normalizeData(gamma, beta, alpha)
-        // }, 50)
     }
-}
-
-function normalizeData(_g, _b, _a) {
-
-    var alpha = event.alpha ? THREE.Math.degToRad(event.alpha) : 0;
-    var beta = event.beta ? THREE.Math.degToRad(event.beta) : 0;
-    var gamma = event.gamma ? THREE.Math.degToRad(event.gamma) : 0;
-    var orient = scope.screenOrientation ? THREE.Math.degToRad(scope.screenOrientation) : 0;
-
-    console.log("alpha ", alpha, " beta ", beta, " gamma ", gamma, " orient ", orient);
-
-    var currentQ = new THREE.Quaternion().copy(scope.object.quaternion);
-
-    var euler = new THREE.Euler();
-    var q0 = new THREE.Quaternion();
-    euler.set(beta, alpha, -gamma, 'YXZ');
-
-    quaternion.setFromEuler(euler);
-    
-    if(window.innerHeight > window.innerWidth){
-        setObjectQuaternion(currentQ, alpha, beta, gamma, 0);
-    }else{
-        setObjectQuaternion(currentQ, alpha, beta, gamma, 1);
-    }
-    // setObjectQuaternion(currentQ, alpha, beta, gamma, orient);
-    console.log("quat ", currentQ.x, currentQ.y, currentQ.z, currentQ.w);
-    var currentAngle = Quat2Angle(currentQ.x, currentQ.y, currentQ.z, currentQ.w);
-    var radDeg = 180 / Math.PI;
-
-    // console.log("rotLeft ",  currentAngle.z);
-    // rotateLeft(lastGamma - currentAngle.z);
-    // lastGamma = currentAngle.z;
-
-    // console.log("rotRight ", currentAngle.y);
-    // rotateUp(lastBeta - currentAngle.y);
-    // lastBeta = currentAngle.y;
-
-
-    // b = Math.round(_b);
-    // g = Math.round(_g);
-    // a = Math.round(_a);
-
-    // rotY += (g - rotY) / 5;
-    // rotX += (b - rotX) / 5;
-    // rotZ += (a - rotZ) / 5;
-
-    // // console.log('gamma: ' + g + ' / beta: ' + b + ' / alpha: ' + a);
-    // if(window.innerHeight > window.innerWidth){
-    //     threeHelper.movieScreen.rotation.y = rotY / 150;
-    //     threeHelper.movieScreen.rotation.x = rotX / 150;
-    //     threeHelper.movieScreen.rotation.z = rotZ / 150;
-    // }else{
-    //     threeHelper.movieScreen.rotation.x = rotY / 150; //rotY
-    //     threeHelper.movieScreen.rotation.y = rotZ / 150;
-    //     threeHelper.movieScreen.rotation.z = rotX / 150;
-    // }
-    
 }
 
 function Quat2Angle(x, y, z, w) {
@@ -251,25 +175,24 @@ function Quat2Angle(x, y, z, w) {
     return euler;
 }
 
+// var setObjectQuaternion = function () {
+//     var zee = new THREE.Vector3(0, 0, 1);
+//     var euler = new THREE.Euler();
+//     var q0 = new THREE.Quaternion();
+//     // var q1 = new THREE.Quaternion(-Math.sqrt(0.5), 0, 0, Math.sqrt(0.5));
+//     // var q1 = new THREE.Quaternion(0, 0, 0, Math.sqrt(0.5));
+//     var q1 = new THREE.Quaternion();
 
-var setObjectQuaternion = function () {
-    var zee = new THREE.Vector3(0, 0, 1);
-    var euler = new THREE.Euler();
-    var q0 = new THREE.Quaternion();
-    // var q1 = new THREE.Quaternion(-Math.sqrt(0.5), 0, 0, Math.sqrt(0.5));
-    // var q1 = new THREE.Quaternion(0, 0, 0, Math.sqrt(0.5));
-    var q1 = new THREE.Quaternion();
+//     return function (quaternion, alpha, beta, gamma, orient) {
 
-    return function (quaternion, alpha, beta, gamma, orient) {
+//         euler.set(beta, alpha, -gamma, 'YXZ');
 
-        euler.set(beta, alpha, -gamma, 'YXZ');
+//         quaternion.setFromEuler(euler);
 
-        quaternion.setFromEuler(euler);
+//         quaternion.multiply(q1);
 
-        quaternion.multiply(q1);
+//         quaternion.multiply(q0.setFromAxisAngle(zee, -orient));
 
-        quaternion.multiply(q0.setFromAxisAngle(zee, -orient));
+//     }
 
-    }
-
-}();
+// }();
