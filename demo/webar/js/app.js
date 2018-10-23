@@ -134,8 +134,8 @@ if (window.DeviceMotionEvent) {
 
         }else{
             threeHelper.movieScreen.rotation.x = currentAngle.x;
-            threeHelper.movieScreen.rotation.z = currentAngle.y;
-            threeHelper.movieScreen.rotation.y = currentAngle.z;
+            threeHelper.movieScreen.rotation.y = currentAngle.y;
+            threeHelper.movieScreen.rotation.z = currentAngle.z;
         }
     }
 }
