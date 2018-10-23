@@ -30,8 +30,14 @@ const ThreeHelper = function () {
         this.renderer.setSize(window.innerWidth, window.innerHeight);
         if (window.innerWidth < window.innerHeight) {
             this.movieScreen.scale.set(10, 5, 2);
+            this.movieScreen.rotation.x = 0;
+            this.movieScreen.rotation.y = 0;
+            this.movieScreen.rotation.z = 0;
         } else {
             this.movieScreen.scale.set(25, 15, 7);
+            this.movieScreen.rotation.x = 0;
+            this.movieScreen.rotation.y = 0;
+            this.movieScreen.rotation.z = 0;
         }
     }, false);
 

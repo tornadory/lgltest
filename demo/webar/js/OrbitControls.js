@@ -1018,7 +1018,7 @@ THREE.OrbitControls = function (object, domElement) {
 		var alpha = event.alpha ? THREE.Math.degToRad(event.alpha) : 0;
 		var beta = event.beta ? THREE.Math.degToRad(event.beta) : 0;
 		var gamma = event.gamma ? THREE.Math.degToRad(event.gamma) : 0;
-		var orient = scope.screenOrientation ? THREE.Math.degToRad(scope.screenOrientation) : 0;
+		var orient = THREE.Math.degToRad(window.orientation || 0);
 
 		console.log("alpha ", alpha, " beta ", beta, " gamma ", gamma, " orient ", orient);
 

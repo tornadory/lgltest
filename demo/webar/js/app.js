@@ -125,8 +125,12 @@ if (window.DeviceMotionEvent) {
         console.log("quat ", currentQ.x, currentQ.y, currentQ.z, currentQ.w);
         // threeHelper.movieScreen.useQuaternion = true;
         threeHelper.movieScreen.setRotationFromQuaternion(currentQ);
-		// var currentAngle = Quat2Angle(currentQ.x, currentQ.y, currentQ.z, currentQ.w);
-		// var radDeg = 180 / Math.PI;
+		var currentAngle = Quat2Angle(currentQ.x, currentQ.y, currentQ.z, currentQ.w);
+        // var radDeg = 180 / Math.PI;
+        
+        threeHelper.movieScreen.rotation.y = currentAngle.x;
+        threeHelper.movieScreen.rotation.x = currentAngle.y;
+        threeHelper.movieScreen.rotation.z = currentAngle.z;
 
 		// console.log("rotLeft ",  currentAngle.z);
 		// rotateLeft(lastGamma - currentAngle.z);
@@ -149,31 +153,37 @@ if (window.DeviceMotionEvent) {
 function normalizeData(_g, _b, _a) {
 
     var alpha = event.alpha ? THREE.Math.degToRad(event.alpha) : 0;
-		var beta = event.beta ? THREE.Math.degToRad(event.beta) : 0;
-		var gamma = event.gamma ? THREE.Math.degToRad(event.gamma) : 0;
-		var orient = scope.screenOrientation ? THREE.Math.degToRad(scope.screenOrientation) : 0;
+    var beta = event.beta ? THREE.Math.degToRad(event.beta) : 0;
+    var gamma = event.gamma ? THREE.Math.degToRad(event.gamma) : 0;
+    var orient = scope.screenOrientation ? THREE.Math.degToRad(scope.screenOrientation) : 0;
 
-		console.log("alpha ", alpha, " beta ", beta, " gamma ", gamma, " orient ", orient);
+    console.log("alpha ", alpha, " beta ", beta, " gamma ", gamma, " orient ", orient);
 
-        var currentQ = new THREE.Quaternion().copy(scope.object.quaternion);
-        
-        if(window.innerHeight > window.innerWidth){
-            setObjectQuaternion(currentQ, alpha, beta, gamma, 0);
-        }else{
-            setObjectQuaternion(currentQ, alpha, beta, gamma, 1);
-        }
-		// setObjectQuaternion(currentQ, alpha, beta, gamma, orient);
-		console.log("quat ", currentQ.x, currentQ.y, currentQ.z, currentQ.w);
-		var currentAngle = Quat2Angle(currentQ.x, currentQ.y, currentQ.z, currentQ.w);
-		var radDeg = 180 / Math.PI;
+    var currentQ = new THREE.Quaternion().copy(scope.object.quaternion);
 
-		// console.log("rotLeft ",  currentAngle.z);
-		// rotateLeft(lastGamma - currentAngle.z);
-		// lastGamma = currentAngle.z;
+    var euler = new THREE.Euler();
+    var q0 = new THREE.Quaternion();
+    euler.set(beta, alpha, -gamma, 'YXZ');
 
-		// console.log("rotRight ", currentAngle.y);
-		// rotateUp(lastBeta - currentAngle.y);
-		// lastBeta = currentAngle.y;
+    quaternion.setFromEuler(euler);
+    
+    if(window.innerHeight > window.innerWidth){
+        setObjectQuaternion(currentQ, alpha, beta, gamma, 0);
+    }else{
+        setObjectQuaternion(currentQ, alpha, beta, gamma, 1);
+    }
+    // setObjectQuaternion(currentQ, alpha, beta, gamma, orient);
+    console.log("quat ", currentQ.x, currentQ.y, currentQ.z, currentQ.w);
+    var currentAngle = Quat2Angle(currentQ.x, currentQ.y, currentQ.z, currentQ.w);
+    var radDeg = 180 / Math.PI;
+
+    // console.log("rotLeft ",  currentAngle.z);
+    // rotateLeft(lastGamma - currentAngle.z);
+    // lastGamma = currentAngle.z;
+
+    // console.log("rotRight ", currentAngle.y);
+    // rotateUp(lastBeta - currentAngle.y);
+    // lastBeta = currentAngle.y;
 
 
     // b = Math.round(_b);
@@ -196,33 +206,6 @@ function normalizeData(_g, _b, _a) {
     // }
     
 }
-
-
-var setObjectQuaternion = function () {
-    console.log(" setObjectQuaternion ");
-
-    var zee = new THREE.Vector3(0, 0, 1);
-
-    var euler = new THREE.Euler();
-
-    var q0 = new THREE.Quaternion();
-
-    // var q1 = new THREE.Quaternion(-Math.sqrt(0.5), 0, 0, Math.sqrt(0.5));
-    var q1 = new THREE.Quaternion(0, 0, 0, Math.sqrt(0.5));
-
-    return function (quaternion, alpha, beta, gamma, orient) {
-
-        euler.set(beta, alpha, -gamma, 'YXZ');
-
-        quaternion.setFromEuler(euler);
-
-        quaternion.multiply(q1);
-
-        quaternion.multiply(q0.setFromAxisAngle(zee, -orient));
-
-    }
-
-}();
 
 function Quat2Angle(x, y, z, w) {
 
@@ -258,3 +241,26 @@ function Quat2Angle(x, y, z, w) {
 
     return euler;
 }
+
+
+var setObjectQuaternion = function () {
+    var zee = new THREE.Vector3(0, 0, 1);
+    var euler = new THREE.Euler();
+    var q0 = new THREE.Quaternion();
+    // var q1 = new THREE.Quaternion(-Math.sqrt(0.5), 0, 0, Math.sqrt(0.5));
+    // var q1 = new THREE.Quaternion(0, 0, 0, Math.sqrt(0.5));
+    var q1 = new THREE.Quaternion();
+
+    return function (quaternion, alpha, beta, gamma, orient) {
+
+        euler.set(beta, alpha, -gamma, 'YXZ');
+
+        quaternion.setFromEuler(euler);
+
+        quaternion.multiply(q1);
+
+        quaternion.multiply(q0.setFromAxisAngle(zee, -orient));
+
+    }
+
+}();
