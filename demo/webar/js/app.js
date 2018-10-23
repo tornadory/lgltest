@@ -121,7 +121,7 @@ if (window.DeviceMotionEvent) {
         //     setObjectQuaternion(currentQ, alpha, beta, gamma, 1);
         // }
 
-		// setObjectQuaternion(currentQ, alpha, beta, gamma, orient);
+		setObjectQuaternion(currentQ, alpha, beta, gamma, orient);
         console.log("quat ", currentQ.x, currentQ.y, currentQ.z, currentQ.w);
         // threeHelper.movieScreen.useQuaternion = true;
         // threeHelper.movieScreen.setRotationFromQuaternion(currentQ);
