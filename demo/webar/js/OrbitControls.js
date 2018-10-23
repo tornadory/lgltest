@@ -1029,11 +1029,11 @@ THREE.OrbitControls = function (object, domElement) {
 		var currentAngle = Quat2Angle(currentQ.x, currentQ.y, currentQ.z, currentQ.w);
 		var radDeg = 180 / Math.PI;
 
-		console.log("rotLeft ", lastGamma - currentAngle.z);
+		console.log("rotLeft ",  currentAngle.z);
 		rotateLeft(lastGamma - currentAngle.z);
 		lastGamma = currentAngle.z;
 
-		console.log("rotRight ", lastBeta - currentAngle.y);
+		console.log("rotRight ", currentAngle.y);
 		rotateUp(lastBeta - currentAngle.y);
 		lastBeta = currentAngle.y;
 
