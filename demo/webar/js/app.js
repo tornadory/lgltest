@@ -126,12 +126,10 @@ if (window.DeviceMotionEvent) {
         // threeHelper.movieScreen.useQuaternion = true;
         // threeHelper.movieScreen.setRotationFromQuaternion(currentQ);
 		var currentAngle = Quat2Angle(currentQ.x, currentQ.y, currentQ.z, currentQ.w);
-        // var radDeg = 180 / Math.PI;
         if(window.innerHeight > window.innerWidth){
-            console.log("=====");
-            // threeHelper.movieScreen.rotation.x = currentAngle.x;
-            // threeHelper.movieScreen.rotation.y = currentAngle.y;
-            // threeHelper.movieScreen.rotation.z = currentAngle.z;
+            threeHelper.movieScreen.rotation.x = currentAngle.x;
+            threeHelper.movieScreen.rotation.y = currentAngle.y;
+            threeHelper.movieScreen.rotation.z = currentAngle.z;
 
         }else{
             threeHelper.movieScreen.rotation.x = currentAngle.x;
