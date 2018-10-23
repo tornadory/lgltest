@@ -73,7 +73,6 @@ const ThreeHelper = function () {
         console.log("start to playing ");
         this.targetVideo.style.display = 'none';
         this.movieScreen.visible = true;
-
         this.movieScreen.material.map.needsUpdate = true;
     }
 
@@ -91,7 +90,7 @@ const ThreeHelper = function () {
     this.movieGeometry = new THREE.BoxGeometry(1, 1, 1);
     this.movieScreen = new THREE.Mesh(this.movieGeometry, this.movieMaterial);
     this.movieScreen.position.set(0, 0, 0);
-    // this.movieScreen.visible = false;
+    this.movieScreen.visible = false;
     if (window.innerWidth < window.innerHeight) {
         this.movieScreen.scale.set(10, 5, 2);
     } else {
