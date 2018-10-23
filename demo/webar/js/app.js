@@ -113,9 +113,15 @@ if (window.DeviceMotionEvent) {
 
 		//console.log("alpha ", alpha, " beta ", beta, " gamma ", gamma, " orient ", orient);
 
-		var currentQ = new THREE.Quaternion().copy(threeHelper.movieScreen.quaternion);
+        var currentQ = new THREE.Quaternion().copy(threeHelper.movieScreen.quaternion);
+        
+        if(window.innerHeight > window.innerWidth){
+            setObjectQuaternion(currentQ, alpha, beta, gamma, 0);
+        }else{
+            setObjectQuaternion(currentQ, alpha, beta, gamma, 1);
+        }
 
-		setObjectQuaternion(currentQ, alpha, beta, gamma, orient);
+		// setObjectQuaternion(currentQ, alpha, beta, gamma, orient);
         console.log("quat ", currentQ.x, currentQ.y, currentQ.z, currentQ.w);
         // threeHelper.movieScreen.useQuaternion = true;
         threeHelper.movieScreen.setRotationFromQuaternion(currentQ);
@@ -149,20 +155,25 @@ function normalizeData(_g, _b, _a) {
 
 		console.log("alpha ", alpha, " beta ", beta, " gamma ", gamma, " orient ", orient);
 
-		var currentQ = new THREE.Quaternion().copy(scope.object.quaternion);
-
-		setObjectQuaternion(currentQ, alpha, beta, gamma, orient);
+        var currentQ = new THREE.Quaternion().copy(scope.object.quaternion);
+        
+        if(window.innerHeight > window.innerWidth){
+            setObjectQuaternion(currentQ, alpha, beta, gamma, 0);
+        }else{
+            setObjectQuaternion(currentQ, alpha, beta, gamma, 1);
+        }
+		// setObjectQuaternion(currentQ, alpha, beta, gamma, orient);
 		console.log("quat ", currentQ.x, currentQ.y, currentQ.z, currentQ.w);
 		var currentAngle = Quat2Angle(currentQ.x, currentQ.y, currentQ.z, currentQ.w);
 		var radDeg = 180 / Math.PI;
 
-		console.log("rotLeft ",  currentAngle.z);
-		rotateLeft(lastGamma - currentAngle.z);
-		lastGamma = currentAngle.z;
+		// console.log("rotLeft ",  currentAngle.z);
+		// rotateLeft(lastGamma - currentAngle.z);
+		// lastGamma = currentAngle.z;
 
-		console.log("rotRight ", currentAngle.y);
-		rotateUp(lastBeta - currentAngle.y);
-		lastBeta = currentAngle.y;
+		// console.log("rotRight ", currentAngle.y);
+		// rotateUp(lastBeta - currentAngle.y);
+		// lastBeta = currentAngle.y;
 
 
     // b = Math.round(_b);
@@ -196,7 +207,8 @@ var setObjectQuaternion = function () {
 
     var q0 = new THREE.Quaternion();
 
-    var q1 = new THREE.Quaternion(-Math.sqrt(0.5), 0, 0, Math.sqrt(0.5));
+    // var q1 = new THREE.Quaternion(-Math.sqrt(0.5), 0, 0, Math.sqrt(0.5));
+    var q1 = new THREE.Quaternion(0, 0, 0, Math.sqrt(0.5));
 
     return function (quaternion, alpha, beta, gamma, orient) {
 
