@@ -111,12 +111,13 @@ if (window.DeviceMotionEvent) {
 		var gamma = event.gamma ? THREE.Math.degToRad(event.gamma) : 0;
 		var orient = screenOrientation ? THREE.Math.degToRad(screenOrientation) : 0;
 
-		console.log("alpha ", alpha, " beta ", beta, " gamma ", gamma, " orient ", orient);
+		//console.log("alpha ", alpha, " beta ", beta, " gamma ", gamma, " orient ", orient);
 
 		var currentQ = new THREE.Quaternion().copy(threeHelper.movieScreen.quaternion);
 
 		setObjectQuaternion(currentQ, alpha, beta, gamma, orient);
         console.log("quat ", currentQ.x, currentQ.y, currentQ.z, currentQ.w);
+        threeHelper.movieScreen.useQuaternion = true;
         threeHelper.movieScreen.quaternion = currentQ;
 		// var currentAngle = Quat2Angle(currentQ.x, currentQ.y, currentQ.z, currentQ.w);
 		// var radDeg = 180 / Math.PI;

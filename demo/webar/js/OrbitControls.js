@@ -1060,9 +1060,9 @@ THREE.OrbitControls = function (object, domElement) {
 
 	window.addEventListener('keydown', onKeyDown, false);
 
-	window.addEventListener('deviceorientation', onDeviceOrientationChangeEvent, false);
+	// window.addEventListener('deviceorientation', onDeviceOrientationChangeEvent, false);
 	// window.addEventListener('orientationchange', onScreenOrientationChangeEvent, false);
-	window.ondeviceorientation = onDeviceOrientationChangeEvent;
+	// window.ondeviceorientation = onDeviceOrientationChangeEvent;
 
 	// force an update at start
 
