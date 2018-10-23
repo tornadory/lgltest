@@ -125,10 +125,11 @@ if (window.DeviceMotionEvent) {
         console.log("quat ", currentQ.x, currentQ.y, currentQ.z, currentQ.w);
         // threeHelper.movieScreen.useQuaternion = true;
         // threeHelper.movieScreen.setRotationFromQuaternion(currentQ);
-		var currentAngle = Quat2Angle(currentQ.x, currentQ.y, currentQ.z, currentQ.w);
+        var currentAngle = Quat2Angle(currentQ.x, currentQ.y, currentQ.z, currentQ.w);
+        console.log("screen oritation ", currentAngle.rotation.x, currentAngle.rotation.y, currentAngle.rotation.z);
         if(window.innerHeight > window.innerWidth){
-            threeHelper.movieScreen.rotation.x = currentAngle.y;
-            threeHelper.movieScreen.rotation.y = currentAngle.x;
+            threeHelper.movieScreen.rotation.x = currentAngle.x;
+            threeHelper.movieScreen.rotation.y = currentAngle.y;
             threeHelper.movieScreen.rotation.z = currentAngle.z - Math.PI/2;
 
         }else{
