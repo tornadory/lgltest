@@ -1008,6 +1008,7 @@ THREE.OrbitControls = function (object, domElement) {
 	}
 
 	function onDeviceOrientationChangeEvent(event) {
+		console.log("onDeviceOrientationChangeEvent", event);
 
 		scope.deviceOrientation = event;
 
