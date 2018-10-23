@@ -1025,12 +1025,15 @@ THREE.OrbitControls = function (object, domElement) {
 		var currentQ = new THREE.Quaternion().copy(scope.object.quaternion);
 
 		setObjectQuaternion(currentQ, alpha, beta, gamma, orient);
+		console.log("quat ", currentQ.x, currentQ.y, currentQ.z, currentQ.w);
 		var currentAngle = Quat2Angle(currentQ.x, currentQ.y, currentQ.z, currentQ.w);
 		var radDeg = 180 / Math.PI;
 
+		console.log("rotLeft ", lastGamma - currentAngle.z);
 		rotateLeft(lastGamma - currentAngle.z);
 		lastGamma = currentAngle.z;
 
+		console.log("rotRight ", lastBeta - currentAngle.y);
 		rotateUp(lastBeta - currentAngle.y);
 		lastBeta = currentAngle.y;
 
