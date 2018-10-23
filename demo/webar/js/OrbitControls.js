@@ -211,21 +211,21 @@ THREE.OrbitControls = function (object, domElement) {
 			// min(camera displacement, camera rotation in radians)^2 > EPS
 			// using small-angle approximation cos(x/2) = 1 - x^2 / 8
 
-			// if (zoomChanged ||
-			// 	lastPosition.distanceToSquared(scope.object.position) > EPS ||
-			// 	8 * (1 - lastQuaternion.dot(scope.object.quaternion)) > EPS) {
+			if (zoomChanged ||
+				lastPosition.distanceToSquared(scope.object.position) > EPS ||
+				8 * (1 - lastQuaternion.dot(scope.object.quaternion)) > EPS) {
 
-			// 	scope.dispatchEvent(changeEvent);
+				scope.dispatchEvent(changeEvent);
 
-			// 	lastPosition.copy(scope.object.position);
-			// 	lastQuaternion.copy(scope.object.quaternion);
-			// 	zoomChanged = false;
+				lastPosition.copy(scope.object.position);
+				lastQuaternion.copy(scope.object.quaternion);
+				zoomChanged = false;
 
-			// 	console.log(" zoom changed || > EPS, return "); //here
+				console.log(" zoom changed || > EPS, return "); //here
 
-			// 	return true;
+				return true;
 
-			// }
+			}
 
 			// Accelerometer Additions
 			if ('undefined' === typeof scope.deviceOrientation) {

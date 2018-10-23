@@ -4,6 +4,7 @@ const threeHelper = new ThreeHelper();
 var rotX = 0;
 var rotY = 0;
 var rotZ = 0;
+var screenOrientation = 0; //
 
 var initFunc = function () {
     const videoSetting = {
@@ -102,36 +103,145 @@ webAR.startRecognize((msg) => {
 });
 
 
-//if (window.DeviceMotionEvent) {
-    //window.ondeviceorientation = function (event) {
-        //alpha = event.alpha;
-        //beta = event.beta;
-        //gamma = event.gamma;
-        //setTimeout(function () {
-            //normalizeData(gamma, beta, alpha)
-        //}, 50)
-    //}
-//}
+if (window.DeviceMotionEvent) {
+    window.ondeviceorientation = function (event) {
+
+        var alpha = event.alpha ? THREE.Math.degToRad(event.alpha) : 0;
+		var beta = event.beta ? THREE.Math.degToRad(event.beta) : 0;
+		var gamma = event.gamma ? THREE.Math.degToRad(event.gamma) : 0;
+		var orient = screenOrientation ? THREE.Math.degToRad(screenOrientation) : 0;
+
+		console.log("alpha ", alpha, " beta ", beta, " gamma ", gamma, " orient ", orient);
+
+		var currentQ = new THREE.Quaternion().copy(threeHelper.movieScreen.quaternion);
+
+		setObjectQuaternion(currentQ, alpha, beta, gamma, orient);
+        console.log("quat ", currentQ.x, currentQ.y, currentQ.z, currentQ.w);
+        threeHelper.movieScreen.quaternion = currentQ;
+		// var currentAngle = Quat2Angle(currentQ.x, currentQ.y, currentQ.z, currentQ.w);
+		// var radDeg = 180 / Math.PI;
+
+		// console.log("rotLeft ",  currentAngle.z);
+		// rotateLeft(lastGamma - currentAngle.z);
+		// lastGamma = currentAngle.z;
+
+		// console.log("rotRight ", currentAngle.y);
+		// rotateUp(lastBeta - currentAngle.y);
+        // lastBeta = currentAngle.y;
+        
+
+        // alpha = event.alpha;
+        // beta = event.beta;
+        // gamma = event.gamma;
+        // setTimeout(function () {
+        //     normalizeData(gamma, beta, alpha)
+        // }, 50)
+    }
+}
 
 function normalizeData(_g, _b, _a) {
 
-    b = Math.round(_b);
-    g = Math.round(_g);
-    a = Math.round(_a);
+    var alpha = event.alpha ? THREE.Math.degToRad(event.alpha) : 0;
+		var beta = event.beta ? THREE.Math.degToRad(event.beta) : 0;
+		var gamma = event.gamma ? THREE.Math.degToRad(event.gamma) : 0;
+		var orient = scope.screenOrientation ? THREE.Math.degToRad(scope.screenOrientation) : 0;
 
-    rotY += (g - rotY) / 5;
-    rotX += (b - rotX) / 5;
-    rotZ += (a - rotZ) / 5;
+		console.log("alpha ", alpha, " beta ", beta, " gamma ", gamma, " orient ", orient);
 
-    // console.log('gamma: ' + g + ' / beta: ' + b + ' / alpha: ' + a);
-    if(window.innerHeight > window.innerWidth){
-        threeHelper.movieScreen.rotation.y = rotY / 150;
-        threeHelper.movieScreen.rotation.x = rotX / 150;
-        threeHelper.movieScreen.rotation.z = rotZ / 150;
-    }else{
-        threeHelper.movieScreen.rotation.x = rotY / 150; //rotY
-        threeHelper.movieScreen.rotation.y = rotZ / 150;
-        threeHelper.movieScreen.rotation.z = rotX / 150;
-    }
+		var currentQ = new THREE.Quaternion().copy(scope.object.quaternion);
+
+		setObjectQuaternion(currentQ, alpha, beta, gamma, orient);
+		console.log("quat ", currentQ.x, currentQ.y, currentQ.z, currentQ.w);
+		var currentAngle = Quat2Angle(currentQ.x, currentQ.y, currentQ.z, currentQ.w);
+		var radDeg = 180 / Math.PI;
+
+		console.log("rotLeft ",  currentAngle.z);
+		rotateLeft(lastGamma - currentAngle.z);
+		lastGamma = currentAngle.z;
+
+		console.log("rotRight ", currentAngle.y);
+		rotateUp(lastBeta - currentAngle.y);
+		lastBeta = currentAngle.y;
+
+
+    // b = Math.round(_b);
+    // g = Math.round(_g);
+    // a = Math.round(_a);
+
+    // rotY += (g - rotY) / 5;
+    // rotX += (b - rotX) / 5;
+    // rotZ += (a - rotZ) / 5;
+
+    // // console.log('gamma: ' + g + ' / beta: ' + b + ' / alpha: ' + a);
+    // if(window.innerHeight > window.innerWidth){
+    //     threeHelper.movieScreen.rotation.y = rotY / 150;
+    //     threeHelper.movieScreen.rotation.x = rotX / 150;
+    //     threeHelper.movieScreen.rotation.z = rotZ / 150;
+    // }else{
+    //     threeHelper.movieScreen.rotation.x = rotY / 150; //rotY
+    //     threeHelper.movieScreen.rotation.y = rotZ / 150;
+    //     threeHelper.movieScreen.rotation.z = rotX / 150;
+    // }
     
+}
+
+
+var setObjectQuaternion = function () {
+    console.log(" setObjectQuaternion ");
+
+    var zee = new THREE.Vector3(0, 0, 1);
+
+    var euler = new THREE.Euler();
+
+    var q0 = new THREE.Quaternion();
+
+    var q1 = new THREE.Quaternion(-Math.sqrt(0.5), 0, 0, Math.sqrt(0.5));
+
+    return function (quaternion, alpha, beta, gamma, orient) {
+
+        euler.set(beta, alpha, -gamma, 'YXZ');
+
+        quaternion.setFromEuler(euler);
+
+        quaternion.multiply(q1);
+
+        quaternion.multiply(q0.setFromAxisAngle(zee, -orient));
+
+    }
+
+}();
+
+function Quat2Angle(x, y, z, w) {
+
+    var pitch, roll, yaw;
+
+    var test = x * y + z * w;
+
+    if (test > 0.499) {
+        yaw = 2 * Math.atan2(x, w);
+        pitch = Math.PI / 2;
+        roll = 0;
+
+        var euler = new THREE.Vector3(pitch, roll, yaw);
+        return euler;
+    }
+
+    if (test < -0.499) {
+        yaw = -2 * Math.atan2(x, w);
+        pitch = -Math.PI / 2;
+        roll = 0;
+        var euler = new THREE.Vector3(pitch, roll, yaw);
+        return euler;
+    }
+
+    var sqx = x * x;
+    var sqy = y * y;
+    var sqz = z * z;
+    yaw = Math.atan2(2 * y * w - 2 * x * z, 1 - 2 * sqy - 2 * sqz);
+    pitch = Math.asin(2 * test);
+    roll = Math.atan2(2 * x * w - 2 * y * z, 1 - 2 * sqx - 2 * sqz);
+
+    var euler = new THREE.Vector3(pitch, roll, yaw);
+
+    return euler;
 }
