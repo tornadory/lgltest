@@ -130,12 +130,13 @@ if (window.DeviceMotionEvent) {
         if(window.innerHeight > window.innerWidth){
             threeHelper.movieScreen.rotation.x = currentAngle.y;
             threeHelper.movieScreen.rotation.y = currentAngle.x;
-            threeHelper.movieScreen.rotation.z = currentAngle.z - Math.PI/2;
-
+            // threeHelper.movieScreen.rotation.z = currentAngle.z - Math.PI/2;
+            threeHelper.movieScreen.rotation.z = 0;
         }else{
             threeHelper.movieScreen.rotation.x = currentAngle.x;
             threeHelper.movieScreen.rotation.y = currentAngle.y;
-            threeHelper.movieScreen.rotation.z = currentAngle.z;
+            // threeHelper.movieScreen.rotation.z = currentAngle.z;
+            threeHelper.movieScreen.rotation.z = 0;
         }
     }
 }
