@@ -117,8 +117,8 @@ if (window.DeviceMotionEvent) {
 
 		setObjectQuaternion(currentQ, alpha, beta, gamma, orient);
         console.log("quat ", currentQ.x, currentQ.y, currentQ.z, currentQ.w);
-        threeHelper.movieScreen.useQuaternion = true;
-        threeHelper.movieScreen.quaternion = currentQ;
+        // threeHelper.movieScreen.useQuaternion = true;
+        threeHelper.movieScreen.setRotationFromQuaternion(currentQ);
 		// var currentAngle = Quat2Angle(currentQ.x, currentQ.y, currentQ.z, currentQ.w);
 		// var radDeg = 180 / Math.PI;
 
