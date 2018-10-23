@@ -15,12 +15,12 @@ body {
     z-index: 1;
 }
 
-#targetVideo{
+#targetVideo {
     position: fixed;
     left: 0;
     bottom: 0;
     width: 200px;
-    display: none;
+    /* display: none; */
     z-index: 20;
 }
 
