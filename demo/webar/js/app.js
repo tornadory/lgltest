@@ -61,25 +61,6 @@ var initFunc = function () {
         });
 };
 
-// document.querySelector('#openCamera').addEventListener('click', initFunc, false);
-
-// document.querySelector('#start').addEventListener('click', () => {
-//     webAR.startRecognize((msg) => {
-//         alert('识别成功');
-//         document.getElementById('targetVideo' ).style.display = 'block';
-
-//         // 识别成功后，从meta中取出model地址
-//         // const meta = JSON.parse(window.atob(msg.meta));
-//         // threeHelper.loadObject(meta.model);
-
-//         // 加载本地模型
-//         threeHelper.loadObject('asset/model/trex_v3.fbx');
-//         // threeHelper.movieGeometry.visible = true;
-
-//         webAR.trace('加载模型');
-//     });
-// }, false);
-
 document.querySelector('#stop').addEventListener('click', () => {
     webAR.stopRecognize();
 }, false);
@@ -109,22 +90,11 @@ if (window.DeviceMotionEvent) {
         var alpha = event.alpha ? THREE.Math.degToRad(event.alpha) : 0;
 		var beta = event.beta ? THREE.Math.degToRad(event.beta) : 0;
 		var gamma = event.gamma ? THREE.Math.degToRad(event.gamma) : 0;
-		var orient = screenOrientation ? THREE.Math.degToRad(screenOrientation) : 0;
-
-		//console.log("alpha ", alpha, " beta ", beta, " gamma ", gamma, " orient ", orient);
-
-        var currentQ = new THREE.Quaternion().copy(threeHelper.movieScreen.quaternion);
+        var orient = screenOrientation ? THREE.Math.degToRad(screenOrientation) : 0;
         
-        // if(window.innerHeight > window.innerWidth){
-        //     setObjectQuaternion(currentQ, alpha, beta, gamma, 0);
-        // }else{
-        //     setObjectQuaternion(currentQ, alpha, beta, gamma, 1);
-        // }
+        var currentQ = new THREE.Quaternion().copy(threeHelper.movieScreen.quaternion);
 
 		setObjectQuaternion(currentQ, alpha, beta, gamma, orient);
-        console.log("quat ", currentQ.x, currentQ.y, currentQ.z, currentQ.w);
-        // threeHelper.movieScreen.useQuaternion = true;
-        // threeHelper.movieScreen.setRotationFromQuaternion(currentQ);
         var currentAngle = Quat2Angle(currentQ.x, currentQ.y, currentQ.z, currentQ.w);
         console.log("screen oritation ", currentAngle.x, currentAngle.y, currentAngle.z);
         if(window.innerHeight > window.innerWidth){
@@ -170,9 +140,7 @@ function Quat2Angle(x, y, z, w) {
     yaw = Math.atan2(2 * y * w - 2 * x * z, 1 - 2 * sqy - 2 * sqz);
     pitch = Math.asin(2 * test);
     roll = Math.atan2(2 * x * w - 2 * y * z, 1 - 2 * sqx - 2 * sqz);
-
     var euler = new THREE.Vector3(pitch, roll, yaw);
-
     return euler;
 }
 
@@ -180,8 +148,6 @@ var setObjectQuaternion = function () {
     var zee = new THREE.Vector3(0, 0, 1);
     var euler = new THREE.Euler();
     var q0 = new THREE.Quaternion();
-    // var q1 = new THREE.Quaternion(-Math.sqrt(0.5), 0, 0, Math.sqrt(0.5));
-    // var q1 = new THREE.Quaternion(0, 0, 0, Math.sqrt(0.5));
     var q1 = new THREE.Quaternion();
 
     return function (quaternion, alpha, beta, gamma, orient) {
