@@ -128,8 +128,8 @@ if (window.DeviceMotionEvent) {
 		var currentAngle = Quat2Angle(currentQ.x, currentQ.y, currentQ.z, currentQ.w);
         if(window.innerHeight > window.innerWidth){
             threeHelper.movieScreen.rotation.x = currentAngle.x;
-            threeHelper.movieScreen.rotation.y = currentAngle.z - Math.PI/2;
-            threeHelper.movieScreen.rotation.z = currentAngle.y;
+            threeHelper.movieScreen.rotation.y = currentAngle.y;
+            threeHelper.movieScreen.rotation.z = currentAngle.z - Math.PI/2;
 
         }else{
             threeHelper.movieScreen.rotation.x = currentAngle.x;
