@@ -29,12 +29,12 @@ const ThreeHelper = function () {
         this.camera.updateProjectionMatrix();
         this.renderer.setSize(window.innerWidth, window.innerHeight);
         if (window.innerWidth < window.innerHeight) {
-            this.movieScreen.scale.set(10, 5, 2);
+            this.movieScreen.scale.set(10, 5, 5);
             this.movieScreen.rotation.x = 0;
             this.movieScreen.rotation.y = 0;
             this.movieScreen.rotation.z = 0;
         } else {
-            this.movieScreen.scale.set(25, 15, 7);
+            this.movieScreen.scale.set(26, 13, 13);
             this.movieScreen.rotation.x = 0;
             this.movieScreen.rotation.y = 0;
             this.movieScreen.rotation.z = 0;
@@ -92,9 +92,15 @@ const ThreeHelper = function () {
     this.movieScreen.position.set(0, 0, 0);
     this.movieScreen.visible = false;
     if (window.innerWidth < window.innerHeight) {
-        this.movieScreen.scale.set(10, 5, 2);
+        this.movieScreen.scale.set(10, 5, 5);
+        this.movieScreen.rotation.x = 0;
+        this.movieScreen.rotation.y = 0;
+        this.movieScreen.rotation.z = 0;
     } else {
-        this.movieScreen.scale.set(25, 15, 7);
+        this.movieScreen.scale.set(26, 13, 13);
+        this.movieScreen.rotation.x = 0;
+        this.movieScreen.rotation.y = 0;
+        this.movieScreen.rotation.z = 0;
     }
     this.scene.add(this.movieScreen);
 
