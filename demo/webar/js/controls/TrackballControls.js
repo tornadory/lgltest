@@ -512,14 +512,14 @@ THREE.TrackballControls = function (object, domElement) {
 
 		if (_this.enabled === false) return;
 
-		// event.preventDefault();
+		event.preventDefault();
 		// 判断默认行为是否可以被禁用
-		if (event.cancelable) {
-			// 判断默认行为是否已经被禁用
-			if (!event.defaultPrevented) {
-				event.preventDefault();
-			}
-		}
+		// if (event.cancelable) {
+		// 	// 判断默认行为是否已经被禁用
+		// 	if (!event.defaultPrevented) {
+		// 		event.preventDefault();
+		// 	}
+		// }
 
 		switch (event.touches.length) {
 
@@ -551,14 +551,14 @@ THREE.TrackballControls = function (object, domElement) {
 
 		if (_this.enabled === false) return;
 
-		// event.preventDefault();
+		event.preventDefault();
 		// 判断默认行为是否可以被禁用
-		if (event.cancelable) {
-			// 判断默认行为是否已经被禁用
-			if (!event.defaultPrevented) {
-				event.preventDefault();
-			}
-		}
+		// if (event.cancelable) {
+		// 	// 判断默认行为是否已经被禁用
+		// 	if (!event.defaultPrevented) {
+		// 		event.preventDefault();
+		// 	}
+		// }
 		event.stopPropagation();
 
 		switch (event.touches.length) {
