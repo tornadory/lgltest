@@ -18,8 +18,18 @@ const ThreeHelper = function () {
     this.scene = new THREE.Scene();
     this.scene.add(new THREE.AmbientLight(0xFFFFFF));
 
-    const control = new THREE.OrbitControls(this.camera, this.renderer.domElement);
-    control.update();
+    // const control = new THREE.OrbitControls(this.camera, this.renderer.domElement);
+    // control.update();
+    const controls = new THREE.TrackballControls(camera);
+    controls.rotateSpeed = 1.0;
+    controls.zoomSpeed = 1.2;
+    controls.panSpeed = 0.8;
+    controls.noZoom = false;
+    controls.noPan = false;
+    controls.staticMoving = true;
+    controls.dynamicDampingFactor = 0.3;
+    controls.keys = [65, 83, 68];
+    controls.addEventListener('change', this.render);
 
     this.clock = new THREE.Clock();
     this.mixers = [];
@@ -47,6 +57,8 @@ const ThreeHelper = function () {
         for (const mixer of this.mixers) {
             mixer.update(this.clock.getDelta());
         }
+
+        controls.update();
 
         window.requestAnimationFrame(() => {
             this.render();
