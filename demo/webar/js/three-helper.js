@@ -20,7 +20,7 @@ const ThreeHelper = function () {
 
     // const control = new THREE.OrbitControls(this.camera, this.renderer.domElement);
     // control.update();
-    const controls = new THREE.TrackballControls(camera);
+    const controls = new THREE.TrackballControls(this.camera);
     controls.rotateSpeed = 1.0;
     controls.zoomSpeed = 1.2;
     controls.panSpeed = 0.8;
