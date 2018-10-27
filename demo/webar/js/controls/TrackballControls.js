@@ -304,7 +304,7 @@ THREE.TrackballControls = function ( object, domElement ) {
 			_this.panCamera();
 
 		}
-
+		
 		_this.object.position.addVectors( _this.target, _eye );
 
 		_this.checkDistances();

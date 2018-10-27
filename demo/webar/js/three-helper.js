@@ -3,7 +3,7 @@
  * @constructor
  */
 const ThreeHelper = function () {
-    this.camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+    this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
     this.camera.position.set(0, 0, 25);
     this.camera.lookAt(new THREE.Vector3(0, 0, 0));
 
@@ -14,22 +14,23 @@ const ThreeHelper = function () {
     this.renderer.setSize(window.innerWidth, window.innerHeight);
     this.renderer.domElement.setAttribute('class', 'mainCanvas');
     document.body.appendChild(this.renderer.domElement);
+    this.renderer.setPixelRatio(window.devicePixelRatio);
 
     this.scene = new THREE.Scene();
     this.scene.add(new THREE.AmbientLight(0xFFFFFF));
 
-    // const control = new THREE.OrbitControls(this.camera, this.renderer.domElement);
-    // control.update();
-    const controls = new THREE.TrackballControls(this.camera, this.renderer.domElement);
-    controls.rotateSpeed = 1.0;
-    controls.zoomSpeed = 1.2;
-    controls.panSpeed = 0.8;
-    controls.noZoom = false;
-    controls.noPan = false;
-    controls.staticMoving = true;
-    controls.dynamicDampingFactor = 0.3;
-    controls.keys = [65, 83, 68];
-    controls.addEventListener('change', this.render);
+    const control = new THREE.OrbitControls(this.camera, this.renderer.domElement);
+    control.update();
+    // this.controls = new THREE.TrackballControls(this.camera, this.renderer.domElement);
+    // this.controls.rotateSpeed = 1.0;
+    // this.controls.zoomSpeed = 1.2;
+    // this.controls.panSpeed = 0.8;
+    // this.controls.noZoom = false;
+    // this.controls.noPan = false;
+    // this.controls.staticMoving = true;
+    // this.controls.dynamicDampingFactor = 0.3;
+    // this.controls.keys = [65, 83, 68];
+    // this.controls.addEventListener('change', this.render);
 
     this.clock = new THREE.Clock();
     this.mixers = [];
@@ -49,7 +50,17 @@ const ThreeHelper = function () {
             this.movieScreen.rotation.y = 0;
             this.movieScreen.rotation.z = 0;
         }
+        this.controls.handleResize();
     }, false);
+
+    this.animate = function() {
+
+        window.requestAnimationFrame(() => {
+            this.animate();
+        });
+        
+        this.controls.update();
+    };
 
     this.render = function () {
         this.renderer.render(this.scene, this.camera);
@@ -57,8 +68,6 @@ const ThreeHelper = function () {
         for (const mixer of this.mixers) {
             mixer.update(this.clock.getDelta());
         }
-
-        controls.update();
 
         window.requestAnimationFrame(() => {
             this.render();
@@ -117,4 +126,5 @@ const ThreeHelper = function () {
     this.scene.add(this.movieScreen);
 
     this.render();
+    // this.animate();
 };

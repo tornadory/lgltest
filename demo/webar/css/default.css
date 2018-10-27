@@ -19,7 +19,8 @@ body {
     position: fixed;
     left: 0;
     bottom: 0;
-    width: 200px;
+    /* width: 200px; */
+    height: 100px;
     /* display: none; */
     z-index: 20;
 }
