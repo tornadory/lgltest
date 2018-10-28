@@ -5,7 +5,6 @@
  * @constructor
  */
 const WebAR = function(interval, recognizeUrl) {
-    // 判断Android还是IOS
     var u = navigator.userAgent;
     var isAndroid = u.indexOf('Android') > -1 || u.indexOf('Adr') > -1;
     var isiOS = !!u.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/);
@@ -29,41 +28,28 @@ const WebAR = function(interval, recognizeUrl) {
     debug.setAttribute('height', window.innerHeight.toString());
     document.body.appendChild(debug);
 
-    // 摄像头调起失败
     var onError = function(error){
         alert('Webcam Error\nName: '+error.name + '\nMessage: '+error.message);
     }
 
-    // 摄像头调起成功
     var onSuccess = function(stream){
-        // var video = document.createElement('video');
         var video = document.querySelector('#video');
         let videoWidth = video.offsetWidth;
         let videoHeight = video.offsetHeight;
 
         if (window.innerWidth < window.innerHeight) {
-            // 竖屏
             if (videoHeight < window.innerHeight) {
                 video.setAttribute('height', window.innerHeight.toString() + 'px');
             }
         } else {
-            // 横屏
             if (videoWidth < window.innerWidth) {
                 video.setAttribute('width', window.innerWidth.toString() + 'px');
             }
         }
-        // video.style.width = document.documentElement.clientWidth + 'px';
-        // video.style.height = document.documentElement.clientHeight + 'px';
 
         video.srcObject = stream;
-
         video.style.display = 'block';
         video.play();
-        
-        // to start the video, when it is possible to start it only on userevent. like in android
-        // video.body.addEventListener('click', function(){
-        //     video.play();
-        // });
 
         // wait until the video stream is ready
         var interval = setInterval(function(){
@@ -71,14 +57,9 @@ const WebAR = function(interval, recognizeUrl) {
                 return;
             }
             document.body.appendChild(video);
-            
             clearInterval(interval);
-
-            // document.getElementById('targetVideo' ).style.display = 'block';
-
         }, 1000/50);
     }
-
 
     // get available devices
     navigator.mediaDevices.enumerateDevices().then(function(devices){
