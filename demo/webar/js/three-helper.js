@@ -50,7 +50,7 @@ const ThreeHelper = function () {
             this.movieScreen.rotation.y = 0;
             this.movieScreen.rotation.z = 0;
         }
-        this.controls.handleResize();
+        // this.controls.handleResize();
     }, false);
 
     this.animate = function() {
