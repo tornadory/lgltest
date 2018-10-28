@@ -45,7 +45,7 @@ var initFunc = function () {
     // 列出视频设备
     webAR.listCamera(videoDevice)
         .then(() => {
-            // console.log(videoDevice.value);
+            console.log(videoDevice);
             openCamera(video, videoDevice.value, videoSetting);
             videoDevice.onchange = () => {
                 openCamera(video, videoDevice.value, videoSetting);
@@ -53,7 +53,7 @@ var initFunc = function () {
 
             // document.querySelector('#openCamera').style.display = 'none';
             // document.querySelector('#start').style.display = 'inline-block';
-            document.querySelector('#stop').style.display = 'inline-block';
+            // document.querySelector('#stop').style.display = 'inline-block';
         })
         .catch((err) => {
             console.info(err);
@@ -98,7 +98,6 @@ if (window.DeviceMotionEvent) {
 
 		setObjectQuaternion(currentQ, alpha, beta, gamma, orient);
         var currentAngle = Quat2Angle(currentQ.x, currentQ.y, currentQ.z, currentQ.w);
-        console.log("screen oritation ", currentAngle.x, currentAngle.y, currentAngle.z);
         if(window.innerHeight > window.innerWidth){
             threeHelper.movieScreen.rotation.x = currentAngle.y;
             threeHelper.movieScreen.rotation.y = currentAngle.x;
