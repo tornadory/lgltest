@@ -126,7 +126,7 @@ const ThreeHelper = function () {
         var loadStartPercentage = bf.start(range) / this.duration;
         var loadEndPercentage = bf.end(range) / this.duration;
         var loadPercentage = loadEndPercentage - loadStartPercentage;
-        console.log("video loading percent ...", loadedPercentage);
+        console.log("video loading percent ...", loadPercentage);
     });
 
     this.textureloader = new THREE.TextureLoader();
