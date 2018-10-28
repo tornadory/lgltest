@@ -92,38 +92,73 @@ const ThreeHelper = function () {
     this.targetVideo = document.getElementById('targetVideo');
     this.targetVideo.onplay = () => {
         console.log("start to playing ");
+        this.videoTexture = new THREE.VideoTexture(this.targetVideo);
+        this.videoTexture.wrapS = this.videoTexture.wrapT = THREE.ClampToEdgeWrapping;
+        this.videoTexture.minFilter = THREE.LinearFilter;
+        this.videoTexture.magFilter = THREE.LinearFilter;
+
+        this.movieMaterial = new THREE.MeshBasicMaterial({
+            map: this.videoTexture,
+            side: THREE.DoubleSide,
+        });
+
+        this.movieScreen.material = this.movieMaterial;
+
         this.targetVideo.style.display = 'none';
         this.movieScreen.visible = true;
         this.movieScreen.material.map.needsUpdate = true;
     }
 
+    this.textureloader = new THREE.TextureLoader();
+    this.textureloader.load("videos/loading.gif", (texture)=>{
+        this.gifmaterial = new THREE.MeshBasicMaterial( {
+			map: texture
+         } );
+         
+        this.movieGeometry = new THREE.BoxGeometry(1, 1, 1);
+        this.movieScreen = new THREE.Mesh(this.movieGeometry, this.gifmaterial);
+        this.movieScreen.position.set(0, 0, 0);
 
-    this.videoTexture = new THREE.VideoTexture(this.targetVideo);
-    this.videoTexture.wrapS = this.videoTexture.wrapT = THREE.ClampToEdgeWrapping;
-    this.videoTexture.minFilter = THREE.LinearFilter;
-    this.videoTexture.magFilter = THREE.LinearFilter;
-
-    this.movieMaterial = new THREE.MeshBasicMaterial({
-        map: this.videoTexture,
-        side: THREE.DoubleSide,
+        if (window.innerWidth < window.innerHeight) {
+            this.movieScreen.scale.set(10, 5, 5);
+            this.movieScreen.rotation.x = 0;
+            this.movieScreen.rotation.y = 0;
+            this.movieScreen.rotation.z = 0;
+        } else {
+            this.movieScreen.scale.set(26, 13, 13);
+            this.movieScreen.rotation.x = 0;
+            this.movieScreen.rotation.y = 0;
+            this.movieScreen.rotation.z = 0;
+        }
+        this.scene.add(this.movieScreen);
     });
 
-    this.movieGeometry = new THREE.BoxGeometry(1, 1, 1);
-    this.movieScreen = new THREE.Mesh(this.movieGeometry, this.movieMaterial);
-    this.movieScreen.position.set(0, 0, 0);
-    this.movieScreen.visible = false;
-    if (window.innerWidth < window.innerHeight) {
-        this.movieScreen.scale.set(10, 5, 5);
-        this.movieScreen.rotation.x = 0;
-        this.movieScreen.rotation.y = 0;
-        this.movieScreen.rotation.z = 0;
-    } else {
-        this.movieScreen.scale.set(26, 13, 13);
-        this.movieScreen.rotation.x = 0;
-        this.movieScreen.rotation.y = 0;
-        this.movieScreen.rotation.z = 0;
-    }
-    this.scene.add(this.movieScreen);
+    // this.videoTexture = new THREE.VideoTexture(this.targetVideo);
+    // this.videoTexture.wrapS = this.videoTexture.wrapT = THREE.ClampToEdgeWrapping;
+    // this.videoTexture.minFilter = THREE.LinearFilter;
+    // this.videoTexture.magFilter = THREE.LinearFilter;
+
+    // this.movieMaterial = new THREE.MeshBasicMaterial({
+    //     map: this.videoTexture,
+    //     side: THREE.DoubleSide,
+    // });
+
+    // this.movieGeometry = new THREE.BoxGeometry(1, 1, 1);
+    // this.movieScreen = new THREE.Mesh(this.movieGeometry, this.movieMaterial);
+    // this.movieScreen.position.set(0, 0, 0);
+    // this.movieScreen.visible = false;
+    // if (window.innerWidth < window.innerHeight) {
+    //     this.movieScreen.scale.set(10, 5, 5);
+    //     this.movieScreen.rotation.x = 0;
+    //     this.movieScreen.rotation.y = 0;
+    //     this.movieScreen.rotation.z = 0;
+    // } else {
+    //     this.movieScreen.scale.set(26, 13, 13);
+    //     this.movieScreen.rotation.x = 0;
+    //     this.movieScreen.rotation.y = 0;
+    //     this.movieScreen.rotation.z = 0;
+    // }
+    // this.scene.add(this.movieScreen);
 
     this.render();
     // this.animate();
