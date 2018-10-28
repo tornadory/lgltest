@@ -36,16 +36,34 @@ const WebAR = function(interval, recognizeUrl) {
 
     // 摄像头调起成功
     var onSuccess = function(stream){
-        var video = document.createElement('video');
-        video.style.width = document.documentElement.clientWidth + 'px';
-        video.style.height = document.documentElement.clientHeight + 'px';
+        // var video = document.createElement('video');
+        var video = document.querySelector('#video');
+        let videoWidth = video.offsetWidth;
+        let videoHeight = video.offsetHeight;
+
+        if (window.innerWidth < window.innerHeight) {
+            // 竖屏
+            if (videoHeight < window.innerHeight) {
+                video.setAttribute('height', window.innerHeight.toString() + 'px');
+            }
+        } else {
+            // 横屏
+            if (videoWidth < window.innerWidth) {
+                video.setAttribute('width', window.innerWidth.toString() + 'px');
+            }
+        }
+        // video.style.width = document.documentElement.clientWidth + 'px';
+        // video.style.height = document.documentElement.clientHeight + 'px';
 
         video.srcObject = stream;
+
+        video.style.display = 'block';
+        video.play();
         
         // to start the video, when it is possible to start it only on userevent. like in android
-        video.body.addEventListener('click', function(){
-            video.play();
-        });
+        // video.body.addEventListener('click', function(){
+        //     video.play();
+        // });
 
         // wait until the video stream is ready
         var interval = setInterval(function(){
