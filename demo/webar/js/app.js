@@ -24,15 +24,6 @@ var onSuccess = function(stream){
     video.srcObject = stream;
     video.style.display = 'block';
     video.play();
-
-    // wait until the video stream is ready
-    // var interval = setInterval(function(){
-    //     if(!video.videoWidth){
-    //         return;
-    //     }
-    //     // document.body.appendChild(video);
-    //     clearInterval(interval);
-    // }, 1000/50);
 }
 
 // get available devices
@@ -98,6 +89,8 @@ window.addEventListener('load', function() {
         if (video.readyState === 4) {
             console.log("video ready state", video.readyState);
             document.getElementById('targetVideo' ).style.display = 'block';
+            var loadingUI = document.querySelector('#loadingUI');
+            loadingUI.style.display = 'none';
         } else {
             setTimeout(checkLoad, 100);
         }
