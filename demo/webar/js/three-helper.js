@@ -25,16 +25,6 @@ const ThreeHelper = function () {
     control.maxDistance = 200;
     control.minDistance = 5;
     control.update();
-    // this.controls = new THREE.TrackballControls(this.camera, this.renderer.domElement);
-    // this.controls.rotateSpeed = 1.0;
-    // this.controls.zoomSpeed = 1.2;
-    // this.controls.panSpeed = 0.8;
-    // this.controls.noZoom = false;
-    // this.controls.noPan = false;
-    // this.controls.staticMoving = true;
-    // this.controls.dynamicDampingFactor = 0.3;
-    // this.controls.keys = [65, 83, 68];
-    // this.controls.addEventListener('change', this.render);
 
     this.clock = new THREE.Clock();
     this.mixers = [];
@@ -43,18 +33,19 @@ const ThreeHelper = function () {
         this.camera.aspect = window.innerWidth / window.innerHeight;
         this.camera.updateProjectionMatrix();
         this.renderer.setSize(window.innerWidth, window.innerHeight);
-        if (window.innerWidth < window.innerHeight) {
-            this.movieScreen.scale.set(10, 5, 5);
-            this.movieScreen.rotation.x = 0;
-            this.movieScreen.rotation.y = 0;
-            this.movieScreen.rotation.z = 0;
-        } else {
-            this.movieScreen.scale.set(26, 13, 13);
-            this.movieScreen.rotation.x = 0;
-            this.movieScreen.rotation.y = 0;
-            this.movieScreen.rotation.z = 0;
+        if(this.movieScreen){
+            if (window.innerWidth < window.innerHeight) {
+                this.movieScreen.scale.set(10, 5, 5);
+                this.movieScreen.rotation.x = 0;
+                this.movieScreen.rotation.y = 0;
+                this.movieScreen.rotation.z = 0;
+            } else {
+                this.movieScreen.scale.set(26, 13, 13);
+                this.movieScreen.rotation.x = 0;
+                this.movieScreen.rotation.y = 0;
+                this.movieScreen.rotation.z = 0;
+            }
         }
-        // this.controls.handleResize();
     }, false);
 
     this.animate = function() {
@@ -120,82 +111,9 @@ const ThreeHelper = function () {
             this.movieScreen.rotation.z = 0;
         }
         this.scene.add(this.movieScreen);
-        // this.movieScreen.material = this.movieMaterial;
         this.targetVideo.style.display = 'none';
-        // this.movieScreen.visible = true;
         this.movieScreen.material.map.needsUpdate = true;
     }
 
-    // this.targetVideo.addEventListener('progress', function() {
-    //     var loadedPercentage = this.buffered.end(0) / this.duration;
-    //     console.log("video loading percent ...", loadedPercentage);
-    //     // suggestion: don't use this, use what's below
-    // });
-
-    // this.targetVideo.addEventListener('progress', function() {
-    //     var range = 0;
-    //     var bf = this.buffered;
-    //     var time = this.currentTime;
-    
-    //     while(!(bf.start(range) <= time && time <= bf.end(range))) {
-    //         range += 1;
-    //     }
-    //     var loadStartPercentage = bf.start(range) / this.duration;
-    //     var loadEndPercentage = bf.end(range) / this.duration;
-    //     var loadPercentage = loadEndPercentage - loadStartPercentage;
-    // });
-
-    // this.textureloader = new THREE.TextureLoader();
-    // this.textureloader.load("videos/loading.gif", (texture)=>{
-    //     this.gifmaterial = new THREE.MeshBasicMaterial( {
-	// 		map: texture
-    //      } );
-         
-    //     this.movieGeometry = new THREE.BoxGeometry(1, 1, 1);
-    //     this.movieScreen = new THREE.Mesh(this.movieGeometry, this.gifmaterial);
-    //     this.movieScreen.position.set(0, 0, 0);
-
-    //     if (window.innerWidth < window.innerHeight) {
-    //         this.movieScreen.scale.set(10, 5, 5);
-    //         this.movieScreen.rotation.x = 0;
-    //         this.movieScreen.rotation.y = 0;
-    //         this.movieScreen.rotation.z = 0;
-    //     } else {
-    //         this.movieScreen.scale.set(26, 13, 13);
-    //         this.movieScreen.rotation.x = 0;
-    //         this.movieScreen.rotation.y = 0;
-    //         this.movieScreen.rotation.z = 0;
-    //     }
-    //     this.scene.add(this.movieScreen);
-    // });
-
-    // this.videoTexture = new THREE.VideoTexture(this.targetVideo);
-    // this.videoTexture.wrapS = this.videoTexture.wrapT = THREE.ClampToEdgeWrapping;
-    // this.videoTexture.minFilter = THREE.LinearFilter;
-    // this.videoTexture.magFilter = THREE.LinearFilter;
-
-    // this.movieMaterial = new THREE.MeshBasicMaterial({
-    //     map: this.videoTexture,
-    //     side: THREE.DoubleSide,
-    // });
-
-    // this.movieGeometry = new THREE.BoxGeometry(1, 1, 1);
-    // this.movieScreen = new THREE.Mesh(this.movieGeometry, this.movieMaterial);
-    // this.movieScreen.position.set(0, 0, 0);
-    // this.movieScreen.visible = false;
-    // if (window.innerWidth < window.innerHeight) {
-    //     this.movieScreen.scale.set(10, 5, 5);
-    //     this.movieScreen.rotation.x = 0;
-    //     this.movieScreen.rotation.y = 0;
-    //     this.movieScreen.rotation.z = 0;
-    // } else {
-    //     this.movieScreen.scale.set(26, 13, 13);
-    //     this.movieScreen.rotation.x = 0;
-    //     this.movieScreen.rotation.y = 0;
-    //     this.movieScreen.rotation.z = 0;
-    // }
-    // this.scene.add(this.movieScreen);
-
     this.render();
-    // this.animate();
 };

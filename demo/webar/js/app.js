@@ -1,4 +1,110 @@
-const webAR = new WebAR(1000, 'recognize.php');
+// const webAR = new WebAR(1000, 'recognize.php');
+
+var u = navigator.userAgent;
+var isAndroid = u.indexOf('Android') > -1 || u.indexOf('Adr') > -1;
+var isiOS = !!u.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/);
+
+var interval = interval;
+var recognizeUrl = recognizeUrl;
+
+var videoSetting = {width: 320, height: 240};
+var videoElement = null;
+var videoDeviceElement = null;
+
+var canvasElement = null;
+var canvasContext = null;
+
+var timer = null;
+var isRecognizing = false;
+
+var debug = document.createElement('div');
+debug.setAttribute('id', 'debug');
+debug.setAttribute('width', (window.innerWidth / 2).toString());
+debug.setAttribute('height', window.innerHeight.toString());
+document.body.appendChild(debug);
+
+var onError = function(error){
+    alert('Webcam Error\nName: '+error.name + '\nMessage: '+error.message);
+}
+
+var onSuccess = function(stream){
+    var video = document.querySelector('#video');
+    let videoWidth = video.offsetWidth;
+    let videoHeight = video.offsetHeight;
+
+    if (window.innerWidth < window.innerHeight) {
+        if (videoHeight < window.innerHeight) {
+            video.setAttribute('height', window.innerHeight.toString() + 'px');
+        }
+    } else {
+        if (videoWidth < window.innerWidth) {
+            video.setAttribute('width', window.innerWidth.toString() + 'px');
+        }
+    }
+
+    video.srcObject = stream;
+    video.style.display = 'block';
+    video.play();
+
+    // wait until the video stream is ready
+    var interval = setInterval(function(){
+        if(!video.videoWidth){
+            return;
+        }
+        document.body.appendChild(video);
+        clearInterval(interval);
+    }, 1000/50);
+}
+
+// get available devices
+navigator.mediaDevices.enumerateDevices().then(function(devices){
+    // 如果是水果机
+    if(isiOS){
+        navigator.mediaDevices.getUserMedia({
+            audio: false,
+            video: {
+                facingMode: 'environment'
+            }
+        }).then(onSuccess).catch(onError);
+    }
+    // 如果是安卓机
+    else{
+        var videoSourceId;
+        var exArray = [];
+        for(var i = 0; i < devices.length; i++){
+            var deviceInfo = devices[i];
+            // 判断是否是相机设备
+            if(deviceInfo.kind == "videoinput"){
+                exArray.push(deviceInfo.deviceId);
+                // 判断是否是后置摄像头
+                if(deviceInfo.label.split(', ')[1] == "facing back") {
+                    videoSourceId = deviceInfo.deviceId;
+                }
+            }
+        }
+        // deviceInfo.label为空
+        if (!videoSourceId) {
+            switch (exArray.length) {
+                // 单摄像头
+                case 1:
+                    videoSourceId = exArray[0];
+                    break;
+                // 多摄像头
+                case 2:
+                    videoSourceId = exArray[1];
+                    break;
+                default:
+                    break;
+            }
+        }
+        navigator.mediaDevices.getUserMedia({
+            audio: false,
+            video: {
+                optional: [{sourceId: videoSourceId}]
+            }
+        }).then(onSuccess).catch(onError);
+    }
+}).catch(onError);
 
 const threeHelper = new ThreeHelper();
 var rotX = 0;
@@ -20,91 +126,6 @@ window.addEventListener('load', function() {
 
     checkLoad();
 }, false);
-
-// var initFunc = function () {
-//     const videoSetting = {
-//         width: 480,
-//         height: 360
-//     };
-
-//     const video = document.querySelector('#video');
-//     const videoDevice = document.querySelector('#videoDevice');
-
-//     const openCamera = (video, deviceId, videoSetting) => {
-//         webAR.openCamera(video, deviceId, videoSetting)
-//             .then((msg) => {
-//                 // 打开摄像头成功
-//                 // 将视频铺满全屏(简单处理)
-//                 let videoWidth = video.offsetWidth;
-//                 let videoHeight = video.offsetHeight;
-
-//                 if (window.innerWidth < window.innerHeight) {
-//                     // 竖屏
-//                     if (videoHeight < window.innerHeight) {
-//                         video.setAttribute('height', window.innerHeight.toString() + 'px');
-//                     }
-//                 } else {
-//                     // 横屏
-//                     if (videoWidth < window.innerWidth) {
-//                         video.setAttribute('width', window.innerWidth.toString() + 'px');
-//                     }
-//                 }
-//             })
-//             .catch((err) => {
-//                 // alert(err);
-//                 // alert('打开视频设备失败');
-//                 console.error(err);
-//             });
-//     };
-
-//     // 列出视频设备
-//     webAR.listCamera(videoDevice)
-//         .then(() => {
-//             console.log(videoDevice); //kind: "videoinput", label: "camera 0, facing back"
-//             openCamera(video, videoDevice.value, videoSetting);
-//             // if(videoDevice.label.toLowerCase().includes("back")){
-//             //     console.log("back faced camera, open it try to");
-//             //     openCamera(video, videoDevice.value, videoSetting);
-//             // }
-            
-//             videoDevice.onchange = () => {
-//                 openCamera(video, videoDevice.value, videoSetting);
-//             };
-
-//             // document.querySelector('#openCamera').style.display = 'none';
-//             // document.querySelector('#videoDevice').style.display = 'none';
-//             // document.querySelector('#start').style.display = 'inline-block';
-//             // document.querySelector('#stop').style.display = 'inline-block';
-//         })
-//         .catch((err) => {
-//             console.info(err);
-//             // alert('没有可使用的视频设备');
-//         });
-// };
-
-// document.querySelector('#stop').addEventListener('click', () => {
-//     webAR.stopRecognize();
-// }, false);
-
-// initFunc();
-
-
-
-// webAR.startRecognize((msg) => {
-//     console.log("message is ", msg);
-//     // alert('识别成功');
-//     document.getElementById('targetVideo' ).style.display = 'block';
-
-//     // 识别成功后，从meta中取出model地址
-//     // const meta = JSON.parse(window.atob(msg.meta));
-//     // threeHelper.loadObject(meta.model);
-
-//     // 加载本地模型
-//     // threeHelper.loadObject('asset/model/trex_v3.fbx');
-//     // threeHelper.movieGeometry.visible = true;
-
-//     // webAR.trace('加载模型');
-// });
 
 
 if (window.DeviceMotionEvent) {
