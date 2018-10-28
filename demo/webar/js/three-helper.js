@@ -109,6 +109,26 @@ const ThreeHelper = function () {
         this.movieScreen.material.map.needsUpdate = true;
     }
 
+    // this.targetVideo.addEventListener('progress', function() {
+    //     var loadedPercentage = this.buffered.end(0) / this.duration;
+    //     console.log("video loading percent ...", loadedPercentage);
+    //     // suggestion: don't use this, use what's below
+    // });
+
+    this.targetVideo.addEventListener('progress', function() {
+        var range = 0;
+        var bf = this.buffered;
+        var time = this.currentTime;
+    
+        while(!(bf.start(range) <= time && time <= bf.end(range))) {
+            range += 1;
+        }
+        var loadStartPercentage = bf.start(range) / this.duration;
+        var loadEndPercentage = bf.end(range) / this.duration;
+        var loadPercentage = loadEndPercentage - loadStartPercentage;
+        console.log("video loading percent ...", loadedPercentage);
+    });
+
     this.textureloader = new THREE.TextureLoader();
     this.textureloader.load("videos/loading.gif", (texture)=>{
         this.gifmaterial = new THREE.MeshBasicMaterial( {
