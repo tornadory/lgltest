@@ -37,7 +37,7 @@ const WebAR = function(interval, recognizeUrl) {
                 .then((devices) => {
                     devices.find((device) => {
                         console.log("device ", device);
-                        if (device.kind === 'videoinput') {
+                        if (device.kind === 'videoinput' && device.label.toLowerCase().includes("back")) {
                             const option = document.createElement('option');
                             option.text = device.label || 'camera '+ (videoDeviceElement.length + 1).toString();
                             option.value = device.deviceId;

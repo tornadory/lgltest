@@ -45,8 +45,13 @@ var initFunc = function () {
     // 列出视频设备
     webAR.listCamera(videoDevice)
         .then(() => {
-            console.log(videoDevice);
+            console.log(videoDevice); //kind: "videoinput", label: "camera 0, facing back"
             openCamera(video, videoDevice.value, videoSetting);
+            // if(videoDevice.label.toLowerCase().includes("back")){
+            //     console.log("back faced camera, open it try to");
+            //     openCamera(video, videoDevice.value, videoSetting);
+            // }
+            
             videoDevice.onchange = () => {
                 openCamera(video, videoDevice.value, videoSetting);
             };
