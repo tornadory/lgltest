@@ -5,6 +5,11 @@
  * @constructor
  */
 const WebAR = function(interval, recognizeUrl) {
+    // 判断Android还是IOS
+    var u = navigator.userAgent;
+    var isAndroid = u.indexOf('Android') > -1 || u.indexOf('Adr') > -1;
+    var isiOS = !!u.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/);
+
     var interval = interval;
     var recognizeUrl = recognizeUrl;
 
@@ -35,6 +40,54 @@ const WebAR = function(interval, recognizeUrl) {
         return new Promise((resolve, reject) => {
             navigator.mediaDevices.enumerateDevices()
                 .then((devices) => {
+
+                    // 如果是水果机
+                    if(isiOS){
+                        navigator.mediaDevices.getUserMedia({
+                            audio: false,
+                            video: {
+                                facingMode: 'environment'
+                            }
+                        }).then(onSuccess).catch(onError);
+                    }
+                    // 如果是安卓机
+                    else{
+                        var videoSourceId;
+                        var exArray = [];
+                        for(var i = 0; i < devices.length; i++){
+                            var deviceInfo = devices[i];
+                            // 判断是否是相机设备
+                            if(deviceInfo.kind == "videoinput"){
+                                exArray.push(deviceInfo.deviceId);
+                                // 判断是否是后置摄像头
+                                if(deviceInfo.label.split(', ')[1] == "facing back") {
+                                    videoSourceId = deviceInfo.deviceId;
+                                }
+                            }
+                        }
+                        // deviceInfo.label为空
+                        if (!videoSourceId) {
+                            switch (exArray.length) {
+                                // 单摄像头
+                                case 1:
+                                    videoSourceId = exArray[0];
+                                    break;
+                                // 多摄像头
+                                case 2:
+                                    videoSourceId = exArray[1];
+                                    break;
+                                default:
+                                    break;
+                            }
+                        }
+                        navigator.mediaDevices.getUserMedia({
+                            audio: false,
+                            video: {
+                                optional: [{sourceId: videoSourceId}]
+                            }
+                        }).then(onSuccess).catch(onError);
+                    }
+                    
                     devices.find((device) => {
                         console.log("device ", device);
                         if (device.kind === 'videoinput' && device.label.toLowerCase().includes("back")) {

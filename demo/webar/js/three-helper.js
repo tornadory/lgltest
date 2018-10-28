@@ -20,6 +20,10 @@ const ThreeHelper = function () {
     this.scene.add(new THREE.AmbientLight(0xFFFFFF));
 
     const control = new THREE.OrbitControls(this.camera, this.renderer.domElement);
+    controls.enablePan = false;
+    controls.enableDamping = true;
+    controls.maxDistance = 200;
+    controls.minDistance = 5;
     control.update();
     // this.controls = new THREE.TrackballControls(this.camera, this.renderer.domElement);
     // this.controls.rotateSpeed = 1.0;
