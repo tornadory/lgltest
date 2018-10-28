@@ -1,27 +1,6 @@
-// const webAR = new WebAR(1000, 'recognize.php');
-
 var u = navigator.userAgent;
 var isAndroid = u.indexOf('Android') > -1 || u.indexOf('Adr') > -1;
 var isiOS = !!u.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/);
-
-var interval = interval;
-var recognizeUrl = recognizeUrl;
-
-var videoSetting = {width: 320, height: 240};
-var videoElement = null;
-var videoDeviceElement = null;
-
-var canvasElement = null;
-var canvasContext = null;
-
-var timer = null;
-var isRecognizing = false;
-
-var debug = document.createElement('div');
-debug.setAttribute('id', 'debug');
-debug.setAttribute('width', (window.innerWidth / 2).toString());
-debug.setAttribute('height', window.innerHeight.toString());
-document.body.appendChild(debug);
 
 var onError = function(error){
     alert('Webcam Error\nName: '+error.name + '\nMessage: '+error.message);
@@ -47,13 +26,13 @@ var onSuccess = function(stream){
     video.play();
 
     // wait until the video stream is ready
-    var interval = setInterval(function(){
-        if(!video.videoWidth){
-            return;
-        }
-        document.body.appendChild(video);
-        clearInterval(interval);
-    }, 1000/50);
+    // var interval = setInterval(function(){
+    //     if(!video.videoWidth){
+    //         return;
+    //     }
+    //     // document.body.appendChild(video);
+    //     clearInterval(interval);
+    // }, 1000/50);
 }
 
 // get available devices
