@@ -6,6 +6,21 @@ var rotY = 0;
 var rotZ = 0;
 var screenOrientation = 0; //
 
+window.addEventListener('load', function() {
+    var video = document.querySelector('#targetVideo');
+
+    function checkLoad() {
+        if (video.readyState === 4) {
+            console.log("video ready state", video.readyState);
+            document.getElementById('targetVideo' ).style.display = 'block';
+        } else {
+            setTimeout(checkLoad, 100);
+        }
+    }
+
+    checkLoad();
+}, false);
+
 // var initFunc = function () {
 //     const videoSetting = {
 //         width: 480,
@@ -72,7 +87,7 @@ var screenOrientation = 0; //
 // }, false);
 
 // initFunc();
-document.getElementById('targetVideo' ).style.display = 'block';
+
 
 
 // webAR.startRecognize((msg) => {
