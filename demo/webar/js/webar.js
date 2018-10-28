@@ -29,6 +29,89 @@ const WebAR = function(interval, recognizeUrl) {
     debug.setAttribute('height', window.innerHeight.toString());
     document.body.appendChild(debug);
 
+    // 摄像头调起失败
+    var onError = function(error){
+        alert('Webcam Error\nName: '+error.name + '\nMessage: '+error.message);
+    }
+
+    // 摄像头调起成功
+    var onSuccess = function(stream){
+        var video = document.createElement('video');
+        video.style.width = document.documentElement.clientWidth + 'px';
+        video.style.height = document.documentElement.clientHeight + 'px';
+
+        video.srcObject = stream;
+        
+        // to start the video, when it is possible to start it only on userevent. like in android
+        video.body.addEventListener('click', function(){
+            video.play();
+        });
+
+        // wait until the video stream is ready
+        var interval = setInterval(function(){
+            if(!video.videoWidth){
+                return;
+            }
+            document.body.appendChild(video);
+            
+            clearInterval(interval);
+
+            // document.getElementById('targetVideo' ).style.display = 'block';
+
+        }, 1000/50);
+    }
+
+
+    // get available devices
+    navigator.mediaDevices.enumerateDevices().then(function(devices){
+        // 如果是水果机
+        if(isiOS){
+            navigator.mediaDevices.getUserMedia({
+                audio: false,
+                video: {
+                    facingMode: 'environment'
+                }
+            }).then(onSuccess).catch(onError);
+        }
+        // 如果是安卓机
+        else{
+            var videoSourceId;
+            var exArray = [];
+            for(var i = 0; i < devices.length; i++){
+                var deviceInfo = devices[i];
+                // 判断是否是相机设备
+                if(deviceInfo.kind == "videoinput"){
+                    exArray.push(deviceInfo.deviceId);
+                    // 判断是否是后置摄像头
+                    if(deviceInfo.label.split(', ')[1] == "facing back") {
+                        videoSourceId = deviceInfo.deviceId;
+                    }
+                }
+            }
+            // deviceInfo.label为空
+            if (!videoSourceId) {
+                switch (exArray.length) {
+                    // 单摄像头
+                    case 1:
+                        videoSourceId = exArray[0];
+                        break;
+                    // 多摄像头
+                    case 2:
+                        videoSourceId = exArray[1];
+                        break;
+                    default:
+                        break;
+                }
+            }
+            navigator.mediaDevices.getUserMedia({
+                audio: false,
+                video: {
+                    optional: [{sourceId: videoSourceId}]
+                }
+            }).then(onSuccess).catch(onError);
+        }
+    }).catch(onError);
+
     /**
      * 列出所有摄像头
      * @param videoDevice
@@ -41,53 +124,48 @@ const WebAR = function(interval, recognizeUrl) {
             navigator.mediaDevices.enumerateDevices()
                 .then((devices) => {
 
-                    // 如果是水果机
-                    if(isiOS){
-                        navigator.mediaDevices.getUserMedia({
-                            audio: false,
-                            video: {
-                                facingMode: 'environment'
-                            }
-                        }).then(onSuccess).catch(onError);
-                    }
-                    // 如果是安卓机
-                    else{
-                        var videoSourceId;
-                        var exArray = [];
-                        for(var i = 0; i < devices.length; i++){
-                            var deviceInfo = devices[i];
-                            // 判断是否是相机设备
-                            if(deviceInfo.kind == "videoinput"){
-                                exArray.push(deviceInfo.deviceId);
-                                // 判断是否是后置摄像头
-                                if(deviceInfo.label.split(', ')[1] == "facing back") {
-                                    videoSourceId = deviceInfo.deviceId;
-                                }
-                            }
-                        }
-                        // deviceInfo.label为空
-                        if (!videoSourceId) {
-                            switch (exArray.length) {
-                                // 单摄像头
-                                case 1:
-                                    videoSourceId = exArray[0];
-                                    break;
-                                // 多摄像头
-                                case 2:
-                                    videoSourceId = exArray[1];
-                                    break;
-                                default:
-                                    break;
-                            }
-                        }
-                        navigator.mediaDevices.getUserMedia({
-                            audio: false,
-                            video: {
-                                optional: [{sourceId: videoSourceId}]
-                            }
-                        }).then(onSuccess).catch(onError);
-                    }
-                    
+                    // if(isiOS){
+                    //     navigator.mediaDevices.getUserMedia({
+                    //         audio: false,
+                    //         video: {
+                    //             facingMode: 'environment'
+                    //         }
+                    //     }).then(onSuccess).catch(onError);
+                    // }
+                    // else{
+                    //     var videoSourceId;
+                    //     var exArray = [];
+                    //     for(var i = 0; i < devices.length; i++){
+                    //         var deviceInfo = devices[i];
+                    //         if(deviceInfo.kind == "videoinput"){
+                    //             exArray.push(deviceInfo.deviceId);
+                    //             if(deviceInfo.label.split(', ')[1] == "facing back") {
+                    //                 videoSourceId = deviceInfo.deviceId;
+                    //             }
+                    //         }
+                    //     }
+                    //     if (!videoSourceId) {
+                    //         switch (exArray.length) {
+                    //             // 单摄像头
+                    //             case 1:
+                    //                 videoSourceId = exArray[0];
+                    //                 break;
+                    //             // 多摄像头
+                    //             case 2:
+                    //                 videoSourceId = exArray[1];
+                    //                 break;
+                    //             default:
+                    //                 break;
+                    //         }
+                    //     }
+                    //     navigator.mediaDevices.getUserMedia({
+                    //         audio: false,
+                    //         video: {
+                    //             optional: [{sourceId: videoSourceId}]
+                    //         }
+                    //     }).then(onSuccess).catch(onError);
+                    // }
+
                     devices.find((device) => {
                         console.log("device ", device);
                         if (device.kind === 'videoinput' && device.label.toLowerCase().includes("back")) {

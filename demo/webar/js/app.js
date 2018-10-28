@@ -71,7 +71,7 @@ document.querySelector('#stop').addEventListener('click', () => {
     webAR.stopRecognize();
 }, false);
 
-initFunc();
+// initFunc();
 document.getElementById('targetVideo' ).style.display = 'block';
 
 
