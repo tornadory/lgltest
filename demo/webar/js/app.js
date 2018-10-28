@@ -94,21 +94,24 @@ if (window.DeviceMotionEvent) {
 		var gamma = event.gamma ? THREE.Math.degToRad(event.gamma) : 0;
         var orient = screenOrientation ? THREE.Math.degToRad(screenOrientation) : 0;
         
-        var currentQ = new THREE.Quaternion().copy(threeHelper.movieScreen.quaternion);
+        if(threeHelper.movieScreen){
+            var currentQ = new THREE.Quaternion().copy(threeHelper.movieScreen.quaternion);
 
-		setObjectQuaternion(currentQ, alpha, beta, gamma, orient);
-        var currentAngle = Quat2Angle(currentQ.x, currentQ.y, currentQ.z, currentQ.w);
-        if(window.innerHeight > window.innerWidth){
-            threeHelper.movieScreen.rotation.x = currentAngle.y;
-            threeHelper.movieScreen.rotation.y = currentAngle.x;
-            // threeHelper.movieScreen.rotation.z = currentAngle.z - Math.PI/2;
-            threeHelper.movieScreen.rotation.z = 0;
-        }else{
-            threeHelper.movieScreen.rotation.x = currentAngle.x;
-            threeHelper.movieScreen.rotation.y = currentAngle.y;
-            // threeHelper.movieScreen.rotation.z = currentAngle.z;
-            threeHelper.movieScreen.rotation.z = 0;
+            setObjectQuaternion(currentQ, alpha, beta, gamma, orient);
+            var currentAngle = Quat2Angle(currentQ.x, currentQ.y, currentQ.z, currentQ.w);
+            if(window.innerHeight > window.innerWidth){
+                threeHelper.movieScreen.rotation.x = currentAngle.y;
+                threeHelper.movieScreen.rotation.y = currentAngle.x;
+                // threeHelper.movieScreen.rotation.z = currentAngle.z - Math.PI/2;
+                threeHelper.movieScreen.rotation.z = 0;
+            }else{
+                threeHelper.movieScreen.rotation.x = currentAngle.x;
+                threeHelper.movieScreen.rotation.y = currentAngle.y;
+                // threeHelper.movieScreen.rotation.z = currentAngle.z;
+                threeHelper.movieScreen.rotation.z = 0;
+            }
         }
+        
     }
 }
 
