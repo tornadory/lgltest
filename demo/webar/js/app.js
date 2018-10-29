@@ -89,8 +89,8 @@ window.addEventListener('load', function() {
         if (video.readyState === 4) {
             console.log("video ready state", video.readyState);
             document.getElementById('targetVideo' ).style.display = 'block';
-            var loadingUI = document.querySelector('#loadingUI');
-            loadingUI.style.display = 'none';
+            // var loadingUI = document.querySelector('#loadingUI');
+            // loadingUI.style.display = 'none';
         } else {
             setTimeout(checkLoad, 100);
         }
