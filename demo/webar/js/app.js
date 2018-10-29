@@ -99,6 +99,11 @@ window.addEventListener('load', function() {
     checkLoad();
 }, false);
 
+document.addEventListener("WeixinJSBridgeReady", function(){
+    var videoEl = document.getElementById("targetVideo");
+    videoEl.play();
+}, false);
+
 
 if (window.DeviceMotionEvent) {
     window.ondeviceorientation = function (event) {
