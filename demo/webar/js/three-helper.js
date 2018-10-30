@@ -84,58 +84,88 @@ const ThreeHelper = function () {
     };
 
     this.targetVideo = document.getElementById('targetVideo');
-    var media = document.getElementById('targetVideo');
 
     // Playing event
-    media.addEventListener("playing", function() {
+    this.targetVideo.addEventListener("playing", () => {
         console.log("Playing event triggered");
+        if(!this.movieScreen){
+            console.log("add movie screen");
+            this.videoTexture = new THREE.VideoTexture(this.targetVideo);
+            this.videoTexture.wrapS = this.videoTexture.wrapT = THREE.ClampToEdgeWrapping;
+            this.videoTexture.minFilter = THREE.LinearFilter;
+            this.videoTexture.magFilter = THREE.LinearFilter;
+
+            this.movieMaterial = new THREE.MeshBasicMaterial({
+                map: this.videoTexture,
+                side: THREE.DoubleSide,
+            });
+
+            this.movieGeometry = new THREE.BoxGeometry(1, 1, 1);
+            this.movieScreen = new THREE.Mesh(this.movieGeometry, this.movieMaterial);
+            this.movieScreen.position.set(0, 0, 0);
+
+            if (window.innerWidth < window.innerHeight) {
+                this.movieScreen.scale.set(10, 5, 5);
+                this.movieScreen.rotation.x = 0;
+                this.movieScreen.rotation.y = 0;
+                this.movieScreen.rotation.z = 0;
+            } else {
+                this.movieScreen.scale.set(26, 13, 13);
+                this.movieScreen.rotation.x = 0;
+                this.movieScreen.rotation.y = 0;
+                this.movieScreen.rotation.z = 0;
+            }
+            this.scene.add(this.movieScreen);
+            this.targetVideo.style.display = 'none';
+            this.movieScreen.material.map.needsUpdate = true;
+        }
     });
 
     // Pause event
-    media.addEventListener("pause", function() { 
+    this.targetVideo.addEventListener("pause", function() { 
         console.log("Pause event triggered"); 
     });
 
     // Seeking event
-    media.addEventListener("seeking", function() { 
-        $("#output").html("Seeking event triggered"); 
-    });
+    // this.targetVideo.addEventListener("seeking", function() { 
+    //     $("#output").html("Seeking event triggered"); 
+    // });
 
     // Volume changed event
-    media.addEventListener("volumechange", function(e) { 
-        $("#output").html("Volumechange event triggered"); 
-    });
+    // this.targetVideo.addEventListener("volumechange", function(e) { 
+    //     $("#output").html("Volumechange event triggered"); 
+    // });
 
-    this.targetVideo.onplay = () => {
-        this.videoTexture = new THREE.VideoTexture(this.targetVideo);
-        this.videoTexture.wrapS = this.videoTexture.wrapT = THREE.ClampToEdgeWrapping;
-        this.videoTexture.minFilter = THREE.LinearFilter;
-        this.videoTexture.magFilter = THREE.LinearFilter;
+    // this.targetVideo.onplay = () => {
+    //     this.videoTexture = new THREE.VideoTexture(this.targetVideo);
+    //     this.videoTexture.wrapS = this.videoTexture.wrapT = THREE.ClampToEdgeWrapping;
+    //     this.videoTexture.minFilter = THREE.LinearFilter;
+    //     this.videoTexture.magFilter = THREE.LinearFilter;
 
-        this.movieMaterial = new THREE.MeshBasicMaterial({
-            map: this.videoTexture,
-            side: THREE.DoubleSide,
-        });
+    //     this.movieMaterial = new THREE.MeshBasicMaterial({
+    //         map: this.videoTexture,
+    //         side: THREE.DoubleSide,
+    //     });
 
-        this.movieGeometry = new THREE.BoxGeometry(1, 1, 1);
-        this.movieScreen = new THREE.Mesh(this.movieGeometry, this.movieMaterial);
-        this.movieScreen.position.set(0, 0, 0);
+    //     this.movieGeometry = new THREE.BoxGeometry(1, 1, 1);
+    //     this.movieScreen = new THREE.Mesh(this.movieGeometry, this.movieMaterial);
+    //     this.movieScreen.position.set(0, 0, 0);
 
-        if (window.innerWidth < window.innerHeight) {
-            this.movieScreen.scale.set(10, 5, 5);
-            this.movieScreen.rotation.x = 0;
-            this.movieScreen.rotation.y = 0;
-            this.movieScreen.rotation.z = 0;
-        } else {
-            this.movieScreen.scale.set(26, 13, 13);
-            this.movieScreen.rotation.x = 0;
-            this.movieScreen.rotation.y = 0;
-            this.movieScreen.rotation.z = 0;
-        }
-        this.scene.add(this.movieScreen);
-        this.targetVideo.style.display = 'none';
-        this.movieScreen.material.map.needsUpdate = true;
-    }
+    //     if (window.innerWidth < window.innerHeight) {
+    //         this.movieScreen.scale.set(10, 5, 5);
+    //         this.movieScreen.rotation.x = 0;
+    //         this.movieScreen.rotation.y = 0;
+    //         this.movieScreen.rotation.z = 0;
+    //     } else {
+    //         this.movieScreen.scale.set(26, 13, 13);
+    //         this.movieScreen.rotation.x = 0;
+    //         this.movieScreen.rotation.y = 0;
+    //         this.movieScreen.rotation.z = 0;
+    //     }
+    //     this.scene.add(this.movieScreen);
+    //     this.targetVideo.style.display = 'none';
+    //     this.movieScreen.material.map.needsUpdate = true;
+    // }
 
     this.render();
 };
