@@ -84,6 +84,28 @@ const ThreeHelper = function () {
     };
 
     this.targetVideo = document.getElementById('targetVideo');
+    var media = document.getElementById('targetVideo');
+
+    // Playing event
+    media.addEventListener("playing", function() {
+        console.log("Playing event triggered");
+    });
+
+    // Pause event
+    media.addEventListener("pause", function() { 
+        console.log("Pause event triggered"); 
+    });
+
+    // Seeking event
+    media.addEventListener("seeking", function() { 
+        $("#output").html("Seeking event triggered"); 
+    });
+
+    // Volume changed event
+    media.addEventListener("volumechange", function(e) { 
+        $("#output").html("Volumechange event triggered"); 
+    });
+
     this.targetVideo.onplay = () => {
         this.videoTexture = new THREE.VideoTexture(this.targetVideo);
         this.videoTexture.wrapS = this.videoTexture.wrapT = THREE.ClampToEdgeWrapping;
