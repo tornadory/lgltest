@@ -93,7 +93,8 @@ window.addEventListener('load', function() {
     checkLoad();
 }, false);
 
-window.addEventListener('click', function() {
+document.body.addEventListener('click', function() {
+    console.log("body clicked");
     var video = document.querySelector('#targetVideo');
     if(video.paused){
         video.play();
