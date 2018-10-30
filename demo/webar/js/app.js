@@ -94,7 +94,6 @@ window.addEventListener('load', function() {
 }, false);
 
 document.body.addEventListener('click', function() {
-    console.log("body clicked");
     var video = document.querySelector('#targetVideo');
     if(video.paused){
         video.play();
