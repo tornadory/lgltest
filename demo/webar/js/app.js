@@ -27,47 +27,47 @@ var onSuccess = function(stream){
 }
 
 // get available devices
-// navigator.mediaDevices.enumerateDevices().then(function(devices){
-//     if(isiOS){
-//         navigator.mediaDevices.getUserMedia({
-//             audio: false,
-//             video: {
-//                 facingMode: 'environment'
-//             }
-//         }).then(onSuccess).catch(onError);
-//     }
-//     else{
-//         var videoSourceId;
-//         var exArray = [];
-//         for(var i = 0; i < devices.length; i++){
-//             var deviceInfo = devices[i];
-//             if(deviceInfo.kind == "videoinput"){
-//                 exArray.push(deviceInfo.deviceId);
-//                 if(deviceInfo.label.split(', ')[1] == "facing back") {
-//                     videoSourceId = deviceInfo.deviceId;
-//                 }
-//             }
-//         }
-//         if (!videoSourceId) {
-//             switch (exArray.length) {
-//                 case 1:
-//                     videoSourceId = exArray[0];
-//                     break;
-//                 case 2:
-//                     videoSourceId = exArray[1];
-//                     break;
-//                 default:
-//                     break;
-//             }
-//         }
-//         navigator.mediaDevices.getUserMedia({
-//             audio: false,
-//             video: {
-//                 optional: [{sourceId: videoSourceId}]
-//             }
-//         }).then(onSuccess).catch(onError);
-//     }
-// }).catch(onError);
+navigator.mediaDevices.enumerateDevices().then(function(devices){
+    if(isiOS){
+        navigator.mediaDevices.getUserMedia({
+            audio: false,
+            video: {
+                facingMode: 'environment'
+            }
+        }).then(onSuccess).catch(onError);
+    }
+    else{
+        var videoSourceId;
+        var exArray = [];
+        for(var i = 0; i < devices.length; i++){
+            var deviceInfo = devices[i];
+            if(deviceInfo.kind == "videoinput"){
+                exArray.push(deviceInfo.deviceId);
+                if(deviceInfo.label.split(', ')[1] == "facing back") {
+                    videoSourceId = deviceInfo.deviceId;
+                }
+            }
+        }
+        if (!videoSourceId) {
+            switch (exArray.length) {
+                case 1:
+                    videoSourceId = exArray[0];
+                    break;
+                case 2:
+                    videoSourceId = exArray[1];
+                    break;
+                default:
+                    break;
+            }
+        }
+        navigator.mediaDevices.getUserMedia({
+            audio: false,
+            video: {
+                optional: [{sourceId: videoSourceId}]
+            }
+        }).then(onSuccess).catch(onError);
+    }
+}).catch(onError);
 
 const threeHelper = new ThreeHelper();
 var rotX = 0;
