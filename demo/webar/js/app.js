@@ -93,6 +93,13 @@ window.addEventListener('load', function() {
     checkLoad();
 }, false);
 
+window.addEventListener('click', function() {
+    var video = document.querySelector('#targetVideo');
+    if(video.paused){
+        video.play();
+    }
+}, false);
+
 document.addEventListener("WeixinJSBridgeReady", function(){
     var videoEl = document.getElementById("targetVideo");
     videoEl.play();
