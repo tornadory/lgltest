@@ -88,14 +88,14 @@ initFunc();
 webAR.startRecognize((msg) => {
     console.log("message is ", msg);
     // alert('识别成功');
-    document.getElementById('targetVideo' ).style.display = 'block';
+    // document.getElementById('targetVideo' ).style.display = 'block';
 
     // 识别成功后，从meta中取出model地址
     // const meta = JSON.parse(window.atob(msg.meta));
     // threeHelper.loadObject(meta.model);
 
     // 加载本地模型
-    // threeHelper.loadObject('asset/model/trex_v3.fbx');
+    threeHelper.loadObject('asset/model/trex_v3.fbx');
     // threeHelper.movieGeometry.visible = true;
 
     // webAR.trace('加载模型');
@@ -122,15 +122,11 @@ function normalizeData(_g, _b, _a) {
     rotY += (g - rotY) / 5;
     rotX += (b - rotX) / 5;
     rotZ += (a - rotZ) / 5;
-
-    console.log('gamma: ' + g + ' / beta: ' + b + ' / alpha: ' + a);
     if(window.innerHeight > window.innerWidth){
-        console.log("vertical mode");
         threeHelper.movieScreen.rotation.y = rotY / 150;
         threeHelper.movieScreen.rotation.x = rotX / 150;
         threeHelper.movieScreen.rotation.z = rotZ / 150;
     }else{
-        console.log("horizontal mode");
         threeHelper.movieScreen.rotation.x = rotY / 150; //rotY
         threeHelper.movieScreen.rotation.y = rotZ / 150;
         threeHelper.movieScreen.rotation.z = rotX / 150;
