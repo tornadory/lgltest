@@ -28,7 +28,6 @@ var onSuccess = function(stream){
 
 // get available devices
 navigator.mediaDevices.enumerateDevices().then(function(devices){
-    // 如果是水果机
     if(isiOS){
         navigator.mediaDevices.getUserMedia({
             audio: false,
@@ -37,29 +36,23 @@ navigator.mediaDevices.enumerateDevices().then(function(devices){
             }
         }).then(onSuccess).catch(onError);
     }
-    // 如果是安卓机
     else{
         var videoSourceId;
         var exArray = [];
         for(var i = 0; i < devices.length; i++){
             var deviceInfo = devices[i];
-            // 判断是否是相机设备
             if(deviceInfo.kind == "videoinput"){
                 exArray.push(deviceInfo.deviceId);
-                // 判断是否是后置摄像头
                 if(deviceInfo.label.split(', ')[1] == "facing back") {
                     videoSourceId = deviceInfo.deviceId;
                 }
             }
         }
-        // deviceInfo.label为空
         if (!videoSourceId) {
             switch (exArray.length) {
-                // 单摄像头
                 case 1:
                     videoSourceId = exArray[0];
                     break;
-                // 多摄像头
                 case 2:
                     videoSourceId = exArray[1];
                     break;
@@ -80,7 +73,7 @@ const threeHelper = new ThreeHelper();
 var rotX = 0;
 var rotY = 0;
 var rotZ = 0;
-var screenOrientation = 0; //
+var screenOrientation = 0;
 
 window.addEventListener('load', function() {
     var video = document.querySelector('#targetVideo');
@@ -88,7 +81,8 @@ window.addEventListener('load', function() {
     function checkLoad() {
         if (video.readyState === 4) {
             console.log("video ready state", video.readyState);
-            document.getElementById('targetVideo' ).style.display = 'block';
+            document.getElementById('targetVideo').style.display = 'block';
+            document.getElementById('targetVideo').play();
             // var loadingUI = document.querySelector('#loadingUI');
             // loadingUI.style.display = 'none';
         } else {
@@ -135,16 +129,12 @@ if (window.DeviceMotionEvent) {
 }
 
 function Quat2Angle(x, y, z, w) {
-
     var pitch, roll, yaw;
-
     var test = x * y + z * w;
-
     if (test > 0.499) {
         yaw = 2 * Math.atan2(x, w);
         pitch = Math.PI / 2;
         roll = 0;
-
         var euler = new THREE.Vector3(pitch, roll, yaw);
         return euler;
     }
@@ -174,15 +164,10 @@ var setObjectQuaternion = function () {
     var q1 = new THREE.Quaternion();
 
     return function (quaternion, alpha, beta, gamma, orient) {
-
         euler.set(beta, alpha, -gamma, 'YXZ');
-
         quaternion.setFromEuler(euler);
-
         quaternion.multiply(q1);
-
         quaternion.multiply(q0.setFromAxisAngle(zee, -orient));
-
     }
 
 }();
