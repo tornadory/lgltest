@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>画球</title>
+    <style>
+        body {
+            margin: 0px;
+            overflow: hidden;
+        }
+        canvas {
+            border: 3px solid blue;
+            display: block;
+        }
+
+        #gui {
+            position: absolute;
+            top: 10px;
+            left: 1210px;
+        }
+    </style>
+</head>
+
+<body>
+    <canvas id="sphere" width="1200" height="800"></canvas>
+    <div id="gui"></div>
+    <script type="text/javascript" src="libs/shader.js"></script>
+    <script type="text/javascript" src="libs/gl-matrix.js"></script>
+    <script type="text/javascript" src="libs/sphere.js"></script>
+    <script type="text/javascript" src="libs/dat.gui.min.js"></script>
+
+    <script id="vShader" type="x-shader/x-vertex">
+        attribute vec3 a_position;
+        attribute vec4 a_color;
+        uniform mat4 u_mMatrix;
+        uniform mat4 u_pMatrix;
+        uniform mat4 u_viewMatrix;
+        varying vec4 v_color;
+
+        void main()
+        {
+            gl_Position = u_pMatrix * u_viewMatrix *  u_mMatrix* vec4(a_position, 1.0);
+            v_color = a_color;
+        }
+    </script>
+    <script id="fShader" type="x-shader/x-fragment">
+        precision mediump float;
+        varying vec4 v_color;
+        void main()
+        {
+            gl_FragColor = v_color;
+        }
+    </script>
+
+    <script type="text/javascript">
+        let gl = undefined;
+        let sphereData = sphere(64, 64, 1.0, [1.0, 0.0, 0.0, 1.0]);
+        console.log("sphereData ", sphereData);
+        let scale = 1.0;
+        let guiFiles = {
+            '缩放': scale
+        };
+
+        function main() {
+            //获取canvas
+            let canvas = document.getElementById('sphere');
+            gl = canvas.getContext('webgl', {
+                antialias: true,
+                depth: true
+            });
+            if (!gl) {
+                alert("您的浏览器不支持WebGL，请换另一个浏览器尝试！")
+            }
+            //获取着色器文本
+            let vShaderText = document.getElementById('vShader').text;
+            let fShaderText = document.getElementById('fShader').text;
+            let program = getProgram(gl, vShaderText, fShaderText);
+
+            drawScene(gl, program);
+            initGui(gl, program);
+        }
+
+        function getProgram(gl, vShaderText, fShaderText) {
+
+            let program = initShader(gl, vShaderText, fShaderText);
+
+            //获取着色器中相关变量的位置
+            program.pLocation = gl.getAttribLocation(program, 'a_position');
+            program.cLocation = gl.getAttribLocation(program, 'a_color');
+
+            program.mvmLocation = gl.getUniformLocation(program, 'u_mvMatrix');
+            program.pmLocation = gl.getUniformLocation(program, 'u_pMatrix');
+            program.viewLocation = gl.getUniformLocation(program, 'u_viewMatrix');
+
+            //为顶点数据、索引和颜色数据创建缓冲区
+            program.positionBuffer = gl.createBuffer();
+            gl.bindBuffer(gl.ARRAY_BUFFER, program.positionBuffer);
+            program.positionBuffer.itemSize = 3;
+            program.positionBuffer.numItems = sphereData.positions.length;
+
+            program.vIndexBuffer = gl.createBuffer();
+            gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, program.vIndexBuffer);
+            program.vIndexBuffer.itemSize = 1;
+            program.vIndexBuffer.numItems = sphereData.index.length;
+
+            program.colorBuffer = gl.createBuffer();
+            gl.bindBuffer(gl.ARRAY_BUFFER, program.colorBuffer);
+            program.colorBuffer.itemSize = 4;
+            program.colorBuffer.numItems = sphereData.colors.length;
+
+            return program;
+        }
+
+        function drawScene(gl, program) {
+
+            gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
+            gl.clearColor(0.0, 0.0, 0.0, 1.0);
+            gl.enable(gl.DEPTH_TEST); //启用深度测试，根据坐标的远近自动隐藏被遮住的图形
+            gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+            gl.useProgram(program);
+
+            let pMatrix = mat4.create();
+            mat4.perspective(pMatrix, 45, gl.canvas.width / gl.canvas.height, 0.1, 1000);
+
+            let mMatrix = mat4.create();
+            mat4.identity(mMatrix);
+
+            let vMatrix = mat4.create();
+            mat4.lookAt(vMatrix, [4, 4, 4], [0, 0, 0], [0, 1, 0]);
+
+            let sMatrix = mat4.create();
+            mat4.fromScaling(sMatrix, [scale, scale, scale]);
+
+            mat4.multiply(mMatrix, sMatrix, mMatrix);
+
+
+            gl.enableVertexAttribArray(program.pLocation);
+            gl.bindBuffer(gl.ARRAY_BUFFER, program.positionBuffer);
+            gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(sphereData.positions), gl.STATIC_DRAW);
+            gl.vertexAttribPointer(program.pLocation, program.positionBuffer.itemSize, gl.FLOAT, false, 0, 0);
+
+            gl.enableVertexAttribArray(program.cLocation);
+            gl.bindBuffer(gl.ARRAY_BUFFER, program.colorBuffer);
+            gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(sphereData.colors), gl.STATIC_DRAW);
+            gl.vertexAttribPointer(program.cLocation, program.colorBuffer.itemSize, gl.FLOAT, false, 0, 0);
+
+            gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, program.vIndexBuffer);
+            gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(sphereData.index), gl.STATIC_DRAW);
+
+            gl.uniformMatrix4fv(program.pmLocation, false, pMatrix);
+            gl.uniformMatrix4fv(program.mvmLocation, false, mMatrix);
+            gl.uniformMatrix4fv(program.viewLocation, false, vMatrix);
+
+            // gl.drawElements(gl.TRIANGLES, program.vIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
+            gl.drawElements(gl.TRIANGLES, program.vIndexBuffer.length, gl.UNSIGNED_SHORT, 0);
+
+        }
+
+        function initGui(gl, program) {
+            let gui = new dat.GUI();
+            gui.add(guiFiles, '缩放', -10, 10).onChange(function (e) {
+                scale = e;
+                drawScene(gl, program);
+            });
+
+            let ui = document.getElementById('gui');
+            ui.appendChild(gui.domElement);
+        }
+        window.onload = main;
+    </script>
+
+
+</body>
+
+</html>
