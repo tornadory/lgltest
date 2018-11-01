@@ -83,26 +83,42 @@ document.querySelector('#stop').addEventListener('click', () => {
     webAR.stopRecognize();
 }, false);
 
-initFunc();
+threeHelper.scene.visible = false;
+threeHelper.loadGLTF('asset/model/gltf/scene.gltf', ()=>{
 
-console.log("finished initFunc");
+    var loadingUI = document.querySelector('#loadingUI');
+    loadingUI.style.display = 'none';
+    
+    initFunc();
 
-webAR.startRecognize((msg) => {
-    console.log("message is ", msg);
-    // alert('识别成功');
-    // document.getElementById('targetVideo' ).style.display = 'block';
+    console.log("finished initFunc");
 
-    // 识别成功后，从meta中取出model地址
-    // const meta = JSON.parse(window.atob(msg.meta));
-    // threeHelper.loadObject(meta.model);
+    webAR.startRecognize((msg) => {
+        console.log("message is ", msg);
 
-    // 加载本地模型
-    // threeHelper.loadObject('asset/model/trex_v3.fbx');
-    threeHelper.loadGLTF('asset/model/gltf/scene.gltf');
-    // threeHelper.movieGeometry.visible = true;
+        threeHelper.scene.visible = true;
 
-    // webAR.trace('加载模型');
+        // alert('识别成功');
+        // document.getElementById('targetVideo' ).style.display = 'block';
+
+        // 识别成功后，从meta中取出model地址
+        // const meta = JSON.parse(window.atob(msg.meta));
+        // threeHelper.loadObject(meta.model);
+
+        // 加载本地模型
+        // threeHelper.loadObject('asset/model/trex_v3.fbx');
+
+
+        // threeHelper.loadGLTF('asset/model/gltf/scene.gltf');
+        
+        
+        // threeHelper.movieGeometry.visible = true;
+
+        // webAR.trace('加载模型');
+    });
 });
+
+
 
 
 // if (window.DeviceMotionEvent) {

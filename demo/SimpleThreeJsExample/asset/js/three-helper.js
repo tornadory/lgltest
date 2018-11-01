@@ -47,7 +47,7 @@ const ThreeHelper = function () {
     this.loadingManager.onProgress = function ( item, loaded, total ) {
         console.log( item, loaded, total );
     };
-    this.loadGLTF = function (modelUrl) {
+    this.loadGLTF = function (modelUrl, callback) {
         console.log("try to load ....");
         const loader = new THREE.GLTFLoader(this.loadingManager);
         loader.load(modelUrl, (gltf) => {
@@ -65,13 +65,15 @@ const ThreeHelper = function () {
                     var animation = animations[ i ];
                     // There's .3333 seconds junk at the tail of the Monster animation that
                     // keeps it from looping cleanly. Clip it at 3 seconds
-                    if ( sceneInfo.animationTime ) {
-                        animation.duration = sceneInfo.animationTime;
-                    }
+                    // if ( sceneInfo.animationTime ) {
+                    //     animation.duration = sceneInfo.animationTime;
+                    // }
                     var action = object.mixer.clipAction( animation );
                     action.play();
                 }
             }
+            if(callback)
+                callback();
             // if (object.animations && object.animations.length > 0) {
             //     object.mixer = new THREE.AnimationMixer(object);
             //     this.mixers.push(object.mixer);
