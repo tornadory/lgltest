@@ -79,9 +79,9 @@ var initFunc = function () {
 //     });
 // }, false);
 
-document.querySelector('#stop').addEventListener('click', () => {
-    webAR.stopRecognize();
-}, false);
+// document.querySelector('#stop').addEventListener('click', () => {
+//     webAR.stopRecognize();
+// }, false);
 
 threeHelper.scene.visible = false;
 threeHelper.loadGLTF('asset/model/gltf/scene.gltf', ()=>{
