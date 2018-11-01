@@ -42,9 +42,14 @@ const ThreeHelper = function () {
         });
     };
 
+    this.loadingManager = new THREE.LoadingManager();
+
+    this.loadingManager.onProgress = function ( item, loaded, total ) {
+        console.log( item, loaded, total );
+    };
     this.loadGLTF = function (modelUrl) {
         console.log("try to load ....");
-        const loader = new THREE.GLTFLoader();
+        const loader = new THREE.GLTFLoader(this.loadingManager);
         loader.load(modelUrl, (gltf) => {
             let object = gltf.scene;
             object.scale.setScalar(0.02);
@@ -52,11 +57,26 @@ const ThreeHelper = function () {
             this.scene.add(object);
             console.log("model loaded", object);
 
-            if (object.animations.length > 0) {
-                object.mixer = new THREE.AnimationMixer(object);
+            var animations = gltf.animations;
+            if ( animations && animations.length ) {
+                object.mixer = new THREE.AnimationMixer( object );
                 this.mixers.push(object.mixer);
-                object.mixer.clipAction(object.animations[0]).play();
+                for ( var i = 0; i < animations.length; i ++ ) {
+                    var animation = animations[ i ];
+                    // There's .3333 seconds junk at the tail of the Monster animation that
+                    // keeps it from looping cleanly. Clip it at 3 seconds
+                    if ( sceneInfo.animationTime ) {
+                        animation.duration = sceneInfo.animationTime;
+                    }
+                    var action = object.mixer.clipAction( animation );
+                    action.play();
+                }
             }
+            // if (object.animations && object.animations.length > 0) {
+            //     object.mixer = new THREE.AnimationMixer(object);
+            //     this.mixers.push(object.mixer);
+            //     object.mixer.clipAction(object.animations[0]).play();
+            // }
         })
     };
 
