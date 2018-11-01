@@ -85,6 +85,8 @@ document.querySelector('#stop').addEventListener('click', () => {
 
 initFunc();
 
+console.log("finished initFunc");
+
 webAR.startRecognize((msg) => {
     console.log("message is ", msg);
     // alert('识别成功');
@@ -96,7 +98,7 @@ webAR.startRecognize((msg) => {
 
     // 加载本地模型
     // threeHelper.loadObject('asset/model/trex_v3.fbx');
-    threeHelper.loadGLTF('/asset/model/gltf/scene.gltf');
+    threeHelper.loadGLTF('asset/model/gltf/scene.gltf');
     // threeHelper.movieGeometry.visible = true;
 
     // webAR.trace('加载模型');

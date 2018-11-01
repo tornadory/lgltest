@@ -43,6 +43,7 @@ const ThreeHelper = function () {
     };
 
     this.loadGLTF = function (modelUrl) {
+        console.log("try to load ....");
         const loader = new THREE.GLTFLoader();
         loader.load(modelUrl, (gltf) => {
             let object = gltf.scene;
