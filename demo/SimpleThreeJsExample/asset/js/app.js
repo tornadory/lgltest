@@ -50,7 +50,7 @@ var initFunc = function () {
                 openCamera(video, videoDevice.value, videoSetting);
             };
 
-            // document.querySelector('#openCamera').style.display = 'none';
+            document.querySelector('#videoDevice').style.display = 'none';
             // document.querySelector('#start').style.display = 'inline-block';
             // document.querySelector('#stop').style.display = 'inline-block';
         })
