@@ -15,7 +15,26 @@ const ThreeHelper = function () {
     this.renderer.domElement.setAttribute('class', 'mainCanvas');
     document.body.appendChild(this.renderer.domElement);
 
+    //cubemap
+    var path = "asset/images/skybox0/";
+    var format = '.jpg';
+    var urls = [
+        path + 'posx' + format, path + 'negx' + format,
+        path + 'posy' + format, path + 'negy' + format,
+        path + 'posz' + format, path + 'negz' + format
+    ];
+
+    var reflectionCube = new THREE.CubeTextureLoader().load( urls );
+    reflectionCube.format = THREE.RGBFormat;
+
+    var refractionCube = new THREE.CubeTextureLoader().load( urls );
+    refractionCube.mapping = THREE.CubeRefractionMapping;
+    refractionCube.format = THREE.RGBFormat;
+
+    
+
     this.scene = new THREE.Scene();
+    this.scene.background = reflectionCube;
     this.scene.add(new THREE.AmbientLight(0xFFFFFF));
 
     const control = new THREE.OrbitControls(this.camera, this.renderer.domElement);
@@ -46,8 +65,10 @@ const ThreeHelper = function () {
 
     this.loadingManager.onProgress = function ( item, loaded, total ) {
         console.log( item, loaded, total );
+        let percent = loaded / total;
+        percent = percent.toFixed(2)*100;
         let loadingText = document.getElementById("loadingTxt");
-        loadingText.innerText = "下载中..."+(loaded/total)*100+"%";
+        loadingText.innerText = "下载中..."+percent+"%";
     };
     this.loadGLTF = function (modelUrl, callback) {
         console.log("try to load ....");
@@ -57,7 +78,6 @@ const ThreeHelper = function () {
             object.scale.setScalar(0.1);
             object.position.set(0, 0, 0);
             this.scene.add(object);
-            console.log("model loaded", object);
 
             var animations = gltf.animations;
             if ( animations && animations.length ) {

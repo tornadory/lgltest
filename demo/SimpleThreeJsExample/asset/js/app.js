@@ -98,6 +98,8 @@ threeHelper.loadGLTF('asset/model/gltf/scene.gltf', ()=>{
 
         threeHelper.scene.visible = true;
 
+        webAR.stopRecognize();
+
         // alert('识别成功');
         // document.getElementById('targetVideo' ).style.display = 'block';
 
