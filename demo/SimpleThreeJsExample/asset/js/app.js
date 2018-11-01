@@ -50,7 +50,7 @@ var initFunc = function () {
                 openCamera(video, videoDevice.value, videoSetting);
             };
 
-            document.querySelector('#videoDevice').style.display = 'none';
+            
             // document.querySelector('#start').style.display = 'inline-block';
             // document.querySelector('#stop').style.display = 'inline-block';
         })
@@ -96,6 +96,8 @@ threeHelper.loadGLTF('asset/model/gltf/scene.gltf', ()=>{
     webAR.startRecognize((msg) => {
         console.log("message is ", msg);
         document.querySelector('.header').style.display = 'block';
+        document.querySelector('#videoDevice').style.display = 'none';
+
 
         threeHelper.scene.background = threeHelper.refractionCube;
         threeHelper.scene.visible = true;

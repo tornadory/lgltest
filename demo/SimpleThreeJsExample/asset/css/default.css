@@ -46,6 +46,7 @@ body {
 
 .header .left{
     left:5px;
+    width:128px;
     background-image: url('../images/s_on.png');
 }
 
@@ -59,6 +60,7 @@ body {
 
 .header .right{
     right: 15px;
+    width:128px;
     background-image: url('../images/s_off.png');
 }
 
