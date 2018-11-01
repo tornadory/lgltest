@@ -49,7 +49,7 @@ const ThreeHelper = function () {
             object.scale.setScalar(0.02);
             object.position.set(0, 0, 0);
             this.scene.add(object);
-            console.log("model loaded");
+            console.log("model loaded", object);
 
             if (object.animations.length > 0) {
                 object.mixer = new THREE.AnimationMixer(object);

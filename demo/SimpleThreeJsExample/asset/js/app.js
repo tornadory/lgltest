@@ -103,34 +103,34 @@ webAR.startRecognize((msg) => {
 });
 
 
-if (window.DeviceMotionEvent) {
-    window.ondeviceorientation = function (event) {
-        alpha = event.alpha;
-        beta = event.beta;
-        gamma = event.gamma;
-        setTimeout(function () {
-            normalizeData(gamma, beta, alpha)
-        }, 50)
-    }
-}
+// if (window.DeviceMotionEvent) {
+//     window.ondeviceorientation = function (event) {
+//         alpha = event.alpha;
+//         beta = event.beta;
+//         gamma = event.gamma;
+//         setTimeout(function () {
+//             normalizeData(gamma, beta, alpha)
+//         }, 50)
+//     }
+// }
 
-function normalizeData(_g, _b, _a) {
+// function normalizeData(_g, _b, _a) {
 
-    b = Math.round(_b);
-    g = Math.round(_g);
-    a = Math.round(_a);
+//     b = Math.round(_b);
+//     g = Math.round(_g);
+//     a = Math.round(_a);
 
-    rotY += (g - rotY) / 5;
-    rotX += (b - rotX) / 5;
-    rotZ += (a - rotZ) / 5;
-    if (window.innerHeight > window.innerWidth) {
-        threeHelper.movieScreen.rotation.y = rotY / 150;
-        threeHelper.movieScreen.rotation.x = rotX / 150;
-        threeHelper.movieScreen.rotation.z = rotZ / 150;
-    } else {
-        threeHelper.movieScreen.rotation.x = rotY / 150; //rotY
-        threeHelper.movieScreen.rotation.y = rotZ / 150;
-        threeHelper.movieScreen.rotation.z = rotX / 150;
-    }
+//     rotY += (g - rotY) / 5;
+//     rotX += (b - rotX) / 5;
+//     rotZ += (a - rotZ) / 5;
+//     if (window.innerHeight > window.innerWidth) {
+//         threeHelper.movieScreen.rotation.y = rotY / 150;
+//         threeHelper.movieScreen.rotation.x = rotX / 150;
+//         threeHelper.movieScreen.rotation.z = rotZ / 150;
+//     } else {
+//         threeHelper.movieScreen.rotation.x = rotY / 150; //rotY
+//         threeHelper.movieScreen.rotation.y = rotZ / 150;
+//         threeHelper.movieScreen.rotation.z = rotX / 150;
+//     }
 
-}
+// }
