@@ -71,11 +71,10 @@ const ThreeHelper = function () {
         loadingText.innerText = "下载中..."+percent+"%";
     };
     this.loadGLTF = function (modelUrl, callback) {
-        console.log("try to load ....");
         const loader = new THREE.GLTFLoader(this.loadingManager);
         loader.load(modelUrl, (gltf) => {
             let object = gltf.scene;
-            object.scale.setScalar(0.1);
+            object.scale.setScalar(0.05);
             object.position.set(0, 0, 0);
             this.scene.add(object);
 
