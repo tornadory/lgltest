@@ -33,7 +33,7 @@ const ThreeHelper = function () {
         this.camera.aspect = window.innerWidth / window.innerHeight;
         this.camera.updateProjectionMatrix();
         this.renderer.setSize(window.innerWidth, window.innerHeight);
-        if(this.movieScreen){
+        if (this.movieScreen) {
             if (window.innerWidth < window.innerHeight) {
                 this.movieScreen.scale.set(10, 5, 5);
                 this.movieScreen.rotation.x = 0;
@@ -48,12 +48,12 @@ const ThreeHelper = function () {
         }
     }, false);
 
-    this.animate = function() {
+    this.animate = function () {
 
         window.requestAnimationFrame(() => {
             this.animate();
         });
-        
+
     };
 
     this.render = function () {
@@ -85,9 +85,15 @@ const ThreeHelper = function () {
 
     this.targetVideo = document.getElementById('targetVideo');
 
-    // Playing event
+    // pause event
+    this.targetVideo.addEventListener("pause", () => {
+        console.log("on pause event ");
+        this.targetVideo.style.display = 'block';
+    });
+
+    // playing event
     this.targetVideo.addEventListener("playing", () => {
-        if(!this.movieScreen){
+        if (!this.movieScreen) {
             this.videoTexture = new THREE.VideoTexture(this.targetVideo);
             this.videoTexture.wrapS = this.videoTexture.wrapT = THREE.ClampToEdgeWrapping;
             this.videoTexture.minFilter = THREE.LinearFilter;

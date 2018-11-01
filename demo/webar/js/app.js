@@ -2,11 +2,11 @@ var u = navigator.userAgent;
 var isAndroid = u.indexOf('Android') > -1 || u.indexOf('Adr') > -1;
 var isiOS = !!u.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/);
 
-var onError = function(error){
-    alert('Webcam Error\nName: '+error.name + '\nMessage: '+error.message);
+var onError = function (error) {
+    alert('Webcam Error\nName: ' + error.name + '\nMessage: ' + error.message);
 }
 
-var onSuccess = function(stream){
+var onSuccess = function (stream) {
     var video = document.querySelector('#video');
     let videoWidth = video.offsetWidth;
     let videoHeight = video.offsetHeight;
@@ -27,23 +27,22 @@ var onSuccess = function(stream){
 }
 
 // get available devices
-navigator.mediaDevices.enumerateDevices().then(function(devices){
-    if(isiOS){
+navigator.mediaDevices.enumerateDevices().then(function (devices) {
+    if (isiOS) {
         navigator.mediaDevices.getUserMedia({
             audio: false,
             video: {
                 facingMode: 'environment'
             }
         }).then(onSuccess).catch(onError);
-    }
-    else{
+    } else {
         var videoSourceId;
         var exArray = [];
-        for(var i = 0; i < devices.length; i++){
+        for (var i = 0; i < devices.length; i++) {
             var deviceInfo = devices[i];
-            if(deviceInfo.kind == "videoinput"){
+            if (deviceInfo.kind == "videoinput") {
                 exArray.push(deviceInfo.deviceId);
-                if(deviceInfo.label.split(', ')[1] == "facing back") {
+                if (deviceInfo.label.split(', ')[1] == "facing back") {
                     videoSourceId = deviceInfo.deviceId;
                 }
             }
@@ -63,7 +62,9 @@ navigator.mediaDevices.enumerateDevices().then(function(devices){
         navigator.mediaDevices.getUserMedia({
             audio: false,
             video: {
-                optional: [{sourceId: videoSourceId}]
+                optional: [{
+                    sourceId: videoSourceId
+                }]
             }
         }).then(onSuccess).catch(onError);
     }
@@ -75,7 +76,7 @@ var rotY = 0;
 var rotZ = 0;
 var screenOrientation = 0;
 
-window.addEventListener('load', function() {
+window.addEventListener('load', function () {
     var video = document.querySelector('#targetVideo');
 
     function checkLoad() {
@@ -92,14 +93,14 @@ window.addEventListener('load', function() {
     checkLoad();
 }, false);
 
-document.body.addEventListener('click', function() {
+document.body.addEventListener('click', function () {
     var video = document.querySelector('#targetVideo');
-    if(video.paused){
+    if (video.paused) {
         video.play();
     }
 }, false);
 
-document.addEventListener("WeixinJSBridgeReady", function(){
+document.addEventListener("WeixinJSBridgeReady", function () {
     var videoEl = document.getElementById("targetVideo");
     videoEl.play();
 }, false);
@@ -109,28 +110,28 @@ if (window.DeviceMotionEvent) {
     window.ondeviceorientation = function (event) {
 
         var alpha = event.alpha ? THREE.Math.degToRad(event.alpha) : 0;
-		var beta = event.beta ? THREE.Math.degToRad(event.beta) : 0;
-		var gamma = event.gamma ? THREE.Math.degToRad(event.gamma) : 0;
+        var beta = event.beta ? THREE.Math.degToRad(event.beta) : 0;
+        var gamma = event.gamma ? THREE.Math.degToRad(event.gamma) : 0;
         var orient = screenOrientation ? THREE.Math.degToRad(screenOrientation) : 0;
-        
-        if(threeHelper.movieScreen){
+
+        if (threeHelper.movieScreen) {
             var currentQ = new THREE.Quaternion().copy(threeHelper.movieScreen.quaternion);
 
             setObjectQuaternion(currentQ, alpha, beta, gamma, orient);
             var currentAngle = Quat2Angle(currentQ.x, currentQ.y, currentQ.z, currentQ.w);
-            if(window.innerHeight > window.innerWidth){
+            if (window.innerHeight > window.innerWidth) {
                 threeHelper.movieScreen.rotation.x = currentAngle.y;
                 threeHelper.movieScreen.rotation.y = currentAngle.x;
                 // threeHelper.movieScreen.rotation.z = currentAngle.z - Math.PI/2;
                 threeHelper.movieScreen.rotation.z = 0;
-            }else{
+            } else {
                 threeHelper.movieScreen.rotation.x = currentAngle.x;
                 threeHelper.movieScreen.rotation.y = currentAngle.y;
                 // threeHelper.movieScreen.rotation.z = currentAngle.z;
                 threeHelper.movieScreen.rotation.z = 0;
             }
         }
-        
+
     }
 }
 
