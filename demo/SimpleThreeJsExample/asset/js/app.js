@@ -95,7 +95,8 @@ webAR.startRecognize((msg) => {
     // threeHelper.loadObject(meta.model);
 
     // 加载本地模型
-    threeHelper.loadObject('asset/model/trex_v3.fbx');
+    // threeHelper.loadObject('asset/model/trex_v3.fbx');
+    threeHelper.loadGLTF('/asset/model/gltf/scene.gltf');
     // threeHelper.movieGeometry.visible = true;
 
     // webAR.trace('加载模型');
@@ -122,14 +123,14 @@ function normalizeData(_g, _b, _a) {
     rotY += (g - rotY) / 5;
     rotX += (b - rotX) / 5;
     rotZ += (a - rotZ) / 5;
-    if(window.innerHeight > window.innerWidth){
+    if (window.innerHeight > window.innerWidth) {
         threeHelper.movieScreen.rotation.y = rotY / 150;
         threeHelper.movieScreen.rotation.x = rotX / 150;
         threeHelper.movieScreen.rotation.z = rotZ / 150;
-    }else{
+    } else {
         threeHelper.movieScreen.rotation.x = rotY / 150; //rotY
         threeHelper.movieScreen.rotation.y = rotZ / 150;
         threeHelper.movieScreen.rotation.z = rotX / 150;
     }
-    
+
 }

@@ -1,0 +1,1227 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta charset="utf-8">
+    <meta http-equiv="Cache-Control" content="no-transform" />
+    <title>西门春雪和叶孤城的纪念馆</title>
+    <meta name="keywords" content="全景,移动端,手势,陀螺仪">
+    <meta name="description" itemprop="description" content="全景场景">
+    <meta name="viewport" id="viewport"
+          content="width=device-width,initial-scale=1,minimum-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+    <link rel="stylesheet" type="text/css" href="/css/worship/style.css"/>
+</head>
+<body>
+
+<div id="app" class="panorama" :style="styleBj">
+    <!--loading-->
+    <div v-show="Load" class="Loading">
+        <img src="http://img.jibai.com/mstatic/img/loading.gif"/>
+    </div>
+    <div  style="visibility: hidden"  class="panorama1" id="panorama_">
+    </div>
+    <div class="top">
+        <div class="two_top">
+            <a class="back" href="/jng/list">
+                <img src="http://img.jibai.com/mstatic/images/back.png"/>
+            </a>
+            <span class="jyz">
+				<img :src="avatar"/>
+			</span>
+            <span class="vip">
+                <img v-if="vipG" class="Yvip" src="http://img.jibai.com/mstatic/images/vipIcon.png"/>
+                <img v-else class="Nvip" src="http://img.jibai.com/mstatic/images/vip.png"/>
+				<div class="jdt">
+					<p>LV{{LV}}</p>
+					<div class="progress">
+						<div class="bar" :style="{width: LvWidth}"></div>
+				    </div>
+				</div>
+			</span>
+            <span class="rq">
+                <img src="http://img.jibai.com/mstatic/images/rq.png"/>
+                <div>22</div>
+            </span>
+            <span class="fk">
+                <img src="http://img.jibai.com/mstatic/images/fk.png"/>
+                <div>访客量</div>
+            </span>
+            <span class="phb" onclick="contribution()">
+                <img src="http://img.jibai.com/mstatic/images/phb.png"/>
+                <div>排行榜</div>
+            </span>
+        </div>
+    </div>
+    <div class="center" v-show="wfGd">
+        <div class="cen">
+            <div class="wf-div" style="overflow: hidden;">
+                <div class="win-div" ref="tab">
+                    <ul class="Ul" v-cloak id="con1" ref="tabcontent" :style="{width: ulWidth + 'rem'}">
+                        <li v-for="item in wf_items" class="tabitem" ref="tabitem">
+                            <span class="tx">
+                                <img :src="item.avatar.indexOf('imgs0.zupu.cn')!=-1 && item.avatar.indexOf('!')==-1  ? item.avatar + '!msquare': item.avatar"/>
+                            </span>
+                            <div style="display: inline-block">{{item.name}}</div>
+                            <p>{{item.Nr}}</p>
+                            <span>{{item.jpName}}</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="btn" @click="ljCk">立即查看</div>
+        </div>
+    </div>
+    <div class="right">
+        <div @click="fenXiang" id="shareButton">
+            <img src="http://img.jibai.com/mstatic/images/fx.png"/>
+            <p>分享</p>
+        </div>
+        <div @click="guanZ" v-show="guanZhu">
+            <img src="http://img.jibai.com/mstatic/images/gz.png"/>
+            <p>关注</p>
+        </div>
+        <div @click="MapToggle">
+            <img src="http://img.jibai.com/mstatic/images/dt.png"/>
+            <p>地图</p>
+        </div>
+        <div class="rightFoot">
+            <ul>
+                <li @click="offThreeD" v-show="offSafe">
+                    <img src="http://img.jibai.com/mstatic/img/on.png"/>
+                </li>
+                <li @click="onThreeD" v-show="onSafe">
+                    <img src="http://img.jibai.com/mstatic/img/off.png"/>
+                </li>
+            </ul>
+            <p>VR</p>
+        </div>
+    </div>
+
+
+    <div class="jp" id="jiPin" v-show="jpBtn" @click="JipinX">
+        <img src="http://img.jibai.com/mstatic/img/jp.png"/>
+        <div>祭品</div>
+    </div>
+
+    <div class="footer" @click="fbzs" v-show="fbInput">
+        <span class="zs">
+            <img src="http://img.jibai.com/mstatic/images/zs.png"/>
+        </span>
+        <div class="fb">
+            <div class="tex">
+                <div>在这里可以查看和发表追思</div>
+            </div>
+            <p>发表</p>
+        </div>
+    </div>
+
+    <div class="off" :style="styleOFF" @click="Off">
+        <img src="http://img.jibai.com/mstatic/images/off.png"/>
+    </div>
+
+    <!--祭品栏-->
+    <div v-cloak class="jpL" :style="styleJpl">
+        <div class="tabUlDiv">
+            <ul class="nav_bar" v-show="navShow" id="tabUl">
+                <li v-for="(item, index) in JPitems" @click="JPLi(item, index)" :key="item.id" :class='{class1:(index+1)==border}'>
+                    {{item.name}}
+                </li>
+            </ul>
+        </div>
+        <span class="more" v-show="moreShow" @click="More">更多</span>
+        <div class="splb splb1">
+            <ul class="splb_ul">
+                <li v-for="(item, index) in items" @click="toggleS(item, index)" :key="item.id">
+                    <div class="jpTop" :class='{class1Jp:index==jpTopborder}'>
+                        <p>{{item.name}}</p>
+                        <img :src="'http://img.jibai.com/mstatic' + item.img"/>
+                        <div class="ax">爱心+1</div>
+                        <div class="Mtime">
+                            <div class="Maney">
+                                <span>售价</span>
+                                <img class="sjfb" src="http://img.jibai.com/mstatic/img/pay0.png"/>
+                                <p>{{item.price}}</p>
+                            </div>
+                            <div class="Time">
+                                <span>时效</span>
+                                <p v-if="item.service_life/3600 <= 24">{{item.service_life/3600}}小时</p>
+                                <p v-else>{{item.service_life/3600/24}}天</p>
+                            </div>
+                        </div>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <!--model-->
+    <div v-cloak class="model" id="Buy" v-show="toggle">
+        <div class="card">
+            <div class="cardTop">
+                <div class="commodity">
+                    <img :src="Carddata.img"/>
+                </div>
+                <div class="commXq">
+                    <div class="commName">{{Carddata.name}}</div>
+                    <div class="commAx">爱心 + 1</div>
+                </div>
+            </div>
+            <span class="gm_claose" @click="modelC">
+                <img src="http://img.jibai.com/mstatic/img/icon_closed.png"/>
+            </span>
+            <div v-cloak class="cardCen">
+                <div class="cardCen_Top">
+                    <div class="jsq">
+                        <span>数量：</span>
+                        <div class="jsqK">
+                            <!--<el-input-number v-model="num1" @change="handleChange" :min="1" :max="100"-->
+                            <!--label="描述文字"></el-input-number>-->
+                            <input type="text" id="count" class="num" v-model="num1"  min="1" max="10" />
+                            <input type="button" value="-" class="startBtn" @click="stopCount" />
+                            <input type="button" value="+" class="stopBtn"  @click="startCount" />
+                        </div>
+                    </div>
+                    <div class="shiX">
+                        <span style="display: inline-block;float: left;margin-top: 8px;">时效：</span>
+                        <div class="shixK" v-if="Carddata.service_life/3600 <= 24">
+                            <span v-cloak>{{Carddata.service_life/3600}}</span>
+                            <p>小时</p>
+                        </div>
+                        <div class="shixK" v-else>
+                            <span v-cloak>{{Carddata.service_life/3600/24}}</span>
+                            <p>天</p>
+                        </div>
+                    </div>
+                    <div class="shiX">
+                        <span>总价：</span>
+                        <div class="shixK zongJ">
+                            <!--<img src="http://img.jibai.com/mstatichttp://img.jibai.com/mstatic/img/icon_fubi.png"/>-->
+                            <span v-cloak>{{Carddata.price * num1}}</span>
+                            <p>元</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="cardCen_Cen">
+                    <div class="cardCen_Cen_top">功能介绍：</div>
+                    <p>{{Carddata.intro}}</p>
+                </div>
+                <div class="payMethod">
+                    <div class="payMethodTop">请选择支付方式</div>
+                    <div class="payMethodCen">
+                        <label v-for="(item, index) in payM" :key="item.id" @click="checked(item, index)">
+                            <input type="radio" :checked='item.checked' name="pay"/>
+                            <div class="radioL">
+                                <img :src="'http://img.jibai.com/mstatic/img/pay' + item.id + '.png'"/>
+                                <span>{{item.name}}</span>
+                            </div>
+                            <div v-if="item.name == '余额'" class="radioC">
+                                (剩余 {{item.balance}} 元)
+                            </div>
+                            <div v-else-if="item.name == '福币'" class="radioC">
+                                (剩余 {{item.balance}} 个)
+                            </div>
+                            <div class="radioR">
+                                <img :src="'http://img.jibai.com/mstatic/img/radio' + item.checked + '.png'"/>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+                <div class="cardCen_Foot" @click="Buy">
+                    <!--<img src="http://img.jibai.com/mstatichttp://img.jibai.com/mstatic/img/button_buy.png"/>-->
+                    <p>购买</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--分享-->
+    <div v-cloak class="wxModel" v-show="wxModel" @click="wxModel = !wxModel">
+        <img src="/img/fenXL.png"/>
+    </div>
+    <!--购买成功-->
+    <div v-cloak class="buySuccess" v-show="buySuccess">
+        <img class="guangS" src="http://img.jibai.com/mstatic/img/BuyS.png"/>
+        <div class="sxDiv">
+            <img class="shoping" :src="Carddata.img"/>
+        </div>
+        <div class="buyBtn">
+            <img src="http://img.jibai.com/mstatic/img/buysBtn.png"/>
+        </div>
+    </div>
+    <!--追思记录-->
+    <div v-cloak class="records" v-show="zsRecords">
+        <div class="recordsBody">
+            <div class="recordsTop">追思</div>
+            <div class="liBody" v-cloak>
+                <ul :class="{anim:animate==true}">
+                    <li v-for="item in zsItems" :key="item.name">
+                        <div class="liLeft">
+                            <div class="tx">
+                                <img :src="item.Tximg.indexOf('imgs0.zupu.cn')!=-1 && item.Tximg.indexOf('!')==-1  ? item.Tximg + '!msquare': item.Tximg">
+                            </div>
+                        </div>
+                        <div class="liCenterTop">
+                            <p>{{ item.name }}</p>
+                            <div class="liRight">{{item.time}}</div>
+                        </div>
+                        <div class="Nr">
+                            <span class="zsNr zsLi">{{item.Nr}}</span>
+                            <span v-show="!item.zhuiS" class="jpName zsLi">{{item.Jp}}</span>
+                            <img v-show="!item.zhuiS" class="jpImg zsLi" :src="item.Jpimg"/>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+            <div class="Footer" v-cloak>
+                <div class="inputK">
+                    <input type="" name="content" id="content" v-model="recordsMessage">
+                </div>
+                <div class="fbBtn" @click="send">发送</div>
+            </div>
+            <div class="recordsBack" @click="recordsBack">
+                <img src="http://img.jibai.com/mstatic/img/bBack.png"/>
+            </div>
+        </div>
+        <div class="zsRight" @click="recordsBack"></div>
+    </div>
+    <div class="toast" v-show="toast" v-text="toastM">
+
+    </div>
+    <!--提示登录框-->
+    <div class="loginModel" v-show="loginModel">
+        <div class="login">
+            <div class="loginTop">您还没有登录，请先登录</div>
+            <div class="okBtn" @click="okLogin">好的</div>
+            <span class="closeLogin" @click="loginModel = false">
+                <img src="http://img.jibai.com/mstatic/img/button_closed.png"/>
+            </span>
+        </div>
+    </div>
+    <!--地图-->
+    <div class="map" v-show="mapShow">
+        <div class="mapDiv">
+            <ul :style="{width: mapWidth + 'rem'}">
+                <li v-for="item in sceneList" v-key="item.id" @click="mapChange(item.id)">
+                    <img :src="'http://img.jibai.com/mstatic' + item.thumbnailImg"/>
+                    <div class="mapName" v-text="item.name">陵园</div>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <!--微信内部分享-->
+    <div class="fxModel" v-show="wxFxModel">
+        <div class="Iknow" @click="wxFxModel = false">我知道了</div>
+    </div>
+
+
+</div>
+<script src="http://img.jibai.com/mstatic/js/minVue.js"></script>
+<script src="http://img.jibai.com/mstatic/js/clipboard.min.js"></script>
+<!-- import JavaScript -->
+<script src="http://img.jibai.com/mstatic/js/weixin-1.4.0.js"></script>
+<script src="http://img.jibai.com/mstatic/js/worship/three.min.js"></script>
+<script src="http://img.jibai.com/mstatic/js/jquery-1.8.3.min.js"></script>
+<script src="http://img.jibai.com/mstatic/js/worship/TrackballControls.js"></script>
+<script src="http://img.jibai.com/mstatic/js/worship/DragControls.js"></script>
+
+<script src="/js/worship/panorama.js"></script>
+
+<script src="/js/worship/vconsole.min.js"></script>
+<script>
+    var sceneList = [{"id":206,"createdAt":"2018-10-15 17:36:26","updatedAt":"2018-10-15 17:36:26","name":"\u9675\u56ED\u51FA\u53E3","type":"normal","sceneImg":"\/images\/scene\/normal\/lingyuanrukou\/\/lingyuanrukou_","thumbnailImg":"\/images\/scene\/normal\/suoluetu\/lingyuanrukou.jpg","code":null,"shopping":false,"fov":0,"new":false},{"id":201,"createdAt":"2018-10-15 17:36:26","updatedAt":"2018-10-15 17:36:26","name":"\u9675\u56ED\u5165\u53E3","type":"normal","sceneImg":"\/images\/scene\/normal\/lingyuanchukou\/lignyuanchukou_","thumbnailImg":"\/images\/scene\/normal\/suoluetu\/lingyuanchukou.jpg","code":null,"shopping":false,"fov":0,"new":false},{"id":205,"createdAt":"2018-10-15 17:36:26","updatedAt":"2018-10-15 17:36:26","name":"\u796D\u62DC","type":"normal","sceneImg":"\/images\/scene\/normal\/jibai\/jibai_","thumbnailImg":"\/images\/scene\/normal\/suoluetu\/jibai.jpg","code":null,"shopping":true,"fov":180,"new":false},{"id":204,"createdAt":"2018-10-15 17:36:26","updatedAt":"2018-10-15 17:36:26","name":"\u5893\u5730","type":"normal","sceneImg":"\/images\/scene\/normal\/mudi\/mudi_","thumbnailImg":"\/images\/scene\/normal\/suoluetu\/mudi.jpg","code":null,"shopping":false,"fov":180,"new":false},{"id":203,"createdAt":"2018-10-15 17:36:26","updatedAt":"2018-10-15 17:36:26","name":"\u796D\u5802","type":"normal","sceneImg":"\/images\/scene\/normal\/jitang\/jitang_one_","thumbnailImg":"\/images\/scene\/normal\/suoluetu\/jitang-one.jpg","code":null,"shopping":true,"fov":180,"new":false},{"id":207,"createdAt":"2018-10-15 17:36:26","updatedAt":"2018-10-15 17:36:26","name":"\u706B\u4F9B","type":"normal","sceneImg":"\/images\/scene\/normal\/huogong\/shaoxianghuogong_","thumbnailImg":"\/images\/scene\/normal\/suoluetu\/huogong.jpg","code":null,"shopping":true,"fov":180,"new":false},{"id":202,"createdAt":"2018-10-15 17:41:48","updatedAt":"2018-10-15 17:41:48","name":"\u5927\u6BBF","type":"normal","sceneImg":"\/images\/scene\/normal\/jitang\/jitang_2_","thumbnailImg":"\/images\/scene\/normal\/suoluetu\/dadian.jpg","code":"mudi","shopping":false,"fov":180,"new":false}];
+    var memorial = {"id":90,"createdAt":"2018-11-01 11:00:27","updatedAt":"2018-11-01 11:00:27","name":"\u897F\u95E8\u6625\u96EA\u548C\u53F6\u5B64\u57CE\u7684\u7EAA\u5FF5\u9986","intro":null,"creatorId":"eae723a2-fbf7-41fc-8608-a5ea9f4a09f4","creatorIPAddress":"47.97.34.140","type":"two","maxType":"normal","avatar":"https:\/\/imgs0.zupu.cn\/common\/avatar\/8eb2f494-bf3f-4487-8b95-92b4b7f085ec.blob","password":"0","hot":22,"lastModify":"2018-11-01 11:00:27","sort":null,"status":"normal","departedSaints":[{"id":107,"createdAt":"2018-11-01 11:00:27","updatedAt":"2018-11-01 11:00:27","name":"\u897F\u95E8\u6625\u96EA","bornAt":null,"bornDesc":"","bornAreaCode":null,"bornAddress":null,"diedAt":null,"diedDesc":"","diedAreaCode":null,"diedAddress":null,"sex":0,"avatar":"\/images\/default_portrait_male.png","intro":null,"individualId":null,"new":false},{"id":108,"createdAt":"2018-11-01 11:00:27","updatedAt":"2018-11-01 11:00:27","name":"\u53F6\u5B64\u57CE","bornAt":null,"bornDesc":"","bornAreaCode":null,"bornAddress":null,"diedAt":null,"diedDesc":"","diedAreaCode":null,"diedAddress":null,"sex":1,"avatar":"\/images\/default_portrait_female.png","intro":null,"individualId":null,"new":false}],"public":true,"new":false};
+    var favor = false;
+    var contribution = 0;
+    var hot = 22;
+    var avatar = "https:\/\/imgs0.zupu.cn\/common\/avatar\/8eb2f494-bf3f-4487-8b95-92b4b7f085ec.blob";
+    var vip = false;
+    var islogin = false;
+    var type = "two";
+    var wxPay = null;
+    var wxPayOrderId = null;
+    var app = null;
+    var sharename = "\u897F\u95E8\u6625\u96EA\u548C\u53F6\u5B64\u57CE\u7684\u7EAA\u5FF5\u9986".replace("的纪念馆", "").replace("纪念馆", "");
+    sharename = sharename + "纪念馆," + sharename + "纪念网," + sharename + "网墓";
+    var shareImgUrl = "https:\/\/imgs0.zupu.cn\/common\/avatar\/8eb2f494-bf3f-4487-8b95-92b4b7f085ec.blob";
+    var val = new Vue({
+        el: '#app',
+        data: {
+            num1: 1,
+            payM: [],
+            LV: "",
+            vipG: '',
+            Gtype: '',
+            payMethied: 0,//支付方式对应上面payM中的id
+            border: 1,
+            zsItems: [],
+            jpTopborder: 0,
+            LvWidth: '',
+            recordsMessage: '',
+            toastM: '',
+            mapWidth: '',
+            avatar: '',
+            APP: null,
+            offSafe: true,
+            onSafe: false,
+            isLogin: null,
+            wxChart: null,
+            wxFxModel: false,
+            mapShow: false,
+            loginModel: false,
+            fbInput: true,
+            toast: false,
+            jpBtn: true,
+            zsRecords: false,
+            buySuccess: false,
+            Load: true,
+            wfGd: true,
+            animate: false,
+            loading: true,
+            guanZhu: true,
+            isActive: true,
+            message: '',
+            fzUrls: '',
+            toggle: false,//暂时
+            wxModel: false,
+            moreShow: true,
+            navShow: true,
+            sceneList: [],//场景值
+            styleOFF: {
+                display: "none",
+                bottom: "38%",
+            },
+            off1: false,
+            items: [],
+            Carddata: {},
+            styleOff: {
+                display: "none",
+                bottom: "10rem"
+            },
+            styleJpl: {
+                display: "none",
+                bottom: "0",
+                height: "auto"
+            },
+            wf_items: [],
+            productsAndCategory:null,
+            JPitems: [],
+            ulWidth: '',
+            styleBj: {}
+        },
+        created: function () {
+        //    创建时执行
+            //判断是否APP
+            this.APP = app;
+            //判断是否登录
+            this.isLogin = islogin;
+            //判断是否vip
+            this.vipG = vip;
+            //判断是否已关注
+            this.guanZhu = !favor;
+            //判断单双人馆
+            this.Gtype = type;
+            //赋值头像
+            if(this.avatar.indexOf("imgs0.zupu.cn")!=-1&&this.avatar.indexOf("!")==-1){
+                this.avatar = attr+"!msquare"
+            } else {
+                this.avatar = avatar;
+            }
+
+            if(vip && type == "one") {//单人vip馆
+                this.styleBj = {
+                    backgroundImage: "url(" +("http://img.jibai.com/mstatic/img/vipD.jpg") + ")",
+                }
+            } else if(!vip && type == "one") {//单人普通馆
+                this.styleBj = {
+                    backgroundImage: "url(" +("http://img.jibai.com/mstatic/img/putBj.jpg") + ")",
+                }
+            } else if(vip && type == "two") {//双人vip馆
+                this.styleBj = {
+                    backgroundImage: "url(" +("http://img.jibai.com/mstatic/img/ptTwo.jpg") + ")",
+                }
+
+            } else if(!vip && type == "two") {//双人普通馆
+                this.styleBj = {
+                    backgroundImage: "url(" +("http://img.jibai.com/mstatic/img/ptTwo.jpg") + ")",
+                }
+            }
+        },
+        mounted: function () {
+            var self = this;
+            self.gunDong();
+            self.isWeiXin();
+            this.Load = false;
+            this.sTO();
+            this.fzUrls = window.location.href;
+            this.sceneList = sceneList;
+            var mapLen = this.sceneList.length;
+            this.mapWidth = mapLen*6;
+
+            //判断LV
+            if (1 < hot < 99) {
+                this.LV = 1;
+                this.LvWidth = (1 / 7 * 100) + "%"
+            } else if (100 < hot < 999) {
+                this.LV = 2;
+                this.LvWidth = (2 / 7 * 100) + "%"
+            } else if (1000 < hot < 4999) {
+                this.LV = 3;
+                this.LvWidth = (3 / 7 * 100) + "%"
+            } else if (5000 < hot < 9999) {
+                this.LV = 4;
+                this.LvWidth = (4 / 7 * 100) + "%"
+            } else if (10000 < hot < 49999) {
+                this.LV = 5;
+                this.LvWidth = (5 / 7 * 100) + "%"
+            } else if (50000 < hot < 99999) {
+                this.LV = 6;
+                this.LvWidth = (6 / 7 * 100) + "%"
+            } else if (hot > 100000) {
+                this.LV = 7;
+                this.LvWidth = (7 / 7 * 100) + "%"
+            }
+            //判断是否微信购买商品
+            if(wxPay && !self.wxChart) {
+                this.queryWxPay();
+            }
+        },
+        methods: {
+            //H5微信订单查询
+            queryWxPay: function () {
+                var self = this;
+                $.ajax({
+                    url: '/query',
+                    type: 'POST',
+                    data: {
+                        id: wxPayOrderId
+                    }
+                })
+                    .done(function (data) {
+                        if (data.code == 0) {
+                            self.buySuccess = true;
+                            self.Carddata.img = data.data;
+                            setTimeout(function () {
+                                self.buySuccess = false;
+                            }, 3000)
+                        }else{
+                            this.queryWxPay();
+                        }
+                    });
+            },
+            //add计数器
+            startCount: function() {
+                this.num1 = this.num1+1;
+                if(this.num1 > 10) {
+                    this.num1 = 10
+                }
+            },
+            //计数器--
+            stopCount: function() {
+                this.num1 = this.num1-1;
+                if(this.num1 < 1) {
+                    this.num1 = 1
+                }
+            },
+            //打开3d
+            onThreeD:function() {
+                //打开重力感应
+                opanorama.bindOrienter();
+                this.offSafe = !this.offSafe;
+                this.onSafe = !this.onSafe;
+            },
+            //替换背景图
+            panoramaOpne:function() {
+                $("#panorama_").css("visibility","inherit");
+                $("#panorama").remove("background-image");
+            },
+            //关闭3d
+            offThreeD:function() {
+                //关闭重力感应
+                this.offSafe = !this.offSafe;
+                this.onSafe = !this.onSafe;
+                opanorama.unbindOrienter();
+            },
+            //场景切换
+            mapChange:function(id) {
+                opanorama.initMemorialScene(id,true)
+                this.productsAndCategory=null;
+                this.MapToggle();
+            },
+            //地图场景显示
+            MapToggle: function() {
+                this.mapShow = !this.mapShow;
+                var mapShow = this.mapShow;
+                if(mapShow) {
+                    opanorama.unbind();
+                    this.styleJpl.display = "none";
+                    this.styleOFF.display = "none";
+                } else {
+                    opanorama.bind()
+                }
+            },
+            //判断是否是微信浏览器的函数
+             isWeiXin: function(){
+                 var that = this;
+                //window.navigator.userAgent属性包含了浏览器类型、版本、操作系统类型、浏览器引擎类型等信息，这个属性可以用来判断浏览器类型
+                var ua = window.navigator.userAgent.toLowerCase();
+                //通过正则表达式匹配ua中是否含有MicroMessenger字符串
+                if(ua.match(/MicroMessenger/i) == 'micromessenger'){
+                    that.wxChart = true
+                }else{
+                    that.wxChart = false
+                }
+            },
+            //点击分享
+            fenXiang: function () {
+                var that = this, wxChart = that.wxChart, APP = this.APP;
+                if(wxChart) {
+                    //微信浏览器
+                    that.wxFxModel = true;
+                } else if(APP) {
+                    //APP打开
+                    var shareData = {
+                        title: sharename,
+                        desc: '3D实景祭拜环境，缅怀追思逝去之人，传递超越时空的思念',
+                        link: window.location.href,
+                        imgUrl: shareImgUrl,
+                    };
+                    shareData = JSON.stringify(shareData);
+                    window.location.href = "http://m.jibai.share?shareData="+shareData;
+                } else {
+                    that.wxModel = true;
+                }
+            },
+            //toast控制
+            Toast: function () {
+                var that = this;
+                that.toast = true
+                setTimeout(function () {
+                    that.toast = false;
+                }, 2000)
+            },
+            //发表
+            send: function () {
+                var that = this;
+                var id = 90;
+                var content = that.recordsMessage;
+                if (content) {
+                    $.ajax({
+                        url: "/comment/addComment",
+                        type: "POST",
+                        data: {
+                            id: id,
+                            content: content,
+                            // redirectUrl: redirectUrl
+                        }
+                    })
+                        .done(function (data) {
+                            that.recordsMessage = '';
+                            if (data.code == 0) {
+                                that.fbzs();
+                            } else {
+                                that.toastM = data.message
+                                that.Toast();
+                            }
+
+                        })
+                } else {
+                    that.toastM = "输入追思信息才可以发表哦"
+                    that.Toast();
+                }
+            },
+            //追思记录消失
+            recordsBack: function () {
+                this.zsRecords = false;
+                opanorama.bind()
+            },
+            //延时执行
+            sTO: function () {
+                var that = this;
+                setTimeout(function () {
+                    that.wfGd = false;
+                }, 10000)
+            },
+
+            //无缝滚动
+            Scroll: function () {
+                var that = this;
+                var $wf_div = $('.wf-div'),
+                    $ul = $('.Ul'),
+                    // width = $ul.width(),
+                    width = that.ulWidth,
+                    timer;
+                var scr_left = $wf_div.scrollLeft();
+                // $ul.after($ul.clone()).after($ul.clone());
+                timer = setInterval(function () {
+                    if (scr_left >= width) {
+                        scr_left = 0;
+                    }
+                    $wf_div.scrollLeft(scr_left++);
+                }, 30);
+
+            },
+            //选择购买方式
+            checked: function (item, index) {
+                var that = this;
+                $.each(that.payM, function (i, item) {
+                    item.checked = false;
+                });
+                that.payM[index].checked = true;
+                that.payMethied = item.id
+
+            },
+            //购买页面，计数器
+            handleChange: function (value) {
+                this.num1 = value;
+            },
+            //显示发表框
+            fbzs: function () {
+                var id = 90
+                var page = null;
+                var that = this;
+                opanorama.unbind();
+                $.ajax({
+                    url: "/comment/getMemorialComment/" + id,
+                    type: "POST",
+                    data: {
+                        id: id,
+                        page: page
+                    }
+                })
+                    .done(function (data) {
+                        that.zsItems = data.data;
+                    });
+                this.zsRecords = true;
+            },
+            //跳出祭品框、改变祭品
+            JipinX: function () {
+                var that = this, len = that.items.length;
+                opanorama.unbind();
+                that.jpTopborder = 0;
+                that.border = 1;
+                that.fbInput = false;
+                this.styleOFF.display = "block";
+                this.moreShow = "block";
+                this.navShow = true;
+                this.styleJpl = {
+                    display: "block",
+                    top: "66%",
+                };
+                that.jiPinZ(opanorama.sceneId);
+            },
+            //获取祭品类别和当前祭品展示
+            jiPinZ:function(id,name) {
+                var that = this;
+                if(that.productsAndCategory!=null){
+                    that.JPitems = that.productsAndCategory.categories;
+                    if(name){
+                        that.items = that.productsAndCategory[name];
+                    }else{
+                        console.log(that.productsAndCategory.categories);
+                        that.items = that.productsAndCategory[that.productsAndCategory.categories[0].name];
+                    }
+
+                }else{
+                    $.post('/products', {
+                        page: 0,
+                        size: 12,
+                        type: 0,
+                        sceneIds: id,
+                        category: name
+                    }, function (data) {
+                        console.info(data)
+                        that.productsAndCategory=data;
+                        that.JPitems = data.categories;
+                        that.items = data.product;
+                    });
+                }
+
+            },
+            //关闭祭品框
+            Off: function () {
+                opanorama.bind();
+                this.fbInput = true;
+                this.styleOFF = {
+                    display: "none",
+                    bottom: "38%"
+                };
+                this.styleJpl = {
+                    display: "none",
+                    bottom: "0",
+                }
+            },
+            //更多祭品
+            More: function () {
+                // opanorama.unbind()
+                this.styleOFF.bottom = "62%";
+                this.styleJpl.top = "35%";
+                this.moreShow = false;
+            },
+
+            //祭品类别
+            JPLi: function (item, index) {
+                // opanorama.unbind()
+                var that = this, name = item.name;
+                that.jpTopborder = 0;
+                that.jiPinZ(opanorama.sceneId,name);
+                this.border = index+1;
+            },
+            pay: function (memorialId, productId, number, payType, sceneId) {
+                var self = this;
+                $.ajax({
+                    url: '/pay',
+                    type: 'GET',
+                    data: {
+                        memorialId: memorialId,
+                        productId: productId,
+                        number: number,
+                        payType: payType,
+                        sceneId: sceneId,
+                        redirectUrl: window.location.href
+                    }
+                })
+                    .done(function (data) {
+                        opanorama.unbind();
+                        var result = data.data;
+                        switch (data.code) {
+                            case 0 : //微信公共号支付
+                                appId = result.appId;
+                                timeStamp = result.timeStamp;
+                                nonceStr = result.nonceStr;
+                                package = result.package;
+                                signType = result.signType;
+                                paySign = result.paySign;
+                                //订单信息
+                                var orderId = result.orderId;
+
+                                //在这判断是那种商品，添加在什么地方
+                                if (typeof WeixinJSBridge == "undefined") {
+                                    if (document.addEventListener) {
+                                        document.addEventListener('WeixinJSBridgeReady',
+                                            self.onBridgeReady(orderId), false);
+                                    } else if (document.attachEvent) {
+                                        document.attachEvent('WeixinJSBridgeReady',
+                                            self.onBridgeReady(orderId));
+                                        document.attachEvent('onWeixinJSBridgeReady',
+                                            self.onBridgeReady(orderId));
+                                    }
+                                } else {
+                                    self.onBridgeReady(orderId);
+                                }
+                                break;
+
+                            case 1 ://余额支付
+                                //余额支付成功后商品记录信息--单条
+                                opanorama.addCurrentProductRecords([data.data.productRecord]);
+                                $.post('/product/records', {
+                                    page: 0,
+                                    size: 5,
+                                    memorialId: memorial.id
+                                }, function (data) {
+                                    self.wf_items = data;
+                                    if (data.length > 0) {
+                                        self.wfGd = true;
+                                        self.sTO();
+                                        self.buySuccess = true;
+                                        setTimeout(function () {
+                                            self.buySuccess = false;
+                                        }, 3000)
+                                    } else {
+                                        self.wfGd = false;
+                                    }
+                                    //绘制商品列表
+                                });
+                                break;
+
+                            case 2 ://福币支付
+                                //福币支付成功后的商品记录信息--单条
+                                opanorama.addCurrentProductRecords([data.data.productRecord]);
+                                $.post('/product/records', {
+                                    page: 0,
+                                    size: 5,
+                                    memorialId: memorial.id
+                                }, function (data) {
+                                    self.wf_items = data;
+                                    if (data.length > 0) {
+                                        self.wfGd = true;
+                                        self.sTO();
+                                        self.buySuccess = true;
+                                        setTimeout(function () {
+                                            self.buySuccess = false;
+                                        }, 3000)
+                                    } else {
+                                        self.wfGd = false;
+                                    }
+                                    //绘制商品列表
+                                });
+                                break;
+
+                            case 3 : //微信H5支付
+                                window.location.href = data.data;
+                                setTimeout(function () {
+                                    var u = navigator.userAgent;
+                                    if (u.indexOf('Android') > -1 || u.indexOf('Linux') > -1) {
+                                        location.reload();
+                                    }
+                                }, 3000);
+                                break;
+
+                            case 800 :
+                                window.location.href = data.data;
+                                break;
+
+                            case 604 :
+                                window.location.href = data.data;
+                                break;
+
+                            case 605 :
+                                self.toastM = data.message
+                                self.Toast();
+                                break;
+
+                            case 601 :
+                                self.toastM = data.message
+                                self.Toast();
+                                break;
+
+                            case 602 :
+                                self.toastM = data.message
+                                self.Toast();
+                                break;
+                            case 603 :
+                                self.toastM = data.message
+                                self.Toast();
+                                break;
+                            case 606 :
+                                self.toastM = data.message
+                                self.Toast();
+                                break;
+                            case 700 :
+                                self.toastM = data.message;
+                                self.Toast();
+                                break;
+                        }
+                    }).fail(function (data) {
+                    self.toastM = data;
+                    self.Toast();
+                })
+            },
+            onBridgeReady: function (orderId) {
+                var self = this;
+                jWeixin.invoke('getBrandWCPayRequest', {
+                        "appId": appId,     //公众号名称,由商户传入
+                        "timeStamp": timeStamp,         //时间戳
+                        "nonceStr": nonceStr, //随机串
+                        "package": package,
+                        "signType": signType,         //微信签名方式：
+                        "paySign": paySign //微信签名
+                    },
+                    function (res) {
+                        if (res.err_msg == "get_brand_wcpay_request:ok") {
+                            //支付成功
+                            //微信支付--商品记录查询
+                            $.ajax({
+                                url: '/pay/getWxProductRecord',
+                                type: 'POST',
+                                data: {
+                                    orderId: orderId
+                                }
+                            })
+                                .done(function (data) {
+                                    var result = data.data;
+                                    if (data.code == 0) {
+                                        //微信支付以后的商品展示
+                                        var productRecord = data.data.productRecord;
+                                        //余额支付成功后商品记录信息--单条
+                                        addRecords(productRecord)
+
+                                        $.post('/product/records', {
+                                            page: 0,
+                                            size: 5,
+                                            memorialId: memorial.id
+                                        }, function (data) {
+                                            self.wf_items = data;
+                                            if (data.length > 0) {
+                                                self.wfGd = true;
+                                                self.sTO();
+                                                self.buySuccess = true;
+                                                setTimeout(function () {
+                                                    self.buySuccess = false;
+                                                }, 3000)
+                                            } else {
+                                                self.wfGd = false;
+                                            }
+                                            //绘制商品列表
+                                        });
+                                    } else {
+                                        self.toastM = data.message;
+                                        self.Toast();
+                                    }
+                                });
+                        } else if (res.err_msg == "get_brand_wcpay_request:cancel") {
+                            //支付取消
+                        } else if (res.err_msg == "get_brand_wcpay_request:fail") {
+                            //支付失败
+                            WeixinJSBridge.call('closeWindow');
+                        } //使用以上方式判断前端返回,微信团队郑重提示：res.err_msg将在用户支付成功后返回ok,但并不保证它绝对可靠。
+                    });
+            },
+
+            //跳出购买框
+            toggleS: function (item, index) {
+                var that = this;
+                opanorama.unbind()
+                that.jpTopborder = index;
+
+                this.Carddata = item;
+                var id = null;
+                var islogin = that.isLogin;
+                if (islogin == true) {
+                    $.ajax({
+                        url: "/getBalance/" + id,
+                        type: "POST"
+                    })
+                        .done(function (data) {
+                            that.payM = data.data;
+                            that.payM[0].checked = true;
+                            that.payMethied = 0;
+                        });
+                    this.toggle = true;
+                } else {
+                    that.payM = [
+                        {
+                            id: 1,
+                            checked: true,
+                            name: "微信",
+                        }
+                    ];
+                    that.payMethied = 1;
+                    this.toggle = true;
+                }
+
+            },
+            //关闭购买框
+            modelC: function () {
+                opanorama.bind();
+                this.toggle = false;
+                this.styleOff.display = "none";
+                $('#Buy').find('.el-input__inner').each(function () {
+                    $(this).val('1');
+                });
+                this.num1 = 1;
+            },
+            //购买按钮
+            Buy: function () {
+                var that = this;
+                opanorama.unbind();
+                var sceneId = opanorama.sceneId;
+                this.pay(memorial.id, this.Carddata.id, this.num1, that.payMethied, sceneId);
+                this.toggle = false;
+                this.num1 = 1;
+            },
+            //关注
+            guanZ: function () {
+                // opanorama.unbind()
+                var id = memorial.id;
+                var self = this;
+                var islogin = self.isLogin;
+                if(islogin) {//?redirectUrl=
+                    $.ajax({
+                        url: "/jng/favor/" + id,
+                        type: "POST"
+                    })
+                    .done(function (data) {
+                        if(data.code == 0) {
+                            self.toastM = "关注成功！";
+                            self.Toast();
+                            self.guanZhu = !self.guanZhu;
+                        }
+                    });
+
+                } else {
+                    this.loginModel = true;
+                }
+
+            },
+            //判断是否滚动
+            gunDong: function() {
+                var self = this;
+                //在这获取滚动记录的数组赋值给this.wf_items
+                $.post('/product/records', {page: 0, size: 5, memorialId: memorial.id}, function (data) {
+                    if (data.length > 0) {
+                        self.wf_items = data;
+                        self.wf_items.push(self.wf_items[0]);
+                        self.wf_items.push(self.wf_items[0]);
+                        self.ulWidth = self.wf_items.length * 380;
+                        self.wfGd = true;
+                        self.Scroll()
+                    } else {
+                        self.wfGd = false;
+                    }
+                    //绘制商品列表
+                });
+            },
+            //登录跳转
+            okLogin: function() {
+                window.location.href = '/login?redirectUrl=' + window.location.pathname;
+            },
+            //立即查看
+            ljCk: function () {
+                opanorama.unbind();
+                this.zsRecords = true;
+            },
+            shareFriend: function () {
+
+            },
+        }
+    })
+
+    var ua = navigator.userAgent || '';
+    var isMobile = ua.match(/(iPad).*OS\s([\d_]+)/)
+        || ua.match(/(iPhone\sOS)\s([\d_]+)/)
+        || ua.match(/Android/);
+    var longitude = 0;
+
+    var opanorama = new Opanorama()
+    opanorama.init({
+        offsetLongitude: 180,
+        offsetLatitude: 0,
+        fov: 90,
+        vue: val,
+        url: 'http://img.jibai.com/mstatic/images/scene/jitang_' + memorial.type + '.jpg',
+        memorial: memorial,
+        supportMouse: isMobile,        //是否支持鼠标
+        supportTouch: isMobile,         //是否支持手指滑动
+        supportOrient: true,
+        container: document.querySelector('.panorama1'),
+        onFrame: function (lon, lat) {
+            if (isMobile) {
+                return;
+            }
+            return {lon: lon + longitude, lat: lat}
+        }
+    });
+    //添加东西
+    // opanorama.addCurrentProductRecords(currentProductRecords);
+    // 初始化数据，灯光，排位，照片等！
+    // opanorama.initMemorial(memorial);
+    function addRecords(records) {
+        opanorama.addCurrentProductRecords([records]);
+    }
+
+    function contribution() {
+        //禁用供奉排行吧
+        // var id = 90;
+        // window.location.href = "/jng/getContributionList/" + id;
+    }
+</script>
+<script>
+    //优先考虑移动端
+    (function (doc, win, undefined) {
+        var docEl = doc.documentElement,
+            resizeEvt = 'orientationchange' in win ? 'orientationchange' : 'resize',
+            recalc = function () {
+                var clientWidth = docEl.clientWidth;
+                if (clientWidth === undefined) return;
+                docEl.style.fontSize = 20 * (clientWidth / 320) + 'px';
+            };
+        if (doc.addEventListener === undefined) return;
+        win.addEventListener(resizeEvt, recalc, false);
+        doc.addEventListener('DOMContentLoaded', recalc, false);
+    })(document, window);
+</script>
+<script>
+    <!--有关祭品的事件-->
+    var $jpL = $(".jpL");
+
+    //安卓页面被顶起
+    var oHeight = $(document).height();
+    $(window).resize(function () { //ios软键盘弹出不会触发resize事件
+        if ($(document).height() < oHeight) {
+            $jpL.css({"top": "80%"});
+        } else {
+            $jpL.css({"position": "fixed", "top": "35%"}); //adsolute或fixed，看你布局
+        }
+    });
+</script>
+<script type="text/javascript">
+    $(function () {
+        var sharename = "\u897F\u95E8\u6625\u96EA\u548C\u53F6\u5B64\u57CE\u7684\u7EAA\u5FF5\u9986".replace("的纪念馆", "").replace("纪念馆", "");
+        sharename = sharename + "纪念馆," + sharename + "纪念网," + sharename + "网墓";
+        var shareImgUrl = "https:\/\/imgs0.zupu.cn\/common\/avatar\/8eb2f494-bf3f-4487-8b95-92b4b7f085ec.blob";
+        var ua = window.navigator.userAgent.toLowerCase();
+        //通过正则表达式匹配ua中是否含有MicroMessenger字符串
+        if(ua.match(/MicroMessenger/i) == 'micromessenger'){
+            // $("#shareButton").css("display", "none");
+        }
+        $.ajax({
+            url: "/weixin/share",
+            type: "POST",
+            data: {
+                url: location.href.split('#')[0]
+            }
+        }).done(function (data) {
+            var result = data.data;
+            wx.config({
+                debug: false,
+                appId: result.appId,
+                timestamp: result.timestamp,
+                nonceStr: result.nonce_str,
+                signature: result.signature,
+                jsApiList: ['onMenuShareAppMessage', 'onMenuShareTimeline']
+            });
+            var shareData = {
+                title: sharename,
+                desc: '3D实景祭拜环境，缅怀追思逝去之人，传递超越时空的思念',
+                link: window.location.href,
+                imgUrl: shareImgUrl,
+            };
+            wx.ready(function () {
+                wx.onMenuShareAppMessage({
+                    title: shareData.title,
+                    desc: shareData.desc,
+                    link: shareData.link,
+                    imgUrl: shareData.imgUrl,
+                    trigger: function (res) {
+                    },
+                    success: function (res) {
+                        // alert('已分享');
+                    },
+                    cancel: function (res) {
+                        // alert('已取消');
+                    },
+                    fail: function (res) {
+                        alert(JSON.stringify(res));
+                    }
+                });
+
+
+                wx.onMenuShareTimeline({
+                    title: shareData.title,
+                    desc: shareData.desc,
+                    link: shareData.link,
+                    imgUrl: shareData.imgUrl,
+                    trigger: function (res) {
+                    },
+                    success: function (res) {
+                        // alert('已分享');
+                    },
+                    cancel: function (res) {
+                        // alert('已取消');
+                    },
+                    fail: function (res) {
+                        alert(JSON.stringify(res));
+                    }
+                });
+            });
+
+            wx.onMenuShareAppMessage(shareData);
+            wx.onMenuShareTimeline(shareData);
+            wx.error(function (res) {
+                //打印错误消息。及把 debug:false,设置为debug:ture就可以直接在网页上看到弹出的错误提示
+            });
+        })
+    });
+</script>
+</body>
+
+</html>
