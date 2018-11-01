@@ -52,7 +52,7 @@ var initFunc = function () {
 
             // document.querySelector('#openCamera').style.display = 'none';
             // document.querySelector('#start').style.display = 'inline-block';
-            document.querySelector('#stop').style.display = 'inline-block';
+            // document.querySelector('#stop').style.display = 'inline-block';
         })
         .catch((err) => {
             console.info(err);
@@ -95,6 +95,7 @@ threeHelper.loadGLTF('asset/model/gltf/scene.gltf', ()=>{
 
     webAR.startRecognize((msg) => {
         console.log("message is ", msg);
+        document.querySelector('.header').style.display = 'block';
 
         threeHelper.scene.background = threeHelper.refractionCube;
         threeHelper.scene.visible = true;

@@ -14,7 +14,7 @@ body {
     left: 0;
     z-index: 1;
 }
-
+/* 
 #targetVideo{
     position: fixed;
     left: 0;
@@ -22,14 +22,44 @@ body {
     width: 200px;
     display: none;
     z-index: 20;
-}
-
+} */
+/* 
 #debug {
     position: absolute;
     top: 0;
     left: 0;
     z-index: 1000;
     color: #FF0000;
+} */
+
+.header{
+    position: fixed;
+    top: 10px;
+
+    width: 100%;
+    text-align: center;
+
+    display: none;
+
+    z-index: 100000;
+}
+
+.header .left{
+    left:5px;
+    background-image: url('../images/s_on.png');
+}
+
+.on{
+    background-image: url('../images/s_on.png');
+}
+
+.off{
+    background-image: url('../images/s_off.png');
+}
+
+.header .right{
+    right: 15px;
+    background-image: url('../images/s_off.png');
 }
 
 .footer {
