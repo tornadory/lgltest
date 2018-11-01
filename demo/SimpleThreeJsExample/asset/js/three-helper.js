@@ -15,6 +15,16 @@ const ThreeHelper = function () {
     this.renderer.domElement.setAttribute('class', 'mainCanvas');
     document.body.appendChild(this.renderer.domElement);
 
+    this.loadingManager = new THREE.LoadingManager();
+    this.loadingManager.onProgress = function ( item, loaded, total ) {
+        console.log( item, loaded, total );
+        let percent = loaded / total;
+        percent = percent.toFixed(2)*100;
+        let loadingText = document.getElementById("loadingTxt");
+        loadingText.innerText = "下载中..."+percent+"%";
+    };
+
+
     //cubemap
     var path = "asset/images/skybox0/";
     var format = '.jpg';
@@ -24,17 +34,17 @@ const ThreeHelper = function () {
         path + 'posz' + format, path + 'negz' + format
     ];
 
-    var reflectionCube = new THREE.CubeTextureLoader().load( urls );
-    reflectionCube.format = THREE.RGBFormat;
+    // this.reflectionCube = new THREE.CubeTextureLoader(this.loadingManager).load( urls );
+    // this.refractionCube.format = THREE.RGBFormat;
 
-    var refractionCube = new THREE.CubeTextureLoader().load( urls );
-    refractionCube.mapping = THREE.CubeRefractionMapping;
-    refractionCube.format = THREE.RGBFormat;
+    this.refractionCube = new THREE.CubeTextureLoader(this.loadingManager).load( urls );
+    this.refractionCube.mapping = THREE.CubeRefractionMapping;
+    this.refractionCube.format = THREE.RGBFormat;
 
     
 
     this.scene = new THREE.Scene();
-    this.scene.background = reflectionCube;
+    // this.scene.background = this.refractionCube;
     this.scene.add(new THREE.AmbientLight(0xFFFFFF));
 
     const control = new THREE.OrbitControls(this.camera, this.renderer.domElement);
@@ -61,15 +71,6 @@ const ThreeHelper = function () {
         });
     };
 
-    this.loadingManager = new THREE.LoadingManager();
-
-    this.loadingManager.onProgress = function ( item, loaded, total ) {
-        console.log( item, loaded, total );
-        let percent = loaded / total;
-        percent = percent.toFixed(2)*100;
-        let loadingText = document.getElementById("loadingTxt");
-        loadingText.innerText = "下载中..."+percent+"%";
-    };
     this.loadGLTF = function (modelUrl, callback) {
         const loader = new THREE.GLTFLoader(this.loadingManager);
         loader.load(modelUrl, (gltf) => {

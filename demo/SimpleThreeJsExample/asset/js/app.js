@@ -96,6 +96,7 @@ threeHelper.loadGLTF('asset/model/gltf/scene.gltf', ()=>{
     webAR.startRecognize((msg) => {
         console.log("message is ", msg);
 
+        threeHelper.scene.background = threeHelper.refractionCube;
         threeHelper.scene.visible = true;
 
         webAR.stopRecognize();
