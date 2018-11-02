@@ -50,7 +50,7 @@ var initFunc = function () {
                 openCamera(video, videoDevice.value, videoSetting);
             };
 
-            
+
             // document.querySelector('#start').style.display = 'inline-block';
             // document.querySelector('#stop').style.display = 'inline-block';
         })
@@ -84,44 +84,46 @@ var initFunc = function () {
 // }, false);
 
 threeHelper.scene.visible = false;
-threeHelper.loadGLTF('asset/model/gltf/scene.gltf', ()=>{
+threeHelper.loadGLTF('asset/model/gltf/scene.gltf', () => {
 
     var loadingUI = document.querySelector('#loadingUI');
     loadingUI.style.display = 'none';
-    
-    initFunc();
+
+    // initFunc();
 
     console.log("finished initFunc");
+    threeHelper.scene.background = threeHelper.refractionCube;
+    threeHelper.scene.visible = true;
 
-    webAR.startRecognize((msg) => {
-        console.log("message is ", msg);
-        document.querySelector('.header').style.display = 'block';
-        document.querySelector('#videoDevice').style.display = 'none';
-
-
-        threeHelper.scene.background = threeHelper.refractionCube;
-        threeHelper.scene.visible = true;
-
-        webAR.stopRecognize();
-
-        // alert('识别成功');
-        // document.getElementById('targetVideo' ).style.display = 'block';
-
-        // 识别成功后，从meta中取出model地址
-        // const meta = JSON.parse(window.atob(msg.meta));
-        // threeHelper.loadObject(meta.model);
-
-        // 加载本地模型
-        // threeHelper.loadObject('asset/model/trex_v3.fbx');
+    // webAR.startRecognize((msg) => {
+    //     console.log("message is ", msg);
+    //     document.querySelector('.header').style.display = 'block';
+    //     document.querySelector('#videoDevice').style.display = 'none';
 
 
-        // threeHelper.loadGLTF('asset/model/gltf/scene.gltf');
-        
-        
-        // threeHelper.movieGeometry.visible = true;
+    //     threeHelper.scene.background = threeHelper.refractionCube;
+    //     threeHelper.scene.visible = true;
 
-        // webAR.trace('加载模型');
-    });
+    //     webAR.stopRecognize();
+
+    //     // alert('识别成功');
+    //     // document.getElementById('targetVideo' ).style.display = 'block';
+
+    //     // 识别成功后，从meta中取出model地址
+    //     // const meta = JSON.parse(window.atob(msg.meta));
+    //     // threeHelper.loadObject(meta.model);
+
+    //     // 加载本地模型
+    //     // threeHelper.loadObject('asset/model/trex_v3.fbx');
+
+
+    //     // threeHelper.loadGLTF('asset/model/gltf/scene.gltf');
+
+
+    //     // threeHelper.movieGeometry.visible = true;
+
+    //     // webAR.trace('加载模型');
+    // });
 });
 
 

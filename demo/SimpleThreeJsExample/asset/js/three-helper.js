@@ -16,12 +16,12 @@ const ThreeHelper = function () {
     document.body.appendChild(this.renderer.domElement);
 
     this.loadingManager = new THREE.LoadingManager();
-    this.loadingManager.onProgress = function ( item, loaded, total ) {
-        console.log( item, loaded, total );
+    this.loadingManager.onProgress = function (item, loaded, total) {
+        console.log(item, loaded, total);
         let percent = loaded / total;
-        percent = percent.toFixed(2)*100;
+        percent = percent.toFixed(2) * 100;
         let loadingText = document.getElementById("loadingTxt");
-        loadingText.innerText = "下载中..."+percent+"%";
+        loadingText.innerText = "下载中..." + percent + "%";
     };
 
 
@@ -37,17 +37,24 @@ const ThreeHelper = function () {
     // this.reflectionCube = new THREE.CubeTextureLoader(this.loadingManager).load( urls );
     // this.refractionCube.format = THREE.RGBFormat;
 
-    this.refractionCube = new THREE.CubeTextureLoader(this.loadingManager).load( urls );
+    this.refractionCube = new THREE.CubeTextureLoader(this.loadingManager).load(urls);
     this.refractionCube.mapping = THREE.CubeRefractionMapping;
     this.refractionCube.format = THREE.RGBFormat;
 
-    
+
 
     this.scene = new THREE.Scene();
     // this.scene.background = this.refractionCube;
     this.scene.add(new THREE.AmbientLight(0xFFFFFF));
 
     const control = new THREE.OrbitControls(this.camera, this.renderer.domElement);
+    control.screenSpacePanning = false;
+
+    control.minDistance = 10;
+    control.maxDistance = 100;
+
+    control.minPolarAngle = Math.PI / 4;
+    control.maxPolarAngle = Math.PI / 2;
     control.update();
 
     this.clock = new THREE.Clock();
@@ -76,20 +83,20 @@ const ThreeHelper = function () {
         loader.load(modelUrl, (gltf) => {
             let object = gltf.scene;
             object.scale.setScalar(0.05);
-            object.position.set(0, 0, 0);
+            object.position.set(0, -8, 0);
             this.scene.add(object);
 
             var animations = gltf.animations;
-            if ( animations && animations.length ) {
-                object.mixer = new THREE.AnimationMixer( object );
+            if (animations && animations.length) {
+                object.mixer = new THREE.AnimationMixer(object);
                 this.mixers.push(object.mixer);
-                for ( var i = 0; i < animations.length; i ++ ) {
-                    var animation = animations[ i ];
-                    var action = object.mixer.clipAction( animation );
+                for (var i = 0; i < animations.length; i++) {
+                    var animation = animations[i];
+                    var action = object.mixer.clipAction(animation);
                     action.play();
                 }
             }
-            if(callback)
+            if (callback)
                 callback();
         })
     };
