@@ -79,8 +79,8 @@ const ThreeHelper = function () {
         const loader = new THREE.GLTFLoader(this.loadingManager);
         loader.load(modelUrl, (gltf) => {
             let object = gltf.scene;
-            object.scale.setScalar(0.05);
-            object.position.set(0, -8, 0);
+            object.scale.setScalar(0.1);
+            object.position.set(0, -20, 0);
             this.scene.add(object);
 
             var animations = gltf.animations;
