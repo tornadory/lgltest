@@ -9,45 +9,35 @@
 </head>
 
 <body>
-    <div class="header">
-        <div class="left">_</div>
-        <div class="right">_</div>
-    </div>
+    <img src="asset/images/muted.png" alt="" id="musicController" class="left">
+    <img src="asset/images/restart.png" alt="" id="restartScan" class="right">
+
     <div id="loadingUI" class="sk-wave">
         <div class="sk-rect sk-rect1"></div>
         <div class="sk-rect sk-rect2"></div>
         <div class="sk-rect sk-rect3"></div>
         <div class="sk-rect sk-rect4"></div>
         <div class="sk-rect sk-rect5"></div>
-        <span id="loadingTxt">下载中...0%</span>
+        <span>下载中...</span>
+        <span id="loadingTxt">0%</span>
     </div>
 
+    <audio preload="preload" id="bg_audio" src="asset/audio/bg.mp3" loop=""></audio>
     <video id="video" playsinline=""></video>
-    <!-- <video id="targetVideo" autoplay loop controls>
-        <source src="asset/videos/song.mp4" type="video/mp4">
-    </video> -->
-
 
     <div class="footer">
-        <!-- <input type="button" value="打开摄像头" id="openCamera" /> -->
         <select class="none" id="videoDevice"></select>
-        <!-- <input class="none" type="button" value="开始识别" id="start" /> -->
-        <!-- <input class="none" type="button" value="停止识别" id="stop" /> -->
     </div>
 
-    <!-- <script type="text/javascript" src="asset/libs/three/three.min.js"></script> -->
     <script type="text/javascript" src="js/three.min.js"></script>
     <script type="text/javascript" src="asset/js/adapter.js"></script>
     <script type="text/javascript" src="asset/js/webar.js"></script>
-    <script type="text/javascript" src="asset/js/three-helper.js"></script>
     <script type="text/javascript" src="js/loaders/GLTFLoader.js"></script>
     <script type="text/javascript" src="js/inflate.min.js"></script>
     <script type="text/javascript" src="js/controls/OrbitControls.js"></script>
-    <!-- <script type="text/javascript" src="asset/libs/three/FBXLoader.js"></script>
-<script type="text/javascript" src="asset/libs/three/inflate.min.js"></script>
-<script type="text/javascript" src="asset/libs/three/OrbitControls.js"></script> -->
-    <script type="text/javascript" src="asset/js/app.js"></script>
 
+    <script type="text/javascript" src="asset/js/three-helper.js"></script>
+    <script type="text/javascript" src="asset/js/app.js"></script>
 </body>
 
 </html>

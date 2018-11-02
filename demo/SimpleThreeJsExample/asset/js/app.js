@@ -79,9 +79,67 @@ var initFunc = function () {
 //     });
 // }, false);
 
-// document.querySelector('#stop').addEventListener('click', () => {
-//     webAR.stopRecognize();
-// }, false);
+var audioObj = document.getElementById('bg_audio');
+var muted = true;
+var musicControllerObj = document.querySelector("#musicController");
+var restartObj = document.querySelector("#restartScan");
+
+window.addEventListener('load', function () {
+
+    function checkLoad() {
+        if (audioObj.readyState === 4) {
+            console.log("check load, ready state", audioObj.readyState);
+            musicControllerObj.style.opacity = 1;
+            muted = true;
+            audioObj.play();
+            // var loadingUI = document.querySelector('#loadingUI');
+            // loadingUI.style.display = 'none';
+        } else {
+            setTimeout(checkLoad, 100);
+        }
+    }
+    checkLoad();
+}, false);
+
+audioObj.addEventListener('play', function () {
+    console.log("audio playing");
+    musicControllerObj.src = "asset/images/music.png";
+    muted = false;
+});
+
+audioObj.addEventListener('pause', function () {
+    console.log("audio paused");
+    musicControllerObj.src = "asset/images/muted.png";
+    muted = true;
+});
+
+musicControllerObj.addEventListener('click', () => {
+    //try to play music
+    if (muted) {
+        audioObj.play();
+    } else {
+        audioObj.pause();
+    }
+}, false);
+
+restartObj.addEventListener('click', () => {
+    //try to restart scanning
+    threeHelper.scene.background = null;
+    threeHelper.scene.visible = false;
+
+    document.querySelector('#videoDevice').style.display = 'block';
+    restartObj.style.opacity = 0;
+    webAR.startRecognize((msg) => {
+        console.log("message is ", msg);
+        document.querySelector('#videoDevice').style.display = 'none';
+
+        threeHelper.scene.background = threeHelper.refractionCube;
+        threeHelper.scene.visible = true;
+        restartObj.style.opacity = 1;
+
+        webAR.stopRecognize();
+    });
+}, false);
 
 threeHelper.scene.visible = false;
 threeHelper.loadGLTF('asset/model/gltf/scene.gltf', () => {
@@ -89,74 +147,20 @@ threeHelper.loadGLTF('asset/model/gltf/scene.gltf', () => {
     var loadingUI = document.querySelector('#loadingUI');
     loadingUI.style.display = 'none';
 
-    // initFunc();
+    initFunc();
 
     console.log("finished initFunc");
     threeHelper.scene.background = threeHelper.refractionCube;
     threeHelper.scene.visible = true;
 
-    // webAR.startRecognize((msg) => {
-    //     console.log("message is ", msg);
-    //     document.querySelector('.header').style.display = 'block';
-    //     document.querySelector('#videoDevice').style.display = 'none';
+    webAR.startRecognize((msg) => {
+        console.log("message is ", msg);
+        restartObj.style.opacity = 1;
+        document.querySelector('#videoDevice').style.display = 'none';
 
+        threeHelper.scene.background = threeHelper.refractionCube;
+        threeHelper.scene.visible = true;
 
-    //     threeHelper.scene.background = threeHelper.refractionCube;
-    //     threeHelper.scene.visible = true;
-
-    //     webAR.stopRecognize();
-
-    //     // alert('识别成功');
-    //     // document.getElementById('targetVideo' ).style.display = 'block';
-
-    //     // 识别成功后，从meta中取出model地址
-    //     // const meta = JSON.parse(window.atob(msg.meta));
-    //     // threeHelper.loadObject(meta.model);
-
-    //     // 加载本地模型
-    //     // threeHelper.loadObject('asset/model/trex_v3.fbx');
-
-
-    //     // threeHelper.loadGLTF('asset/model/gltf/scene.gltf');
-
-
-    //     // threeHelper.movieGeometry.visible = true;
-
-    //     // webAR.trace('加载模型');
-    // });
+        webAR.stopRecognize();
+    });
 });
-
-
-
-
-// if (window.DeviceMotionEvent) {
-//     window.ondeviceorientation = function (event) {
-//         alpha = event.alpha;
-//         beta = event.beta;
-//         gamma = event.gamma;
-//         setTimeout(function () {
-//             normalizeData(gamma, beta, alpha)
-//         }, 50)
-//     }
-// }
-
-// function normalizeData(_g, _b, _a) {
-
-//     b = Math.round(_b);
-//     g = Math.round(_g);
-//     a = Math.round(_a);
-
-//     rotY += (g - rotY) / 5;
-//     rotX += (b - rotX) / 5;
-//     rotZ += (a - rotZ) / 5;
-//     if (window.innerHeight > window.innerWidth) {
-//         threeHelper.movieScreen.rotation.y = rotY / 150;
-//         threeHelper.movieScreen.rotation.x = rotX / 150;
-//         threeHelper.movieScreen.rotation.z = rotZ / 150;
-//     } else {
-//         threeHelper.movieScreen.rotation.x = rotY / 150; //rotY
-//         threeHelper.movieScreen.rotation.y = rotZ / 150;
-//         threeHelper.movieScreen.rotation.z = rotX / 150;
-//     }
-
-// }

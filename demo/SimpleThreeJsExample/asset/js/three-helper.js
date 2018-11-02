@@ -21,7 +21,7 @@ const ThreeHelper = function () {
         let percent = loaded / total;
         percent = percent.toFixed(2) * 100;
         let loadingText = document.getElementById("loadingTxt");
-        loadingText.innerText = "下载中..." + percent + "%";
+        loadingText.innerText = percent + "%";
     };
 
 
@@ -33,9 +33,6 @@ const ThreeHelper = function () {
         path + 'posy' + format, path + 'negy' + format,
         path + 'posz' + format, path + 'negz' + format
     ];
-
-    // this.reflectionCube = new THREE.CubeTextureLoader(this.loadingManager).load( urls );
-    // this.refractionCube.format = THREE.RGBFormat;
 
     this.refractionCube = new THREE.CubeTextureLoader(this.loadingManager).load(urls);
     this.refractionCube.mapping = THREE.CubeRefractionMapping;
