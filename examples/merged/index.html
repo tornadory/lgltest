@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Merged Instances Demo</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+        }
+
+        canvas {
+            background: red;
+        }
+    </style>
+
+    <script src="../js/three.js"></script>
+</head>
+
+<body>
+    <canvas id="myCanvas"></canvas>
+
+    <script>
+        //Rendere
+        var renderer = new THREE.WebGLRenderer({
+            canvas: document.getElementById('myCanvas'),
+            antialias: true
+        });
+        renderer.setClearColor(0xCCFFFF);
+        renderer.setPixelRatio(window.devicePixelRatio);
+        renderer.setSize(window.innerWidth, window.innerHeight);
+
+        //Camera
+        var camera = new THREE.PerspectiveCamera(35, window.innerWidth / window.innerHeight, 0.1, 3000);
+        //Scene
+        var scene = new THREE.Scene();
+
+        var light = new THREE.AmbientLight(0xffffff, 0.5);
+        scene.add(light);
+        var light1 = new THREE.PointLight(0xffffff, 0.5);
+        scene.add(light1);
+
+        //GEOMETRY MERGE
+
+        //GEOMETRY MERGE
+
+        // var mergedGeometry = new THREE.BufferGeometry();
+        var mergedGeometry = new THREE.Geometry();
+        //var geometry = new THREE.Geometry().fromBufferGeometry( bufferGeometry );
+
+        var ballGeo = new THREE.SphereGeometry(100, 350, 350);
+        var material = new THREE.MeshPhongMaterial({
+            color: 0xF7FE2E
+        });
+
+        var materials = [
+            new THREE.MeshPhongMaterial({
+                color: 0xF7FE2E
+            }),
+            new THREE.MeshPhongMaterial({
+                color: 0xF7222E
+            }),
+        ];
+        var ball = new THREE.Mesh(ballGeo, material);
+        ball.updateMatrix();
+
+        console.log("ballGeo ", ballGeo);
+        console.log("ball ", ball.geometry);
+
+        // mergedGeometry.merge(new THREE.Geometry().fromBufferGeometry(ball.geometry), ball.matrix, 0);
+        mergedGeometry.merge(ball.geometry, ball.matrix, 0);
+
+        var pendulumGeo = new THREE.CylinderGeometry(100, 10, 500, 160);
+        var pendulum = new THREE.Mesh(pendulumGeo, material);
+        pendulum.updateMatrix();
+
+        // mergedGeometry.merge(new THREE.Geometry().fromBufferGeometry(pendulum.geometry), pendulum.matrix, 1);
+        mergedGeometry.merge(pendulum.geometry, pendulum.matrix, 1);
+
+        // pendulumGeo.merge(ball.geometry, ball.matrix);
+
+        // var mesh = new THREE.Mesh(pendulumGeo, material);
+        var mesh = new THREE.Mesh(mergedGeometry, materials);
+        console.log("new mesh ", mesh);
+        scene.add(mesh);
+        mesh.position.set(0, 0, -1000);
+
+        renderer.render(scene, camera);
+
+        console.log("new scene ", scene);
+        console.log("renderer ", renderer);
+
+
+        //Render Loop
+        requestAnimationFrame(render);
+
+        function render() {
+            // mesh.rotation.x += 0.11;
+            // mesh.rotation.y += 0.11;
+            renderer.render(scene, camera);
+            requestAnimationFrame(render);
+        }
+    </script>
+</body>
+
+</html>
