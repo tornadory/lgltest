@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>WebAR Demo</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <link rel="stylesheet" href="asset/css/default.css" />
+</head>
+
+<body>
+    <img src="asset/images/muted.png" alt="" id="musicController" class="left">
+    <img src="asset/images/restart.png" alt="" id="restartScan" class="right">
+
+    <div id="loadingUI" class="sk-wave">
+        <div class="sk-rect sk-rect1"></div>
+        <div class="sk-rect sk-rect2"></div>
+        <div class="sk-rect sk-rect3"></div>
+        <div class="sk-rect sk-rect4"></div>
+        <div class="sk-rect sk-rect5"></div>
+        <span>下载中...</span>
+        <span id="loadingTxt">0%</span>
+    </div>
+
+    <audio preload="preload" id="bg_audio" src="asset/audio/bg.mp3" loop=""></audio>
+    <video id="video" playsinline=""></video>
+
+    <div class="footer">
+        <select class="none" id="videoDevice"></select>
+    </div>
+
+    <script type="text/javascript" src="js/three.min.js"></script>
+    <script type="text/javascript" src="js/adapter.js"></script>
+    <script type="text/javascript" src="js/webar.js"></script>
+    <script type="text/javascript" src="js/loaders/GLTFLoader.js"></script>
+    <script type="text/javascript" src="js/inflate.min.js"></script>
+    <script type="text/javascript" src="js/controls/OrbitControls.js"></script>
+
+    <script type="text/javascript" src="js/three-helper.js"></script>
+    <script type="text/javascript" src="js/app.js"></script>
+</body>
+
+</html>

@@ -42,7 +42,15 @@ const ThreeHelper = function () {
 
     this.scene = new THREE.Scene();
     // this.scene.background = this.refractionCube;
-    this.scene.add(new THREE.AmbientLight(0xFFFFFF));
+    // this.scene.add(new THREE.AmbientLight(0xFFFFFF));
+
+    var light = new THREE.HemisphereLight(0xbbbbff, 0x444422);
+    light.position.set(0, 0, 5);
+    this.scene.add(light);
+
+    light = new THREE.HemisphereLight(0xbbbbff, 0x444422);
+    light.position.set(0, 0, -5);
+    this.scene.add(light);
 
     const control = new THREE.OrbitControls(this.camera, this.renderer.domElement);
     control.screenSpacePanning = false;
