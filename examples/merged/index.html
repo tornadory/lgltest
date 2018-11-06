@@ -65,6 +65,7 @@
             }),
         ];
         var ball = new THREE.Mesh(ballGeo, material);
+        ball.position.set(200, 100, 50);
         ball.updateMatrix();
 
         console.log("ballGeo ", ballGeo);
