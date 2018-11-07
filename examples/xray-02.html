@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+
+    <script src="js/three.min.js"></script>
+    <script src="js/loaders/ColladaLoader.js"></script>
+
+    <script id="vertexShader" type="x-shader/x-vertex">
+        uniform float p;
+        varying float intensity;
+        void main()
+        {
+            vec3 vNormal = normalize( normalMatrix * normal );
+            intensity = pow(1.0 - abs(dot(vNormal, vec3(0, 0, 1))), p);
+            gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
+        }
+    </script>
+    <!-- fragment shader a.k.a. pixel shader -->
+    <script id="fragmentShader" type="x-shader/x-vertex">
+        uniform vec3 glowColor;
+        varying float intensity;
+        void main()
+        {
+            vec3 glow = glowColor * intensity;
+            gl_FragColor = vec4( glow, 1.0 );
+        }
+    </script>
+    <style>
+        html,
+        body {
+            margin: 0;
+            overflow: hidden;
+            height: 100%;
+        }
+
+        canvas {
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+</head>
+
+<body>
+
+
+    <script>
+        var human;
+
+        var $ = document.querySelector.bind(document);
+
+        var scene = new THREE.Scene();
+        var camera = new THREE.PerspectiveCamera(45, 1, 0.1, 1000);
+        var renderer = new THREE.WebGLRenderer({
+            antialias: true,
+            alpha: true
+        });
+        renderer.setClearColor(0x000000, 1.0);
+
+        lookAt = scene.position;
+        lookAt.y = 15;
+        camera.lookAt(lookAt);
+
+        document.body.appendChild(renderer.domElement);
+
+        var customMaterial = new THREE.ShaderMaterial({
+            uniforms: {
+                p: {
+                    type: "f",
+                    value: 2
+                },
+                glowColor: {
+                    type: "c",
+                    value: new THREE.Color(0x84ccff)
+                },
+            },
+            vertexShader: $('#vertexShader').text,
+            fragmentShader: $('#fragmentShader').text,
+            side: THREE.DoubleSide,
+            blending: THREE.AdditiveBlending,
+            transparent: true,
+            depthWrite: false
+        });
+
+        var loader = new THREE.ColladaLoader();
+        loader.options.convertUpAxis = true;
+        loader.load('models/woman.dae', function (collada) {
+            dae = collada.scene;
+
+            dae.traverse(function (child) {
+
+                if (child instanceof THREE.Mesh) {
+                    console.log(child);
+                    child.material = customMaterial;
+                }
+
+            });
+
+            dae.scale.x = 0.2;
+            dae.scale.y = 0.2;
+            dae.scale.z = 0.2;
+            human = dae;
+            scene.add(human);
+        });
+
+
+        function resize() {
+            var canvas = renderer.domElement;
+            var width = canvas.clientWidth;
+            var height = canvas.clientHeight;
+            if (canvas.width !== width || canvas.height !== height) {
+                renderer.setSize(width, height, false);
+                camera.aspect = width / height;
+                camera.updateProjectionMatrix();
+            }
+        }
+
+        // call the render function
+        function render(time) {
+            time *= 0.001;
+
+            resize();
+
+            camera.position.x = -20 * (Math.cos(time));
+            camera.position.z = (20 * (Math.sin(time)));
+            camera.position.y = 20;
+
+            camera.lookAt(lookAt);
+
+            renderer.render(scene, camera);
+            requestAnimationFrame(render);
+        }
+        requestAnimationFrame(render);
+    </script>
+</body>
+
+</html>
