@@ -1,0 +1,109 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>Virtual Rubik's Cube with WebGL</title>
+<script type="text/javascript" src="lib/virtualrubik.js"></script>
+<script type="text/javascript">includeVirtualRubik("lib");</script>
+<script type="text/javascript">
+// This function is called on successfull initialization of the cube.
+// ----------------------------------------------------
+function configCubes(virtualrubik) {
+  //configDay(virtualrubik);
+  configNight(virtualrubik);
+}
+// This sets the colors and materials for a daylight scene
+// ----------------------------------------------------
+function configDay(virtualrubik) {
+  var attr=virtualrubik.getCubeAttributes();
+  attr.backgroundColor=[0,0,0,0]; // transparent background [r,g,b,a]
+
+  // cube parts  
+  var partsPhong=[0.5,0.6,0.4,16.0];//shiny plastic [ambient, diffuse, specular, shininess]
+  for (var i=0;i<attr.partsFillColor.length;i++) {
+    attr.partsFillColor[i]=[40,40,40,255]; // black parts [r,g,b,a]
+    attr.partsPhong[i]=partsPhong;
+  }
+  
+  // center part
+  attr.partsFillColor[attr.partsFillColor.length - 1]=[240,240,240,255]; // white center part [r,g,b,a]
+  attr.partsPhong[attr.partsFillColor.length - 1]=[1.0,0.1,0.0,8.0];//self glowing [ambient, diffuse, specular, shininess]
+
+  // Arxon Cube colors (dark plastic, good color differentation)
+  // http://www.randelshofer.ch/rubik/virtual_cubes/rubik/color_variations/arxon_cube.html
+  var faceColors=[
+    [255,210,  0,250],// right: yellow [r,g,b,a]
+    [  0, 51,115,250],// up   : blue
+    [140,  0, 15,250],// front: red
+    [248,248,248,250],// left : white
+    [  0,115, 47,250],// down : green
+    [255, 70,  0,250] // back : orange
+  ];
+  
+  var stickersPhong=[0.8,0.2,0.1,8.0];//shiny paper [ambient, diffuse, specular, shininess]
+  for (var i=0;i<6;i++) {
+    for (var j=0;j<9;j++) {
+      attr.stickersFillColor[i*9+j]=faceColors[i];
+      attr.stickersPhong[i*9+j]=stickersPhong;
+    }
+  }
+  
+  virtualrubik.setCubeAttributes(attr);
+}
+
+// This sets the colors and materials for a night scene
+// ----------------------------------------------------
+function configNight(virtualrubik) {
+  var attr=virtualrubik.getCubeAttributes();
+  attr.backgroundColor=[10,17,38,255]; // dark blue background [r,g,b,a]
+
+  // cube parts  
+  var partsPhong=[0.2,0.1,0.0,16.0];//unlit [ambient, diffuse, specular, shininess]
+  for (var i=0;i<attr.partsFillColor.length;i++) {
+    attr.partsFillColor[i]=[40,40,40,255]; // black parts [r,g,b,a]
+    attr.partsPhong[i]=partsPhong;
+  }
+  
+  // center part
+  attr.partsFillColor[attr.partsFillColor.length - 1]=[240,240,240,255]; // white center part [r,g,b,a]
+  attr.partsPhong[attr.partsFillColor.length - 1]=[0.9,0.1,0.0,8.0];//self glowing [ambient, diffuse, specular, shininess]
+
+  // OddzOn Cube colors (bright plastic, red and orange hard to distinguish)
+  // http://www.randelshofer.ch/rubik/virtual_cubes/rubik/color_variations/oddzon_cube.html
+  var faceColors=[
+    [255,235,  0,250],// right: yellow [r,g,b,a]
+    [  0, 50,115,250],// up   : blue
+    [164,  0, 15,250],// front: red
+    [248,248,248,250],// left : white
+    [  0,135, 45,250],// down : green
+    [255, 46,  0,250] // back : orange
+  ];
+  
+  var stickersPhong=[1.0,0.1,0.0,8.0];//self glowing [ambient, diffuse, specular, shininess]
+  for (var i=0;i<6;i++) {
+    for (var j=0;j<9;j++) {
+      attr.stickersFillColor[i*9+j]=faceColors[i];
+      attr.stickersPhong[i*9+j]=stickersPhong;
+    }
+  }
+  
+  virtualrubik.setCubeAttributes(attr);
+}
+</script>
+</head>
+<body onLoad="attachVirtualRubik(document.getElementById('canvas1'),configCubes)">
+<p>Virtual Rubik's Cube with WebGL</p>
+<canvas id="canvas1" class="virtualrubik" style="border: 1px solid" width="400" height="400"></canvas>
+<p><input type="checkbox" 
+    onchange="document.getElementById('canvas1').virtualrubik.setAutorotate(this.checked);">Autorotate</input></p>
+<p><button type="button"
+    onclick="document.getElementById('canvas1').virtualrubik.reset();">Reset</button>
+   <button type="button"
+    onclick="document.getElementById('canvas1').virtualrubik.scramble();">Scramble</button>
+   <button type="button"
+    onclick="document.getElementById('canvas1').virtualrubik.wobble();">Wobble</button>
+   <button type="button"
+    onclick="document.getElementById('canvas1').virtualrubik.explode();">Explode</button></p>
+<p>© 2011 Werner Randelshofer. All Rights Reserved.</p>
+</body>
+</html> 
