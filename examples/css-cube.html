@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+<meta charset="utf-8">
+<title>路再长，也长不过我35码半的脚步</title>
+<link rel="shortcut icon" href="../images/favicon.ico" />
+<style>
+body, div {
+	padding: 0;
+	margin: 0;
+	font-family: "Microsoft YaHei";
+}
+.wrap {
+	width: 200px;
+	height: 200px;
+	position: absolute;
+	top: 40%;
+	left: 43%;
+	perspective: 1000px;
+}
+.content {
+	width: 100%;
+	height: 100%;
+	position: absolute;
+	transition: all 1s ease;
+	transform: translateZ(-100px);
+	transform-style: preserve-3d;
+	animation: zou 5s ease infinite alternate;
+	-webkit-animation: zou 5s ease infinite alternate;
+}
+@keyframes zou {
+	0% {
+		transform: translateZ(-100px) rotateY(90deg);
+	}
+	25% {
+		transform: translateZ(-100px) rotateX(90deg);
+	}
+	50% {
+		transform: translateZ(-100px) rotate(180deg);
+	}
+	75% {
+		transform: translateZ(-100px) rotateX(-90deg);
+	}
+	100% {
+		transform: translateZ(-100px) rotateY(-90deg);
+	}
+}
+@-webkit-keyframes zou {
+	0% {
+		transform: translateZ(-100px) rotateY(90deg);
+	}
+	25% {
+		transform: translateZ(-100px) rotateX(90deg);
+	}
+	50% {
+		transform: translateZ(-100px) rotate(180deg);
+	}
+	75% {
+		transform: translateZ(-100px) rotateX(-90deg);
+	}
+	100% {
+		transform: translateZ(-100px) rotateY(-90deg);
+	}
+}
+.card {
+	width: 196px;
+	height: 196px;
+	position: absolute;
+	line-height: 196px;
+	border: 2px solid #000;
+	font-size: 60px;
+	text-align: center;
+	opacity: 0.8;
+	background-color: #1ABC9C;
+}
+.front {
+	transform: rotateY(0deg) translateZ(100px);
+}
+.back {
+	transform: rotateX(180deg) translateZ(100px);
+}
+.left {
+	transform: rotateY(90deg) translateZ(100px);
+}
+.right {
+	transform: rotateY(-90deg) translateZ(100px);
+}
+.top {
+	transform: rotateX(90deg) translateZ(100px);
+}
+.bottom {
+	transform: rotateX(-90deg) translateZ(100px);
+}
+</style>
+</head>
+
+<body>
+	<div class="wrap">
+		<div class="content">
+			<div class="card front">1</div>
+			<div class="card back">2</div>
+			<div class="card left">3</div>
+			<div class="card right">4</div>
+			<div class="card top">5</div>
+			<div class="card bottom">6</div>
+		</div>
+	</div>
+</body>
+</html>
