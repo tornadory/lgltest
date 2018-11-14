@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Merged Instances Demo</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+        }
+
+        canvas {
+            background: red;
+        }
+    </style>
+
+    <script src="../js/three.js"></script>
+</head>
+
+<body>
+    <div id="container">
+    </div>
+
+    <script>
+        var scene;
+        var camera;
+        var renderer;
+        var screenWidth = document.width;
+        var screenHeight = document.height;
+        var trunk;
+        var merged;
+        var brown = new THREE.MeshLambertMaterial({
+            color: 0xCC4400
+        });
+
+        function main() {
+            container = document.getElementById('container');
+
+            renderer = new THREE.WebGLRenderer();
+            camera = new THREE.PerspectiveCamera(75, screenWidth / screenHeight, 0.1, 1000);
+            scene = new THREE.Scene();
+
+            renderer.setSize(screenWidth, screenHeight);
+            renderer.setClearColor(0xAAAAAA, 1);
+            container.appendChild(renderer.domElement);
+            camera.position.z = 50;
+
+            trunk = createCube();
+            var child1 = createSphere();
+            child1.position.y = 11;
+            child1.rotation.z = Math.PI / 4;
+            var child2 = createTorus();
+            child2.position.y = 11;
+            child2.rotation.z = Math.PI / 4;
+            var child3 = createOctahedron();
+            child3.position.y = 11;
+            child3.rotation.z = Math.PI / 4;
+
+            trunk.add(child1);
+            child1.add(child2);
+            child2.add(child3);
+
+            mergeTree();
+
+            var pointLight = new THREE.PointLight(0xFFFFFF, 1);
+            camera.add(pointLight);
+
+            scene.add(trunk);
+            scene.add(camera);
+            renderer.render(scene, camera);
+            loop();
+        }
+
+        function loop() {
+            requestAnimationFrame(loop);
+
+            // trunk.rotation.y = -transforms.yRot;
+            // trunk.rotation.x = -transforms.xRot;
+
+            // trunk.position.x = transforms.xPos - 10;
+            // trunk.position.y = transforms.yPos - 20;
+            // trunk.position.z = transforms.zPos;
+
+            // merged.rotation.y = -transforms.yRot;
+            // merged.rotation.x = -transforms.xRot;
+
+            // merged.position.x = transforms.xPos + 10;
+            // merged.position.y = transforms.yPos - 20;
+            // merged.position.z = transforms.zPos;
+
+            renderer.render(scene, camera);
+        }
+
+        //Function to merge the entire object hierarchy
+        function mergeTree() {
+            var newGeo = new THREE.Geometry();
+            var newTree = trunk.clone();
+            newTree.traverse(function (child) {
+                if (child.parent) {
+                    child.updateMatrixWorld();
+                    child.applyMatrix(child.parent.matrixWorld);
+                    // var vec = new THREE.Vector3(0,0,0);
+                    // child.parent.remove(child);
+                    // child.position = vec;
+                    // child.applyMatrix(child.parent.matrixWorld);
+                    // child.geometry.applyMatrix(child.parent.matrixWorld);
+                    // child.position = child.localToWorld(child.position);
+                }
+                THREE.GeometryUtils.merge(newGeo, child);
+            });
+            merged = new THREE.Mesh(newGeo, brown);
+
+            scene.add(merged);
+        }
+
+        function createCube() {
+            var geo = new THREE.CubeGeometry(10, 10, 10);
+            var mesh = new THREE.Mesh(geo, brown);
+            return mesh;
+        }
+
+        function createSphere() {
+            var geo = new THREE.SphereGeometry(5, 10, 10);
+            var mesh = new THREE.Mesh(geo, brown);
+            return mesh;
+        }
+
+        function createTorus() {
+            var geo = new THREE.TorusGeometry(4, 2);
+            var mesh = new THREE.Mesh(geo, brown);
+            return mesh;
+        }
+
+        function createOctahedron() {
+            var geo = new THREE.OctahedronGeometry(5);
+            var mesh = new THREE.Mesh(geo, brown);
+            return mesh;
+        }
+
+        main();
+
+        window.requestAnimFrame = (function () {
+            return window.requestAnimationFrame ||
+                window.webkitRequestAnimationFrame ||
+                window.mozRequestAnimationFrame ||
+                function (callback) {
+                    window.setTimeout(callback, 1000 / 60);
+                };
+        })();
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>CSS3 text overflow</title>
+    <style>
+        p {
+            width: 200px;
+            border: 1px solid;
+            padding: 2px 5px;
+
+            /* BOTH of the following are required for text-overflow */
+            white-space: nowrap;
+            overflow: hidden;
+        }
+
+        span {
+            display: inline-block;
+            width: 170px;
+            border: 0px solid;
+            padding: 0px 0px;
+
+            /* BOTH of the following are required for text-overflow */
+            white-space: nowrap;
+            overflow: hidden;
+        }
+
+        .overflow-visible {
+            white-space: initial;
+        }
+
+        .overflow-clip {
+            text-overflow: clip;
+        }
+
+        .overflow-ellipsis {
+            text-overflow: ellipsis;
+        }
+
+        .overflow-string {
+            /* Not supported in most browsers,
+    see the 'Browser compatibility' section below */
+            text-overflow: "....html";
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Learn about this code on MDN: https://developer.mozilla.org/en-US/docs/Web/CSS/text-overflow -->
+
+
+    <p class="overflow-visible">Lorem ipsum dolor sit amet, consectetur adipisicing elit.</p>
+    <p class="overflow-clip">Lorem ipsum dolor sit amet, consectetur adipisicing elit.</p>
+    <p class="overflow-ellipsis">Lorem ipsum dolor sit amet, consectetur adipisicing elit.</p>
+    <p class="overflow-string">Lorem ipsum dolor sit amet, consectetur adipisicing elit.</p>
+    <span class="overflow-ellipsis">Lorem ipsum dolor sit amet, consectetur adipisicing elit.</span><span>.html</span>
+</body>
+
+</html>
