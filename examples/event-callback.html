@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Event Callback Demo</title>
+</head>
+
+<body>
+    <button onclick="alert(1)">Test Button</button>
+
+    <button id="button2">Test Button</button>
+
+    <script>
+        var button2 = document.getElementById("button2");
+        // button2.on('click', function () {
+        //     alert('button2');
+        // });
+        // button2.addEventListener('click', function () {
+        //     alert('button2');
+        // });
+        function test(evt) {
+            console.log(evt);
+            alert('test');
+        }
+        button2.addEventListener('click', test);
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Aframe GLTF</title>
+    <script src="https://aframe.io/releases/0.5.0/aframe.min.js"></script>
+</head>
+
+<body>
+    <!-- Model by LeoPoly: https://clara.io/view/7396753f-e196-4706-9507-13919f31be6c# (OBJ format) -->
+    <!-- Model converted using: https://cesiumjs.org/convertmodel.html (all options unchecked) -->
+    <a-scene>
+        <a-camera rotation="0 0 0" wsad-controls look-controls>
+        </a-camera>
+        <a-assets>
+            <!-- <a-asset-item id="skull-model" src="https://dl.dropboxusercontent.com/s/dvahjq5trg9pysj/evil-skull.gltf"
+                crossOrigin="anonymous"></a-asset-item> -->
+            <a-asset-item id="skull-model" src="./models/gltf/BotSkinned/glTF/Bot_Skinned.gltf" crossOrigin="anonymous"></a-asset-item>
+        </a-assets>
+        <a-gltf-model src="#skull-model" position="0 2 -3"></a-gltf-model>
+        <a-entity id="ground" geometry="primitive: box; width: 20; height: 0.01; depth: 20" material="color: #eee;"
+            position="0 0 -4"></a-entity>
+        <a-entity light="type: directional; color: #FFF; intensity: 0.6" position="-0.5 1 1"></a-entity>
+    </a-scene>
+</body>
+
+</html>
