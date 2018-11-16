@@ -44,13 +44,15 @@ const ThreeHelper = function () {
     this.scene.background = this.refractionCube;
     this.scene.add(new THREE.AmbientLight(0xFFFFFF));
 
-    var light = new THREE.HemisphereLight(0xFFFFFF, 0xFFFFFF, 3);
-    light.position.set(0, 0, 5);
-    this.scene.add(light);
+    this.light = new THREE.DirectionalLight(0xffffff, 1);
+    this.light.position.set(10, 0, -5);
+    this.scene.add(this.light);
 
-    // light = new THREE.HemisphereLight(0xffffbb, 0x080820, 1);
-    // light.position.set(0, 0, -5);
-    // this.scene.add(light);
+    // var targetObject = new THREE.Object3D();
+    // this.scene.add(targetObject);
+    // var light2 = new THREE.DirectionalLight(0xffffff, 1);
+    // light2.target = targetObject;
+    // this.scene.add(light2);
 
     const control = new THREE.OrbitControls(this.camera, this.renderer.domElement);
     control.screenSpacePanning = false;
@@ -90,6 +92,7 @@ const ThreeHelper = function () {
             object.scale.setScalar(0.15);
             object.position.set(0, -20, 0);
             this.scene.add(object);
+            this.light.target = object;
 
             var animations = gltf.animations;
             if (animations && animations.length) {
@@ -112,6 +115,7 @@ const ThreeHelper = function () {
             object.scale.setScalar(0.02);
             object.position.set(0, 0, 0);
             this.scene.add(object);
+            this.light.target = object;
             console.log("model loaded");
 
             if (object.animations.length > 0) {
