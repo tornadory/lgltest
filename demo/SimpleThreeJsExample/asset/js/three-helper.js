@@ -17,7 +17,6 @@ const ThreeHelper = function () {
 
     this.loadingManager = new THREE.LoadingManager();
     this.loadingManager.onProgress = function (item, loaded, total) {
-        console.log(item, loaded, total);
         let percent = loaded / total;
         percent = percent.toFixed(2) * 100;
         let loadingText = document.getElementById("loadingTxt");
@@ -29,30 +28,26 @@ const ThreeHelper = function () {
     var path = "asset/images/skybox0/";
     var format = '.jpg';
     var urls = [
-        path + 'posx' + format, path + 'negx' + format,
-        path + 'posy' + format, path + 'negy' + format,
-        path + 'posz' + format, path + 'negz' + format
+        path + 'px' + format, path + 'nx' + format,
+        path + 'py' + format, path + 'ny' + format,
+        path + 'pz' + format, path + 'nz' + format
     ];
 
     this.refractionCube = new THREE.CubeTextureLoader(this.loadingManager).load(urls);
     this.refractionCube.mapping = THREE.CubeRefractionMapping;
     this.refractionCube.format = THREE.RGBFormat;
 
-
-
     this.scene = new THREE.Scene();
-    this.scene.background = this.refractionCube;
+    // this.scene.background = this.refractionCube;
     this.scene.add(new THREE.AmbientLight(0xFFFFFF));
 
     this.light = new THREE.DirectionalLight(0xffffff, 1);
-    this.light.position.set(10, 0, -5);
+    this.light.position.set(50, 5, 50);
     this.scene.add(this.light);
 
-    // var targetObject = new THREE.Object3D();
-    // this.scene.add(targetObject);
-    // var light2 = new THREE.DirectionalLight(0xffffff, 1);
-    // light2.target = targetObject;
-    // this.scene.add(light2);
+    var hemiLight = new THREE.HemisphereLight(0x0000ff, 0x00ff00, 1)
+    hemiLight.position.set(0, 0, 0);
+    this.scene.add(hemiLight);
 
     const control = new THREE.OrbitControls(this.camera, this.renderer.domElement);
     control.screenSpacePanning = false;
@@ -109,7 +104,7 @@ const ThreeHelper = function () {
         })
     };
 
-    this.loadObject = function (modelUrl) {
+    this.loadFBX = function (modelUrl, callback) {
         const loader = new THREE.FBXLoader();
         loader.load(modelUrl, (object) => {
             object.scale.setScalar(0.02);
@@ -123,7 +118,10 @@ const ThreeHelper = function () {
                 this.mixers.push(object.mixer);
                 object.mixer.clipAction(object.animations[0]).play();
             }
-        })
+        });
+
+        if (callback)
+            callback();
     };
 
     this.render();

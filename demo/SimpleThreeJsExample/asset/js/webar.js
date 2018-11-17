@@ -4,11 +4,14 @@
  * @param recognizeUrl 识别服务地址
  * @constructor
  */
-const WebAR = function(interval, recognizeUrl) {
+const WebAR = function (interval, recognizeUrl) {
     var interval = interval;
     var recognizeUrl = recognizeUrl;
 
-    var videoSetting = {width: 320, height: 240};
+    var videoSetting = {
+        width: 320,
+        height: 240
+    };
     var videoElement = null;
     var videoDeviceElement = null;
 
@@ -29,17 +32,16 @@ const WebAR = function(interval, recognizeUrl) {
      * @param videoDevice
      * @returns {Promise}
      */
-    this.listCamera = function(videoDevice) {
+    this.listCamera = function (videoDevice) {
         videoDeviceElement = videoDevice;
 
         return new Promise((resolve, reject) => {
             navigator.mediaDevices.enumerateDevices()
                 .then((devices) => {
                     devices.find((device) => {
-                        console.log("device ", device);
                         if (device.kind === 'videoinput') {
                             const option = document.createElement('option');
-                            option.text = device.label || 'camera '+ (videoDeviceElement.length + 1).toString();
+                            option.text = device.label || 'camera ' + (videoDeviceElement.length + 1).toString();
                             option.value = device.deviceId;
 
                             // 将摄像头id存储在select元素中，方便切换前、后置摄像头
@@ -72,7 +74,7 @@ const WebAR = function(interval, recognizeUrl) {
      * @param setting
      * @returns {Promise}
      */
-    this.openCamera = function(video, deviceId, setting) {
+    this.openCamera = function (video, deviceId, setting) {
         videoElement = video;
         if (setting) {
             videoSetting = setting;
@@ -82,7 +84,11 @@ const WebAR = function(interval, recognizeUrl) {
         // 更多参数请查看 https://developer.mozilla.org/en-US/docs/Web/API/MediaStreamConstraints
         const constraints = {
             audio: false,
-            video: {deviceId: {exact: deviceId}}
+            video: {
+                deviceId: {
+                    exact: deviceId
+                }
+            }
         };
 
         canvasElement.setAttribute('width', videoSetting.width + 'px');
@@ -100,7 +106,7 @@ const WebAR = function(interval, recognizeUrl) {
                 .then((stream) => {
                     videoElement.srcObject = stream;
                     videoElement.style.display = 'block';
-                    videoElement.onloadedmetadata = function(){
+                    videoElement.onloadedmetadata = function () {
                         resolve(true);
                     };
                     videoElement.play();
@@ -115,7 +121,7 @@ const WebAR = function(interval, recognizeUrl) {
      * 截取摄像头图片，返回 base64编码后的图片数据
      * @returns {string}
      */
-    this.captureVideo = function() {
+    this.captureVideo = function () {
         canvasContext.drawImage(videoElement, 0, 0, videoSetting.width, videoSetting.height);
         return canvasElement.toDataURL('image/jpeg', 0.5).split('base64,')[1];
     };
@@ -123,14 +129,16 @@ const WebAR = function(interval, recognizeUrl) {
     /**
      * 识别
      */
-    this.startRecognize = function(callback) {
+    this.startRecognize = function (callback) {
         timer = window.setInterval(() => {
             if (isRecognizing) return;
 
             isRecognizing = true;
 
             // 从摄像头中抓取一张图片
-            const image = {image: this.captureVideo()};
+            const image = {
+                image: this.captureVideo()
+            };
 
             // 发送到服务器识别
             this.httpPost(recognizeUrl, image)
@@ -149,7 +157,7 @@ const WebAR = function(interval, recognizeUrl) {
     /**
      * 停止识别
      */
-    this.stopRecognize = function() {
+    this.stopRecognize = function () {
         if (timer) {
             window.clearInterval(timer);
             isRecognizing = false;
@@ -162,7 +170,7 @@ const WebAR = function(interval, recognizeUrl) {
      * @param image
      * @returns {Promise}
      */
-    this.httpPost = function(url, image) {
+    this.httpPost = function (url, image) {
         return new Promise((resolve, reject) => {
             const http = new XMLHttpRequest();
             http.onload = () => {
@@ -195,7 +203,7 @@ const WebAR = function(interval, recognizeUrl) {
      * 调用输出
      * @param arg
      */
-    this.trace = function(arg) {
+    this.trace = function (arg) {
         if (typeof arg === 'string') {
             debug.innerHTML += arg;
         } else {
