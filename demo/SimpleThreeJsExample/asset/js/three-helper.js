@@ -23,6 +23,14 @@ const ThreeHelper = function () {
         loadingText.innerText = percent + "%";
     };
 
+    var genCubeUrls = function (prefix, postfix) {
+        return [
+            prefix + 'px' + postfix, prefix + 'nx' + postfix,
+            prefix + 'py' + postfix, prefix + 'ny' + postfix,
+            prefix + 'pz' + postfix, prefix + 'nz' + postfix
+        ];
+    };
+
 
     //cubemap
     var path = "asset/images/skybox0/";
@@ -45,9 +53,9 @@ const ThreeHelper = function () {
     this.light.position.set(50, 5, 50);
     this.scene.add(this.light);
 
-    var hemiLight = new THREE.HemisphereLight(0x0000ff, 0x00ff00, 1)
-    hemiLight.position.set(0, 0, 0);
-    this.scene.add(hemiLight);
+    // var hemiLight = new THREE.HemisphereLight(0x0000ff, 0x00ff00, 1)
+    // hemiLight.position.set(0, 0, 0);
+    // this.scene.add(hemiLight);
 
     const control = new THREE.OrbitControls(this.camera, this.renderer.domElement);
     control.screenSpacePanning = false;
