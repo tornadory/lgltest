@@ -17,11 +17,18 @@ const ThreeHelper = function () {
 
     this.loadingManager = new THREE.LoadingManager();
     this.loadingManager.onProgress = function (item, loaded, total) {
-        console.log(item, loaded, total);
         let percent = loaded / total;
         percent = percent.toFixed(2) * 100;
         let loadingText = document.getElementById("loadingTxt");
         loadingText.innerText = percent + "%";
+    };
+
+    var genCubeUrls = function (prefix, postfix) {
+        return [
+            prefix + 'px' + postfix, prefix + 'nx' + postfix,
+            prefix + 'py' + postfix, prefix + 'ny' + postfix,
+            prefix + 'pz' + postfix, prefix + 'nz' + postfix
+        ];
     };
 
 
@@ -29,28 +36,26 @@ const ThreeHelper = function () {
     var path = "asset/images/skybox0/";
     var format = '.jpg';
     var urls = [
-        path + 'posx' + format, path + 'negx' + format,
-        path + 'posy' + format, path + 'negy' + format,
-        path + 'posz' + format, path + 'negz' + format
+        path + 'px' + format, path + 'nx' + format,
+        path + 'py' + format, path + 'ny' + format,
+        path + 'pz' + format, path + 'nz' + format
     ];
 
     this.refractionCube = new THREE.CubeTextureLoader(this.loadingManager).load(urls);
     this.refractionCube.mapping = THREE.CubeRefractionMapping;
     this.refractionCube.format = THREE.RGBFormat;
 
-
-
     this.scene = new THREE.Scene();
-    this.scene.background = this.refractionCube;
+    // this.scene.background = this.refractionCube;
     this.scene.add(new THREE.AmbientLight(0xFFFFFF));
 
-    var light = new THREE.HemisphereLight(0xFFFFFF, 0xFFFFFF, 3);
-    light.position.set(0, 0, 5);
-    this.scene.add(light);
+    this.light = new THREE.DirectionalLight(0xffffff, 1);
+    this.light.position.set(50, 5, 50);
+    this.scene.add(this.light);
 
-    // light = new THREE.HemisphereLight(0xffffbb, 0x080820, 1);
-    // light.position.set(0, 0, -5);
-    // this.scene.add(light);
+    // var hemiLight = new THREE.HemisphereLight(0x0000ff, 0x00ff00, 1)
+    // hemiLight.position.set(0, 0, 0);
+    // this.scene.add(hemiLight);
 
     const control = new THREE.OrbitControls(this.camera, this.renderer.domElement);
     control.screenSpacePanning = false;
@@ -90,6 +95,7 @@ const ThreeHelper = function () {
             object.scale.setScalar(0.15);
             object.position.set(0, -20, 0);
             this.scene.add(object);
+            this.light.target = object;
 
             var animations = gltf.animations;
             if (animations && animations.length) {
@@ -106,12 +112,13 @@ const ThreeHelper = function () {
         })
     };
 
-    this.loadObject = function (modelUrl) {
+    this.loadFBX = function (modelUrl, callback) {
         const loader = new THREE.FBXLoader();
         loader.load(modelUrl, (object) => {
             object.scale.setScalar(0.02);
             object.position.set(0, 0, 0);
             this.scene.add(object);
+            this.light.target = object;
             console.log("model loaded");
 
             if (object.animations.length > 0) {
@@ -119,7 +126,10 @@ const ThreeHelper = function () {
                 this.mixers.push(object.mixer);
                 object.mixer.clipAction(object.animations[0]).play();
             }
-        })
+        });
+
+        if (callback)
+            callback();
     };
 
     this.render();
