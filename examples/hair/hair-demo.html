@@ -1,0 +1,484 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+	<title>Long hair</title>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+	<link rel="stylesheet" type="text/css" href="./style_no_stats.css">
+	<style type="text/css">
+		body {
+			background: #000000;
+		}
+	</style>
+</head>
+
+<body>
+
+	<div id="infobutton">
+		<a href="javascript:toggleInfo()"><img src="./i.png" border="0"></a>
+	</div>
+	<div id="info">
+		<B>Long hair - WebGL(html5)</B><br>
+		Move your mouse
+		<P>After the fur test I thought it would be cool to look in to longer hair.<br>
+			Tried to read som papers(like <a href="http://http.developer.nvidia.com/GPUGems2/gpugems2_chapter23.html" target="_blank">nvidias
+				gpu gems</a>), but that seemed awfully complicated..<br>
+			So I just tried to make something anyway.. :P<br>
+			Just a lot of lines for now, could probably work better with some real geometry and some<br>
+			other tricks.</P>
+		Done using <a href="https://github.com/mrdoob/three.js" target="_blank">three.js</a>.
+		<P><B>Note.</B> You need a modern browser that supports WebGL for this to run the way it is intended.<BR>
+			For example. <a href="http://www.google.com/landing/chrome/beta/" target="_blank">Google Chrome 9+</a> or <a href="http://www.mozilla.com/firefox/beta/"
+			 target="_blank">Firefox 4+</a>.<BR><BR>(If you are already using one of those browsers and it's still not running,
+			it's possible that you<BR>have old blacklisted GPU drivers. Try updating the drivers for your graphic card.<BR>Or
+			try to set a '--ignore-gpu-blacklist' switch for the browser.)</P>
+		<font color="#777777">(C) OutsideOfSociety 2014.
+	</div>
+
+	<script src="./three.min.js"></script>
+
+	<script type="text/javascript" src="./RequestAnimationFrame.js"></script>
+	<script type="text/javascript" src="./info.js"></script>
+
+
+	<script type="x-shader/x-vertex" id="vertexshader_lines">
+
+		uniform float globalTime;
+			uniform vec3 gravity;
+			uniform vec3 gravity2;
+			uniform float spacing;
+
+			attribute vec3 customColor;
+			attribute float seed;
+			attribute float seed2;
+			attribute float draw;
+			attribute float index;
+			attribute vec3 norm;
+
+			varying vec3 vColor;
+			varying float vDraw;
+			varying vec3 vNormal;
+
+			void main() {
+
+				vDraw = draw;
+				vColor = customColor;
+
+				vec3 displacement = vec3(0.0,0.0,0.0);
+				vec3 forceDirection = vec3(0.0,0.0,0.0);
+
+				float displacementFactor = pow(index, 1.2);
+				float displacementFactor2 = pow(index, 2.5);
+				float displacementFactor3 = pow(1.0-index, 1.0);
+
+				// "gravity"
+				vec3 g = gravity;
+				g.x *= displacementFactor2*seed2;
+
+				// "wind"
+				forceDirection.x = sin(globalTime*0.1+seed2*5.0+index*1.0) * 0.1*displacementFactor;
+				forceDirection.y = cos(globalTime*0.7+seed2*5.0+index*1.0) * 0.1*displacementFactor3;
+				forceDirection.z = sin(globalTime*0.7+seed2*5.0+index*4.0) * 0.1*displacementFactor2;
+
+				displacement = g + forceDirection + ((1.0-index)*gravity2)*seed;
+				
+				vec3 aNormal = norm;
+				aNormal.xyz += displacement*displacementFactor;
+
+				vNormal = norm*(1.0-index);
+				vNormal += (gravity2-gravity)*0.05;
+				
+				vec3 animated = position;
+
+				// curl it slightly
+				animated.x += aNormal.x*index*30.0*displacementFactor3;
+
+				animated += aNormal*index*(spacing*seed);
+
+				if (animated.y < -150.0+seed2*20.0) {
+					animated.y = -150.0+seed2*20.0;
+					vDraw = 0.0;
+				}
+
+				vec4 mvPosition = modelViewMatrix * vec4( animated, 1.0 );
+				gl_Position = projectionMatrix * mvPosition;
+
+			}
+
+		</script>
+
+	<script type="x-shader/x-fragment" id="fragmentshader_lines">
+
+		uniform vec3 color;
+
+			varying vec3 vColor;
+			varying float vDraw;
+			varying vec3 vNormal;
+
+			void main() {
+
+				if (vDraw == 0.0) {
+					discard;
+				}
+
+				float depth = gl_FragCoord.z / gl_FragCoord.w;
+				float fogFactor = smoothstep( 450.0, 300.0, depth );		
+
+				// light
+				vec3 light = vec3(0.5,1.0,0.8);
+				float d = pow(max(0.25,dot(vNormal.xyz, light))*2.0, 1.5);
+
+				gl_FragColor = vec4( (color * vColor) * d * fogFactor, 1.0 );
+
+			}
+
+		</script>
+
+	<script>
+		var container;
+
+		var camera, scene, renderer;
+
+		var has_gl = false;
+
+		var delta;
+		var time;
+		var oldTime;
+
+		var uniforms;
+		var hair;
+
+		var gravity = new THREE.Vector3(0, 0, 0);
+		var gravity2 = new THREE.Vector3(0, 0, 0);
+
+		var mouse = new THREE.Vector2(0, 0);
+		var mouseObj = {
+			x: 0,
+			y: 0,
+			vx: 0,
+			vy: 0
+		};
+
+		var projector = new THREE.Projector();
+		var raycaster = new THREE.Raycaster();
+		var collisionMesh;
+
+		document.addEventListener('mousemove', onMouseMove, false);
+		document.addEventListener('touchmove', onTouchMove, false);
+
+		var touchDevice = (('ontouchstart' in document) || (navigator.userAgent.match(/ipad|iphone|android/i) != null));
+		var scaleRatio = 1;
+		if (touchDevice) scaleRatio = 3;
+
+		init();
+		animate()
+
+		function init() {
+
+			container = document.createElement('div');
+			document.body.appendChild(container);
+
+			scene = new THREE.Scene();
+
+			camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 1000);
+			camera.position.z = 400;
+			camera.lookAt(scene.position);
+			scene.add(camera);
+
+
+
+			collisionMesh = new THREE.Mesh(new THREE.PlaneGeometry(1000, 1000), new THREE.MeshBasicMaterial({
+				wireframe: true
+			}));
+			collisionMesh.renderDepth = -200;
+			scene.add(collisionMesh);
+
+			var attributes = {
+
+				draw: {
+					type: 'f',
+					value: []
+				},
+				seed: {
+					type: 'f',
+					value: []
+				},
+				seed2: {
+					type: 'f',
+					value: []
+				},
+				customColor: {
+					type: 'c',
+					value: []
+				},
+				index: {
+					type: 'f',
+					value: []
+				},
+				norm: {
+					type: 'v3',
+					value: []
+				},
+
+			};
+
+			uniforms = {
+
+				color: {
+					type: "c",
+					value: new THREE.Color(0xe4b67b)
+				},
+				globalTime: {
+					type: "f",
+					value: 0.0
+				},
+				gravity: {
+					type: "v3",
+					value: gravity
+				},
+				gravity2: {
+					type: "v3",
+					value: gravity2
+				},
+				spacing: {
+					type: "f",
+					value: 25.0
+				},
+
+			};
+
+			var shaderMaterial = new THREE.ShaderMaterial({
+
+				uniforms: uniforms,
+				attributes: attributes,
+				vertexShader: document.getElementById('vertexshader_lines').textContent,
+				fragmentShader: document.getElementById('fragmentshader_lines').textContent,
+
+			});
+
+			shaderMaterial.linewidth = 1;
+
+			var lineGeo = new THREE.Geometry();
+			var radius = 15;
+
+			var num = 70;
+			if (touchDevice) num = 40;
+
+			var baseGeo = new THREE.SphereGeometry(radius, num, num, undefined, undefined, 0.2, Math.PI * 0.8);
+
+			for (var i = 0; i < baseGeo.vertices.length; i++) {
+				baseGeo.vertices[i].x += Math.random() * 4 - 2;
+				baseGeo.vertices[i].y += Math.random() * 4 - 2;
+				baseGeo.vertices[i].z += Math.random() * 4 - 2;
+
+			}
+
+			var seedArray = [];
+			var seedArray2 = [];
+			var colorArray = [];
+			var drawArray = [];
+			var indexArray = [];
+			var normArray = [];
+
+			for (var i = 0; i < baseGeo.vertices.length; i++) {
+				var num = 30;
+
+				var base = baseGeo.vertices[i];
+				var seed = 1 + Math.random() * 0.5;
+				var seed2 = 0.25 + Math.random() * 0.75;
+
+
+				var norm = new THREE.Vector3().copy(base).normalize();
+				norm = norm.normalize();
+
+				var black = 0.65 + Math.random() * 0.75;
+
+				for (var j = 0; j < num; j++) {
+					var vertex = new THREE.Vector3().copy(base);
+					var color = new THREE.Color(0xffffff);
+					color.setRGB(1.0 * black, 1.0 * black, 1.0 * black);
+
+					lineGeo.vertices.push(vertex);
+					colorArray.push(color);
+					seedArray.push(seed);
+					seedArray2.push(seed2);
+					indexArray.push(j / num);
+					normArray.push(norm);
+
+					if (j == num - 1 || j == 0) {
+						drawArray.push(0);
+					} else {
+						drawArray.push(1);
+					}
+
+				}
+
+			}
+
+
+			var vertices = lineGeo.vertices;
+			var values_color = attributes.customColor.value;
+			var values_seed = attributes.seed.value;
+			var values_seed2 = attributes.seed2.value;
+			var values_draw = attributes.draw.value;
+			var values_index = attributes.index.value;
+			var values_norm = attributes.norm.value;
+
+			for (var v = 0; v < vertices.length; v++) {
+
+				values_seed[v] = seedArray[v];
+				values_seed2[v] = seedArray2[v];
+				values_draw[v] = drawArray[v];
+				values_color[v] = colorArray[v];
+				values_index[v] = indexArray[v];
+				values_norm[v] = normArray[v];
+
+			}
+
+			hair = new THREE.Line(lineGeo, shaderMaterial, THREE.LineStrip);
+			scene.add(hair);
+
+			try {
+				// renderer
+				renderer = new THREE.WebGLRenderer({
+					antialias: true
+				});
+				renderer.setSize(window.innerWidth / scaleRatio, window.innerHeight / scaleRatio);
+
+				if (scaleRatio > 1) {
+					renderer.domElement.style.position = "absolute";
+					renderer.domElement.style.top = "0px";
+					renderer.domElement.style.left = "0px";
+
+					renderer.domElement.style.webkitTransform = "scale3d(" + scaleRatio + ", " + scaleRatio + ", 1)";
+					renderer.domElement.style.webkitTransformOrigin = "0 0 0";
+					renderer.domElement.style.transform = "scale3d(" + scaleRatio + ", " + scaleRatio + ", 1)";
+					renderer.domElement.style.transformOrigin = "0 0 0";
+				}
+
+				window.addEventListener('resize', onWindowResize, false);
+
+				container.appendChild(renderer.domElement);
+				container.style.cursor = "url(cursor.png),pointer";
+
+				container.appendChild(renderer.domElement);
+				has_gl = true;
+			} catch (e) {
+				// need webgl
+				document.getElementById('info').innerHTML =
+					"<P><BR><B>Note.</B> You need a modern browser that supports WebGL for this to run the way it is intended.<BR>For example. <a href='http://www.google.com/landing/chrome/beta/' target='_blank'>Google Chrome 9+</a> or <a href='http://www.mozilla.com/firefox/beta/' target='_blank'>Firefox 4+</a>.<BR><BR>If you are already using one of those browsers and still see this message, it's possible that you<BR>have old blacklisted GPU drivers. Try updating the drivers for your graphic card.<BR>Or try to set a '--ignore-gpu-blacklist' switch for the browser.</P><CENTER><BR><img src='../general/WebGL_logo.png' border='0'></CENTER>";
+				document.getElementById('info').style.display = "block";
+				return;
+			}
+
+		}
+
+		function onWindowResize(event) {
+
+			var w = window.innerWidth;
+			var h = window.innerHeight;
+
+			renderer.setSize(w / scaleRatio, h / scaleRatio);
+
+			camera.aspect = w / h;
+			camera.updateProjectionMatrix();
+
+		}
+
+		function onMouseMove(event) {
+
+			event.preventDefault();
+
+			mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+			mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+		}
+
+		function onTouchMove(event) {
+
+			event.preventDefault();
+
+			mouse.x = (event.touches[0].clientX / window.innerWidth) * 2 - 1;
+			mouse.y = -(event.touches[0].clientY / window.innerHeight) * 2 + 1;
+
+		}
+
+
+		function animate() {
+
+			requestAnimationFrame(animate);
+
+			render();
+
+		}
+
+		function render() {
+
+			time = new Date().getTime();
+			delta = time - oldTime;
+			oldTime = time;
+
+			if (isNaN(delta) || delta > 1000 || delta == 0) {
+				delta = 1000 / 60;
+			}
+
+			uniforms.globalTime.value += delta * 0.005;
+
+			var optimalDivider = delta / 16;
+			var smoothing = Math.max(4, (20 / optimalDivider));
+
+			// fake some gravity according to mouse movement
+			var xf = (mouse.x - mouseObj.x) / (smoothing * 18);
+			var yf = (mouse.y - mouseObj.y) / (smoothing * 18);
+			mouseObj.vx += xf
+			mouseObj.vy += yf;
+			mouseObj.vx *= 0.97;
+			mouseObj.vy *= 0.97;
+			mouseObj.x += mouseObj.vx;
+			mouseObj.y += mouseObj.vy;
+
+			gravity.x += (-(mouse.x - mouseObj.x) * 10 - gravity.x) / smoothing;
+			gravity2.x += (-(mouse.x - mouseObj.x) * 10 - gravity2.x) / smoothing * 4;
+
+			if (gravity.x < -5) gravity.x = -5;
+			if (gravity2.x < -5) gravity2.x = -5;
+
+			if (gravity.x > 5) gravity.x = 5;
+			if (gravity2.x > 5) gravity2.x = 5;
+
+			var dif = (mouse.x - mouseObj.x) * 300;
+			var toy = (-5.0 + (Math.abs(dif) / 100) - (mouse.y - mouseObj.y) * 10);
+			gravity.y += (toy - gravity.y) / smoothing;
+			gravity2.y += (toy - gravity2.y) / smoothing * 4;
+
+			// intersection
+			var vector = new THREE.Vector3(mouse.x, mouse.y, 1);
+			projector.unprojectVector(vector, camera);
+
+			raycaster.set(camera.position, vector.sub(camera.position).normalize());
+
+			var intersects = raycaster.intersectObject(collisionMesh);
+
+			if (intersects.length > 0) {
+
+				var inter = intersects[0];
+
+				hair.position.x += (inter.point.x - hair.position.x) / smoothing;
+				hair.position.y += (inter.point.y - hair.position.y) / smoothing;
+
+			}
+
+			hair.rotation.z += (-(mouse.x - mouseObj.x) * 0.25 - hair.rotation.z) / smoothing;
+
+			camera.lookAt(scene.position);
+
+			if (has_gl) {
+				renderer.render(scene, camera);
+			}
+
+		}
+	</script>
+</body>
+
+</html>

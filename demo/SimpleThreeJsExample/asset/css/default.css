@@ -34,7 +34,7 @@ audio {
     right: 5px;
     width: 64px;
     z-index: 100000;
-    opacity: 0;
+    opacity: 1;
 }
 
 .on {

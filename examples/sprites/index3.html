@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<title>three.js - software renderer</title>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+	<style>
+		body {
+			font-family: Monospace;
+			background-color: #f0f0f0;
+			margin: 0px;
+			overflow: hidden;
+		}
+	</style>
+</head>
+
+<body>
+
+	<script src="js/three.js"></script>
+	<script src="js/geometries/hilbert3D.js"></script>
+	<script src="js/renderers/Projector.js"></script>
+	<script src="js/renderers/SoftwareRenderer.js"></script>
+	<script src="js/libs/stats.min.js"></script>
+	<script>
+		var container, stats, texLoader, map;
+
+		var camera, scene, renderer, envMap;
+
+		var sprite, cloud, cloud2, bird, fox;
+
+		var start = Date.now();
+
+		var cWidth = 852;
+		var cHeight = 480;
+
+		init();
+		animate();
+
+		function init() {
+
+			container = document.createElement('div');
+			container.style.width = cWidth + 'px';
+			container.style.height = cHeight + 'px';
+			container.style.margin = 'auto';
+			document.body.appendChild(container);
+
+			camera = new THREE.PerspectiveCamera(70, cWidth / cHeight, 1, 2000);
+			camera.position.z = 600;
+
+			scene = new THREE.Scene();
+
+			// Sprite
+			sprite = new THREE.Sprite(new THREE.SpriteMaterial({
+				color: 0xff0040
+			}));
+			sprite.scale.set(100, 100, 1);
+			sprite.position.set(-100, 200, 0);
+			scene.add(sprite);
+
+			// bg
+			texLoader = new THREE.TextureLoader();
+			map = texLoader.load('images/bg.png');
+			var bg = new THREE.Sprite(new THREE.SpriteMaterial({
+				map: map,
+				transparent: true
+			}));
+			bg.scale.set(cWidth * 1.76, cHeight * 1.76, 1);
+			bg.position.set(0, 0, 0);
+			scene.add(bg);
+
+			// cloud1
+			texLoader = new THREE.TextureLoader();
+			map = texLoader.load('images/cloud.png');
+			cloud = new THREE.Sprite(new THREE.SpriteMaterial({
+				map: map,
+				transparent: true
+			}));
+			cloud.scale.set(844 * 1.76, 71 * 1.76, 1);
+			cloud.position.set(0, 350, 1);
+			scene.add(cloud);
+
+			// cloud2
+			texLoader = new THREE.TextureLoader();
+			map = texLoader.load('images/cloud.png');
+			cloud2 = new THREE.Sprite(new THREE.SpriteMaterial({
+				map: map,
+				transparent: true
+			}));
+			cloud2.scale.set(844 * 1.76, 71 * 1.76, 1);
+			cloud2.position.set(0, 350, 1);
+			scene.add(cloud2);
+
+			// bird
+			texLoader = new THREE.TextureLoader();
+			map = texLoader.load('images/bird.png');
+			bird = new THREE.Sprite(new THREE.SpriteMaterial({
+				map: map,
+				transparent: true
+			}));
+			bird.scale.set(659 * 1.76, 158 * 1.76, 1);
+			bird.position.set(0, 350, 2);
+			scene.add(bird);
+
+			// tree
+			texLoader = new THREE.TextureLoader();
+			map = texLoader.load('images/tree.png');
+			var tree = new THREE.Sprite(new THREE.SpriteMaterial({
+				map: map,
+				transparent: true
+			}));
+			tree.scale.set(cWidth * 1.76, cHeight * 1.76, 1);
+			tree.position.set(0, 0, 3);
+			scene.add(tree);
+
+			// fox
+			texLoader = new THREE.TextureLoader();
+			map = texLoader.load('images/fox.png');
+			var fox = new THREE.Sprite(new THREE.SpriteMaterial({
+				map: map,
+				transparent: true
+			}));
+			fox.scale.set(65 * 1.76, 65 * 1.76, 1);
+			fox.position.set(0, 0, 4);
+			scene.add(fox);
+
+			renderer = new THREE.SoftwareRenderer();
+			renderer.setSize(cWidth, cHeight);
+
+			container.appendChild(renderer.domElement);
+
+			stats = new Stats();
+			container.appendChild(stats.dom);
+
+		}
+
+		function animate() {
+
+			requestAnimationFrame(animate);
+			render();
+			stats.update();
+
+		}
+
+		var cloudx = 0;
+
+		function render() {
+
+			var timer = Date.now() - start;
+
+			sprite.position.y = Math.sin(timer * 0.002) * 150;
+			sprite.rotation.x = timer * 0.0003;
+			sprite.rotation.z = timer * 0.0002;
+			cloudx = cloudx + 3;
+			if (cloudx > 850) {
+				cloudx = 0;
+			}
+			cloud.position.x = cloudx;
+			cloud2.position.x = cloudx - cWidth;
+
+			bird.position.x = Math.sin(timer * 0.0010) * 150;
+			bird.position.y = Math.sin(timer * 0.0016) * 30 * -1;
+
+			renderer.render(scene, camera);
+
+		}
+	</script>
+
+</body>
+
+</html>
