@@ -93,26 +93,27 @@ musicControllerObj.addEventListener('click', () => {
 }, false);
 
 restartObj.addEventListener('click', () => {
+    threeHelper.reset();
     //try to restart scanning
-    threeHelper.scene.background = null;
-    threeHelper.scene.visible = false;
+    // threeHelper.scene.background = null;
+    // threeHelper.scene.visible = false;
 
-    audioObj.pause();
-    audioObj.currentTime = 0;
+    // audioObj.pause();
+    // audioObj.currentTime = 0;
 
-    document.querySelector('#videoDevice').style.display = 'block';
-    restartObj.style.opacity = 0;
-    musicControllerObj.style.opacity = 0;
-    webAR.startRecognize((msg) => {
-        document.querySelector('#videoDevice').style.display = 'none';
+    // document.querySelector('#videoDevice').style.display = 'block';
+    // restartObj.style.opacity = 0;
+    // musicControllerObj.style.opacity = 0;
+    // webAR.startRecognize((msg) => {
+    //     document.querySelector('#videoDevice').style.display = 'none';
 
-        threeHelper.scene.background = threeHelper.refractionCube;
-        threeHelper.scene.visible = true;
-        restartObj.style.opacity = 1;
-        musicControllerObj.style.opacity = 1;
+    //     threeHelper.scene.background = threeHelper.refractionCube;
+    //     threeHelper.scene.visible = true;
+    //     restartObj.style.opacity = 1;
+    //     musicControllerObj.style.opacity = 1;
 
-        webAR.stopRecognize();
-    });
+    //     webAR.stopRecognize();
+    // });
 }, false);
 
 threeHelper.scene.visible = false;

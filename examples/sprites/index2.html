@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<title>three.js - software renderer</title>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+	<style>
+		body {
+			font-family: Monospace;
+			background-color: #f0f0f0;
+			margin: 0px;
+			overflow: hidden;
+		}
+	</style>
+</head>
+
+<body>
+
+	<script src="js/three.js"></script>
+	<script src="js/hilbert3D.js"></script>
+	<script src="js/Projector.js"></script>
+	<script src="js/SoftwareRenderer.js"></script>
+	<script src="js/stats.min.js"></script>
+
+	<script src='js/TeapotBufferGeometry.js'></script>
+	<script src="js/OrbitControls.js"></script>
+	<script src="js/dat.gui.min.js"></script>
+
+	<script type="module">
+		import './js/nodes/THREE.Nodes.js';
+		import './js/loaders/NodeMaterialLoader.js';
+		var container, stats, texLoader, map, clock = new THREE.Clock(),
+			frame = new THREE.NodeFrame();
+
+		var camera, scene, renderer, foxTexture, foxTextureURL;
+
+		var sprite, cloud, cloud2, bird, fox;
+
+		var library = {};
+
+		var start = Date.now();
+
+		var cWidth = 852;
+		var cHeight = 480;
+
+		init();
+		animate();
+
+		function init() {
+
+			container = document.createElement('div');
+			container.style.width = cWidth + 'px';
+			container.style.height = cHeight + 'px';
+			container.style.margin = 'auto';
+			document.body.appendChild(container);
+
+			camera = new THREE.PerspectiveCamera(50, cWidth / cHeight, 1, 2000);
+			camera.position.z = 600;
+			camera.target = new THREE.Vector3();
+
+			scene = new THREE.Scene();
+
+			// Sprite
+			sprite = new THREE.Sprite(new THREE.SpriteMaterial({
+				color: 0xff0040
+			}));
+			sprite.scale.set(100, 100, 1);
+			sprite.position.set(-100, 200, 0);
+			scene.add(sprite);
+
+			// bg
+			texLoader = new THREE.TextureLoader();
+			map = texLoader.load('images/bg.png');
+			var bg = new THREE.Sprite(new THREE.SpriteMaterial({
+			map: map,
+			transparent: true
+			}));
+			bg.scale.set(cWidth*1.19, cHeight*1.19, 1);
+			bg.position.set(0, 0, -10);
+			scene.add(bg);
+
+			// cloud1
+			texLoader = new THREE.TextureLoader();
+			map = texLoader.load('images/cloud.png');
+			cloud = new THREE.Sprite(new THREE.SpriteMaterial({
+			map: map,
+			transparent: true
+			}));
+			cloud.scale.set(844 * 1.19, 71 * 1.19, 1);
+			cloud.position.set(0, 350, -9);
+			scene.add(cloud);
+
+			// cloud2
+			texLoader = new THREE.TextureLoader();
+			map = texLoader.load('images/cloud.png');
+			cloud2 = new THREE.Sprite(new THREE.SpriteMaterial({
+			map: map,
+			transparent: true
+			}));
+			cloud2.scale.set(844 * 1.19, 71 * 1.19, 1);
+			cloud2.position.set(0, 350, -8);
+			scene.add(cloud2);
+
+			// bird
+			texLoader = new THREE.TextureLoader();
+			map = texLoader.load('images/bird.png');
+			bird = new THREE.Sprite(new THREE.SpriteMaterial({
+			map: map,
+			transparent: true
+			}));
+			bird.scale.set(659 * 1.19, 158 * 1.19, 1);
+			bird.position.set(0, 350, -7);
+			scene.add(bird);
+
+			// tree
+			texLoader = new THREE.TextureLoader();
+			map = texLoader.load('images/tree.png');
+			var tree = new THREE.Sprite(new THREE.SpriteMaterial({
+			map: map,
+			transparent: true
+			}));
+			tree.scale.set(cWidth * 1.19, cHeight * 1.19, 1);
+			tree.position.set(0, 0, -6);
+			scene.add(tree);
+
+			// fox
+			foxTextureURL = "images/fox.png";
+			foxTexture = new THREE.TextureLoader().load(foxTextureURL);
+			foxTexture.wrapS = foxTexture.wrapT = THREE.RepeatWrapping;
+			library[foxTextureURL] = foxTexture;
+
+			// horizontal sprite-sheet animator
+			function createHorizontalSpriteSheetNode(hCount, speed) {
+				var speed = new THREE.Vector2Node(speed, 0); // frame per second
+				var scale = new THREE.Vector2Node(1 / hCount, 1); // 8 horizontal images in sprite-sheet
+				var uvTimer = new THREE.OperatorNode(
+					new THREE.TimerNode(),
+					speed,
+					THREE.OperatorNode.MUL
+				);
+				var uvIntegerTimer = new THREE.Math1Node(
+					uvTimer,
+					THREE.Math1Node.FLOOR
+				);
+				var uvFrameOffset = new THREE.OperatorNode(
+					uvIntegerTimer,
+					scale,
+					THREE.OperatorNode.MUL
+				);
+				var uvScale = new THREE.OperatorNode(
+					new THREE.UVNode(),
+					scale,
+					THREE.OperatorNode.MUL
+				);
+				var uvFrame = new THREE.OperatorNode(
+					uvScale,
+					uvFrameOffset,
+					THREE.OperatorNode.ADD
+				);
+				return uvFrame;
+			}
+
+			var spriteWidth = 32,
+				spriteHeight = 65;
+			scene.add(fox = new THREE.Sprite(new THREE.SpriteNodeMaterial()));
+			fox.position.x = 0;
+			fox.scale.x = spriteWidth;
+			fox.scale.y = spriteHeight;
+			fox.material.color = new THREE.TextureNode(foxTexture);
+			fox.material.color.uv = createHorizontalSpriteSheetNode(2, 32);
+			fox.material.color = new THREE.Math1Node(fox.material.color, THREE.Math1Node.INVERT);
+			fox.material.spherical = false; // look at camera horizontally only, very used in vegetation
+			// horizontal zigzag sprite
+			fox.material.position = new THREE.OperatorNode(
+				new THREE.OperatorNode(
+					new THREE.Math1Node(new THREE.TimerNode(3), THREE.Math1Node.SIN), // 3 is speed (time scale)
+					new THREE.Vector2Node(.3, 0), // horizontal scale (position)
+					THREE.OperatorNode.MUL
+				),
+				new THREE.PositionNode(),
+				THREE.OperatorNode.ADD
+			);
+
+			spriteToJSON(fox);
+
+			renderer = new THREE.WebGLRenderer({
+				antialias: true
+			});
+			renderer.setPixelRatio( window.devicePixelRatio );
+			renderer.setSize(cWidth, cHeight);
+
+			container.appendChild(renderer.domElement);
+
+			stats = new Stats();
+			container.appendChild(stats.dom);
+
+		}
+
+		function spriteToJSON(sprite) {
+			// serialize
+			var json = sprite.material.toJSON();
+			// replace uuid to url (facilitates the load of textures using url otherside uuid)
+			THREE.NodeMaterialLoaderUtils.replaceUUID(json, foxTexture, foxTextureURL);
+			// deserialize
+			var material = new THREE.NodeMaterialLoader(null, library).parse(json);
+			// replace material
+			sprite.material.dispose();
+			sprite.material = material;
+		}
+
+		function animate() {
+
+			render();
+			requestAnimationFrame(animate);
+			stats.update();
+
+		}
+
+		var cloudx = 0;
+
+		function render() {
+
+			var timer = Date.now() - start;
+
+			sprite.position.y = Math.sin(timer * 0.002) * 150;
+			sprite.rotation.x = timer * 0.0003;
+			sprite.rotation.z = timer * 0.0002;
+
+			// cloudx = cloudx + 3;
+			// if (cloudx > 850) {
+			// cloudx = 0;
+			// }
+			// cloud.position.x = cloudx;
+			// cloud2.position.x = cloudx - cWidth;
+
+			// bird.position.x = Math.sin(timer * 0.0010) * 150;
+			// bird.position.y = Math.sin(timer * 0.0016) * 30 * -1;
+
+			var delta = clock.getDelta();
+			// update material animation and/or gpu calcs (pre-renderer)
+			frame.update(delta).updateNode(fox.material)
+
+			renderer.render(scene, camera);
+
+		}
+	</script>
+
+</body>
+
+</html>

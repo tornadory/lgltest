@@ -11,6 +11,9 @@ const ThreeHelper = function () {
         antialias: true,
         alpha: true
     });
+    this.renderer.physicallyCorrectLights = true;
+    this.renderer.gammaOutput = true;
+    this.renderer.gammaFactor = 2.2;
     this.renderer.setSize(window.innerWidth, window.innerHeight);
     this.renderer.domElement.setAttribute('class', 'mainCanvas');
     document.body.appendChild(this.renderer.domElement);
@@ -18,7 +21,7 @@ const ThreeHelper = function () {
     this.loadingManager = new THREE.LoadingManager();
     this.loadingManager.onProgress = function (item, loaded, total) {
         let percent = loaded / total;
-        percent = percent.toFixed(2) * 100;
+        percent = Math.round(percent * 100);
         let loadingText = document.getElementById("loadingTxt");
         loadingText.innerText = percent + "%";
     };
@@ -57,15 +60,15 @@ const ThreeHelper = function () {
     // hemiLight.position.set(0, 0, 0);
     // this.scene.add(hemiLight);
 
-    const control = new THREE.OrbitControls(this.camera, this.renderer.domElement);
-    control.screenSpacePanning = false;
+    this.control = new THREE.OrbitControls(this.camera, this.renderer.domElement);
+    this.control.screenSpacePanning = false;
 
-    control.minDistance = 10;
-    control.maxDistance = 100;
+    this.control.minDistance = 10;
+    this.control.maxDistance = 100;
 
-    control.minPolarAngle = Math.PI / 4;
-    control.maxPolarAngle = Math.PI / 2;
-    control.update();
+    this.control.minPolarAngle = Math.PI / 4;
+    this.control.maxPolarAngle = Math.PI / 2;
+    this.control.update();
 
     this.clock = new THREE.Clock();
     this.mixers = [];
@@ -87,6 +90,10 @@ const ThreeHelper = function () {
             this.render();
         });
     };
+
+    this.reset = () => {
+        this.control.reset();
+    }
 
     this.loadGLTF = function (modelUrl, callback) {
         const loader = new THREE.GLTFLoader(this.loadingManager);
