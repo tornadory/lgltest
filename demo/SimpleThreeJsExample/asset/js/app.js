@@ -124,8 +124,8 @@ threeHelper.loadGLTF('asset/model/gltf/scene.gltf', () => {
 
     initFunc();
 
-    threeHelper.scene.background = threeHelper.refractionCube;
-    threeHelper.scene.visible = true;
+    // threeHelper.scene.background = threeHelper.refractionCube;
+    // threeHelper.scene.visible = true;
 
     webAR.startRecognize((msg) => {
         restartObj.style.opacity = 1;
