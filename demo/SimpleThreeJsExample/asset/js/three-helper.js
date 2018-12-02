@@ -56,10 +56,6 @@ const ThreeHelper = function () {
     this.light.position.set(50, 5, 50);
     this.scene.add(this.light);
 
-    // var hemiLight = new THREE.HemisphereLight(0x0000ff, 0x00ff00, 1)
-    // hemiLight.position.set(0, 0, 0);
-    // this.scene.add(hemiLight);
-
     this.control = new THREE.OrbitControls(this.camera, this.renderer.domElement);
     this.control.screenSpacePanning = false;
 
@@ -100,7 +96,7 @@ const ThreeHelper = function () {
         loader.load(modelUrl, (gltf) => {
             let object = gltf.scene;
             object.scale.setScalar(0.15);
-            object.position.set(0, -20, 0);
+            object.position.set(0, -25, 0);
             this.scene.add(object);
             this.light.target = object;
 
