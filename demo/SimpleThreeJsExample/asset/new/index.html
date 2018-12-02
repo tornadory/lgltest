@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>WebAR,让AR无处不在</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+    <link rel="stylesheet" href="assets/css/default.css?t=201805241" />
+</head>
+<body>
+
+<video id="video" playsinline=""></video>
+
+<div id="pageFirst" class="page none">
+    <img class="page-bg" src="assets/images/bg-first.png" />
+    <!--<div id="iosWxMini" class="none">因iOS微信小程序的限制<br />小程序不能打开摄像头<br />请点击“立即体验”</div>-->
+    <div class="btn-group">
+        <div><img id="btnScan" src="assets/images/btn-scan.png" /></div>
+        <div><a href="https://staticfile-cdn.sightp.com/easyar/webar/xiaoxiongmao.png" target="_blank"><img class="btnDown" src="assets/images/btn-down.png" /></a></div>
+        <div><img id="btnDirect" src="assets/images/btn-direct.png" /></div>
+    </div>
+</div>
+
+<div id="pageScan" class="page none">
+    <!--<img class="page-bg page-scan-bg" src="assets/images/scan-box.png?t=20180517" />-->
+    <div class="scan-line">
+        <img src="assets/images/scan-line.png" />
+    </div>
+</div>
+
+<div id="pageLoading" class="page none">
+    <img class="loading-line" src="assets/images/loading-line.png" />
+    <div class="loading-images">
+        <div id="loading">
+            <div class="loaing-ani"></div>
+            <div class="loaing-ani"></div>
+            <div class="loaing-ani"></div>
+            <div class="loaing-ani"></div>
+            <div class="loaing-ani"></div>
+        </div>
+    </div>
+    <div class="loading-percent">加载中... <span id="loadingPercent"></span></div>
+</div>
+
+<div id="pageLottery" class="page none">
+    <img class="page-bg" src="assets/images/bg-lottery.jpg" />
+
+    <div class="lottery-turntable">
+        <img class="turntable" src="assets/images/turntable.png" />
+        <img id="btnTurntableArrow" class="turntable-arrow" src="assets/images/turntable-arrow.png" />
+    </div>
+
+    <div id="lotterySuccess" class="lottery-ext none">
+        <div class="title">恭喜您，中奖了！</div>
+        <div class="desc">请尽快填写联系方式，否则无法发送奖品。</div>
+        <img id="btnContact" class="btn" src="assets/images/btn-contact.png" />
+    </div>
+
+    <div id="lotteryFail" class="lottery-ext none">
+        <div class="title">很遗憾，您没有中奖！</div>
+        <img id="btnAgain" class="btn" src="assets/images/btn-again.png" />
+    </div>
+</div>
+
+<div id="pageContact" class="page none">
+    <img class="page-bg" src="assets/images/bg-contact.png" />
+
+    <div class="main">
+        <div class="input-group">
+            <input type="text" maxlength="11" id="inputMobile" />
+            <input type="text" maxlength="20" id="inputContact" />
+            <input type="text" maxlength="200" id="inputAddress" />
+        </div>
+        <div class="center">
+            <img id="btnSubmitContact" src="assets/images/btn-ok.png" />
+        </div>
+    </div>
+
+    <div id="msgSubmitOK" class="maskerMsg none">
+        <div class="masker"></div>
+        <div class="contactSubmitOK">
+            <img id="btnSubmitOK" class="tip" src="assets/images/submit-ok.png" />
+        </div>
+    </div>
+</div>
+
+<div id="pageWxIos" class="maskerMsg none">
+    <div class="masker"></div>
+    <div>
+        <img class="icon-wx-ios" src="assets/images/share_ios.png" />
+        <div class="tip">
+            <div>请点击右上角<br />选择“在Safari中打开”</div>
+        </div>
+    </div>
+</div>
+
+<div id="pagePreview" class="page none">
+    <img id="btnOrigin" src="assets/images/btn-origin.png" />
+    <img id="btnLottery" class="none" src="assets/images/btn-lottery.png" />
+</div>
+
+<script type="text/javascript" src="assets/libs/webrtc/adapter.min.js"></script>
+<script type="text/javascript" src="assets/libs/three/three.min.js"></script>
+<script type="text/javascript" src="assets/libs/three/OrbitControls.js"></script>
+<script type="text/javascript" src="assets/libs/three/DeviceOrientationControls.min.js?"></script>
+<script type="text/javascript" src="assets/libs/three/FBXLoader.min.js"></script>
+<script type="text/javascript" src="assets/libs/three/inflate.min.js"></script>
+<script type="text/javascript" src="assets/libs/three/NURBSCurve.min.js"></script>
+<script type="text/javascript" src="assets/libs/three/NURBSUtils.min.js"></script>
+<script type="text/javascript">
+    (function(){
+//        const vconsole = new VConsole();
+
+        const script = document.createElement('script');
+        script.src = 'assets/js/app.js?t=' + (new Date()).getTime();
+        document.body.appendChild(script);
+    })();
+</script>
+
+</body>
+</html>

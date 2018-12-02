@@ -118,35 +118,14 @@ restartObj.addEventListener('click', () => {
 
 threeHelper.scene.visible = false;
 
-threeHelper.loadFBX('asset/model/xiaoxiongmao.fbx', () => {
-    var loadingUI = document.querySelector('#loadingUI');
-    loadingUI.style.display = 'none';
-
-    initFunc();
-
-    threeHelper.scene.background = threeHelper.refractionCube;
-    threeHelper.scene.visible = true;
-
-    webAR.startRecognize((msg) => {
-        restartObj.style.opacity = 1;
-        musicControllerObj.style.opacity = 1;
-        document.querySelector('#videoDevice').style.display = 'none';
-
-        threeHelper.scene.background = threeHelper.refractionCube;
-        threeHelper.scene.visible = true;
-
-        webAR.stopRecognize();
-    });
-});
-
-// threeHelper.loadGLTF('asset/model/gltf/scene.gltf', () => {
+// threeHelper.loadFBX('asset/model/xiaoxiongmao.fbx', () => {
 //     var loadingUI = document.querySelector('#loadingUI');
 //     loadingUI.style.display = 'none';
 
 //     initFunc();
 
-//     // threeHelper.scene.background = threeHelper.refractionCube;
-//     // threeHelper.scene.visible = true;
+//     threeHelper.scene.background = threeHelper.refractionCube;
+//     threeHelper.scene.visible = true;
 
 //     webAR.startRecognize((msg) => {
 //         restartObj.style.opacity = 1;
@@ -159,3 +138,24 @@ threeHelper.loadFBX('asset/model/xiaoxiongmao.fbx', () => {
 //         webAR.stopRecognize();
 //     });
 // });
+
+threeHelper.loadGLTF('asset/model/gltf/scene.gltf', () => {
+    var loadingUI = document.querySelector('#loadingUI');
+    loadingUI.style.display = 'none';
+
+    initFunc();
+
+    // threeHelper.scene.background = threeHelper.refractionCube;
+    // threeHelper.scene.visible = true;
+
+    webAR.startRecognize((msg) => {
+        restartObj.style.opacity = 1;
+        musicControllerObj.style.opacity = 1;
+        document.querySelector('#videoDevice').style.display = 'none';
+
+        threeHelper.scene.background = threeHelper.refractionCube;
+        threeHelper.scene.visible = true;
+
+        webAR.stopRecognize();
+    });
+});
