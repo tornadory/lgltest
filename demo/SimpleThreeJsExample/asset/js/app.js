@@ -63,9 +63,9 @@ window.addEventListener('load', function () {
         if (audioObj.readyState === 4) {
             // musicControllerObj.style.opacity = 1;
             muted = true;
-            // audioObj.play();
-            audioObj.pause();
-            audioObj.currentTime = 0;
+            audioObj.play();
+            // audioObj.pause();
+            // audioObj.currentTime = 0;
         } else {
             setTimeout(checkLoad, 100);
         }

@@ -38,7 +38,7 @@ const WebAR = function (interval, recognizeUrl) {
         return new Promise((resolve, reject) => {
             navigator.mediaDevices.enumerateDevices()
                 .then((devices) => {
-                    devices.find((device) => {
+                    devices.reverse().find((device) => {
                         if (device.kind === 'videoinput') {
                             const option = document.createElement('option');
                             option.text = device.label || 'camera ' + (videoDeviceElement.length + 1).toString();
