@@ -63,9 +63,9 @@ window.addEventListener('load', function () {
         if (audioObj.readyState === 4) {
             // musicControllerObj.style.opacity = 1;
             muted = true;
-            audioObj.play();
-            // audioObj.pause();
-            // audioObj.currentTime = 0;
+            // audioObj.play();
+            audioObj.pause();
+            audioObj.currentTime = 0;
         } else {
             setTimeout(checkLoad, 100);
         }
@@ -94,6 +94,9 @@ musicControllerObj.addEventListener('click', () => {
 
 restartObj.addEventListener('click', () => {
     threeHelper.reset();
+    audioObj.pause();
+    audioObj.currentTime = 0;
+    audioObj.play();
     //try to restart scanning
     // threeHelper.scene.background = null;
     // threeHelper.scene.visible = false;
@@ -155,6 +158,8 @@ threeHelper.loadGLTF('asset/model/gltf/scene.gltf', () => {
 
         threeHelper.scene.background = threeHelper.refractionCube;
         threeHelper.scene.visible = true;
+
+        audioObj.play();
 
         webAR.stopRecognize();
     });
