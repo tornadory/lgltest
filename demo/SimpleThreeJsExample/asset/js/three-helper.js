@@ -26,6 +26,8 @@ const ThreeHelper = function () {
         loadingText.innerText = percent + "%";
     };
 
+    this.action = null;
+
     var genCubeUrls = function (prefix, postfix) {
         return [
             prefix + 'px' + postfix, prefix + 'nx' + postfix,
@@ -106,14 +108,18 @@ const ThreeHelper = function () {
                 this.mixers.push(object.mixer);
                 for (var i = 0; i < animations.length; i++) {
                     var animation = animations[i];
-                    var action = object.mixer.clipAction(animation);
-                    action.play();
+                    this.action = object.mixer.clipAction(animation);
+                    // this.action.play();
                 }
             }
             if (callback)
                 callback();
         })
     };
+
+    this.startAnim = function () {
+        this.action.play();
+    }
 
     this.loadFBX = function (modelUrl, callback) {
         const loader = new THREE.FBXLoader();

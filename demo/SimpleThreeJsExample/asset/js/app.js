@@ -4,6 +4,7 @@ const threeHelper = new ThreeHelper();
 var rotX = 0;
 var rotY = 0;
 var rotZ = 0;
+var recognized = false;
 
 var initFunc = function () {
     const videoSetting = {
@@ -58,10 +59,9 @@ var musicControllerObj = document.querySelector("#musicController");
 var restartObj = document.querySelector("#restartScan");
 
 window.addEventListener('load', function () {
-
     function checkLoad() {
         if (audioObj.readyState === 4) {
-            // musicControllerObj.style.opacity = 1;
+            musicControllerObj.style.opacity = 1;
             muted = true;
             // audioObj.play();
             audioObj.pause();
@@ -72,6 +72,16 @@ window.addEventListener('load', function () {
     }
     checkLoad();
 }, false);
+
+document.addEventListener('touchstart', function () {
+    console.log("touch start");
+    if (recognized) {
+        console.log("recgonized");
+        threeHelper.action.play();
+        audioObj.play();
+        recognized = false;
+    }
+});
 
 audioObj.addEventListener('play', function () {
     musicControllerObj.src = "asset/images/music.png";
@@ -148,11 +158,12 @@ threeHelper.loadGLTF('asset/model/gltf/scene.gltf', () => {
 
     initFunc();
 
-    threeHelper.scene.background = threeHelper.refractionCube;
-    threeHelper.scene.visible = true;
-    audioObj.play();
+    // threeHelper.scene.background = threeHelper.refractionCube;
+    // threeHelper.scene.visible = true;
+    // audioObj.play();
 
     webAR.startRecognize((msg) => {
+        recognized = true;
         restartObj.style.opacity = 1;
         musicControllerObj.style.opacity = 1;
         document.querySelector('#videoDevice').style.display = 'none';

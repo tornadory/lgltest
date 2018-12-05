@@ -1,9 +1,9 @@
 <?php
 
 //cloud setting
-define('CLOUDKEY', '546d8fa09db54073b0b34adee80f9347');
-define('CLOUDSECRET', '5QUyL78CDeOsr47he1rPRmk2OyPYRiL3jlLwIukMRU0o8SBWBEQEmiXOgjrAKoJl2xLwoDwG5oRRSc7W56XwAfT90aeJWz0jf6Pk0hb7w4hooTX7K6G6cW6jLRtByuFB');
-define('CLOUDURL', 'http://731bf0788cf68bce9f0a24539c193c39.cn1.crs.easyar.com:8080/search');
+define('CLOUDKEY', '0aef8ac53792ac115c41f0795a46b754');
+define('CLOUDSECRET', 'L5TOIturWKXqms9Wh5YzkmXmLnoehME5Wj8F7ogG8uNBtWM22hXSFKfrL7zqgPYDqSQDRcxevhgYZjDxDaaqqn94SwbRnjkI14w6aeu5Av2GzVBie06C3CleMUWNNibx');
+define('CLOUDURL', 'http://19418187279234698fcb837a483d8a2c.cn1.crs.easyar.com:8080/search');
 
 header('Content-Type: application/javascript; charset=UTF-8');
 
