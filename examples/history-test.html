@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>History Test</title>
+</head>
+
+<body>
+    <a href="#" onclick="test()">aasadf</a>
+    <script>
+        function test() {
+            window.location.href = "https://www.baidu.com"
+        }
+        window.addEventListener('popstate', function () {
+            alert(2);
+            // history.pushState(null, null, window.history.go(-1));
+        });
+
+        window.onbeforeunload = function () {
+            return "Your work will be lost.";
+        };
+    </script>
+</body>
+
+</html>
