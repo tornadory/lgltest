@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Algorithm Test</title>
+</head>
+
+<body>
+    10011000100010001 <br>
+    01101101101101101 <br>
+    10101010101010101 <br>
+
+    <div class="rel">
+        "免费上面测量"
+        <hr class="w100">
+    </div>
+
+    <script>
+        // var data = "100110001000100010110110110110110110101010101010101".split();
+        var data = [0, 1, 1, 0, 0, 0, 1, 1, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0];
+        console.log(data[0]);
+        var filterShapes = function (data, row, col) {
+            if (data === undefined) {
+                console.log('params not right ', data, row, col);
+                return 0;
+            }
+
+            var resultArray;
+            var currentGroup = 2;
+
+            for (var i = 0; i < row; i++) {
+                for (var j = 0; j < col; j++) {
+                    var index = i * col + j;
+                    if (data[index] > 0) {
+                        console.log(index, data[index]);
+                    }
+                }
+            }
+        }
+
+        filterShapes(data, 10, 2);
+    </script>
+</body>
+
+</html>
