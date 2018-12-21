@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Cipher Test</title>
+    <script src="./crypto-js.js"></script>
+</head>
+
+<body>
+    <script>
+        // Encrypt
+        var ciphertext = CryptoJS.AES.encrypt('my message', '12345').toString();
+
+        // Decrypt
+        var bytes = CryptoJS.AES.decrypt(ciphertext, '12345');
+        console.log(bytes.toString());
+        var originalText = bytes.toString(CryptoJS.enc.Utf8);
+        console.log(originalText); // 'my message'
+
+
+        // var encrypted = CryptoJS.SHA256('hello world');
+        // alert(encrypted);
+        // console.log(encrypted.toString());
+
+
+        console.log(getAES('abcde'));
+        var ciperText = getAES('abcde');
+        console.log(ciperText);
+        // // console.log(getDAes('fE5RIq0CAZ6mnnp8LoI6iw=='));//TMlR/Kx2S9xvBomUBk4qXQ==
+        // console.log(getDAes('TMlR/Kx2S9xvBomUBk4qXQ==')); //TMlR/Kx2S9xvBomUBk4qXQ==
+        console.log(getDAes(ciperText));
+
+        function getAesString(data, key, iv) { //加密
+            var key = CryptoJS.enc.Utf8.parse(key);
+            //alert(key）;
+            var iv = CryptoJS.enc.Utf8.parse(iv);
+            var encrypted = CryptoJS.AES.encrypt(data, key, {
+                iv: iv,
+                mode: CryptoJS.mode.CBC,
+                padding: CryptoJS.pad.Pkcs7
+            });
+            return encrypted.toString(); //返回的是base64格式的密文
+        }
+
+        function getDAesString(encrypted, key, iv) { //解密
+            var key = CryptoJS.enc.Utf8.parse(key);
+            var iv = CryptoJS.enc.Utf8.parse(iv);
+            var decrypted = CryptoJS.AES.decrypt(encrypted, key, {
+                iv: iv,
+                mode: CryptoJS.mode.CBC,
+                padding: CryptoJS.pad.Pkcs7
+            });
+            return decrypted.toString(CryptoJS.enc.Utf8); //
+        }
+
+        function getAES(data) { //加密
+            // key = D5E483D8B90C02BD4D470BA8049E1FA6
+            // iv = 1 D64EB2BFA444CBF9853CDFB8B24DA7A
+            // var key = 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA'; //密钥
+            // var iv = '1234567812345678';
+            // var key = 'D5E483D8B90C02BD4D470BA8049E1FA6'; //密钥
+            var key = 'D5E483D8B90C02BD4D470BA8049E1FA6'; //密钥
+            var iv = '1234567812345678';
+            var encrypted = getAesString(data, key, iv); //密文
+            var encrypted1 = CryptoJS.enc.Utf8.parse(encrypted);
+            return encrypted;
+        }
+
+        function getDAes(data) { //解密
+            var key = 'D5E483D8B90C02BD4D470BA8049E1FA6'; //密钥
+            var iv = '1234567812345678';
+            // var key = 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA'; //密钥
+            // var iv = '1234567812345678';
+            var decryptedStr = getDAesString(data, key, iv);
+            return decryptedStr;
+        }
+    </script>
+</body>
+
+</html>
