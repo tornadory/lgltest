@@ -50,15 +50,17 @@
 
         var prePos = [];
         var preRot = [];
+        var preTargets = [];
         var index = -1;
 
         var button = document.getElementById('addBtn');
         button.addEventListener('click', function () {
-            console.log("camera ", camera.position, camera.rotation);
+            console.log("camera ", controls.target);
             var len = prePos.length;
             prePos[len] = camera.position.clone();
             preRot[len] = camera.rotation.clone();
-            console.log("add to ", prePos, preRot);
+            preTargets[len] = controls.target.clone();
+            console.log("add to ", prePos, preRot, preTargets);
         });
 
         init();
@@ -116,7 +118,7 @@
             renderer.setSize(window.innerWidth, window.innerHeight);
             container.appendChild(renderer.domElement);
 
-            var controls = new THREE.OrbitControls(camera, renderer.domElement);
+            controls = new THREE.OrbitControls(camera, renderer.domElement);
 
             stats = new Stats();
             container.appendChild(stats.dom);
@@ -176,7 +178,8 @@
                             z: prePos[index].z
                         }, 1000)
                         .onUpdate(function () {
-                            camera.lookAt(scene.position);
+                            // camera.lookAt(scene.position);
+                            camera.lookAt(preTargets[index]);
                         })
                         .easing(TWEEN.Easing.Linear.None).start();
 
