@@ -48,13 +48,17 @@
         var raycaster;
         var mouse;
 
-        var prePos;
-        var preRot;
+        var prePos = [];
+        var preRot = [];
+        var index = -1;
 
         var button = document.getElementById('addBtn');
         button.addEventListener('click', function () {
-            console.log('clicked');
             console.log("camera ", camera.position, camera.rotation);
+            var len = prePos.length;
+            prePos[len] = camera.position.clone();
+            preRot[len] = camera.rotation.clone();
+            console.log("add to ", prePos, preRot);
         });
 
         init();
@@ -160,19 +164,45 @@
 
                 console.log("len > 0", camera.position, camera.rotation); //0 300 500    -0.54 0 0 
 
-                new TWEEN.Tween(camera.position).to({
-                        x: 0,
-                        y: 300,
-                        z: 500
-                    }, 1000)
-                    .easing(TWEEN.Easing.Linear.None).start();
+                if (prePos.length > 0) {
+                    if (index > prePos.length - 2) {
+                        index = -1;
+                    }
 
-                new TWEEN.Tween(camera.rotation).to({
-                        x: -0.54,
-                        y: 0,
-                        z: 0
-                    }, 1000)
-                    .easing(TWEEN.Easing.Linear.None).start();
+                    index++;
+                    new TWEEN.Tween(camera.position).to({
+                            x: prePos[index].x,
+                            y: prePos[index].y,
+                            z: prePos[index].z
+                        }, 1000)
+                        .onUpdate(function () {
+                            camera.lookAt(scene.position);
+                        })
+                        .easing(TWEEN.Easing.Linear.None).start();
+
+                    // new TWEEN.Tween(camera.rotation).to({
+                    //         x: preRot[index].x,
+                    //         y: preRot[index].y,
+                    //         z: preRot[index].z
+                    //     }, 1000)
+                    //     .easing(TWEEN.Easing.Linear.None).start();
+                }
+
+
+
+                // new TWEEN.Tween(camera.position).to({
+                //         x: 0,
+                //         y: 300,
+                //         z: 500
+                //     }, 1000)
+                //     .easing(TWEEN.Easing.Linear.None).start();
+
+                // new TWEEN.Tween(camera.rotation).to({
+                //         x: -0.54,
+                //         y: 0,
+                //         z: 0
+                //     }, 1000)
+                //     .easing(TWEEN.Easing.Linear.None).start();
 
                 // new TWEEN.Tween(camera.position).to({
                 //         x: Math.random() * 800 - 400,
