@@ -222,13 +222,27 @@
         animate();
 
         function tweenCamera(index) {
+            var target = controls.target.clone();
+            new TWEEN.Tween(target).to({
+                    x: ctlTargets[index].x,
+                    y: ctlTargets[index].y,
+                    z: ctlTargets[index].z
+                }, 2000)
+                .onUpdate(function () {
+                    camera.lookAt(target);
+                })
+                .onComplete(function () {
+                    //controls.target = ctlTargets[index].clone();
+                })
+                .easing(TWEEN.Easing.Linear.None).start();
+
             new TWEEN.Tween(camera.position).to({
                     x: camPositions[index].x,
                     y: camPositions[index].y,
                     z: camPositions[index].z
                 }, 2000)
                 .onUpdate(function () {
-                    camera.lookAt(ctlTargets[index]);
+                    //camera.lookAt(ctlTargets[index]);
                 })
                 .onComplete(function () {
                     controls.target = ctlTargets[index].clone();
