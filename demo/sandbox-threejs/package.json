@@ -1,0 +1,48 @@
+{
+  "name": "sandbox",
+  "version": "0.0.1",
+  "scripts": {
+    "build": "browserify ./js/index.js -d -g [uglifyify -x .js] | exorcist assets/build/bundle.js.map > assets/build/bundle.js",
+    "start": "budo js/index.js:assets/build/bundle.js --live --verbose | garnish"
+  },
+  "devDependencies": {
+    "babelify": "^6.0.2",
+    "crossroads": "^0.12.0",
+    "cubic-bezier": "^0.1.2",
+    "eases": "^1.0.6",
+    "es6-promise": "^2.3.0",
+    "events": "^1.0.2",
+    "exorcist": "^0.1.6",
+    "glsl-camera-ray": "^1.0.0",
+    "glsl-hsl2rgb": "^1.1.0",
+    "glsl-hsv2rgb": "^1.0.0",
+    "glsl-noise": "0.0.0",
+    "glsl-random": "0.0.4",
+    "glsl-raytrace": "^1.0.0",
+    "glsl-sdf-normal": "^1.0.0",
+    "glsl-turntable-camera": "^1.0.0",
+    "glslify": "^2.1.2",
+    "hasher": "^1.2.0",
+    "lerp": "^1.0.3",
+    "localforage": "^1.2.0",
+    "perlin-simplex": "0.0.2",
+    "poem-loop": "^1.0.4",
+    "poem-manifests": "^1.2.2",
+    "poem-menu": "^1.0.2",
+    "poem-mute": "^1.0.2",
+    "rsvp": "^3.0.14",
+    "soundcloud-badge": "0.0.0",
+    "three-glslify": "^2.0.1",
+    "touches": "^1.1.1",
+    "uglifyify": "^3.0.1"
+  },
+  "dependencies": {
+    "underscore": "^1.7.0"
+  },
+  "browserify": {
+    "transform": [
+      "glslify",
+      "babelify"
+    ]
+  }
+}
