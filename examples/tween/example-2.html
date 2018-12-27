@@ -181,6 +181,9 @@
                             // camera.lookAt(scene.position);
                             camera.lookAt(preTargets[index]);
                         })
+                        .onComplete(function () {
+                            controls.target = preTargets[index];
+                        })
                         .easing(TWEEN.Easing.Linear.None).start();
 
                     // new TWEEN.Tween(camera.rotation).to({
