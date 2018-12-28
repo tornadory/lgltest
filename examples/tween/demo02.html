@@ -223,6 +223,7 @@
         animate();
 
         function tweenCamera(index) {
+            controls.enable = false;
             var target = controls.target.clone();
             new TWEEN.Tween(target).to({
                     x: ctlTargets[index].x,
@@ -235,6 +236,7 @@
                 .onComplete(function () {
                     console.log("finished tween target");
                     controls.target = ctlTargets[index].clone();
+                    controls.enable = true;
                 })
                 .easing(TWEEN.Easing.Linear.None).start();
 
