@@ -234,6 +234,7 @@
                 })
                 .onComplete(function () {
                     console.log("finished tween target");
+                    controls.target = ctlTargets[index].clone();
                 })
                 .easing(TWEEN.Easing.Linear.None).start();
 
@@ -243,7 +244,7 @@
                     z: camPositions[index].z
                 }, 2000)
                 .onComplete(function () {
-                    controls.target = ctlTargets[index].clone();
+                    // controls.target = ctlTargets[index].clone();
                 })
                 .easing(TWEEN.Easing.Linear.None).start();
         }
