@@ -25,25 +25,33 @@ if (indexOf !== -1) {
         var name = param[0];
         var value = param[1];
         switch (name) {
-            case "assetUrl": {
-                assetUrl = value;
-                break;
-            }
-            case "cameraPosition": {
-                cameraPosition = BABYLON.Vector3.FromArray(value.split(",").map(function (component) { return +component; }));
-                break;
-            }
-            case "kiosk": {
-                kiosk = value === "true" ? true : false;
-                break;
-            }
+            case "assetUrl":
+                {
+                    assetUrl = value;
+                    break;
+                }
+            case "cameraPosition":
+                {
+                    cameraPosition = BABYLON.Vector3.FromArray(value.split(",").map(function (component) {
+                        return +component;
+                    }));
+                    break;
+                }
+            case "kiosk":
+                {
+                    kiosk = value === "true" ? true : false;
+                    break;
+                }
         }
     }
 }
 
 if (BABYLON.Engine.isSupported()) {
     var canvas = document.getElementById("renderCanvas");
-    var engine = new BABYLON.Engine(canvas, true, { premultipliedAlpha: false, preserveDrawingBuffer: true });
+    var engine = new BABYLON.Engine(canvas, true, {
+        premultipliedAlpha: false,
+        preserveDrawingBuffer: true
+    });
     var htmlInput = document.getElementById("files");
     var footer = document.getElementById("footer");
     var btnFullScreen = document.getElementById("btnFullscreen");
@@ -130,8 +138,7 @@ if (BABYLON.Engine.isSupported()) {
 
             if (cameraPosition) {
                 currentScene.activeCamera.setPosition(cameraPosition);
-            }
-            else {
+            } else {
                 if (currentPluginName === "gltf") {
                     // glTF assets use a +Z forward convention while the default camera faces +Z. Rotate the camera to look at the front of the asset.
                     currentScene.activeCamera.alpha += Math.PI;
@@ -163,6 +170,7 @@ if (BABYLON.Engine.isSupported()) {
         // Environment
         if (currentPluginName === "gltf") {
             var hdrTexture = BABYLON.CubeTexture.CreateFromPrefilteredData(skyboxPath, currentScene);
+            console.log("hdr texture ", skyboxPath);
             currentSkybox = currentScene.createDefaultSkybox(hdrTexture, true, (currentScene.activeCamera.maxZ - currentScene.activeCamera.minZ) / 2, 0.3);
         }
 
@@ -171,8 +179,7 @@ if (BABYLON.Engine.isSupported()) {
             document.getElementById("logo").className = "";
             canvas.style.opacity = 0;
             debugLayerEnabled = true;
-        }
-        else {
+        } else {
             if (BABYLON.Tools.errorsCount > 0) {
                 debugLayerEnabled = true;
             }
@@ -191,7 +198,9 @@ if (BABYLON.Engine.isSupported()) {
         }
 
         if (debugLayerEnabled) {
-            currentScene.debugLayer.show({ initialTab: debugLayerLastActiveTab });
+            currentScene.debugLayer.show({
+                initialTab: debugLayerLastActiveTab
+            });
         }
     };
 
@@ -219,7 +228,9 @@ if (BABYLON.Engine.isSupported()) {
                 currentScene.dispose();
             }
 
-            sceneLoaded({ name: fileName }, scene);
+            sceneLoaded({
+                name: fileName
+            }, scene);
 
             scene.whenReadyAsync().then(function () {
                 engine.runRenderLoop(function () {
@@ -227,15 +238,18 @@ if (BABYLON.Engine.isSupported()) {
                 });
             });
         }).catch(function (reason) {
-            sceneError({ name: fileName }, null, reason.message || reason);
+            sceneError({
+                name: fileName
+            }, null, reason.message || reason);
         });
     };
 
     if (assetUrl) {
         loadFromAssetUrl();
-    }
-    else {
-        filesInput = new BABYLON.FilesInput(engine, null, sceneLoaded, null, null, null, function () { BABYLON.Tools.ClearLogCache() }, null, sceneError);
+    } else {
+        filesInput = new BABYLON.FilesInput(engine, null, sceneLoaded, null, null, null, function () {
+            BABYLON.Tools.ClearLogCache()
+        }, null, sceneError);
         filesInput.onProcessFileCallback = (function (file, name, extension) {
             if (filesInput._filesToLoad && filesInput._filesToLoad.length === 1 && extension) {
                 if (extension.toLowerCase() === "dds" || extension.toLowerCase() === "env") {
@@ -269,8 +283,7 @@ if (BABYLON.Engine.isSupported()) {
 
             if (assetUrl) {
                 loadFromAssetUrl();
-            }
-            else {
+            } else {
                 filesInput.reload();
             }
         }
@@ -290,9 +303,10 @@ if (BABYLON.Engine.isSupported()) {
                 debugLayerEnabled = false;
                 debugLayerLastActiveTab = currentScene.debugLayer.getActiveTab();
                 currentScene.debugLayer.hide();
-            }
-            else {
-                currentScene.debugLayer.show({ initialTab: debugLayerLastActiveTab });
+            } else {
+                currentScene.debugLayer.show({
+                    initialTab: debugLayerLastActiveTab
+                });
                 debugLayerEnabled = true;
             }
         }
@@ -303,8 +317,7 @@ if (BABYLON.Engine.isSupported()) {
         if (event.keyCode === 32 && event.target.nodeName !== "INPUT") {
             if (footer.style.display === "none") {
                 footer.style.display = "block";
-            }
-            else {
+            } else {
                 footer.style.display = "none";
                 errorZone.style.display = "none";
                 if (enableDebugLayer) {
@@ -342,8 +355,7 @@ function displayDropdownContent(display) {
         dropdownContent.style.display = "flex";
         chevronDown.style.display = "inline";
         chevronUp.style.display = "none";
-    }
-    else {
+    } else {
         dropdownContent.style.display = "none";
         chevronDown.style.display = "none";
         chevronUp.style.display = "inline";
@@ -352,8 +364,7 @@ function displayDropdownContent(display) {
 dropdownBtn.addEventListener("click", function () {
     if (dropdownContent.style.display === "flex") {
         displayDropdownContent(false);
-    }
-    else {
+    } else {
         displayDropdownContent(true);
     }
 });
