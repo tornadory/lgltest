@@ -7,17 +7,22 @@
 </head>
 
 <body>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r75/three.js"></script>
-    <script src="http://alexan0308.github.io/threejs/examples/js/loaders/OBJLoader.js"></script>
-    <script src="http://alexan0308.github.io/threejs/examples/js/loaders/MTLLoader.js"></script>
-    <script src="http://alexan0308.github.io/threejs/examples/js/loaders/OBJMTLLoader.js"></script>
+    <script src="../js/three.js"></script>
+    <script src="../js/loaders/OBJLoader.js"></script>
+    <script src="../js/loaders/MTLLoader.js"></script>
+    <!-- <script src="../js/loaders/OBJMTLLoader.js"></script> -->
 
 
-    <script src="http://threejs.org/examples/js/controls/OrbitControls.js"></script>
+    <script src="../js/controls/OrbitControls.js"></script>
 
     <div id="workspace"></div>
     <script>
         //define global variables here
+        // let a = [1, 2, 3];
+        // for (let i in a) {
+        //     console.log('a ', i, a[i]);
+        //     a.add(i + 3);
+        // }
         var container, renderer;
         var camera, scene, projector, mouseVector, controls;
         var mouseX, mouseY, draggable;
