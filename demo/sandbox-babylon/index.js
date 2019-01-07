@@ -1,6 +1,3 @@
-/// <reference path="../dist/preview release/babylon.d.ts" />
-/// <reference path="../dist/preview release/loaders/babylon.glTFFileLoader.d.ts" />
-
 var assetUrl;
 var cameraPosition;
 var kiosk;
@@ -169,6 +166,7 @@ if (BABYLON.Engine.isSupported()) {
 
         // Environment
         if (currentPluginName === "gltf") {
+            console.log("plugin gltf");
             var hdrTexture = BABYLON.CubeTexture.CreateFromPrefilteredData(skyboxPath, currentScene);
             console.log("hdr texture ", skyboxPath);
             currentSkybox = currentScene.createDefaultSkybox(hdrTexture, true, (currentScene.activeCamera.maxZ - currentScene.activeCamera.minZ) / 2, 0.3);
