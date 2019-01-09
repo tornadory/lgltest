@@ -167,9 +167,65 @@ if (BABYLON.Engine.isSupported()) {
         // Environment
         if (currentPluginName === "gltf") {
             console.log("plugin gltf");
+            // var hdrTexture = BABYLON.CubeTexture.CreateFromPrefilteredData(skyboxPath, currentScene);
+            // console.log("hdr texture ", skyboxPath);
+            // // currentSkybox = currentScene.createDefaultSkybox(hdrTexture, true, (currentScene.activeCamera.maxZ - currentScene.activeCamera.minZ) / 2, 0.3);
+            // currentSkybox = currentScene.createDefaultSkybox(hdrTexture, false);
+
+
+
+            // Environment Texture
             var hdrTexture = BABYLON.CubeTexture.CreateFromPrefilteredData(skyboxPath, currentScene);
-            console.log("hdr texture ", skyboxPath);
-            currentSkybox = currentScene.createDefaultSkybox(hdrTexture, true, (currentScene.activeCamera.maxZ - currentScene.activeCamera.minZ) / 2, 0.3);
+
+            currentScene.imageProcessingConfiguration.exposure = 0.6;
+            currentScene.imageProcessingConfiguration.contrast = 1.6;
+
+            // Skybox
+            var hdrSkybox = BABYLON.Mesh.CreateBox("hdrSkyBox", 1000.0, currentScene);
+            var hdrSkyboxMaterial = new BABYLON.PBRMaterial("skyBox", currentScene);
+            hdrSkyboxMaterial.backFaceCulling = false;
+            hdrSkyboxMaterial.reflectionTexture = hdrTexture.clone();
+            hdrSkyboxMaterial.reflectionTexture.coordinatesMode = BABYLON.Texture.SKYBOX_MODE;
+            hdrSkyboxMaterial.microSurface = 1.0;
+            hdrSkyboxMaterial.disableLighting = true;
+            hdrSkybox.material = hdrSkyboxMaterial;
+            hdrSkybox.infiniteDistance = true;
+            // -----------------------------------------------------------
+
+
+            // var skyMaterial = new BABYLON.SkyMaterial("skyMaterial", currentScene);
+            // skyMaterial.backFaceCulling = false;
+            // skyMaterial.turbidity = 20; // Represents the amount (scattering) of haze as opposed to molecules in atmosphere
+            // skyMaterial.luminance = 0.1; // Controls the overall luminance of sky in interval ]0, 1,190[
+            // // Control the planet's orientation over the sun
+            // skyMaterial.inclination = 0.42; // The solar inclination, related to the solar azimuth in interval [0, 1]
+            // skyMaterial.azimuth = 0.25; // The solar azimuth in interval [0, 1]
+            // // Manually set the sun position
+            // skyMaterial.useSunPosition = true; // Do not set sun position from azimuth and inclination
+            // skyMaterial.sunPosition = new BABYLON.Vector3(0, 100, 0);
+
+            // var skybox = BABYLON.Mesh.CreateBox("skyBox", 1000.0, currentScene);
+            // skybox.material = skyMaterial;
+
+
+
+            // // Skybox
+            // var box = BABYLON.Mesh.CreateBox('SkyBox', 1000, currentScene, false, BABYLON.Mesh.BACKSIDE);
+            // box.material = new BABYLON.SkyMaterial('sky', currentScene);
+            // box.material.inclination = -0.35;
+
+            // // Reflection probe
+            // var rp = new BABYLON.ReflectionProbe('ref', 512, currentScene);
+            // rp.renderList.push(box);
+
+            // // Sphere
+            // var sphere = BABYLON.Mesh.CreateSphere("sphere1", 16, 1, currentScene);
+            // sphere.position.y = 1;
+
+            // // PBR
+            // var pbr = new BABYLON.PBRMaterial('pbr', currentScene);
+            // pbr.reflectionTexture = rp.cubeTexture;
+            // sphere.material = pbr;
         }
 
         // In case of error during loading, meshes will be empty and clearColor is set to red
@@ -222,6 +278,8 @@ if (BABYLON.Engine.isSupported()) {
         var rootUrl = BABYLON.Tools.GetFolderPath(assetUrl);
         var fileName = BABYLON.Tools.GetFilename(assetUrl);
         BABYLON.SceneLoader.LoadAsync(rootUrl, fileName, engine).then(function (scene) {
+
+            console.log(".........................");
             if (currentScene) {
                 currentScene.dispose();
             }
