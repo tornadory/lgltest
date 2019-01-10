@@ -87,7 +87,8 @@ if (BABYLON.Engine.isSupported()) {
         engine.resize();
     });
 
-    var sceneLoaded = function (sceneFile, babylonScene) {
+    var sceneLoaded = function (sceneFile, babylonScene) { //loaded...
+        console.log("sceneLoaded ...", sceneFile);
         engine.clearInternalTexturesCache();
 
         // Clear dropdown that contains animation names
@@ -275,6 +276,7 @@ if (BABYLON.Engine.isSupported()) {
     };
 
     var loadFromAssetUrl = function () {
+        console.log("loadFromAssetsUrl ...");
         var rootUrl = BABYLON.Tools.GetFolderPath(assetUrl);
         var fileName = BABYLON.Tools.GetFilename(assetUrl);
         BABYLON.SceneLoader.LoadAsync(rootUrl, fileName, engine).then(function (scene) {
@@ -301,8 +303,10 @@ if (BABYLON.Engine.isSupported()) {
     };
 
     if (assetUrl) {
+        console.log("try load from asset url");
         loadFromAssetUrl();
     } else {
+        console.log("try others");
         filesInput = new BABYLON.FilesInput(engine, null, sceneLoaded, null, null, null, function () {
             BABYLON.Tools.ClearLogCache()
         }, null, sceneError);
@@ -319,6 +323,7 @@ if (BABYLON.Engine.isSupported()) {
         filesInput.monitorElementForDragNDrop(canvas);
 
         htmlInput.addEventListener('change', function (event) {
+            console.log("event change");
             var filestoLoad;
             // Handling data transfer via drag'n'drop
             if (event && event.dataTransfer && event.dataTransfer.files) {
