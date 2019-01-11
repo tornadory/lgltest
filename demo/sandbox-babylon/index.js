@@ -177,20 +177,20 @@ if (BABYLON.Engine.isSupported()) {
 
             // Environment Texture
             var hdrTexture = BABYLON.CubeTexture.CreateFromPrefilteredData(skyboxPath, currentScene);
-
             currentScene.imageProcessingConfiguration.exposure = 0.6;
             currentScene.imageProcessingConfiguration.contrast = 1.6;
+            currentScene.environmentTexture = hdrTexture;
 
             // Skybox
-            var hdrSkybox = BABYLON.Mesh.CreateBox("hdrSkyBox", 1000.0, currentScene);
-            var hdrSkyboxMaterial = new BABYLON.PBRMaterial("skyBox", currentScene);
-            hdrSkyboxMaterial.backFaceCulling = false;
-            hdrSkyboxMaterial.reflectionTexture = hdrTexture.clone();
-            hdrSkyboxMaterial.reflectionTexture.coordinatesMode = BABYLON.Texture.SKYBOX_MODE;
-            hdrSkyboxMaterial.microSurface = 1.0;
-            hdrSkyboxMaterial.disableLighting = true;
-            hdrSkybox.material = hdrSkyboxMaterial;
-            hdrSkybox.infiniteDistance = true;
+            // var hdrSkybox = BABYLON.Mesh.CreateBox("hdrSkyBox", 1000.0, currentScene);
+            // var hdrSkyboxMaterial = new BABYLON.PBRMaterial("skyBox", currentScene);
+            // hdrSkyboxMaterial.backFaceCulling = false;
+            // hdrSkyboxMaterial.reflectionTexture = hdrTexture.clone();
+            // hdrSkyboxMaterial.reflectionTexture.coordinatesMode = BABYLON.Texture.SKYBOX_MODE;
+            // hdrSkyboxMaterial.microSurface = 1.0;
+            // hdrSkyboxMaterial.disableLighting = true;
+            // hdrSkybox.material = hdrSkyboxMaterial;
+            // hdrSkybox.infiniteDistance = true;
             // -----------------------------------------------------------
 
 
@@ -215,18 +215,20 @@ if (BABYLON.Engine.isSupported()) {
             // box.material = new BABYLON.SkyMaterial('sky', currentScene);
             // box.material.inclination = -0.35;
 
-            // // Reflection probe
+            // Reflection probe
             // var rp = new BABYLON.ReflectionProbe('ref', 512, currentScene);
             // rp.renderList.push(box);
 
-            // // Sphere
+            // Sphere
             // var sphere = BABYLON.Mesh.CreateSphere("sphere1", 16, 1, currentScene);
             // sphere.position.y = 1;
 
-            // // PBR
-            // var pbr = new BABYLON.PBRMaterial('pbr', currentScene);
+            // PBR
             // pbr.reflectionTexture = rp.cubeTexture;
+            // var pbr = new BABYLON.PBRMaterial('pbr', currentScene);
+            // pbr.reflectionTexture = hdrTexture;
             // sphere.material = pbr;
+            // console.log(pbr);
         }
 
         // In case of error during loading, meshes will be empty and clearColor is set to red
