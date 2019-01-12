@@ -179,6 +179,12 @@ if (BABYLON.Engine.isSupported()) {
             var hdrTexture = BABYLON.CubeTexture.CreateFromPrefilteredData(skyboxPath, currentScene);
             currentScene.imageProcessingConfiguration.exposure = 0.6;
             currentScene.imageProcessingConfiguration.contrast = 1.6;
+
+            if (currentScene && currentScene.meshes) {
+                currentScene.meshes.forEach(m => {
+                    console.log(m.name);
+                });
+            }
             currentScene.environmentTexture = hdrTexture;
 
             // Skybox
@@ -220,15 +226,15 @@ if (BABYLON.Engine.isSupported()) {
             // rp.renderList.push(box);
 
             // Sphere
-            // var sphere = BABYLON.Mesh.CreateSphere("sphere1", 16, 1, currentScene);
-            // sphere.position.y = 1;
+            var sphere = BABYLON.Mesh.CreateSphere("sphere1", 16, 1, currentScene);
+            sphere.position.y = 1;
 
             // PBR
             // pbr.reflectionTexture = rp.cubeTexture;
-            // var pbr = new BABYLON.PBRMaterial('pbr', currentScene);
-            // pbr.reflectionTexture = hdrTexture;
-            // sphere.material = pbr;
-            // console.log(pbr);
+            var pbr = new BABYLON.PBRMaterial('pbr', currentScene);
+            pbr.reflectionTexture = hdrTexture;
+            sphere.material = pbr;
+            console.log(pbr);
         }
 
         // In case of error during loading, meshes will be empty and clearColor is set to red
