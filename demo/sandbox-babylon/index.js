@@ -89,7 +89,7 @@ if (BABYLON.Engine.isSupported()) {
 
     var sceneLoaded = function (sceneFile, babylonScene) { //loaded...
         console.log("sceneLoaded ...", sceneFile);
-        engine.clearInternalTexturesCache();
+        // engine.clearInternalTexturesCache();
 
         // Clear dropdown that contains animation names
         dropdownContent.innerHTML = "";
