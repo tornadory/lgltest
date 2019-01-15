@@ -182,8 +182,8 @@
             light1.groundColor.set(.8, 0.8, 0.8);
             // scene._default_lights.push(light1);
 
-            const light0 = new BABYLON.HemisphericLight("light1", new BABYLON.Vector3(0, 1, 0), scene);
-            light0.intensity = 0.7;
+            // const light0 = new BABYLON.HemisphericLight("light1", new BABYLON.Vector3(0, 1, 0), scene);
+            // light0.intensity = 0.7;
             // scene._default_lights.push(light0);
 
             const light2 = new BABYLON.DirectionalLight("defalut direct light1", new BABYLON.Vector3(0, 1, 1), this
@@ -218,7 +218,19 @@
             // Append glTF model to scene.
             BABYLON.SceneLoader.ShowLoadingScreen = false;
             BABYLON.SceneLoader.AppendAsync("test/", "LargeDisplaySteamer_3D.gltf", scene).then((s) => {
-                console.log("loaded ...");
+
+                if (scene && scene.meshes) {
+                    scene.meshes.forEach(item => {
+                        // console.log(item.name);
+                        if (item.name === "LargeDisplaySteamer_3D") {
+                            console.log("loaded ...", item);
+                            item.material.environmentBRDFTexture = undefined;
+                            item.material.reflectionTexture = scene.environmentTexture;
+                        }
+                    });
+                }
+
+                scene.createDefaultCameraOrLight(true, true, true);
             });
             // BABYLON.SceneLoader.Append("test/", "LargeDisplaySteamer_3D.gltf", scene, function (scene) {
             //     // Create a default arc rotate camera and light.
