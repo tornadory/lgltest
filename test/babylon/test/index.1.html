@@ -177,33 +177,68 @@
             // var light = new BABYLON.HemisphericLight("light1", new BABYLON.Vector3(0, 1, 0), scene);
             // light.intensity = 0.7;
 
-            const light1 = new BABYLON.HemisphericLight("default light", new BABYLON.Vector3(0, 0, -1), scene);
-            light1.diffuse.set(0.5, 0.5, 0.5);
-            light1.groundColor.set(.8, 0.8, 0.8);
+            const lightPos = new BABYLON.Vector3(0, 1, 1);
+            // const spotLight = new BABYLON.SpotLight('sLight', lightPos, new BABYLON.Vector3(0, -1, 0), Math.PI / 2,
+            //     20, this._scene);
+
+            // const light1 = new BABYLON.HemisphericLight("default light", new BABYLON.Vector3(0, 0, -1), scene);
+            // light1.diffuse.set(0.5, 0.5, 0.5);
+            // light1.groundColor.set(.8, 0.8, 0.8);
+            // light1.position = lightPos;
             // scene._default_lights.push(light1);
+
+            const spotLightMesh = BABYLON.MeshBuilder.CreateSphere('lightMesh', {
+                diameter: 0.2
+            }, this._scene);
+            spotLightMesh.position = lightPos;
+
+            // Light Animation
+            // 灯光动画
+            // let alpha = 0;
+            // scene.onBeforeRenderObservable.add(() => {
+            //     alpha += 0.01;
+            //     const pos = new BABYLON.Vector3(
+            //         Math.cos(alpha),
+            //         5,
+            //         Math.sin(alpha)
+            //     );
+            //     // light1.position = pos;
+            //     spotLight.position = pos;
+            //     spotLightMesh.position = pos;
+            // });
+
 
             // const light0 = new BABYLON.HemisphericLight("light1", new BABYLON.Vector3(0, 1, 0), scene);
             // light0.intensity = 0.7;
             // scene._default_lights.push(light0);
 
-            const light2 = new BABYLON.DirectionalLight("defalut direct light1", new BABYLON.Vector3(0, 1, 1), this
-                .babylonscene);
-            light2.diffuse.set(.6, 0.6, 0.6);
+            // const light2 = new BABYLON.DirectionalLight("defalut direct light1", new BABYLON.Vector3(0, 1, 1), this
+            // .babylonscene);
+            // light2.diffuse.set(.6, 0.6, 0.6);
             // scene._default_lights.push(light2);
 
-            const light3 = new BABYLON.DirectionalLight("defalut direct light2", new BABYLON.Vector3(2, 1, 1), this
-                .babylonscene);
-            light3.diffuse.set(0.45, 0.45, 0.45);
+            // const light3 = new BABYLON.DirectionalLight("defalut direct light2", new BABYLON.Vector3(2, 1, 1), this
+            //     .babylonscene);
+            // light3.diffuse.set(0.45, 0.45, 0.45);
             // scene._default_lights.push(light3);
 
-            const light4 = new BABYLON.DirectionalLight("defalut direct light3", new BABYLON.Vector3(-1, -1, 1),
-                scene);
-            light4.diffuse.set(0.65, 0.65, 0.65);
+            // const light4 = new BABYLON.DirectionalLight("defalut direct light3", new BABYLON.Vector3(-1, -1, 1),
+            //     scene);
+            // light4.diffuse.set(0.65, 0.65, 0.65);
             // scene._default_lights.push(light4);
 
             // camera
-            var camera = new BABYLON.ArcRotateCamera("camera1", 0, 0, 0, new BABYLON.Vector3(0, 0, -0), scene);
-            camera.setPosition(new BABYLON.Vector3(0, 0, -60));
+            // var camera = new BABYLON.ArcRotateCamera("camera1", 0, 0, 0, new BABYLON.Vector3(0, 0, -0), scene);
+            // camera.setPosition(new BABYLON.Vector3(0, 0, -60));
+            // camera.attachControl(canvas, true);
+
+
+
+            // This creates and positions a universal camera (non-mesh)
+            var camera = new BABYLON.UniversalCamera("camera", new BABYLON.Vector3(0, 0, -10), scene);
+            // This targets the camera to scene origin
+            camera.setTarget(BABYLON.Vector3.Zero());
+            // This attaches the camera to the canvas
             camera.attachControl(canvas, true);
 
 
