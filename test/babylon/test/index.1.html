@@ -174,8 +174,8 @@
             scene.imageProcessingConfiguration.contrast = 1.6;
             scene.environmentTexture = hdrTexture;
 
-            // var light = new BABYLON.HemisphericLight("light1", new BABYLON.Vector3(0, 1, 0), scene);
-            // light.intensity = 0.7;
+            var light = new BABYLON.HemisphericLight("light1", new BABYLON.Vector3(0, 1, 0), scene);
+            light.intensity = 0.7;
 
             const lightPos = new BABYLON.Vector3(0, 1, 1);
             // const spotLight = new BABYLON.SpotLight('sLight', lightPos, new BABYLON.Vector3(0, -1, 0), Math.PI / 2,
@@ -187,10 +187,10 @@
             // light1.position = lightPos;
             // scene._default_lights.push(light1);
 
-            const spotLightMesh = BABYLON.MeshBuilder.CreateSphere('lightMesh', {
-                diameter: 0.2
-            }, this._scene);
-            spotLightMesh.position = lightPos;
+            // const spotLightMesh = BABYLON.MeshBuilder.CreateSphere('lightMesh', {
+            //     diameter: 0.2
+            // }, this._scene);
+            // spotLightMesh.position = lightPos;
 
             // Light Animation
             // 灯光动画
@@ -228,18 +228,26 @@
             // scene._default_lights.push(light4);
 
             // camera
-            // var camera = new BABYLON.ArcRotateCamera("camera1", 0, 0, 0, new BABYLON.Vector3(0, 0, -0), scene);
-            // camera.setPosition(new BABYLON.Vector3(0, 0, -60));
+            var camera = new BABYLON.ArcRotateCamera("camera1", 0, 0, 0, new BABYLON.Vector3(0, 0, -0), scene);
+            camera.setPosition(new BABYLON.Vector3(0, 0, -60));
+            camera.attachControl(canvas, true);
+
+
+
+            // Parameters: alpha, beta, radius, target position, scene
+            // var camera = new BABYLON.ArcRotateCamera("Camera", 0, 0, 10, new BABYLON.Vector3(0, 0, 0), scene);
+            // Positions the camera overwriting alpha, beta, radius
+            // camera.setPosition(new BABYLON.Vector3(0, 0, 20));
+            // This attaches the camera to the canvas
             // camera.attachControl(canvas, true);
 
 
-
-            // This creates and positions a universal camera (non-mesh)
-            var camera = new BABYLON.UniversalCamera("camera", new BABYLON.Vector3(0, 0, -10), scene);
-            // This targets the camera to scene origin
-            camera.setTarget(BABYLON.Vector3.Zero());
-            // This attaches the camera to the canvas
-            camera.attachControl(canvas, true);
+            // // This creates and positions a universal camera (non-mesh)
+            // var camera = new BABYLON.UniversalCamera("camera", new BABYLON.Vector3(0, 0, -10), scene);
+            // // This targets the camera to scene origin
+            // camera.setTarget(BABYLON.Vector3.Zero());
+            // // This attaches the camera to the canvas
+            // camera.attachControl(canvas, true);
 
 
             // const camera = new TrackBallCamera("3D Default", new BABYLON.Vector3(0, 0, -85), scene);
@@ -250,23 +258,38 @@
 
             scene.enableDepthRenderer(camera);
 
+
+            var pbr = new BABYLON.PBRMaterial('pbr', scene);
+            pbr.reflectionTexture = hdrTexture;
+
+            let sphere0 = BABYLON.MeshBuilder.CreateSphere("sp0", {
+                segments: 16,
+                diameter: 5
+            }, scene);
+            // let mat0 = new BABYLON.StandardMaterial("mat0", scene);
+            // mat0.emissiveColor = BABYLON.Color3.Red();
+            sphere0.material = pbr;
+            // sphere0.position.set(0, 0, -5000);
+
             // Append glTF model to scene.
-            BABYLON.SceneLoader.ShowLoadingScreen = false;
-            BABYLON.SceneLoader.AppendAsync("test/", "LargeDisplaySteamer_3D.gltf", scene).then((s) => {
+            // BABYLON.SceneLoader.ShowLoadingScreen = false;
+            // BABYLON.SceneLoader.AppendAsync("test/", "LargeDisplaySteamer_3D.gltf", scene).then((s) => {
 
-                if (scene && scene.meshes) {
-                    scene.meshes.forEach(item => {
-                        // console.log(item.name);
-                        if (item.name === "LargeDisplaySteamer_3D") {
-                            console.log("loaded ...", item);
-                            item.material.environmentBRDFTexture = undefined;
-                            item.material.reflectionTexture = scene.environmentTexture;
-                        }
-                    });
-                }
+            //     if (scene && scene.meshes) {
+            //         scene.meshes.forEach(item => {
+            //             // console.log(item.name);
+            //             if (item.name === "LargeDisplaySteamer_3D") {
+            //                 console.log("loaded ...", item);
+            //                 item.material.environmentBRDFTexture = undefined;
+            //                 item.material.reflectionTexture = scene.environmentTexture;
+            //             }
+            //         });
+            //     }
 
-                scene.createDefaultCameraOrLight(true, true, true);
-            });
+            //     scene.createDefaultCameraOrLight(true, true, true);
+            // });
+
+
             // BABYLON.SceneLoader.Append("test/", "LargeDisplaySteamer_3D.gltf", scene, function (scene) {
             //     // Create a default arc rotate camera and light.
             //     // scene.createDefaultCameraOrLight(true, true, true);

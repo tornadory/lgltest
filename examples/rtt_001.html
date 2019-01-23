@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<title>模型测试小程序</title>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+	<script src=/three.js/build/three.js> </script> <script src="/three.js/examples/js/libs/inflate.min.js"></script>
+	<script src="/three.js/examples/js/controls/OrbitControls.js"></script>
+	<script src="/three.js/examples/js/curves/NURBSCurve.js"></script>
+	<script src="/three.js/examples/js/curves/NURBSUtils.js"></script>
+	<script src="/three.js/examples/js/loaders/FBXLoader.js"></script>
+	<script src="/three.js/examples/js/loaders/GLTFLoader.js"></script>
+	<script src="/three.js/examples/js/loaders/ColladaLoader.js"></script>
+	<script src="/three.js/examples/js/libs/stats.min.js"></script>
+	<script src="/three.js/examples/js/controls/TrackballControls.js"></script>
+	<style>
+		body {
+			font-family: Monospace;
+			background-color: #000;
+			color: #fff;
+			margin: 0px;
+			overflow: hidden;
+		}
+
+		#removeBtn {
+			position: absolute;
+			top: 50px;
+			margin-top: 5px;
+			margin-left: 10px;
+			z-index: 100;
+		}
+
+		#scaleInputInfo {
+			position: absolute;
+			top: 150px;
+			margin-top: 5px;
+			margin-left: 10px;
+			z-index: 100;
+		}
+
+		#scaleInput {
+			position: absolute;
+			top: 170px;
+			margin-top: 0px;
+			margin-left: 10px;
+			z-index: 100;
+		}
+
+		#info {
+			position: absolute;
+			top: 100px;
+			width: 400px;
+			margin-top: 5px;
+			margin-left: 10px;
+			z-index: 100;
+		}
+
+		#title {
+			font-family: "Microsoft YaHei";
+			font-size: 24px;
+			color: #b04bff;
+			position: absolute;
+			top: 10px;
+			width: 100%;
+			text-align: center;
+			z-index: 100;
+			display: block;
+		}
+
+		#title a,
+		.button {
+			color: #f00;
+			font-weight: bold;
+			text-decoration: underline;
+			cursor: pointer
+		}
+	</style>
+</head>
+
+<body>
+
+
+	<script>
+		var infoTag = document.getElementById("info");
+		var object = null;
+
+		var container, stats, controls;
+		var pickingTexture;
+		var camera, scene, renderer, light;
+		var clock = new THREE.Clock();
+		var action;
+		var mixers = [];
+		var mixer;
+
+		init();
+
+		function init() {
+
+			container = document.createElement('div');
+			document.body.appendChild(container);
+
+			// camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 1, 5000);
+			let width = container.getBoundingClientRect().width;
+			let height = container.getBoundingClientRect().height;
+
+
+			scene = new THREE.Scene();
+			scene.background = new THREE.Color("#FFFFFF");
+			scene2 = new THREE.Scene();
+			scene2.background = new THREE.Color("#000000");
+
+			pickingTexture = new THREE.WebGLRenderTarget(width, height);
+
+			camera = new THREE.OrthographicCamera(
+				width / -2, width / 2, height / 2, height / -2, 0, 1000);
+
+
+			// grid helper
+			var gridHelper = new THREE.GridHelper(28, 28, 0x303030, 0x303030);
+			gridHelper.position.set(0, -0.04, 0);
+			scene.add(gridHelper);
+
+			// stats
+			stats = new Stats();
+			container.appendChild(stats.dom);
+
+			renderer = new THREE.WebGLRenderer({
+				antialias: true
+			});
+			renderer.setPixelRatio(window.devicePixelRatio);
+			renderer.setSize(window.innerWidth, window.innerHeight);
+			renderer.setClearColor(0xAAAAAA);
+			container.appendChild(renderer.domElement);
+
+			controls, camera
+			controls = new THREE.OrbitControls(camera, renderer.domElement);
+			controls.target.set(0, 0, 0);
+			camera.position.set(2, 8, 8);
+			controls.update();
+
+			window.addEventListener('resize', onWindowResize, false);
+
+			light = new THREE.HemisphereLight(0xffffff, 0x444444, 1.0);
+			light.position.set(1, 2, 1);
+			scene.add(light);
+
+			animate();
+		}
+
+		function onWindowResize() {
+			camera.aspect = window.innerWidth / window.innerHeight;
+			camera.updateProjectionMatrix();
+			renderer.setSize(window.innerWidth, window.innerHeight);
+
+			// controls.handleResize();
+		}
+
+		//
+
+		function animate() {
+			requestAnimationFrame(animate);
+			var delta = clock.getDelta();
+			if (mixers.length > 0) {
+				for (var i = 0; i < mixers.length; i++) {
+					mixers[i].update(delta);
+				}
+			}
+			stats.update();
+			render();
+		}
+
+		function render() {
+			renderer.render(scene, camera);
+			// renderer.render(scene2, camera, pickingTexture);
+			stats.update();
+		}
+	</script>
+
+</body>
+
+</html>
