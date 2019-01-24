@@ -1,18 +1,29 @@
 # coding:utf-8
 import turtle as t
 
+# 设置线条粗细  t.width(4)
 t.pensize(4)
+# 使海龟不可见。当你绘制复杂图形时这是个好主意，因为隐藏海龟可显著加快绘制速度。
 t.hideturtle()
+# 返回颜色模式或将其设为 1.0 或 255
 t.colormode(255)
-t.color((255,155,192),"pink")
-t.setup(840,500)
+# 返回或设置画笔颜色和填充颜色。
+t.color((255, 155, 192), "pink")
+# 设置主窗口的大小和位置。
+t.setup(840, 500)
+# 设置海龟移动的速度为 0..10 表示的整型数值。
 t.speed(10)
 
 #鼻子
+# 画笔抬起 -- 移动时不画线。 penup() pu() up()
 t.pu()
-t.goto(-100,100)
+# 海龟移动到一个绝对坐标。如果画笔已落下将会画线。不改变海龟的朝向。 goto()  setpos()  setposition()
+t.goto(-100, 100)
+# 画笔落下 -- 移动时将画线。 pendown() pd() down()
 t.pd()
+# 设置海龟的朝向为 to_angle  setheading() seth()
 t.seth(-30)
+# 在绘制要填充的形状之前调用
 t.begin_fill()
 a=0.4
 for i in range(120):
@@ -24,6 +35,7 @@ for i in range(120):
         a=a-0.08
         t.lt(3)
         t.fd(a)
+# 填充上次调用 begin_fill() 之后绘制的形状。
 t.end_fill()
 
 t.pu()
