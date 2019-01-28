@@ -58,7 +58,8 @@ if (BABYLON.Engine.isSupported()) {
     var currentScene;
     var currentSkybox;
     var currentPluginName;
-    var skyboxPath = "Assets/environment.dds";
+    // var skyboxPath = "Assets/environment.dds";
+    var skyboxPath = "Assets/environmentSpecular.env";
     var debugLayerEnabled = false;
     var debugLayerLastActiveTab = 0;
 
@@ -165,9 +166,28 @@ if (BABYLON.Engine.isSupported()) {
 
         currentScene.activeCamera.attachControl(canvas);
 
+        // if (currentPluginName === "gltf") {
+        //     if (!currentScene.environmentTexture) {
+        //         currentScene.environmentTexture = BABYLON.CubeTexture.CreateFromPrefilteredData(skyboxPath, currentScene);
+        //     }
+
+        //     currentSkybox = currentScene.createDefaultSkybox(currentScene.environmentTexture, true, (currentScene.activeCamera.maxZ - currentScene.activeCamera.minZ) / 2, 0.3, false);
+        // }
+        // else {
+        //     currentScene.createDefaultLight();
+        // }
+
         // Environment
         if (currentPluginName === "gltf") {
             console.log("plugin gltf");
+            if (!currentScene.environmentTexture) {
+                currentScene.environmentTexture = BABYLON.CubeTexture.CreateFromPrefilteredData(skyboxPath, currentScene);
+            }
+
+            currentSkybox = currentScene.createDefaultSkybox(currentScene.environmentTexture, true, (currentScene.activeCamera.maxZ - currentScene.activeCamera.minZ) / 2, 0.3, false);
+
+            console.log("plugin gltf end env");
+
             // var hdrTexture = BABYLON.CubeTexture.CreateFromPrefilteredData(skyboxPath, currentScene);
             // console.log("hdr texture ", skyboxPath);
             // // currentSkybox = currentScene.createDefaultSkybox(hdrTexture, true, (currentScene.activeCamera.maxZ - currentScene.activeCamera.minZ) / 2, 0.3);
@@ -176,16 +196,16 @@ if (BABYLON.Engine.isSupported()) {
 
 
             // Environment Texture
-            var hdrTexture = BABYLON.CubeTexture.CreateFromPrefilteredData(skyboxPath, currentScene);
-            currentScene.imageProcessingConfiguration.exposure = 0.6;
-            currentScene.imageProcessingConfiguration.contrast = 1.6;
+            // var hdrTexture = BABYLON.CubeTexture.CreateFromPrefilteredData(skyboxPath, currentScene);
+            // currentScene.imageProcessingConfiguration.exposure = 0.6;
+            // currentScene.imageProcessingConfiguration.contrast = 1.6;
 
-            if (currentScene && currentScene.meshes) {
-                currentScene.meshes.forEach(m => {
-                    console.log(m.name);
-                });
-            }
-            currentScene.environmentTexture = hdrTexture;
+            // if (currentScene && currentScene.meshes) {
+            //     currentScene.meshes.forEach(m => {
+            //         console.log(m.name);
+            //     });
+            // }
+            // currentScene.environmentTexture = hdrTexture;
 
             // Skybox
             // var hdrSkybox = BABYLON.Mesh.CreateBox("hdrSkyBox", 1000.0, currentScene);
