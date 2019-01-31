@@ -231,8 +231,10 @@
             // Create a default skybox with an environment.
             // var hdrTexture = BABYLON.CubeTexture.CreateFromPrefilteredData("textures/environment.dds", scene);
             //https://www.babylonjs.com/Assets/environment.dds
+            // var hdrTexture = BABYLON.CubeTexture.CreateFromPrefilteredData(
+            //     "https://www.babylonjs.com/Assets/environment.dds", scene);
             var hdrTexture = BABYLON.CubeTexture.CreateFromPrefilteredData(
-                "https://www.babylonjs.com/Assets/environment.dds", scene);
+                "textures/environment.dds", scene);
             // var hdrTexture = BABYLON.CubeTexture.CreateFromPrefilteredData("textures/environmentSpecular.env", scene);
             // var currentSkybox = scene.createDefaultSkybox(hdrTexture, true);
             scene.imageProcessingConfiguration.exposure = 0.6;
@@ -455,8 +457,8 @@
             stencil: true
         });
         // var scene = createScene();
-        // var scene = delayCreateScene();
-        var scene = createMeshGroupScene();
+        var scene = delayCreateScene();
+        // var scene = createMeshGroupScene();
 
         engine.runRenderLoop(function () {
             if (scene) {
